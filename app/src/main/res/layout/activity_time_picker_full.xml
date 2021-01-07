@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".TimePickerFull"
+    android:orientation="vertical"
+    android:layout_gravity="center"
+    android:weightSum="100"
+    >
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0sp"
+        android:layout_weight="20"
+        android:orientation="vertical"
+        >
+
+    </LinearLayout>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="0sp"
+        android:layout_weight="60"
+        android:layout_gravity="center"
+        >
+        <NumberPicker
+            android:id="@+id/hours_picker_full"
+            android:layout_width="150sp"
+            android:layout_height="match_parent"
+            android:background="@color/white"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginLeft="47sp"
+            android:theme="@style/DefaultNumberPickerTheme"
+            />
+        <NumberPicker
+            android:id="@+id/minutes_picker_full"
+            android:layout_width="150sp"
+            android:layout_height="match_parent"
+            android:background="@color/white"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginRight="47sp"
+            />
+
+    </RelativeLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0sp"
+        android:layout_weight="20"
+        android:orientation="vertical"
+        >
+
+    </LinearLayout>
+</LinearLayout>
