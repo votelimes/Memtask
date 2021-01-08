@@ -16,7 +16,15 @@
         android:layout_weight="20"
         android:orientation="vertical"
         >
-
+        <TextView
+            android:id="@+id/before_alarm_full"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Before alarm 23 hours 15 minutes"
+            android:textAlignment="center"
+            android:textSize="20sp"
+            android:layout_marginTop="15sp"
+            />
     </LinearLayout>
     <RelativeLayout
         android:layout_width="match_parent"
@@ -42,6 +50,7 @@
             android:layout_alignParentRight="true"
             android:layout_alignParentTop="true"
             android:layout_marginRight="47sp"
+            android:theme="@style/DefaultNumberPickerTheme"
             />
 
     </RelativeLayout>
