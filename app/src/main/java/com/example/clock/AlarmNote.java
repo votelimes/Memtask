@@ -5,21 +5,22 @@ import java.util.Calendar;
 
 public class AlarmNote implements Serializable {
 
-    protected boolean repeatable;
-    Calendar calendar;
+    protected int repeatMode; // 0: once, 1: every day, 2: every week, 3: every month
+    protected Calendar calendar;
+    protected String note;
 
-    public AlarmNote(int day_of_week, int hour, int minute, boolean repeatable){
+    public AlarmNote(int day_of_week, int hour, int minute, int repeatMode){
         this.calendar = Calendar.getInstance();
 
         this.calendar.set(Calendar.DAY_OF_WEEK, day_of_week);
         this.calendar.set(Calendar.HOUR_OF_DAY, hour);
         this.calendar.set(Calendar.MINUTE, minute);
 
-        this.repeatable = repeatable;
+        this.repeatMode = repeatMode;
     }
 
     public AlarmNote(int year, int month, int day_of_month, int hour,
-                                                int minute, boolean repeatable){
+                                                int minute, int repeatMode){
         this.calendar = Calendar.getInstance();
 
         this.calendar.set(Calendar.YEAR, year);
@@ -28,21 +29,56 @@ public class AlarmNote implements Serializable {
         this.calendar.set(Calendar.HOUR_OF_DAY, hour);
         this.calendar.set(Calendar.MINUTE, minute);
 
-        this.repeatable = repeatable;
+        this.repeatMode = repeatMode;
     }
 
-    public AlarmNote(Calendar calendar){
+    public AlarmNote(Calendar calendar, int repeatMode){
         this.calendar = calendar;
 
-        this.repeatable = false;
+        this.repeatMode = repeatMode;
     }
 
-
-    public boolean isRepeatable(){
-        return this.repeatable;
+    public void setYear(int year){
+        this.calendar.set(Calendar.YEAR, year);
     }
-    public void setRepeatable(boolean repeatable){
-        this.repeatable = repeatable;
+    public void setMonth(int month){
+        this.calendar.set(Calendar.MONTH, month);
+    }
+    public void setDayOfWeek(int dayOfWeek){
+        this.calendar.set(Calendar.DAY_OF_WEEK, dayOfWeek);
+    }
+    public void setHourOfDay(int hourOfDay){
+        this.calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
+    }
+    public void setMinute(int minute){
+        this.calendar.set(Calendar.MINUTE, minute);
+    }
+    public void setNote(String note){
+        this.note = note;
     }
 
+    public int getRepeatMode(){
+        return this.repeatMode;
+    }
+    public int getYear(){
+        return this.calendar.get(Calendar.YEAR);
+    }
+    public int getMonth(){
+        return this.calendar.get(Calendar.MONTH);
+    }
+    public int getDayOfWeek(){
+        return this.calendar.get(Calendar.DAY_OF_WEEK);
+    }
+    public int getHourOfDay(){
+        return this.calendar.get(Calendar.HOUR_OF_DAY);
+    }
+    public int getMinute(){
+        return this.calendar.get(Calendar.MINUTE);
+    }
+    public long getTimeInMillis(){
+        return this.calendar.getTimeInMillis();
+    }
+    public String getNote(){
+        return this.note;
+    }
 }

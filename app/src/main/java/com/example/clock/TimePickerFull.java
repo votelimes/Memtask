@@ -8,14 +8,13 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 public class TimePickerFull extends AppCompatActivity {
 
     NumberPicker hoursPicker;
     NumberPicker minutesPicker;
-    Calendar calendar_now;
+    AlarmNote alarmCalendar;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -24,20 +23,30 @@ public class TimePickerFull extends AppCompatActivity {
         hoursPicker = findViewById(R.id.hours_picker_full);
         minutesPicker = findViewById(R.id.minutes_picker_full);
 
-        calendar_now = Calendar.getInstance();
+        alarmCalendar = new AlarmNote(Calendar.getInstance(), 1);
+
         hoursPicker.setMinValue(0);
         hoursPicker.setMaxValue(23);
-        hoursPicker.setValue(calendar_now.get(Calendar.HOUR));
+        hoursPicker.setValue(alarmCalendar.getHourOfDay());
 
         minutesPicker.setMinValue(0);
         minutesPicker.setMaxValue(59);
-        minutesPicker.setValue(calendar_now.get(Calendar.MINUTE));
+        minutesPicker.setValue(alarmCalendar.getMinute());
 
-        Calendar test_calendar = Calendar.getInstance();
-        //test_calendar.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY);
-        test_calendar.set(Calendar.HOUR_OF_DAY, 9);
-        test_calendar.set(Calendar.MINUTE, 0);
-        setBeforeAlarmText(getTimeDifference(test_calendar.getTimeInMillis()));
+        hoursPicker.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
+            @Override public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
+                alarmCalendar.setHourOfDay(newVal);
+                setBeforeAlarmText(getTimeDifference(alarmCalendar.getTimeInMillis(),
+                                                    alarmCalendar.getRepeatMode()));
+            }
+        });
+        minutesPicker.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
+            @Override public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
+                alarmCalendar.setMinute(newVal);
+                setBeforeAlarmText(getTimeDifference(alarmCalendar.getTimeInMillis(),
+                                                    alarmCalendar.getRepeatMode()));
+            }
+        });
     }
     protected void setBeforeAlarmText(List<Integer> time_difference){
         Calendar calendar = Calendar.getInstance();
@@ -54,33 +63,30 @@ public class TimePickerFull extends AppCompatActivity {
         if (hours != 0){
             text += String.valueOf(hours) + " hours ";
         }
-        if ((days == 0 && hours != 0) || (days == 0 && minutes > 1)){
+        if ((days == 0 && hours != 0) || (days == 0 && minutes > 0)){
             text += String.valueOf(minutes) + " minutes";
         }
         else if (days == 0){
             text = "Alarm in one minute";
         }
+        else if(days == 0 && hours == 0 && minutes == 0){
+            text = "";
+        }
         before_alarm_text.setText(text);
     }
-    protected void getSelectedTime(){
-        calendar_now = Calendar.getInstance();
-
-        Calendar calendar_selected = Calendar.getInstance();
-        calendar_selected.clear();
-        //calendar_selected.set(Calendar.DAY_OF_WEEK, Calendar.FRIDAY);
-        calendar_selected.set(Calendar.HOUR_OF_DAY, hoursPicker.getValue());
-        calendar_selected.set(Calendar.MINUTE, minutesPicker.getValue());
-    }
-    protected List<Integer> getTimeDifference(long time_in_milliseconds_after){
+    protected List<Integer> getTimeDifference(long time_in_milliseconds_after, int repeatMode){
         Calendar difference_calendar = Calendar.getInstance();
         List<Integer> time_difference = new ArrayList<Integer>();
 
         long time_in_milliseconds_before = difference_calendar.getTimeInMillis();
 
         // add 1 week in milliseconds if calendar stepped back on 1 week
-        if(time_in_milliseconds_after < time_in_milliseconds_before){
-            time_in_milliseconds_after += 604800000;
+        long difference = Math.abs(time_in_milliseconds_after - time_in_milliseconds_before);
+
+        if(repeatMode == 1 && difference < 86400000 && difference > 604800000){
+            time_in_milliseconds_after += 604800000; // +1 day
         }
+        //time_in_milliseconds_after += 604800000; +1 week
 
         double difference_in_minutes = ((time_in_milliseconds_after - time_in_milliseconds_before)
                             / 1000) / 60;
