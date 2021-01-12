@@ -35,70 +35,115 @@ public class TimePickerFull extends AppCompatActivity {
 
         hoursPicker.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
             @Override public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
-                alarmCalendar.setHourOfDay(newVal);
-                setBeforeAlarmText(getTimeDifference(alarmCalendar.getTimeInMillis(),
-                                                    alarmCalendar.getRepeatMode()));
+                //!!!DEBUG!!! REMOVE UNTIL RELEASE
+                alarmCalendar = new AlarmNote(Calendar.getInstance(), 0);
+                //!!!DEBUG!!! REMOVE UNTIL RELEASE
+
+                Calendar new_time_calendar = Calendar.getInstance();
+                new_time_calendar.set(Calendar.HOUR_OF_DAY, newVal);
+                new_time_calendar.set(Calendar.MINUTE, minutesPicker.getValue());
+
+
+                long time_in_milliseconds_before = alarmCalendar.getTimeInMillis();
+                long time_in_milliseconds_after = new_time_calendar.getTimeInMillis();
+
+                //86400000; +1 day, 604800000; +1 week
+                if(alarmCalendar.getRepeatMode() <= 1){
+                    if(time_in_milliseconds_after < time_in_milliseconds_before &&
+                            time_in_milliseconds_before - time_in_milliseconds_after < 86400000){
+                        new_time_calendar.add(Calendar.DAY_OF_YEAR, 1);
+                        time_in_milliseconds_after = new_time_calendar.getTimeInMillis();
+                    }
+                }
+
+                double difference_in_minutes = ((time_in_milliseconds_after - time_in_milliseconds_before)
+                        / 1000) / 60;
+                double difference_in_hours = (((time_in_milliseconds_after - time_in_milliseconds_before)
+                        / 1000) / 60) / 60;
+                double difference_in_days = (((((time_in_milliseconds_after - time_in_milliseconds_before)
+                        / 1000) / 60) / 60) / 24);
+
+                difference_in_hours -= difference_in_days*24;
+                difference_in_minutes -= difference_in_hours*60;
+
+                setBeforeAlarmText((long)difference_in_days, (long)difference_in_hours,
+                                                            (long)difference_in_minutes);
             }
         });
         minutesPicker.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
             @Override public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
-                alarmCalendar.setMinute(newVal);
-                setBeforeAlarmText(getTimeDifference(alarmCalendar.getTimeInMillis(),
-                                                    alarmCalendar.getRepeatMode()));
+                //!!!DEBUG!!! REMOVE UNTIL RELEASE
+                alarmCalendar = new AlarmNote(Calendar.getInstance(), 0);
+                //!!!DEBUG!!! REMOVE UNTIL RELEASE
+
+                Calendar new_time_calendar = Calendar.getInstance();
+                new_time_calendar.set(Calendar.MINUTE, newVal);
+                new_time_calendar.set(Calendar.HOUR_OF_DAY, hoursPicker.getValue());
+
+                long time_in_milliseconds_before = alarmCalendar.getTimeInMillis();
+                long time_in_milliseconds_after = new_time_calendar.getTimeInMillis();
+
+                //86400000; +1 day, 604800000; +1 week
+                if(alarmCalendar.getRepeatMode() <= 1){
+                    if(time_in_milliseconds_after < time_in_milliseconds_before &&
+                            time_in_milliseconds_before - time_in_milliseconds_after < 86400000){
+                        new_time_calendar.add(Calendar.DAY_OF_YEAR, 1);
+                        time_in_milliseconds_after = new_time_calendar.getTimeInMillis();
+                    }
+                }
+
+                double difference_in_minutes = ((time_in_milliseconds_after - time_in_milliseconds_before)
+                        / 1000) / 60;
+                double difference_in_hours = (((time_in_milliseconds_after - time_in_milliseconds_before)
+                        / 1000) / 60) / 60;
+                double difference_in_days = (((((time_in_milliseconds_after - time_in_milliseconds_before)
+                        / 1000) / 60) / 60) / 24);
+
+                difference_in_hours -= difference_in_days*24;
+                difference_in_minutes -= difference_in_hours*60;
+
+                setBeforeAlarmText((long)difference_in_days, (long)difference_in_hours,
+                        (long)difference_in_minutes);
             }
         });
+
     }
-    protected void setBeforeAlarmText(List<Integer> time_difference){
+    protected void setBeforeAlarmText(long days, long hours, long minutes){
         Calendar calendar = Calendar.getInstance();
 
         TextView before_alarm_text = findViewById(R.id.before_alarm_full);
-        String text = "Before alarm ";
-        int days = time_difference.get(0);
-        int hours = time_difference.get(1);
-        int minutes = time_difference.get(2);
+        String text = "In ";
 
         if (days != 0){
-            text += String.valueOf(days) + " days ";
+            if(days == 1){
+                text += " 1 day ";
+            }
+            else {
+                text += String.valueOf(days) + " days ";
+            }
         }
         if (hours != 0){
-            text += String.valueOf(hours) + " hours ";
+            if(hours == 1){
+                text +=  " 1 hour ";
+            }
+            else {
+                text += String.valueOf(hours) + " hours ";
+            }
         }
         if ((days == 0 && hours != 0) || (days == 0 && minutes > 0)){
-            text += String.valueOf(minutes) + " minutes";
-        }
-        else if (days == 0){
-            text = "Alarm in one minute";
+            if(minutes == 1){
+                text +=  " 1 minute";
+            }
+            else {
+                text += String.valueOf(minutes) + " minutes";
+            }
         }
         else if(days == 0 && hours == 0 && minutes == 0){
-            text = "";
+            text = "In one day";
+        }
+        else if (days == 0){
+            text = "In less than one minute";
         }
         before_alarm_text.setText(text);
-    }
-    protected List<Integer> getTimeDifference(long time_in_milliseconds_after, int repeatMode){
-        Calendar difference_calendar = Calendar.getInstance();
-        List<Integer> time_difference = new ArrayList<Integer>();
-
-        long time_in_milliseconds_before = difference_calendar.getTimeInMillis();
-
-        // add 1 week in milliseconds if calendar stepped back on 1 week
-        long difference = Math.abs(time_in_milliseconds_after - time_in_milliseconds_before);
-
-        if(repeatMode == 1 && difference < 86400000 && difference > 604800000){
-            time_in_milliseconds_after += 604800000; // +1 day
-        }
-        //time_in_milliseconds_after += 604800000; +1 week
-
-        double difference_in_minutes = ((time_in_milliseconds_after - time_in_milliseconds_before)
-                            / 1000) / 60;
-        double difference_in_hours = (((time_in_milliseconds_after - time_in_milliseconds_before)
-                / 1000) / 60) / 60;
-        double difference_in_days = (((((time_in_milliseconds_after - time_in_milliseconds_before)
-                / 1000) / 60) / 60) / 24);
-
-        time_difference.add((int) difference_in_hours/24); // Days
-        time_difference.add((int) (difference_in_hours - difference_in_days * 24)); // Hours
-        time_difference.add((int) (difference_in_minutes - difference_in_hours * 60)); // Minutes
-
-        return time_difference;
     }
 }
