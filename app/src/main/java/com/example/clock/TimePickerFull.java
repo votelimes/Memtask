@@ -3,6 +3,7 @@ package com.example.clock;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+import android.view.View;
 import android.widget.NumberPicker;
 import android.widget.TextView;
 
@@ -145,5 +146,9 @@ public class TimePickerFull extends AppCompatActivity {
             text = "In less than one minute";
         }
         before_alarm_text.setText(text);
+    }
+
+    public void onSave(View view) {
+
     }
 }

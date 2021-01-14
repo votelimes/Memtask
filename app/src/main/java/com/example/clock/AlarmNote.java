@@ -1,13 +1,25 @@
 package com.example.clock;
 
+import androidx.annotation.NonNull;
+import androidx.room.ColumnInfo;
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
+
 import java.io.Serializable;
 import java.util.Calendar;
 
+@Entity(tableName = "alarm_note_table")
 public class AlarmNote implements Serializable {
 
+    @PrimaryKey(autoGenerate = true)
+    @NonNull
+    @ColumnInfo(name = "alarm_note_id")
+    public long alarm_note_id;
     protected int repeatMode; // 0: once, 1: every day, 2: every week, 3: every month
     protected Calendar calendar;
     protected String note;
+
+
 
     public AlarmNote(int day_of_week, int hour, int minute, int repeatMode){
         this.calendar = Calendar.getInstance();
