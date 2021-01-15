@@ -56,4 +56,11 @@
                 <include layout="@layout/user_note" />
             </LinearLayout>
     </androidx.core.widget.NestedScrollView>
+    <Button
+        android:layout_width="35sp"
+        android:layout_height="55sp"
+        app:layout_anchor="@id/bottom_sheet"
+        app:layout_anchorGravity="top|end"
+        android:onClick="onAddClock"
+        />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -14,15 +14,15 @@ public interface AlarmNoteDao {
     @Query("SELECT * FROM alarm_note_table")
     List <AlarmNote> getAll();
 
-    @Query("SELECT * FROM alarm_note_table WHERE alarm_note_id = :id")
+    @Query("SELECT * FROM alarm_note_table WHERE alarmNoteId = :id")
     AlarmNote getById(long id);
 
     @Insert
-    void insert(AlarmNote employee);
+    void insert(AlarmNote mAlarmNote);
 
     @Update
-    void update(AlarmNote employee);
+    void update(AlarmNote mAlarmNote);
 
     @Delete
-    void delete(AlarmNote employee);
+    void delete(AlarmNote mAlarmNote);
 }

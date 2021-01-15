@@ -13,82 +13,147 @@ public class AlarmNote implements Serializable {
 
     @PrimaryKey(autoGenerate = true)
     @NonNull
-    @ColumnInfo(name = "alarm_note_id")
-    public long alarm_note_id;
+    @ColumnInfo(name = "alarmNoteId")
+    public long alarmNoteId;
     protected int repeatMode; // 0: once, 1: every day, 2: every week, 3: every month
-    protected Calendar calendar;
+    protected long timeInMillis;
     protected String note;
 
 
 
     public AlarmNote(int day_of_week, int hour, int minute, int repeatMode){
-        this.calendar = Calendar.getInstance();
 
-        this.calendar.set(Calendar.DAY_OF_WEEK, day_of_week);
-        this.calendar.set(Calendar.HOUR_OF_DAY, hour);
-        this.calendar.set(Calendar.MINUTE, minute);
+        Calendar calendar = Calendar.getInstance();
 
+        calendar.set(Calendar.DAY_OF_WEEK, day_of_week);
+        calendar.set(Calendar.HOUR_OF_DAY, hour);
+        calendar.set(Calendar.MINUTE, minute);
+
+        this.timeInMillis = calendar.getTimeInMillis();
         this.repeatMode = repeatMode;
+        this.note = "Note";
     }
 
     public AlarmNote(int year, int month, int day_of_month, int hour,
                                                 int minute, int repeatMode){
-        this.calendar = Calendar.getInstance();
+        Calendar calendar = Calendar.getInstance();
 
-        this.calendar.set(Calendar.YEAR, year);
-        this.calendar.set(Calendar.MONTH, month);
-        this.calendar.set(Calendar.DAY_OF_MONTH, day_of_month);
-        this.calendar.set(Calendar.HOUR_OF_DAY, hour);
-        this.calendar.set(Calendar.MINUTE, minute);
+        calendar.set(Calendar.YEAR, year);
+        calendar.set(Calendar.MONTH, month);
+        calendar.set(Calendar.DAY_OF_MONTH, day_of_month);
+        calendar.set(Calendar.HOUR_OF_DAY, hour);
+        calendar.set(Calendar.MINUTE, minute);
+
+        this.timeInMillis = calendar.getTimeInMillis();
+        this.repeatMode = repeatMode;
+        this.note = "Note";
+    }
+
+    public AlarmNote(Calendar calendar, int repeatMode, String note){
+
+        timeInMillis = calendar.getTimeInMillis();
 
         this.repeatMode = repeatMode;
+        this.note = note;
     }
 
     public AlarmNote(Calendar calendar, int repeatMode){
-        this.calendar = calendar;
 
+        timeInMillis = calendar.getTimeInMillis();
+
+        this.note = "Note";
         this.repeatMode = repeatMode;
     }
 
+    public AlarmNote(long alarmNoteId, int repeatMode, long timeInMillis, String note){
+        this.alarmNoteId = alarmNoteId;
+        this.repeatMode = repeatMode;
+        this.timeInMillis = timeInMillis;
+        this.note = note;
+    }
+
     public void setYear(int year){
-        this.calendar.set(Calendar.YEAR, year);
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(this.timeInMillis);
+
+        calendar.set(Calendar.YEAR, year);
+
+        this.timeInMillis = calendar.getTimeInMillis();
     }
     public void setMonth(int month){
-        this.calendar.set(Calendar.MONTH, month);
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(this.timeInMillis);
+
+        calendar.set(Calendar.MONTH, month);
+
+        this.timeInMillis = calendar.getTimeInMillis();
     }
     public void setDayOfWeek(int dayOfWeek){
-        this.calendar.set(Calendar.DAY_OF_WEEK, dayOfWeek);
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(this.timeInMillis);
+
+        calendar.set(Calendar.DAY_OF_WEEK, dayOfWeek);
+
+        this.timeInMillis = calendar.getTimeInMillis();
     }
     public void setHourOfDay(int hourOfDay){
-        this.calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(this.timeInMillis);
+
+        calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
+
+        this.timeInMillis = calendar.getTimeInMillis();
     }
     public void setMinute(int minute){
-        this.calendar.set(Calendar.MINUTE, minute);
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(this.timeInMillis);
+
+        calendar.set(Calendar.MINUTE, minute);
+
+        this.timeInMillis = calendar.getTimeInMillis();
     }
     public void setNote(String note){
         this.note = note;
+    }
+    public void setTimeInMillis(long timeInMillis){
+        this.timeInMillis = timeInMillis;
     }
 
     public int getRepeatMode(){
         return this.repeatMode;
     }
     public int getYear(){
-        return this.calendar.get(Calendar.YEAR);
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(this.timeInMillis);
+
+        return calendar.get(Calendar.YEAR);
     }
     public int getMonth(){
-        return this.calendar.get(Calendar.MONTH);
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(this.timeInMillis);
+
+        return calendar.get(Calendar.MONTH);
     }
     public int getDayOfWeek(){
-        return this.calendar.get(Calendar.DAY_OF_WEEK);
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(this.timeInMillis);
+
+        return calendar.get(Calendar.DAY_OF_WEEK);
     }
     public int getHourOfDay(){
-        return this.calendar.get(Calendar.HOUR_OF_DAY);
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(this.timeInMillis);
+
+        return calendar.get(Calendar.HOUR_OF_DAY);
     }
     public int getMinute(){
-        return this.calendar.get(Calendar.MINUTE);
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(this.timeInMillis);
+
+        return calendar.get(Calendar.MINUTE);
     }
     public long getTimeInMillis(){
-        return this.calendar.getTimeInMillis();
+        return this.timeInMillis;
     }
     public String getNote(){
         return this.note;
