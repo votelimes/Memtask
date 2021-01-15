@@ -22,4 +22,7 @@
     <style name="Theme.Clock.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
     <style name="Theme.Clock.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+    <style name="noteStyle">
+
+    </style>
 </resources>

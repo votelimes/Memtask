@@ -25,7 +25,7 @@ public class MainActivity extends AppCompatActivity {
     private BottomSheetBehavior mBottomSheetBehavior;
     private List<AlarmNote> alarmNoteList;
     private AlarmNoteDao database;
-
+    private String[] dayNames = {"NULL", "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -59,5 +59,8 @@ public class MainActivity extends AppCompatActivity {
         //Log.d("DB_TESTING", "READ_START");
 
         Log.d("DB_TESTING", "READ_END");
+    }
+    private void addNoteToLayout(AlarmNote note){
+
     }
 }
