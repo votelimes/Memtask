@@ -39,23 +39,12 @@
         app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
         >
             <LinearLayout
+                android:id="@+id/userNoteTopLayout"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical"
                 >
-                <include layout="@layout/user_note" />
-                <include layout="@layout/user_note" />
-                <include layout="@layout/user_note" />
-                <include layout="@layout/user_note" />
-                <include layout="@layout/user_note" />
-                <include layout="@layout/user_note" />
-                <include layout="@layout/user_note" />
-                <include layout="@layout/user_note" />
-                <include layout="@layout/user_note" />
-                <include layout="@layout/user_note" />
-                <include layout="@layout/user_note" />
-                <include layout="@layout/user_note" />
-                <include layout="@layout/user_note" />
+                <!--<include layout="@layout/user_note" />-->
             </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 

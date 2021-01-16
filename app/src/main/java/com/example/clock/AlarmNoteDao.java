@@ -3,6 +3,7 @@ package com.example.clock;
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
+import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 import androidx.room.Update;
 
@@ -17,8 +18,14 @@ public interface AlarmNoteDao {
     @Query("SELECT * FROM alarm_note_table WHERE alarmNoteId = :id")
     AlarmNote getById(long id);
 
+    @Query("DELETE FROM alarm_note_table")
+    int clear();
+
     @Insert
-    void insert(AlarmNote mAlarmNote);
+    long insert(AlarmNote mAlarmNote);
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    long insertWithReplace(AlarmNote mAlarmNote);
 
     @Update
     void update(AlarmNote mAlarmNote);
