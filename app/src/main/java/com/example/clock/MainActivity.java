@@ -37,7 +37,7 @@ public class MainActivity extends AppCompatActivity {
     private String[] dayNames = {"NULL", "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
     private LinearLayout userNoteLayout;
     private Context mContext;
-    private int lastClickedUserNoteIndex = 0;
+    private int lastClickedUserNoteIndex = -1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,13 +68,22 @@ public class MainActivity extends AppCompatActivity {
 
     public void onAddClock(View view) {
         Intent clock_window = new Intent(this, TimePickerFull.class);
-        startActivity(clock_window);
+        AlarmNote selectedNote = null;
+        for(AlarmNote note : alarmNoteList){
+            if(note.alarmNoteId == lastClickedUserNoteIndex){
+                selectedNote = note;
+                break;
+            }
+        }
+
+        clock_window.putExtra("selectedNote", selectedNote);
+        startActivityForResult(clock_window, 1);
     }
 
     private void addNoteToLayout(AlarmNote note){
 
         LinearLayout newNoteLayout = (LinearLayout) View.inflate(this, R.layout.user_note, null);
-        newNoteLayout.setId((int) note.alarmNoteId + 100);
+        newNoteLayout.setId((int) note.alarmNoteId);
 
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,

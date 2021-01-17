@@ -16,6 +16,7 @@ public class TimePickerFull extends AppCompatActivity {
     NumberPicker hoursPicker;
     NumberPicker minutesPicker;
     AlarmNote alarmCalendar;
+    AlarmNote selectedNote;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -107,6 +108,9 @@ public class TimePickerFull extends AppCompatActivity {
                         (long)difference_in_minutes);
             }
         });
+
+        selectedNote = null;
+        selectedNote = (AlarmNote) getIntent().getSerializableExtra("selectedNote");
 
     }
     protected void setBeforeAlarmText(long days, long hours, long minutes){
