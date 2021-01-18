@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/custom_button_top1"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="10dp"
+    android:layout_marginEnd="10dp"
+    android:layout_marginTop="10dp"
+    >
+    <TextView
+        android:id="@+id/custom_button_text1"
+        android:tag="custom_button_text1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/repeat_mode"
+        android:textSize="20sp"
+        android:textColor="@color/black"
+        android:layout_alignParentLeft="true"
+        />
+    <TextView
+        android:id="@+id/custom_button_text2"
+        android:tag="custom_button_text2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Once"
+        android:textSize="20sp"
+        android:layout_alignParentRight="false"
+        android:layout_toLeftOf="@id/custom_button_image1"
+        />
+
+    <ImageView
+        android:id="@+id/custom_button_image1"
+        android:tag="custom_button_image1"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="5dp"
+        android:layout_alignParentRight="true"
+        app:srcCompat="@drawable/note_border" />
+</RelativeLayout>

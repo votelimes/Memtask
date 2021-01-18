@@ -1,10 +1,15 @@
 package com.example.clock;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
+import android.view.MotionEvent;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.NumberPicker;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -15,8 +20,12 @@ public class TimePickerFull extends AppCompatActivity {
 
     NumberPicker hoursPicker;
     NumberPicker minutesPicker;
+
     AlarmNote alarmCalendar;
     AlarmNote selectedNote;
+
+    RelativeLayout repeatModeLayout;
+    @SuppressLint("ResourceType")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -112,6 +121,27 @@ public class TimePickerFull extends AppCompatActivity {
         selectedNote = null;
         selectedNote = (AlarmNote) getIntent().getSerializableExtra("selectedNote");
 
+        repeatModeLayout = (RelativeLayout) View.inflate(this, R.layout.custom_button1, null);
+        repeatModeLayout.setId(1001);
+        LinearLayout propertiesLayout = (LinearLayout) findViewById(R.id.properties_layout_full);
+        propertiesLayout.addView(repeatModeLayout);
+        repeatModeLayout.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+
+                switch (event.getAction()){
+                    case MotionEvent.ACTION_DOWN:
+                        repeatModeLayout.setBackgroundColor(getColor(R.color.light_grey));
+                        return true;
+                    case MotionEvent.ACTION_CANCEL:
+                    case MotionEvent.ACTION_UP:
+                        repeatModeLayout.setBackgroundColor(getColor(R.color.white));
+                        return true;
+                }
+                return false;
+            }
+        });
+
     }
     protected void setBeforeAlarmText(long days, long hours, long minutes){
         Calendar calendar = Calendar.getInstance();
@@ -154,5 +184,16 @@ public class TimePickerFull extends AppCompatActivity {
 
     public void onSave(View view) {
 
+    }
+    private int showRepeatModeSelectDialog(){
+        int selectedItem = -1;
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Choose repeat mode");
+
+        String[] repeatModes = getResources().getStringArray(R.array.repeat_modes);
+
+
+        return 0;
     }
 }

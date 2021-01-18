@@ -31,11 +31,11 @@
     <androidx.core.widget.NestedScrollView
         android:id="@+id/bottom_sheet"
         android:layout_width="match_parent"
-        android:layout_height="550sp"
+        android:layout_height="550dp"
         android:clipToPadding="true"
         android:background="@color/white"
-        android:paddingStart="10sp"
-        android:paddingEnd="10sp"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp"
         app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
         >
             <LinearLayout
@@ -49,15 +49,15 @@
     </androidx.core.widget.NestedScrollView>
 
     <Button
-        android:layout_width="35sp"
-        android:layout_height="55sp"
+        android:layout_width="35dp"
+        android:layout_height="55dp"
         app:layout_anchor="@id/bottom_sheet"
         app:layout_anchorGravity="top|end"
         android:onClick="onAddClock"
         />
     <View
         android:layout_width="match_parent"
-        android:layout_height="1sp"
+        android:layout_height="1dp"
         android:background="@color/grey"
         app:layout_anchor="@id/bottom_sheet"
         app:layout_anchorGravity="top"
