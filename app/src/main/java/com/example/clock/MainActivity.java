@@ -125,14 +125,41 @@ public class MainActivity extends AppCompatActivity {
     public void onNoteClick(View view){
 
     }
+
+
+
+    @Override
+    protected void onActivityResult (int requestCode, int resultCode, Intent data){
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == 1){
+            AlarmNote new_note = (AlarmNote) data.getSerializableExtra("result");
+            try{
+                database.insert(new_note);
+                alarmNoteList.add(new_note);
+            } catch(Exception e){
+                e.printStackTrace();
+            }
+        }
+        if(resultCode == 2){
+            AlarmNote new_note = (AlarmNote) data.getSerializableExtra("result");
+            try{
+                database.update(new_note);
+                for(int i = 0; i < alarmNoteList.size(); i++){
+                    if(alarmNoteList.get(i).alarmNoteId == new_note.alarmNoteId){
+                        alarmNoteList.set(i, new_note);
+                        break;
+                    }
+                }
+            } catch (Exception e){
+                e.printStackTrace();
+            }
+        }
+    }
+
     // Utility methods
     public int pxToDp(Context context, int px) {
         return  ((int) (px / context.getResources().getDisplayMetrics().density));
     }
-
-
-
-
 
     // Debug methods, have to be removed before release
     private void debugWriteToDB(){

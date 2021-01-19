@@ -14,10 +14,19 @@
     to the presentation</string>
 
     <string name="repeat_mode">Repeat mode</string>
+    <string name="ringtone">Ringtone</string>
+    <string name="vibrate">Vibrate when alarm sounds</string>
+    <string name="delete_after_off">Delete after goes off</string>
+
     <string-array name="repeat_modes">
         <item>Once</item>
         <item>Daily</item>
         <item>Mon to Fri</item>
         <item>Custom</item>
+    </string-array>
+    <string-array name="ring_types">
+
+        <item>Choose system ring</item>
+        <item>Choose custom ring</item>
     </string-array>
 </resources>

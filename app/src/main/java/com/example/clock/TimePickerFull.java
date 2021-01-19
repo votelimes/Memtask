@@ -4,9 +4,14 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.LinearLayout;
 import android.widget.NumberPicker;
 import android.widget.RelativeLayout;
@@ -21,10 +26,15 @@ public class TimePickerFull extends AppCompatActivity {
     NumberPicker hoursPicker;
     NumberPicker minutesPicker;
 
-    AlarmNote alarmCalendar;
     AlarmNote selectedNote;
 
     RelativeLayout repeatModeLayout;
+    AlertDialog repeatModeDialog;
+    String[] repeatModes;
+    int selectedRepeatMode = -1;
+    int resultCode = 2;
+    Calendar nowCalendar;
+
     @SuppressLint("ResourceType")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,36 +44,43 @@ public class TimePickerFull extends AppCompatActivity {
         hoursPicker = findViewById(R.id.hours_picker_full);
         minutesPicker = findViewById(R.id.minutes_picker_full);
 
-        alarmCalendar = new AlarmNote(Calendar.getInstance(), 1);
+        nowCalendar = Calendar.getInstance();
+
+        selectedNote = null;
+        selectedNote = (AlarmNote) getIntent().getSerializableExtra("selectedNote");
+
+        if(selectedNote == null){
+            selectedNote = new AlarmNote(Calendar.getInstance(), 1);
+            resultCode = 1;
+        }
 
         hoursPicker.setMinValue(0);
         hoursPicker.setMaxValue(23);
-        hoursPicker.setValue(alarmCalendar.getHourOfDay());
+        hoursPicker.setValue(selectedNote.getHourOfDay());
 
         minutesPicker.setMinValue(0);
         minutesPicker.setMaxValue(59);
-        minutesPicker.setValue(alarmCalendar.getMinute());
+        minutesPicker.setValue(selectedNote.getMinute());
 
         hoursPicker.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
             @Override public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
-                //!!!DEBUG!!! REMOVE UNTIL RELEASE
-                alarmCalendar = new AlarmNote(Calendar.getInstance(), 0);
-                //!!!DEBUG!!! REMOVE UNTIL RELEASE
 
-                Calendar new_time_calendar = Calendar.getInstance();
-                new_time_calendar.set(Calendar.HOUR_OF_DAY, newVal);
-                new_time_calendar.set(Calendar.MINUTE, minutesPicker.getValue());
+                Calendar selectedTimeCalendar = Calendar.getInstance();
+                selectedTimeCalendar.setTimeInMillis(nowCalendar.getTimeInMillis());
+
+                selectedTimeCalendar.set(Calendar.HOUR_OF_DAY, newVal);
+                selectedTimeCalendar.set(Calendar.MINUTE, minutesPicker.getValue());
 
 
-                long time_in_milliseconds_before = alarmCalendar.getTimeInMillis();
-                long time_in_milliseconds_after = new_time_calendar.getTimeInMillis();
+                long time_in_milliseconds_before = nowCalendar.getTimeInMillis();
+                long time_in_milliseconds_after = selectedTimeCalendar.getTimeInMillis();
 
                 //86400000; +1 day, 604800000; +1 week
-                if(alarmCalendar.getRepeatMode() <= 1){
+                if(selectedNote.getRepeatMode() <= 1){
                     if(time_in_milliseconds_after < time_in_milliseconds_before &&
                             time_in_milliseconds_before - time_in_milliseconds_after < 86400000){
-                        new_time_calendar.add(Calendar.DAY_OF_YEAR, 1);
-                        time_in_milliseconds_after = new_time_calendar.getTimeInMillis();
+                        selectedTimeCalendar.add(Calendar.DAY_OF_YEAR, 1);
+                        time_in_milliseconds_after = selectedTimeCalendar.getTimeInMillis();
                     }
                 }
 
@@ -79,27 +96,28 @@ public class TimePickerFull extends AppCompatActivity {
 
                 setBeforeAlarmText((long)difference_in_days, (long)difference_in_hours,
                                                             (long)difference_in_minutes);
+
+                selectedNote.setTimeInMillis(selectedTimeCalendar.getTimeInMillis());
             }
         });
         minutesPicker.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
             @Override public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
-                //!!!DEBUG!!! REMOVE UNTIL RELEASE
-                alarmCalendar = new AlarmNote(Calendar.getInstance(), 0);
-                //!!!DEBUG!!! REMOVE UNTIL RELEASE
 
-                Calendar new_time_calendar = Calendar.getInstance();
-                new_time_calendar.set(Calendar.MINUTE, newVal);
-                new_time_calendar.set(Calendar.HOUR_OF_DAY, hoursPicker.getValue());
+                Calendar selectedTimeCalendar = Calendar.getInstance();
+                selectedTimeCalendar.setTimeInMillis(nowCalendar.getTimeInMillis());
 
-                long time_in_milliseconds_before = alarmCalendar.getTimeInMillis();
-                long time_in_milliseconds_after = new_time_calendar.getTimeInMillis();
+                selectedTimeCalendar.set(Calendar.MINUTE, newVal);
+                selectedTimeCalendar.set(Calendar.HOUR_OF_DAY, hoursPicker.getValue());
+
+                long time_in_milliseconds_before = nowCalendar.getTimeInMillis();
+                long time_in_milliseconds_after = selectedTimeCalendar.getTimeInMillis();
 
                 //86400000; +1 day, 604800000; +1 week
-                if(alarmCalendar.getRepeatMode() <= 1){
+                if(selectedNote.getRepeatMode() <= 1){
                     if(time_in_milliseconds_after < time_in_milliseconds_before &&
                             time_in_milliseconds_before - time_in_milliseconds_after < 86400000){
-                        new_time_calendar.add(Calendar.DAY_OF_YEAR, 1);
-                        time_in_milliseconds_after = new_time_calendar.getTimeInMillis();
+                        selectedTimeCalendar.add(Calendar.DAY_OF_YEAR, 1);
+                        time_in_milliseconds_after = selectedTimeCalendar.getTimeInMillis();
                     }
                 }
 
@@ -115,12 +133,13 @@ public class TimePickerFull extends AppCompatActivity {
 
                 setBeforeAlarmText((long)difference_in_days, (long)difference_in_hours,
                         (long)difference_in_minutes);
+
+                selectedNote.setTimeInMillis(selectedTimeCalendar.getTimeInMillis());
             }
         });
 
-        selectedNote = null;
-        selectedNote = (AlarmNote) getIntent().getSerializableExtra("selectedNote");
 
+        repeatModes = getResources().getStringArray(R.array.repeat_modes);
         repeatModeLayout = (RelativeLayout) View.inflate(this, R.layout.custom_button1, null);
         repeatModeLayout.setId(1001);
         LinearLayout propertiesLayout = (LinearLayout) findViewById(R.id.properties_layout_full);
@@ -136,6 +155,7 @@ public class TimePickerFull extends AppCompatActivity {
                     case MotionEvent.ACTION_CANCEL:
                     case MotionEvent.ACTION_UP:
                         repeatModeLayout.setBackgroundColor(getColor(R.color.white));
+                        showRepeatModeSelectDialog();
                         return true;
                 }
                 return false;
@@ -182,18 +202,44 @@ public class TimePickerFull extends AppCompatActivity {
         before_alarm_text.setText(text);
     }
 
-    public void onSave(View view) {
+    private void showRepeatModeSelectDialog(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.CustomButtonTheme);
+        builder.setTitle("");
 
+
+        builder.setItems(repeatModes, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                selectedRepeatMode = which;
+                TextView textView = (TextView) repeatModeLayout.findViewWithTag("custom_button_text2");
+                textView.setText(repeatModes[which]);
+            }
+        });
+        AlertDialog dialog = builder.create();
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        WindowManager.LayoutParams wmlp = dialog.getWindow().getAttributes();
+
+        wmlp.gravity = Gravity.BOTTOM;
+        dialog.show();
     }
-    private int showRepeatModeSelectDialog(){
-        int selectedItem = -1;
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Choose repeat mode");
-
-        String[] repeatModes = getResources().getStringArray(R.array.repeat_modes);
-
-
-        return 0;
+    public void onCancel(View view) {
+        resultCode = 0;
+        Intent resultIntent = new Intent();
+        setResult(resultCode, resultIntent);
+        finish();
+    }
+    public void onSave(View view) {
+        Intent resultIntent = new Intent();
+        resultIntent.putExtra("result", selectedNote);
+        setResult(resultCode, resultIntent);
+        finish();
+    }
+    @Override
+    public void onBackPressed() {
+        resultCode = 0;
+        Intent resultIntent = new Intent();
+        setResult(resultCode, resultIntent);
+        finish();
     }
 }

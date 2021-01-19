@@ -33,10 +33,10 @@
     <ImageView
         android:id="@+id/custom_button_image1"
         android:tag="custom_button_image1"
-        android:layout_width="20dp"
-        android:layout_height="20dp"
+        android:layout_width="27dp"
+        android:layout_height="27dp"
         android:layout_marginLeft="10dp"
-        android:layout_marginTop="5dp"
+        android:layout_marginTop="2dp"
         android:layout_alignParentRight="true"
-        app:srcCompat="@drawable/note_border" />
+        app:srcCompat="@drawable/baseline_chevron_right_black_48dp" />
 </RelativeLayout>
