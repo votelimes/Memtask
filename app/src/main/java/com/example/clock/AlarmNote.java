@@ -18,7 +18,7 @@ public class AlarmNote implements Serializable {
     protected int repeatMode; // 0: once, 1: every day, 2: every week, 3: every month
     protected long timeInMillis;
     protected String note;
-
+    protected boolean vibrate;
 
 
     public AlarmNote(int day_of_week, int hour, int minute, int repeatMode){
@@ -32,6 +32,7 @@ public class AlarmNote implements Serializable {
         this.timeInMillis = calendar.getTimeInMillis();
         this.repeatMode = repeatMode;
         this.note = "Note";
+        this.vibrate = true;
     }
 
     public AlarmNote(int year, int month, int day_of_month, int hour,
@@ -47,6 +48,7 @@ public class AlarmNote implements Serializable {
         this.timeInMillis = calendar.getTimeInMillis();
         this.repeatMode = repeatMode;
         this.note = "Note";
+        this.vibrate = true;
     }
 
     public AlarmNote(Calendar calendar, int repeatMode, String note){
@@ -55,6 +57,7 @@ public class AlarmNote implements Serializable {
 
         this.repeatMode = repeatMode;
         this.note = note;
+        this.vibrate = true;
     }
 
     public AlarmNote(Calendar calendar, int repeatMode){
@@ -63,6 +66,7 @@ public class AlarmNote implements Serializable {
 
         this.note = "Note";
         this.repeatMode = repeatMode;
+        this.vibrate = true;
     }
 
     public AlarmNote(long alarmNoteId, int repeatMode, long timeInMillis, String note){
@@ -70,6 +74,7 @@ public class AlarmNote implements Serializable {
         this.repeatMode = repeatMode;
         this.timeInMillis = timeInMillis;
         this.note = note;
+        this.vibrate = true;
     }
 
     public void setYear(int year){
@@ -112,6 +117,10 @@ public class AlarmNote implements Serializable {
 
         this.timeInMillis = calendar.getTimeInMillis();
     }
+    public void setVibrate(boolean vibrate){
+        this.vibrate = vibrate;
+    }
+
     public void setNote(String note){
         this.note = note;
     }
@@ -151,6 +160,9 @@ public class AlarmNote implements Serializable {
         calendar.setTimeInMillis(this.timeInMillis);
 
         return calendar.get(Calendar.MINUTE);
+    }
+    public boolean getVibrate(){
+        return this.vibrate;
     }
     public long getTimeInMillis(){
         return this.timeInMillis;

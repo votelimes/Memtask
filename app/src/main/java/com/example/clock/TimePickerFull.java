@@ -2,6 +2,7 @@ package com.example.clock;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SwitchCompat;
 
 import android.annotation.SuppressLint;
 import android.content.DialogInterface;
@@ -10,6 +11,7 @@ import android.os.Bundle;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.LinearLayout;
@@ -17,9 +19,9 @@ import android.widget.NumberPicker;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import java.util.ArrayList;
+import com.google.android.material.chip.Chip;
+
 import java.util.Calendar;
-import java.util.List;
 
 public class TimePickerFull extends AppCompatActivity {
 
@@ -29,6 +31,8 @@ public class TimePickerFull extends AppCompatActivity {
     AlarmNote selectedNote;
 
     RelativeLayout repeatModeLayout;
+    RelativeLayout vibrateModeLayout;
+    SwitchCompat vibrateSwitch;
     AlertDialog repeatModeDialog;
     String[] repeatModes;
     int selectedRepeatMode = -1;
@@ -140,10 +144,9 @@ public class TimePickerFull extends AppCompatActivity {
 
 
         repeatModes = getResources().getStringArray(R.array.repeat_modes);
-        repeatModeLayout = (RelativeLayout) View.inflate(this, R.layout.custom_button1, null);
+        repeatModeLayout = (RelativeLayout) View.inflate(this, R.layout.bottom_list_button_field, null);
         repeatModeLayout.setId(1001);
         LinearLayout propertiesLayout = (LinearLayout) findViewById(R.id.properties_layout_full);
-        propertiesLayout.addView(repeatModeLayout);
         repeatModeLayout.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -152,7 +155,6 @@ public class TimePickerFull extends AppCompatActivity {
                     case MotionEvent.ACTION_DOWN:
                         repeatModeLayout.setBackgroundColor(getColor(R.color.light_grey));
                         return true;
-                    case MotionEvent.ACTION_CANCEL:
                     case MotionEvent.ACTION_UP:
                         repeatModeLayout.setBackgroundColor(getColor(R.color.white));
                         showRepeatModeSelectDialog();
@@ -161,6 +163,45 @@ public class TimePickerFull extends AppCompatActivity {
                 return false;
             }
         });
+        propertiesLayout.addView(repeatModeLayout);
+
+        vibrateModeLayout = (RelativeLayout) View.inflate(this, R.layout.switch_field_1, null);
+        vibrateModeLayout.setId(1002);
+        vibrateSwitch = vibrateModeLayout.findViewWithTag("switch");
+        vibrateSwitch.setChecked(selectedNote.getVibrate());
+
+        setMargins(vibrateSwitch, 0,0,92,0);
+        vibrateSwitch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                boolean switchState = vibrateSwitch.isChecked();
+                selectedNote.setVibrate(switchState);
+            }
+        });
+        vibrateModeLayout.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                switch (event.getAction()){
+                    case MotionEvent.ACTION_DOWN:
+                        vibrateModeLayout.setBackgroundColor(getColor(R.color.light_grey));
+                        return true;
+                    case MotionEvent.ACTION_UP:
+                        vibrateModeLayout.setBackgroundColor(getColor(R.color.white));
+                        boolean switchState = vibrateSwitch.isChecked();
+                        selectedNote.setVibrate(switchState);
+                        if(switchState){
+                            vibrateSwitch.setChecked(false);
+                        }
+                        else{
+                            vibrateSwitch.setChecked(true);
+                        }
+                        return true;
+                }
+                return false;
+            }
+        });
+        propertiesLayout.addView(vibrateModeLayout);
+
 
     }
     protected void setBeforeAlarmText(long days, long hours, long minutes){
@@ -241,5 +282,13 @@ public class TimePickerFull extends AppCompatActivity {
         Intent resultIntent = new Intent();
         setResult(resultCode, resultIntent);
         finish();
+    }
+
+    public static void setMargins (View v, int l, int t, int r, int b) {
+        if (v.getLayoutParams() instanceof ViewGroup.MarginLayoutParams) {
+            ViewGroup.MarginLayoutParams p = (ViewGroup.MarginLayoutParams) v.getLayoutParams();
+            p.setMargins(l, t, r, b);
+            v.requestLayout();
+        }
     }
 }
