@@ -19,8 +19,6 @@ import android.widget.NumberPicker;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.google.android.material.chip.Chip;
-
 import java.util.Calendar;
 
 public class TimePickerFull extends AppCompatActivity {
@@ -165,12 +163,11 @@ public class TimePickerFull extends AppCompatActivity {
         });
         propertiesLayout.addView(repeatModeLayout);
 
-        vibrateModeLayout = (RelativeLayout) View.inflate(this, R.layout.switch_field_1, null);
+        vibrateModeLayout = (RelativeLayout) View.inflate(this, R.layout.switch_field, null);
         vibrateModeLayout.setId(1002);
         vibrateSwitch = vibrateModeLayout.findViewWithTag("switch");
         vibrateSwitch.setChecked(selectedNote.getVibrate());
 
-        setMargins(vibrateSwitch, 0,0,92,0);
         vibrateSwitch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
