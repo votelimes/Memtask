@@ -20,6 +20,8 @@ public class AlarmNote implements Serializable {
     protected String note;
     protected boolean vibrate;
 
+    public final static long DAY = 86400000;
+    public final static long WEEK = 604800000;
 
     public AlarmNote(int day_of_week, int hour, int minute, int repeatMode){
 

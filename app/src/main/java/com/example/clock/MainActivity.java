@@ -125,8 +125,18 @@ public class MainActivity extends AppCompatActivity {
     public void onNoteClick(View view){
 
     }
-
-
+    private void printCloseNotes(long timeInMillis){
+        clearNoteLayout();
+        for(AlarmNote note : alarmNoteList){
+            long closeTimeBarrier = note.getTimeInMillis() - timeInMillis;
+            if(closeTimeBarrier <= AlarmNote.DAY){
+                addNoteToLayout(note);
+            }
+        }
+    }
+    private void clearNoteLayout(){
+        userNoteLayout.removeAllViews();
+    }
 
     @Override
     protected void onActivityResult (int requestCode, int resultCode, Intent data){
@@ -186,4 +196,5 @@ public class MainActivity extends AppCompatActivity {
 
         Log.d("DB_TESTING", "CUSTOM_TEST_END");
     }
+
 }
