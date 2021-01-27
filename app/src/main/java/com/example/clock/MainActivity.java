@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -63,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onAddClock(View view) {
-        Intent clock_window = new Intent(this, TimePickerFull.class);
+        Intent clock_window = new Intent(this, CreateAlarmActivity.class);
         AlarmNote selectedNote = null;
         if(lastClickedUserNoteIndex != -1) {
             for (AlarmNote note : alarmNoteList) {

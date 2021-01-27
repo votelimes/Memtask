@@ -21,7 +21,7 @@ import android.widget.TextView;
 
 import java.util.Calendar;
 
-public class TimePickerFull extends AppCompatActivity {
+public class CreateAlarmActivity extends AppCompatActivity {
 
     NumberPicker hoursPicker;
     NumberPicker minutesPicker;
@@ -30,6 +30,7 @@ public class TimePickerFull extends AppCompatActivity {
 
     RelativeLayout repeatModeLayout;
     RelativeLayout vibrateModeLayout;
+    RelativeLayout noteLayout;
     SwitchCompat vibrateSwitch;
     AlertDialog repeatModeDialog;
     String[] repeatModes;
@@ -41,7 +42,7 @@ public class TimePickerFull extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_time_picker_full);
+        setContentView(R.layout.activity_create_alarm);
 
         hoursPicker = findViewById(R.id.hours_picker_full);
         minutesPicker = findViewById(R.id.minutes_picker_full);
@@ -144,6 +145,8 @@ public class TimePickerFull extends AppCompatActivity {
         repeatModes = getResources().getStringArray(R.array.repeat_modes);
         repeatModeLayout = (RelativeLayout) View.inflate(this, R.layout.bottom_list_button_field, null);
         repeatModeLayout.setId(1001);
+        TextView textView = (TextView) repeatModeLayout.findViewWithTag("custom_button_text2");
+        textView.setText(repeatModes[selectedNote.getRepeatMode()]);
         LinearLayout propertiesLayout = (LinearLayout) findViewById(R.id.properties_layout_full);
         repeatModeLayout.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -199,7 +202,27 @@ public class TimePickerFull extends AppCompatActivity {
         });
         propertiesLayout.addView(vibrateModeLayout);
 
+        noteLayout = (RelativeLayout) View.inflate(this, R.layout.bottom_list_button_field, null);
+        noteLayout.setId(1003);
+        textView = (TextView) noteLayout.findViewWithTag("custom_button_text1");
+        textView.setText("Brief note");
+        noteLayout.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
 
+                switch (event.getAction()){
+                    case MotionEvent.ACTION_DOWN:
+                        noteLayout.setBackgroundColor(getColor(R.color.light_grey));
+                        return true;
+                    case MotionEvent.ACTION_UP:
+                        noteLayout.setBackgroundColor(getColor(R.color.white));
+                        showUserNoteDialog();
+                        return true;
+                }
+                return false;
+            }
+        });
+        propertiesLayout.addView(noteLayout);
     }
     protected void setBeforeAlarmText(long days, long hours, long minutes){
         Calendar calendar = Calendar.getInstance();
@@ -251,6 +274,7 @@ public class TimePickerFull extends AppCompatActivity {
                 selectedRepeatMode = which;
                 TextView textView = (TextView) repeatModeLayout.findViewWithTag("custom_button_text2");
                 textView.setText(repeatModes[which]);
+                selectedNote.setRepeatMode(which);
             }
         });
         AlertDialog dialog = builder.create();
@@ -259,6 +283,13 @@ public class TimePickerFull extends AppCompatActivity {
 
         wmlp.gravity = Gravity.BOTTOM;
         dialog.show();
+    }
+    private void showUserNoteDialog(){
+        Intent createNoteWindow = new Intent(this, InputNoteActivity.class);
+        String currentNote = selectedNote.getNote();
+
+        createNoteWindow.putExtra("note", currentNote);
+        startActivityForResult(createNoteWindow, 1);
     }
 
     public void onCancel(View view) {
@@ -279,6 +310,16 @@ public class TimePickerFull extends AppCompatActivity {
         Intent resultIntent = new Intent();
         setResult(resultCode, resultIntent);
         finish();
+    }
+
+    @Override
+    protected void onActivityResult (int requestCode, int resultCode, Intent data){
+        super.onActivityResult(requestCode, resultCode, data);
+        boolean  success = false;
+        if (resultCode == 1){
+            String new_note = (String) data.getStringExtra("note");
+            selectedNote.setNote(new_note);
+        }
     }
 
     public static void setMargins (View v, int l, int t, int r, int b) {

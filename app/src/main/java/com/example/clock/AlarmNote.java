@@ -119,6 +119,11 @@ public class AlarmNote implements Serializable {
 
         this.timeInMillis = calendar.getTimeInMillis();
     }
+
+    public void setRepeatMode(int repeatMode){
+        this.repeatMode = repeatMode;
+    }
+
     public void setVibrate(boolean vibrate){
         this.vibrate = vibrate;
     }
