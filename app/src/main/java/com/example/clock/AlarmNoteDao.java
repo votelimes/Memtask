@@ -27,6 +27,9 @@ public interface AlarmNoteDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     long insertWithReplace(AlarmNote mAlarmNote);
 
+    @Query("SELECT last_insert_rowid()")
+    long getLastId();
+
     @Update
     void update(AlarmNote mAlarmNote);
 

@@ -1,19 +1,23 @@
 package com.example.clock;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 
@@ -32,7 +36,8 @@ public class MainActivity extends AppCompatActivity {
     private LinearLayout userNoteLayout;
     private Context mContext;
     private int lastClickedUserNoteIndex = -1;
-    Calendar chosen_time;
+    private Calendar chosen_time;
+    private long note_down_time = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,7 +85,6 @@ public class MainActivity extends AppCompatActivity {
 
         LinearLayout newNoteLayout = (LinearLayout) View.inflate(this, R.layout.user_note, null);
         newNoteLayout.setId((int) note.alarmNoteId);
-
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.MATCH_PARENT
@@ -102,32 +106,74 @@ public class MainActivity extends AppCompatActivity {
 
         userNoteLayout.addView(newNoteLayout);
 
-
         newNoteLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(lastClickedUserNoteIndex == v.getId()){
+                if (lastClickedUserNoteIndex == v.getId()) {
                     try {
                         changeStrokeColor(findViewById(lastClickedUserNoteIndex), getColor(R.color.light_green));
-                    } catch (Exception e){
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
                     lastClickedUserNoteIndex = -1;
-                } else{
+                } else {
                     try {
                         changeStrokeColor(findViewById(lastClickedUserNoteIndex), getColor(R.color.light_green));
-                    } catch (Exception e){
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
-                    try{
+                    try {
                         changeStrokeColor(v, getColor(R.color.red));
-                    } catch (Exception e){
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
                     lastClickedUserNoteIndex = v.getId();
                 }
             }
         });
+
+        newNoteLayout.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                AlertDialog.Builder dialog = new AlertDialog.Builder(mContext);
+
+                dialog.setMessage("Are you sure want to delete this alarm?");
+
+                dialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        try {
+                            userNoteLayout.removeView(v);
+
+                            int viewId = v.getId();
+                            AlarmNote removableNote = null;
+                            for(int i = 0; i < alarmNoteList.size(); i++){
+                                AlarmNote currentNote = alarmNoteList.get(i);
+                                if(currentNote.getId() == viewId){
+                                    removableNote = currentNote;
+                                    alarmNoteList.remove(i);
+                                    break;
+                                }
+                            }
+                            database.delete(removableNote);
+                            Toast.makeText(mContext, "Successfully deleted", Toast.LENGTH_SHORT).show();
+                        } catch (Exception e){
+                            e.printStackTrace();
+                            Toast.makeText(mContext, "Something went wrong", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+                dialog.setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                    }
+                });
+                dialog.show();
+                return true;
+            }
+        });
+
+        Log.d("New note layout ID: ", String.valueOf(newNoteLayout.getId()));
     }
     private void changeStrokeColor(View v, int color){
         Drawable background = (Drawable) v.getBackground();
@@ -154,11 +200,16 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult (int requestCode, int resultCode, Intent data){
         super.onActivityResult(requestCode, resultCode, data);
+        lastClickedUserNoteIndex = -1;
         boolean  success = false;
         if (resultCode == 1){
             AlarmNote new_note = (AlarmNote) data.getSerializableExtra("result");
             try{
-                database.insert(new_note);
+                long lastDatabaseId = database.insert(new_note);
+                new_note.setId(lastDatabaseId);
+                Log.d("New note ID: ", String.valueOf(new_note.getId()));
+                Log.d("Last database ID: ", String.valueOf(lastDatabaseId));
+
                 alarmNoteList.add(new_note);
                 success = true;
             } catch(Exception e){
@@ -168,13 +219,11 @@ public class MainActivity extends AppCompatActivity {
         else if(resultCode == 2){
             AlarmNote new_note = (AlarmNote) data.getSerializableExtra("result");
             try{
-                database.update(new_note);
                 for(int i = 0; i < alarmNoteList.size(); i++){
                     if(alarmNoteList.get(i).alarmNoteId == new_note.alarmNoteId){
                         alarmNoteList.set(i, new_note);
                         success = true;
                         break;
-
                     }
                 }
             } catch (Exception e){

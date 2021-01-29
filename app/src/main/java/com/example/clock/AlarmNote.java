@@ -33,7 +33,7 @@ public class AlarmNote implements Serializable {
 
         this.timeInMillis = calendar.getTimeInMillis();
         this.repeatMode = repeatMode;
-        this.note = "Note";
+        this.note = "";
         this.vibrate = true;
     }
 
@@ -49,7 +49,7 @@ public class AlarmNote implements Serializable {
 
         this.timeInMillis = calendar.getTimeInMillis();
         this.repeatMode = repeatMode;
-        this.note = "Note";
+        this.note = "";
         this.vibrate = true;
     }
 
@@ -66,7 +66,7 @@ public class AlarmNote implements Serializable {
 
         timeInMillis = calendar.getTimeInMillis();
 
-        this.note = "Note";
+        this.note = "";
         this.repeatMode = repeatMode;
         this.vibrate = true;
     }
@@ -119,7 +119,9 @@ public class AlarmNote implements Serializable {
 
         this.timeInMillis = calendar.getTimeInMillis();
     }
-
+    public void setId(long id){
+        this.alarmNoteId = id;
+    }
     public void setRepeatMode(int repeatMode){
         this.repeatMode = repeatMode;
     }
@@ -176,5 +178,8 @@ public class AlarmNote implements Serializable {
     }
     public String getNote(){
         return this.note;
+    }
+    public long getId(){
+        return this.alarmNoteId;
     }
 }

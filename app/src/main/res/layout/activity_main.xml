@@ -44,11 +44,10 @@
                 android:layout_height="match_parent"
                 android:orientation="vertical"
                 >
-                <!--<include layout="@layout/user_note" />-->
             </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
-    <Button
+    <androidx.appcompat.widget.AppCompatButton
         android:layout_width="35dp"
         android:layout_height="55dp"
         app:layout_anchor="@id/bottom_sheet"
