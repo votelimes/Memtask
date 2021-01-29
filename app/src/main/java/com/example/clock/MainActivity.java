@@ -97,6 +97,9 @@ public class MainActivity extends AppCompatActivity {
                 .findViewWithTag("day_of_week");
         day_of_week.setText(dayNames[note.getDayOfWeek()]);
 
+        TextView userNote = (TextView) newNoteLayout.findViewWithTag("text");
+        userNote.setText(note.getNote());
+
         userNoteLayout.addView(newNoteLayout);
 
 
