@@ -22,36 +22,9 @@ public class AlarmNote implements Serializable {
 
     public final static long DAY = 86400000;
     public final static long WEEK = 604800000;
-
-    public AlarmNote(int day_of_week, int hour, int minute, int repeatMode){
-
-        Calendar calendar = Calendar.getInstance();
-
-        calendar.set(Calendar.DAY_OF_WEEK, day_of_week);
-        calendar.set(Calendar.HOUR_OF_DAY, hour);
-        calendar.set(Calendar.MINUTE, minute);
-
-        this.timeInMillis = calendar.getTimeInMillis();
-        this.repeatMode = repeatMode;
-        this.note = "";
-        this.vibrate = true;
-    }
-
-    public AlarmNote(int year, int month, int day_of_month, int hour,
-                                                int minute, int repeatMode){
-        Calendar calendar = Calendar.getInstance();
-
-        calendar.set(Calendar.YEAR, year);
-        calendar.set(Calendar.MONTH, month);
-        calendar.set(Calendar.DAY_OF_MONTH, day_of_month);
-        calendar.set(Calendar.HOUR_OF_DAY, hour);
-        calendar.set(Calendar.MINUTE, minute);
-
-        this.timeInMillis = calendar.getTimeInMillis();
-        this.repeatMode = repeatMode;
-        this.note = "";
-        this.vibrate = true;
-    }
+    // 1, 2, 3, 4, 5, 6, 7
+    protected boolean sunday, monday, tuesday, wednesday, thursday, friday, saturday;
+    protected boolean started, recurring;
 
     public AlarmNote(Calendar calendar, int repeatMode, String note){
 
@@ -95,14 +68,6 @@ public class AlarmNote implements Serializable {
 
         this.timeInMillis = calendar.getTimeInMillis();
     }
-    public void setDayOfWeek(int dayOfWeek){
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(this.timeInMillis);
-
-        calendar.set(Calendar.DAY_OF_WEEK, dayOfWeek);
-
-        this.timeInMillis = calendar.getTimeInMillis();
-    }
     public void setHourOfDay(int hourOfDay){
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(this.timeInMillis);
@@ -124,17 +89,59 @@ public class AlarmNote implements Serializable {
     }
     public void setRepeatMode(int repeatMode){
         this.repeatMode = repeatMode;
-    }
 
+        if(repeatMode == 1){
+            this.setActiveDayOfWeek(0, true);
+        }
+    }
     public void setVibrate(boolean vibrate){
         this.vibrate = vibrate;
     }
-
     public void setNote(String note){
         this.note = note;
     }
     public void setTimeInMillis(long timeInMillis){
         this.timeInMillis = timeInMillis;
+    }
+    public void setDayOfWeek(int dayOfWeek){
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(this.timeInMillis);
+        calendar.set(Calendar.DAY_OF_WEEK, dayOfWeek);
+        this.timeInMillis = calendar.getTimeInMillis();
+    }
+    public void setActiveDayOfWeek(int dayOfWeek, boolean state){
+        switch (dayOfWeek){
+            case 1:
+                this.sunday = state;
+                break;
+            case 2:
+                this.monday = state;
+                break;
+            case 3:
+                this.tuesday = state;
+                break;
+            case 4:
+                this.wednesday = state;
+                break;
+            case 5:
+                this.thursday = state;
+                break;
+            case 6:
+                this.friday = state;
+                break;
+            case 7:
+                this.saturday = state;
+                break;
+        }
+        if(dayOfWeek == 0){
+            this.sunday = state;
+            this.monday = state;
+            this.tuesday = state;
+            this.wednesday = state;
+            this.thursday = state;
+            this.friday = state;
+            this.saturday = state;
+        }
     }
 
     public int getRepeatMode(){
@@ -157,6 +164,26 @@ public class AlarmNote implements Serializable {
         calendar.setTimeInMillis(this.timeInMillis);
 
         return calendar.get(Calendar.DAY_OF_WEEK);
+    }
+    public boolean getActiveDayOfWeek(int dayOfWeek){
+        switch (dayOfWeek){
+            case 1:
+                return this.sunday;
+            case 2:
+                return this.monday;
+            case 3:
+                return this.tuesday;
+            case 4:
+                return this.wednesday;
+            case 5:
+                return this.thursday;
+            case 6:
+                return this.friday;
+            case 7:
+                return this.saturday;
+            default:
+                return false;
+        }
     }
     public int getHourOfDay(){
         Calendar calendar = Calendar.getInstance();
@@ -182,4 +209,5 @@ public class AlarmNote implements Serializable {
     public long getId(){
         return this.alarmNoteId;
     }
+
 }

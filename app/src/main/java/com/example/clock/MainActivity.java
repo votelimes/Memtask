@@ -200,15 +200,13 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult (int requestCode, int resultCode, Intent data){
         super.onActivityResult(requestCode, resultCode, data);
-        lastClickedUserNoteIndex = -1;
         boolean  success = false;
+        AlarmNote new_note = (AlarmNote) data.getSerializableExtra("result");
         if (resultCode == 1){
-            AlarmNote new_note = (AlarmNote) data.getSerializableExtra("result");
+
             try{
                 long lastDatabaseId = database.insert(new_note);
                 new_note.setId(lastDatabaseId);
-                Log.d("New note ID: ", String.valueOf(new_note.getId()));
-                Log.d("Last database ID: ", String.valueOf(lastDatabaseId));
 
                 alarmNoteList.add(new_note);
                 success = true;
@@ -217,7 +215,6 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         else if(resultCode == 2){
-            AlarmNote new_note = (AlarmNote) data.getSerializableExtra("result");
             try{
                 for(int i = 0; i < alarmNoteList.size(); i++){
                     if(alarmNoteList.get(i).alarmNoteId == new_note.alarmNoteId){
@@ -234,6 +231,14 @@ public class MainActivity extends AppCompatActivity {
             clearNoteLayout();
             printCloseNotes();
         }
+        else{
+            try{
+                changeStrokeColor(findViewById(lastClickedUserNoteIndex), getColor(R.color.light_green));
+            } catch (Exception e){
+                e.printStackTrace();
+            }
+        }
+        lastClickedUserNoteIndex = -1;
     }
 
     // Utility methods
