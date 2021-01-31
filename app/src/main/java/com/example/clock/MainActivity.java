@@ -12,7 +12,6 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
 
 import android.widget.LinearLayout;
@@ -30,21 +29,20 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
 
     private BottomSheetBehavior mBottomSheetBehavior;
-    private List<AlarmNote> alarmNoteList;
-    private AlarmNoteDao database;
+    private List<Alarm> alarmList;
+    private AlarmDao database;
     private final String[] dayNames = {"NULL", "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
     private LinearLayout userNoteLayout;
     private Context mContext;
     private int lastClickedUserNoteIndex = -1;
-    private Calendar chosen_time;
-    private long note_down_time = 0;
+    private Calendar chosenTime;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        alarmNoteList = new ArrayList<AlarmNote>();
+        alarmList = new ArrayList<Alarm>();
 
         userNoteLayout = findViewById(R.id.userNoteTopLayout);
 
@@ -56,22 +54,22 @@ public class MainActivity extends AppCompatActivity {
 
         mContext = this;
 
-        database = App.getInstance().getDatabase().alarmNoteDao();
-        alarmNoteList = database.getAll();
+        database = App.getInstance().getDatabase().alarmDao();
+        alarmList = database.getAll();
 
-        for (AlarmNote element : alarmNoteList){
+        for (Alarm element : alarmList){
             addNoteToLayout(element);
         }
 
-        chosen_time = Calendar.getInstance();
+        chosenTime = Calendar.getInstance();
     }
 
     public void onAddClock(View view) {
         Intent clock_window = new Intent(this, CreateAlarmActivity.class);
-        AlarmNote selectedNote = null;
+        Alarm selectedNote = null;
         if(lastClickedUserNoteIndex != -1) {
-            for (AlarmNote note : alarmNoteList) {
-                if (note.alarmNoteId == lastClickedUserNoteIndex) {
+            for (Alarm note : alarmList) {
+                if (note.alarmId == lastClickedUserNoteIndex) {
                     selectedNote = note;
                     break;
                 }
@@ -81,10 +79,10 @@ public class MainActivity extends AppCompatActivity {
         startActivityForResult(clock_window, 1);
     }
 
-    private void addNoteToLayout(AlarmNote note){
+    private void addNoteToLayout(Alarm note){
 
         LinearLayout newNoteLayout = (LinearLayout) View.inflate(this, R.layout.user_note, null);
-        newNoteLayout.setId((int) note.alarmNoteId);
+        newNoteLayout.setId((int) note.alarmId);
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.MATCH_PARENT
@@ -131,7 +129,6 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
-
         newNoteLayout.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
@@ -146,12 +143,12 @@ public class MainActivity extends AppCompatActivity {
                             userNoteLayout.removeView(v);
 
                             int viewId = v.getId();
-                            AlarmNote removableNote = null;
-                            for(int i = 0; i < alarmNoteList.size(); i++){
-                                AlarmNote currentNote = alarmNoteList.get(i);
+                            Alarm removableNote = null;
+                            for(int i = 0; i < alarmList.size(); i++){
+                                Alarm currentNote = alarmList.get(i);
                                 if(currentNote.getId() == viewId){
                                     removableNote = currentNote;
-                                    alarmNoteList.remove(i);
+                                    alarmList.remove(i);
                                     break;
                                 }
                             }
@@ -185,10 +182,10 @@ public class MainActivity extends AppCompatActivity {
 
     }
     private void printCloseNotes(){
-        long timeInMillis = chosen_time.getTimeInMillis();
-        for(AlarmNote note : alarmNoteList){
+        long timeInMillis = chosenTime.getTimeInMillis();
+        for(Alarm note : alarmList){
             long closeTimeBarrier = note.getTimeInMillis() - timeInMillis;
-            if(closeTimeBarrier <= AlarmNote.DAY){
+            if(closeTimeBarrier <= Alarm.DAY){
                 addNoteToLayout(note);
             }
         }
@@ -201,14 +198,15 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult (int requestCode, int resultCode, Intent data){
         super.onActivityResult(requestCode, resultCode, data);
         boolean  success = false;
-        AlarmNote new_note = (AlarmNote) data.getSerializableExtra("result");
+        Alarm returnedAlarm = (Alarm) data.getSerializableExtra("result");
+
         if (resultCode == 1){
 
             try{
-                long lastDatabaseId = database.insert(new_note);
-                new_note.setId(lastDatabaseId);
+                long lastDatabaseId = database.insert(returnedAlarm);
+                returnedAlarm.setId(lastDatabaseId);
 
-                alarmNoteList.add(new_note);
+                alarmList.add(returnedAlarm);
                 success = true;
             } catch(Exception e){
                 e.printStackTrace();
@@ -216,9 +214,9 @@ public class MainActivity extends AppCompatActivity {
         }
         else if(resultCode == 2){
             try{
-                for(int i = 0; i < alarmNoteList.size(); i++){
-                    if(alarmNoteList.get(i).alarmNoteId == new_note.alarmNoteId){
-                        alarmNoteList.set(i, new_note);
+                for(int i = 0; i < alarmList.size(); i++){
+                    if(alarmList.get(i).alarmId == returnedAlarm.alarmId){
+                        alarmList.set(i, returnedAlarm);
                         success = true;
                         break;
                     }
@@ -253,24 +251,24 @@ public class MainActivity extends AppCompatActivity {
 
     // Debug methods, have to be removed before release
     private void debugWriteToDB(){
-        AlarmNote alarmNote = new AlarmNote(Calendar.getInstance(), 0, "TEST0");
-        database.insert(alarmNote);
+        Alarm alarm = new Alarm(Calendar.getInstance(), 0, "TEST0");
+        database.insert(alarm);
     }
     private void debugReadFromDB(){
-        alarmNoteList = database.getAll();
+        alarmList = database.getAll();
 
         //Log.d("DB_TESTING", "READ_START");
 
         Log.d("DB_TESTING", "READ_END");
     }
     private void debugTestDB(){
-        AlarmNote note = new AlarmNote(Calendar.getInstance(), 0, "TEST1");
-        note.alarmNoteId = 0;
+        Alarm note = new Alarm(Calendar.getInstance(), 0, "TEST1");
+        note.alarmId = 0;
 
         long return_key = database.insert(note);
-        alarmNoteList = database.getAll();
+        alarmList = database.getAll();
 
-        for (AlarmNote element : alarmNoteList){
+        for (Alarm element : alarmList){
             addNoteToLayout(element);
         }
 

@@ -2,7 +2,7 @@ package com.example.clock;
 
 import androidx.room.RoomDatabase;
 
-@androidx.room.Database(entities = {AlarmNote.class}, version = 1)
+@androidx.room.Database(entities = {Alarm.class}, version = 1)
 public abstract class Database extends RoomDatabase {
-    public abstract AlarmNoteDao alarmNoteDao();
+    public abstract AlarmDao alarmDao();
 }

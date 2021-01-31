@@ -26,7 +26,7 @@ public class CreateAlarmActivity extends AppCompatActivity {
     NumberPicker hoursPicker;
     NumberPicker minutesPicker;
 
-    AlarmNote selectedNote;
+    Alarm selectedNote;
 
     RelativeLayout repeatModeLayout;
     RelativeLayout vibrateModeLayout;
@@ -50,10 +50,10 @@ public class CreateAlarmActivity extends AppCompatActivity {
         nowCalendar = Calendar.getInstance();
 
         selectedNote = null;
-        selectedNote = (AlarmNote) getIntent().getSerializableExtra("selectedNote");
+        selectedNote = (Alarm) getIntent().getSerializableExtra("selectedNote");
 
         if(selectedNote == null){
-            selectedNote = new AlarmNote(Calendar.getInstance(), 1);
+            selectedNote = new Alarm(Calendar.getInstance(), 1);
             resultCode = 1;
         }
 

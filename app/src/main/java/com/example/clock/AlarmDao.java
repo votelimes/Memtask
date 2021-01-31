@@ -10,29 +10,29 @@ import androidx.room.Update;
 import java.util.List;
 
 @Dao
-public interface AlarmNoteDao {
+public interface AlarmDao {
 
-    @Query("SELECT * FROM alarm_note_table")
-    List <AlarmNote> getAll();
+    @Query("SELECT * FROM alarm_table")
+    List <Alarm> getAll();
 
-    @Query("SELECT * FROM alarm_note_table WHERE alarmNoteId = :id")
-    AlarmNote getById(long id);
+    @Query("SELECT * FROM alarm_table WHERE alarmId = :id")
+    Alarm getById(long id);
 
-    @Query("DELETE FROM alarm_note_table")
+    @Query("DELETE FROM alarm_table")
     int clear();
 
     @Insert
-    long insert(AlarmNote mAlarmNote);
+    long insert(Alarm mAlarm);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    long insertWithReplace(AlarmNote mAlarmNote);
+    long insertWithReplace(Alarm mAlarm);
 
     @Query("SELECT last_insert_rowid()")
     long getLastId();
 
     @Update
-    void update(AlarmNote mAlarmNote);
+    void update(Alarm mAlarm);
 
     @Delete
-    void delete(AlarmNote mAlarmNote);
+    void delete(Alarm mAlarm);
 }

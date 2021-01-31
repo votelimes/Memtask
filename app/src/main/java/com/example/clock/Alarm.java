@@ -1,5 +1,12 @@
 package com.example.clock;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
+import android.util.Log;
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
@@ -8,25 +15,28 @@ import androidx.room.PrimaryKey;
 import java.io.Serializable;
 import java.util.Calendar;
 
-@Entity(tableName = "alarm_note_table")
-public class AlarmNote implements Serializable {
+@Entity(tableName = "alarm_table")
+public class Alarm implements Serializable {
 
     @PrimaryKey(autoGenerate = true)
     @NonNull
-    @ColumnInfo(name = "alarmNoteId")
-    public long alarmNoteId;
-    protected int repeatMode; // 0: once, 1: every day, 2: every week, 3: every month
+    @ColumnInfo(name = "alarmId")
+    public long alarmId;
     protected long timeInMillis;
     protected String note;
     protected boolean vibrate;
 
     public final static long DAY = 86400000;
     public final static long WEEK = 604800000;
+
+    // 0: once, 1: every day, 2: every week, 3: every month
+    protected int repeatMode;
     // 1, 2, 3, 4, 5, 6, 7
     protected boolean sunday, monday, tuesday, wednesday, thursday, friday, saturday;
-    protected boolean started, recurring;
+    protected boolean enabled, started, recurring;
 
-    public AlarmNote(Calendar calendar, int repeatMode, String note){
+
+    public Alarm(Calendar calendar, int repeatMode, String note){
 
         timeInMillis = calendar.getTimeInMillis();
 
@@ -35,7 +45,7 @@ public class AlarmNote implements Serializable {
         this.vibrate = true;
     }
 
-    public AlarmNote(Calendar calendar, int repeatMode){
+    public Alarm(Calendar calendar, int repeatMode){
 
         timeInMillis = calendar.getTimeInMillis();
 
@@ -44,8 +54,8 @@ public class AlarmNote implements Serializable {
         this.vibrate = true;
     }
 
-    public AlarmNote(long alarmNoteId, int repeatMode, long timeInMillis, String note){
-        this.alarmNoteId = alarmNoteId;
+    public Alarm(long alarmId, int repeatMode, long timeInMillis, String note){
+        this.alarmId = alarmId;
         this.repeatMode = repeatMode;
         this.timeInMillis = timeInMillis;
         this.note = note;
@@ -85,7 +95,7 @@ public class AlarmNote implements Serializable {
         this.timeInMillis = calendar.getTimeInMillis();
     }
     public void setId(long id){
-        this.alarmNoteId = id;
+        this.alarmId = id;
     }
     public void setRepeatMode(int repeatMode){
         this.repeatMode = repeatMode;
@@ -207,7 +217,18 @@ public class AlarmNote implements Serializable {
         return this.note;
     }
     public long getId(){
-        return this.alarmNoteId;
+        return this.alarmId;
     }
 
+    public void cancelAlarm(Context context) {
+//        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+//        Intent intent = new Intent(context, AlarmBroadcastReceiver.class);
+//        PendingIntent alarmPendingIntent = PendingIntent.getBroadcast(context, alarmId, intent, 0);
+//        alarmManager.cancel(alarmPendingIntent);
+//        this.started = false;
+//
+//        String toastText = String.format("Alarm cancelled for %02d:%02d with id %d", hour, minute, alarmId);
+//        Toast.makeText(context, toastText, Toast.LENGTH_SHORT).show();
+//        Log.i("cancel", toastText);
+    }
 }
