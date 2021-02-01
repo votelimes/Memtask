@@ -10,6 +10,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
+import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
 import java.io.Serializable;
@@ -33,7 +34,7 @@ public class Alarm implements Serializable {
     protected int repeatMode;
     // 1, 2, 3, 4, 5, 6, 7
     protected boolean sunday, monday, tuesday, wednesday, thursday, friday, saturday;
-    protected boolean enabled, started, recurring;
+    protected boolean enabled = false, started = false, recurring = false;
 
 
     public Alarm(Calendar calendar, int repeatMode, String note){
@@ -54,12 +55,106 @@ public class Alarm implements Serializable {
         this.vibrate = true;
     }
 
+    @Ignore
     public Alarm(long alarmId, int repeatMode, long timeInMillis, String note){
         this.alarmId = alarmId;
         this.repeatMode = repeatMode;
         this.timeInMillis = timeInMillis;
         this.note = note;
         this.vibrate = true;
+    }
+
+    public Alarm(long alarmId, int repeatMode, boolean started, boolean recurring, long timeInMillis, String note,
+                 boolean sunday, boolean monday, boolean tuesday, boolean wednesday,
+                 boolean thursday, boolean friday, boolean saturday){
+        this.alarmId = alarmId;
+        this.repeatMode = repeatMode;
+        this.started = started;
+        this.recurring = recurring;
+        this.timeInMillis = timeInMillis;
+        this.note = note;
+        this.vibrate = true;
+        this.monday = monday;
+        this.tuesday = tuesday;
+        this.wednesday = wednesday;
+        this.thursday = thursday;
+        this.friday = friday;
+        this.saturday = saturday;
+    }
+
+    public void schedule(Context context) {
+        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+
+        Intent intent = new Intent(context, AlarmBroadcastReceiver.class);
+        intent.putExtra("RECURRING", recurring);
+        intent.putExtra("MONDAY", monday);
+        intent.putExtra("TUESDAY", tuesday);
+        intent.putExtra("WEDNESDAY", wednesday);
+        intent.putExtra("THURSDAY", thursday);
+        intent.putExtra("FRIDAY", friday);
+        intent.putExtra("SATURDAY", saturday);
+        intent.putExtra("SUNDAY", sunday);
+
+        intent.putExtra("TITLE", note);
+
+        PendingIntent alarmPendingIntent = PendingIntent.getBroadcast(context, (int) alarmId, intent, 0);
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(this.getTimeInMillis());
+
+        // if alarm time has already passed, increment day by 1
+        if (calendar.getTimeInMillis() <= System.currentTimeMillis()) {
+            calendar.set(Calendar.DAY_OF_MONTH, calendar.get(Calendar.DAY_OF_MONTH) + 1);
+        }
+
+        if (!recurring) {
+            String toastText = null;
+            try {
+                toastText = String.format("One Time Alarm %s scheduled for %s at %02d:%02d", note,
+                        toDay(calendar.get(Calendar.DAY_OF_WEEK)),
+                        calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), alarmId);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            Toast.makeText(context, toastText, Toast.LENGTH_LONG).show();
+
+            alarmManager.setExact(
+                    AlarmManager.RTC_WAKEUP,
+                    calendar.getTimeInMillis(),
+                    alarmPendingIntent
+            );
+        } else {
+            String toastText = String.format("Recurring Alarm %s scheduled for %s at %02d:%02d", note, getRecurringDaysText(),
+                    calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), alarmId);
+
+            Toast.makeText(context, toastText, Toast.LENGTH_LONG).show();
+
+            final long RUN_DAILY = 24 * 60 * 60 * 1000;
+            alarmManager.setRepeating(
+                    AlarmManager.RTC_WAKEUP,
+                    calendar.getTimeInMillis(),
+                    RUN_DAILY,
+                    alarmPendingIntent
+            );
+        }
+
+        this.started = true;
+    }
+
+    public void cancelAlarm(Context context) {
+        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        Intent intent = new Intent(context, AlarmBroadcastReceiver.class);
+        PendingIntent alarmPendingIntent = PendingIntent.getBroadcast(context, (int) alarmId, intent, 0);
+        alarmManager.cancel(alarmPendingIntent);
+        this.started = false;
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(this.timeInMillis);
+
+        String toastText = String.format("Alarm cancelled for %02d:%02d with id %d",
+                calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), alarmId);
+
+        Toast.makeText(context, toastText, Toast.LENGTH_SHORT).show();
+        Log.i("cancel", toastText);
     }
 
     public void setYear(int year){
@@ -207,9 +302,6 @@ public class Alarm implements Serializable {
 
         return calendar.get(Calendar.MINUTE);
     }
-    public boolean getVibrate(){
-        return this.vibrate;
-    }
     public long getTimeInMillis(){
         return this.timeInMillis;
     }
@@ -220,15 +312,84 @@ public class Alarm implements Serializable {
         return this.alarmId;
     }
 
-    public void cancelAlarm(Context context) {
-//        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-//        Intent intent = new Intent(context, AlarmBroadcastReceiver.class);
-//        PendingIntent alarmPendingIntent = PendingIntent.getBroadcast(context, alarmId, intent, 0);
-//        alarmManager.cancel(alarmPendingIntent);
-//        this.started = false;
-//
-//        String toastText = String.format("Alarm cancelled for %02d:%02d with id %d", hour, minute, alarmId);
-//        Toast.makeText(context, toastText, Toast.LENGTH_SHORT).show();
-//        Log.i("cancel", toastText);
+    public boolean isVibrate(){
+        return this.vibrate;
+    }
+    public boolean isRecurring() {
+        return this.recurring;
+    }
+    public boolean isMonday() {
+        return this.monday;
+    }
+    public boolean isTuesday() {
+        return this.tuesday;
+    }
+    public boolean isWednesday() {
+        return this.wednesday;
+    }
+    public boolean isThursday() {
+        return this.thursday;
+    }
+    public boolean isFriday() {
+        return this.friday;
+    }
+    public boolean isSaturday() {
+        return this.saturday;
+    }
+    public boolean isSunday() {
+        return this.sunday;
+    }
+    public boolean isStarted() {
+        return this.started;
+    }
+
+    protected String toDay(int dayOfWeek){
+        switch (dayOfWeek){
+            case 1:
+                return "Sunday";
+            case 2:
+                return "Monday";
+            case 3:
+                return "Tuesday";
+            case 4:
+                return "Wednesday";
+            case 5:
+                return "Thursday";
+            case 6:
+                return "Friday";
+            case 7:
+                return "Saturday";
+        }
+        return "NULL";
+    }
+    public String getRecurringDaysText() {
+        if (!recurring) {
+            return null;
+        }
+
+        String days = "";
+        if (monday) {
+            days += "Mo ";
+        }
+        if (tuesday) {
+            days += "Tu ";
+        }
+        if (wednesday) {
+            days += "We ";
+        }
+        if (thursday) {
+            days += "Th ";
+        }
+        if (friday) {
+            days += "Fr ";
+        }
+        if (saturday) {
+            days += "Sa ";
+        }
+        if (sunday) {
+            days += "Su ";
+        }
+
+        return days;
     }
 }

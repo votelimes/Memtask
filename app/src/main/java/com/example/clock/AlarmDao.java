@@ -1,5 +1,6 @@
 package com.example.clock;
 
+import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
@@ -17,6 +18,10 @@ public interface AlarmDao {
 
     @Query("SELECT * FROM alarm_table WHERE alarmId = :id")
     Alarm getById(long id);
+
+    //@Query("SELECT * FROM alarm_table ORDER BY created ASC")
+    @Query("SELECT * FROM alarm_table")
+    LiveData<List<Alarm>> getAlarms();
 
     @Query("DELETE FROM alarm_table")
     int clear();

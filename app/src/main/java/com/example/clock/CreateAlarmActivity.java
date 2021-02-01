@@ -169,7 +169,7 @@ public class CreateAlarmActivity extends AppCompatActivity {
         vibrateModeLayout = (RelativeLayout) View.inflate(this, R.layout.switch_field, null);
         vibrateModeLayout.setId(1002);
         vibrateSwitch = vibrateModeLayout.findViewWithTag("switch");
-        vibrateSwitch.setChecked(selectedNote.getVibrate());
+        vibrateSwitch.setChecked(selectedNote.isVibrate());
 
         vibrateSwitch.setOnClickListener(new View.OnClickListener() {
             @Override
