@@ -3,12 +3,6 @@
     package="com.example.clock">
     <uses-permission android:name="android.permission.VIBRATE" />
 
-    <uses-permission android:name="android.permission.VIBRATE" />
-
-    <uses-permission android:name="android.permission.VIBRATE" />
-
-    <uses-permission android:name="android.permission.VIBRATE" />
-
     <application
         android:name=".App"
         android:allowBackup="true"
@@ -20,7 +14,7 @@
         <service
             android:name=".RescheduleAlarmsService"
             android:enabled="true"
-            android:exported="true"></service>
+            android:exported="true"/>
         <service
             android:name=".AlarmService"
             android:enabled="true"
@@ -45,9 +39,6 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
-
-        <service android:name=".AlarmService" />
-        <service android:name=".RescheduleAlarmsService" />
     </application>
 
 </manifest>

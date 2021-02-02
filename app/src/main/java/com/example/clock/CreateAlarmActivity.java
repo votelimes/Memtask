@@ -299,9 +299,10 @@ public class CreateAlarmActivity extends AppCompatActivity {
         finish();
     }
     public void onSave(View view) {
+        resultCode = 1;
         Intent resultIntent = new Intent();
-        resultIntent.putExtra("result", selectedNote);
         setResult(resultCode, resultIntent);
+        App.getInstance().insertWithReplace(selectedNote);
         finish();
     }
     @Override

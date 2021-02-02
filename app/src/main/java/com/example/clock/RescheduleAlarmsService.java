@@ -20,9 +20,7 @@ public class RescheduleAlarmsService extends LifecycleService {
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
 
-        AlarmRepository alarmRepository = new AlarmRepository(getApplication());
-
-        alarmRepository.getAlarmsLiveData().observe(this, new Observer<List<Alarm>>() {
+        App.getAlarmsLiveData().observe(this, new Observer<List<Alarm>>() {
             @Override
             public void onChanged(List<Alarm> alarms) {
                 for (Alarm a : alarms) {

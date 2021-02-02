@@ -10,7 +10,12 @@ import android.os.Bundle;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
 
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 
@@ -29,20 +34,18 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
 
     private BottomSheetBehavior mBottomSheetBehavior;
-    private List<Alarm> alarmList;
-    private AlarmDao database;
+
     private final String[] dayNames = {"NULL", "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
     private LinearLayout userNoteLayout;
     private Context mContext;
     private int lastClickedUserNoteIndex = -1;
     private Calendar chosenTime;
+    private LiveData<List<Alarm>> alarmsData;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        alarmList = new ArrayList<Alarm>();
 
         userNoteLayout = findViewById(R.id.userNoteTopLayout);
 
@@ -54,21 +57,22 @@ public class MainActivity extends AppCompatActivity {
 
         mContext = this;
 
-        database = App.getInstance().getDatabase().alarmDao();
-        alarmList = database.getAll();
-
-        for (Alarm element : alarmList){
-            addNoteToLayout(element);
-        }
-
         chosenTime = Calendar.getInstance();
+        alarmsData = App.getInstance().getAlarmsLiveData();
+        alarmsData.observe(this, new Observer<List<Alarm>>() {
+            @Override
+            public void onChanged(List<Alarm> alarms) {
+                clearNoteLayout();
+                printCloseNotes(alarms);
+            }
+        });
     }
 
     public void onAddClock(View view) {
         Intent clock_window = new Intent(this, CreateAlarmActivity.class);
         Alarm selectedNote = null;
         if(lastClickedUserNoteIndex != -1) {
-            for (Alarm note : alarmList) {
+            for (Alarm note : App.getInstance().getAlarmsLiveData().getValue()) {
                 if (note.alarmId == lastClickedUserNoteIndex) {
                     selectedNote = note;
                     break;
@@ -143,17 +147,10 @@ public class MainActivity extends AppCompatActivity {
                             userNoteLayout.removeView(v);
 
                             int viewId = v.getId();
-                            Alarm removableNote = null;
-                            for(int i = 0; i < alarmList.size(); i++){
-                                Alarm currentNote = alarmList.get(i);
-                                if(currentNote.getId() == viewId){
-                                    removableNote = currentNote;
-                                    alarmList.remove(i);
-                                    break;
-                                }
-                            }
-                            database.delete(removableNote);
+                            Alarm removableNote = App.getInstance().getById(viewId);
+                            App.getInstance().remove(removableNote);
                             Toast.makeText(mContext, "Successfully deleted", Toast.LENGTH_SHORT).show();
+
                         } catch (Exception e){
                             e.printStackTrace();
                             Toast.makeText(mContext, "Something went wrong", Toast.LENGTH_SHORT).show();
@@ -181,9 +178,10 @@ public class MainActivity extends AppCompatActivity {
     public void onNoteClick(View view){
 
     }
-    private void printCloseNotes(){
+    private void printCloseNotes(List<Alarm> alarms){
         long timeInMillis = chosenTime.getTimeInMillis();
-        for(Alarm note : alarmList){
+
+        for(Alarm note : alarms){
             long closeTimeBarrier = note.getTimeInMillis() - timeInMillis;
             if(closeTimeBarrier <= Alarm.DAY){
                 addNoteToLayout(note);
@@ -197,39 +195,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult (int requestCode, int resultCode, Intent data){
         super.onActivityResult(requestCode, resultCode, data);
-        boolean  success = false;
-        Alarm returnedAlarm = (Alarm) data.getSerializableExtra("result");
 
-        if (resultCode == 1){
-
-            try{
-                long lastDatabaseId = database.insert(returnedAlarm);
-                returnedAlarm.setId(lastDatabaseId);
-
-                alarmList.add(returnedAlarm);
-                success = true;
-            } catch(Exception e){
-                e.printStackTrace();
-            }
-        }
-        else if(resultCode == 2){
-            try{
-                for(int i = 0; i < alarmList.size(); i++){
-                    if(alarmList.get(i).alarmId == returnedAlarm.alarmId){
-                        alarmList.set(i, returnedAlarm);
-                        success = true;
-                        break;
-                    }
-                }
-            } catch (Exception e){
-                e.printStackTrace();
-            }
-        }
-        if(success){
-            clearNoteLayout();
-            printCloseNotes();
-        }
-        else{
+        if (resultCode != 1 || resultCode != 2){
             try{
                 changeStrokeColor(findViewById(lastClickedUserNoteIndex), getColor(R.color.light_green));
             } catch (Exception e){
@@ -250,28 +217,4 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // Debug methods, have to be removed before release
-    private void debugWriteToDB(){
-        Alarm alarm = new Alarm(Calendar.getInstance(), 0, "TEST0");
-        database.insert(alarm);
-    }
-    private void debugReadFromDB(){
-        alarmList = database.getAll();
-
-        //Log.d("DB_TESTING", "READ_START");
-
-        Log.d("DB_TESTING", "READ_END");
-    }
-    private void debugTestDB(){
-        Alarm note = new Alarm(Calendar.getInstance(), 0, "TEST1");
-        note.alarmId = 0;
-
-        long return_key = database.insert(note);
-        alarmList = database.getAll();
-
-        for (Alarm element : alarmList){
-            addNoteToLayout(element);
-        }
-
-        Log.d("DB_TESTING", "CUSTOM_TEST_END");
-    }
 }
