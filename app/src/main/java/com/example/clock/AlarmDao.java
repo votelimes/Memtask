@@ -22,7 +22,7 @@ public interface AlarmDao {
 
     //@Query("SELECT * FROM alarm_table ORDER BY created ASC")
     @Query("SELECT * FROM alarm_table")
-    LiveData<List<Alarm>> getAlarms();
+    LiveData<List<Alarm>> getAlarmsLive();
 
     @Query("DELETE FROM alarm_table")
     int clear();
@@ -38,6 +38,9 @@ public interface AlarmDao {
 
     @Update
     void update(Alarm mAlarm);
+
+    @Query("DELETE FROM alarm_table WHERE alarmId = :id")
+    void deleteById(long id);
 
     @Delete
     void delete(Alarm mAlarm);

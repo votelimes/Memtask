@@ -1,16 +1,13 @@
 package com.example.clock;
 
 import android.app.Application;
-import android.util.Log;
 
-import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.Observer;
 import androidx.room.Room;
 
-import java.io.File;
 import java.util.List;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 public class App extends Application {
 
@@ -30,7 +27,7 @@ public class App extends Application {
                 .build();
         alarmDao = database.alarmDao();
 
-        alarmsLiveData = alarmDao.getAlarms();
+        alarmsLiveData = alarmDao.getAlarmsLive();
     }
 
     public static App getInstance() {
@@ -41,14 +38,37 @@ public class App extends Application {
         return database;
     }
 
-    public long insert(Alarm alarm){
-        return alarmDao.insert(alarm);
+    public void insert(Alarm alarm){
+        Executor myExecutor = Executors.newSingleThreadExecutor();
+        myExecutor.execute(() -> {
+            alarmDao.insert(alarm);
+        });
     }
-    public long insertWithReplace(Alarm alarm){
-        return alarmDao.insertWithReplace(alarm);
+    public void insertWithReplace(Alarm alarm){
+        Executor myExecutor = Executors.newSingleThreadExecutor();
+        myExecutor.execute(() -> {
+            alarmDao.insertWithReplace(alarm);
+        });
     }
     public void remove(Alarm alarm){
-        alarmDao.delete(alarm);
+        Executor myExecutor = Executors.newSingleThreadExecutor();
+        myExecutor.execute(() -> {
+            try {
+                alarmDao.delete(alarm);
+            } catch (Exception e){
+                e.printStackTrace();
+            }
+        });
+    }
+    public void removeById(long id){
+        Executor myExecutor = Executors.newSingleThreadExecutor();
+        myExecutor.execute(() -> {
+            try {
+                alarmDao.deleteById(id);
+            } catch (Exception e){
+                e.printStackTrace();
+            }
+        });
     }
     public Alarm getById(long id){
         return alarmDao.getById(id);

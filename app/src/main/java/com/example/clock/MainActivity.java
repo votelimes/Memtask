@@ -147,8 +147,8 @@ public class MainActivity extends AppCompatActivity {
                             userNoteLayout.removeView(v);
 
                             int viewId = v.getId();
-                            Alarm removableNote = App.getInstance().getById(viewId);
-                            App.getInstance().remove(removableNote);
+                            //Alarm removableNote = App.getInstance().getById(viewId);
+                            App.getInstance().removeById(viewId);
                             Toast.makeText(mContext, "Successfully deleted", Toast.LENGTH_SHORT).show();
 
                         } catch (Exception e){
