@@ -1,4 +1,4 @@
-package com.example.clock;
+package com.example.clock.services;
 
 import android.content.Intent;
 import android.os.IBinder;
@@ -6,6 +6,9 @@ import android.os.IBinder;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.LifecycleService;
 import androidx.lifecycle.Observer;
+
+import com.example.clock.app.App;
+import com.example.clock.data.Alarm;
 
 import java.util.List;
 

@@ -1,8 +1,10 @@
-package com.example.clock;
+package com.example.clock.activities;
+
+import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.os.Bundle;
+import com.example.clock.R;
 
 public class RingActivity extends AppCompatActivity {
 

@@ -1,4 +1,4 @@
-package com.example.clock;
+package com.example.clock.data;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -12,6 +12,8 @@ import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
+
+import com.example.clock.broadcastreceiver.AlarmBroadcastReceiver;
 
 import java.io.Serializable;
 import java.util.Calendar;

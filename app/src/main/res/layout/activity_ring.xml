@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="center"
-    tools:context=".RingActivity">
+    tools:context=".activities.RingActivity">
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/stop_button_ring"
         android:layout_width="100dp"

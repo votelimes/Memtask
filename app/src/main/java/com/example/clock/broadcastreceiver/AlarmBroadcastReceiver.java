@@ -1,4 +1,4 @@
-package com.example.clock;
+package com.example.clock.broadcastreceiver;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -6,6 +6,9 @@ import android.content.Intent;
 import android.icu.util.Calendar;
 import android.os.Build;
 import android.widget.Toast;
+
+import com.example.clock.services.AlarmService;
+import com.example.clock.services.RescheduleAlarmsService;
 
 public class AlarmBroadcastReceiver extends BroadcastReceiver {
     public static final String MONDAY = "MONDAY";

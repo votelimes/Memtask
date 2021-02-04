@@ -1,9 +1,13 @@
-package com.example.clock;
+package com.example.clock.app;
 
 import android.app.Application;
 
 import androidx.lifecycle.LiveData;
 import androidx.room.Room;
+
+import com.example.clock.data.Alarm;
+import com.example.clock.data.AlarmDao;
+import com.example.clock.data.Database;
 
 import java.util.List;
 import java.util.concurrent.Executor;

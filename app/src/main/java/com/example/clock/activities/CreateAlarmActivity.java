@@ -1,8 +1,4 @@
-package com.example.clock;
-
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.SwitchCompat;
+package com.example.clock.activities;
 
 import android.annotation.SuppressLint;
 import android.content.DialogInterface;
@@ -18,6 +14,14 @@ import android.widget.LinearLayout;
 import android.widget.NumberPicker;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SwitchCompat;
+
+import com.example.clock.R;
+import com.example.clock.app.App;
+import com.example.clock.data.Alarm;
 
 import java.util.Calendar;
 

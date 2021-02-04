@@ -1,4 +1,4 @@
-package com.example.clock;
+package com.example.clock.services;
 
 import android.annotation.SuppressLint;
 import android.app.Notification;
@@ -6,15 +6,14 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.media.MediaPlayer;
-import android.media.Ringtone;
-import android.media.RingtoneManager;
 import android.os.IBinder;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
+
+import com.example.clock.activities.RingActivity;
 
 public class AlarmService extends Service {
     //private MediaPlayer mediaPlayer;
