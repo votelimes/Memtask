@@ -13,6 +13,7 @@
         android:layout_height="60dp"
         android:text="STOP"
         android:layout_alignParentStart="true"
+        android:onClick="onStop"
         />
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/snooze10_button_ring"
@@ -21,5 +22,6 @@
         android:text="10 minutes later"
         android:textSize="12sp"
         android:layout_toRightOf="@id/stop_button_ring"
+        android:onClick="onSnooze10"
         />
 </RelativeLayout>

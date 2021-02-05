@@ -250,6 +250,9 @@ public class Alarm implements Serializable {
             this.saturday = state;
         }
     }
+    public void setEnabled(boolean enabled){
+        this.enabled = enabled;
+    }
 
     public int getRepeatMode(){
         return this.repeatMode;
@@ -314,6 +317,9 @@ public class Alarm implements Serializable {
         return this.alarmId;
     }
 
+    public boolean isEnabled(){
+        return  this.enabled;
+    }
     public boolean isVibrate(){
         return this.vibrate;
     }

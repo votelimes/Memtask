@@ -14,6 +14,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SwitchCompat;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 
@@ -102,6 +103,10 @@ public class MainActivity extends AppCompatActivity {
         TextView userNote = (TextView) newNoteLayout.findViewWithTag("text");
         userNote.setText(note.getNote());
 
+        SwitchCompat activeSwitch = newNoteLayout.
+                findViewWithTag("switch_layout").findViewWithTag("switch");
+        activeSwitch.setChecked(note.isEnabled());
+
         userNoteLayout.addView(newNoteLayout);
 
         newNoteLayout.setOnClickListener(new View.OnClickListener() {
@@ -160,6 +165,20 @@ public class MainActivity extends AppCompatActivity {
                 });
                 dialog.show();
                 return true;
+            }
+        });
+
+
+        activeSwitch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SwitchCompat activeSwitch = (SwitchCompat) v;
+                LinearLayout currentAlarmLayout = (LinearLayout) activeSwitch.getParent().getParent();
+                long currentAlarmId = currentAlarmLayout.getId();
+
+                Alarm currentAlarm = App.getInstance().getById(currentAlarmId);
+                currentAlarm.setEnabled(activeSwitch.isChecked());
+                App.getInstance().update(currentAlarm);
             }
         });
 

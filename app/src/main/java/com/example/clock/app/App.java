@@ -77,6 +77,16 @@ public class App extends Application {
     public Alarm getById(long id){
         return alarmDao.getById(id);
     }
+    public void update(Alarm alarm){
+        Executor myExecutor = Executors.newSingleThreadExecutor();
+        myExecutor.execute(() -> {
+            try {
+                alarmDao.update(alarm);
+            } catch (Exception e){
+                e.printStackTrace();
+            }
+        });
+    }
 
     public static LiveData<List<Alarm>> getAlarmsLiveData() {
         return alarmsLiveData;
