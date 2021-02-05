@@ -38,6 +38,7 @@ public class MainActivity extends AppCompatActivity {
     private int lastClickedUserNoteIndex = -1;
     private Calendar chosenTime;
     private LiveData<List<Alarm>> alarmsData;
+    public boolean ignoreUpdate = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,8 +60,13 @@ public class MainActivity extends AppCompatActivity {
         alarmsData.observe(this, new Observer<List<Alarm>>() {
             @Override
             public void onChanged(List<Alarm> alarms) {
-                clearNoteLayout();
-                printCloseNotes(alarms);
+                if(ignoreUpdate != true) {
+                    clearNoteLayout();
+                    printCloseNotes(alarms);
+                }
+                else{
+                    ignoreUpdate = false;
+                }
             }
         });
     }
@@ -80,10 +86,10 @@ public class MainActivity extends AppCompatActivity {
         startActivityForResult(clock_window, 1);
     }
 
-    private void addNoteToLayout(Alarm note){
+    private void addNoteToLayout(Alarm alarm){
 
         LinearLayout newNoteLayout = (LinearLayout) View.inflate(this, R.layout.user_note, null);
-        newNoteLayout.setId((int) note.alarmId);
+        newNoteLayout.setId((int) alarm.alarmId);
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.MATCH_PARENT
@@ -94,18 +100,18 @@ public class MainActivity extends AppCompatActivity {
         newNoteLayout.setLayoutParams(params);
         TextView time = (TextView) newNoteLayout.findViewWithTag("time_day_of_week")
                 .findViewWithTag("time");
-        time.setText(timeInMillisToTime(note.getTimeInMillis()));
+        time.setText(timeInMillisToTime(alarm.getTimeInMillis()));
 
         TextView day_of_week = (TextView) newNoteLayout.findViewWithTag("time_day_of_week")
                 .findViewWithTag("day_of_week");
-        day_of_week.setText(dayNames[note.getDayOfWeek()]);
+        day_of_week.setText(dayNames[alarm.getDayOfWeek()]);
 
         TextView userNote = (TextView) newNoteLayout.findViewWithTag("text");
-        userNote.setText(note.getNote());
+        userNote.setText(alarm.getNote());
 
         SwitchCompat activeSwitch = newNoteLayout.
                 findViewWithTag("switch_layout").findViewWithTag("switch");
-        activeSwitch.setChecked(note.isEnabled());
+        activeSwitch.setChecked(alarm.isEnabled());
 
         userNoteLayout.addView(newNoteLayout);
 
@@ -172,6 +178,7 @@ public class MainActivity extends AppCompatActivity {
         activeSwitch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                ignoreUpdate = true;
                 SwitchCompat activeSwitch = (SwitchCompat) v;
                 LinearLayout currentAlarmLayout = (LinearLayout) activeSwitch.getParent().getParent();
                 long currentAlarmId = currentAlarmLayout.getId();
