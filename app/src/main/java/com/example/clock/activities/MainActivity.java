@@ -109,9 +109,9 @@ public class MainActivity extends AppCompatActivity {
         TextView userNote = (TextView) newNoteLayout.findViewWithTag("text");
         userNote.setText(alarm.getNote());
 
-        SwitchCompat activeSwitch = newNoteLayout.
+        SwitchCompat enableSwitch = newNoteLayout.
                 findViewWithTag("switch_layout").findViewWithTag("switch");
-        activeSwitch.setChecked(alarm.isEnabled());
+        enableSwitch.setChecked(alarm.isEnabled());
 
         userNoteLayout.addView(newNoteLayout);
 
@@ -175,7 +175,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-        activeSwitch.setOnClickListener(new View.OnClickListener() {
+        enableSwitch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 ignoreUpdate = true;
@@ -184,8 +184,16 @@ public class MainActivity extends AppCompatActivity {
                 long currentAlarmId = currentAlarmLayout.getId();
 
                 Alarm currentAlarm = App.getInstance().getById(currentAlarmId);
+                boolean previousState = currentAlarm.isEnabled();
                 currentAlarm.setEnabled(activeSwitch.isChecked());
                 App.getInstance().update(currentAlarm);
+
+                long currentTimeInMillis = System.currentTimeMillis();
+                if(currentAlarm.getTimeInMillis() > currentTimeInMillis + 3000) {
+                    if (previousState == false) {
+
+                    }
+                }
             }
         });
 
