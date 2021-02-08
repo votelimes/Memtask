@@ -125,7 +125,8 @@ public class Alarm implements Serializable {
                     calendar.getTimeInMillis(),
                     alarmPendingIntent
             );
-        } else {
+        }
+        else {
             String toastText = String.format("Recurring Alarm %s scheduled for %s at %02d:%02d", note, getRecurringDaysText(),
                     calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), alarmId);
 

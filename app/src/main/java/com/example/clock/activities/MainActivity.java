@@ -38,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
     private int lastClickedUserNoteIndex = -1;
     private Calendar chosenTime;
     private LiveData<List<Alarm>> alarmsData;
-    public boolean ignoreUpdate = false;
+    private boolean ignoreUpdate = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,12 +60,12 @@ public class MainActivity extends AppCompatActivity {
         alarmsData.observe(this, new Observer<List<Alarm>>() {
             @Override
             public void onChanged(List<Alarm> alarms) {
-                if(ignoreUpdate != true) {
+                if(!isUpdateDisabled()) {
                     clearNoteLayout();
                     printCloseNotes(alarms);
                 }
                 else{
-                    ignoreUpdate = false;
+                    enableUpdate();
                 }
             }
         });
@@ -111,8 +111,14 @@ public class MainActivity extends AppCompatActivity {
 
         SwitchCompat enableSwitch = newNoteLayout.
                 findViewWithTag("switch_layout").findViewWithTag("switch");
-        enableSwitch.setChecked(alarm.isEnabled());
 
+        // Performance moment, may be restructured
+        if(alarm.getTimeInMillis() > alarm.getTimeInMillis()) {
+            disableUpdate();
+            alarm.setEnabled(false);
+            enableSwitch.setChecked(false);
+            App.getInstance().update(alarm);
+        }
         userNoteLayout.addView(newNoteLayout);
 
         newNoteLayout.setOnClickListener(new View.OnClickListener() {
@@ -178,7 +184,7 @@ public class MainActivity extends AppCompatActivity {
         enableSwitch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ignoreUpdate = true;
+                disableUpdate();
                 SwitchCompat activeSwitch = (SwitchCompat) v;
                 LinearLayout currentAlarmLayout = (LinearLayout) activeSwitch.getParent().getParent();
                 long currentAlarmId = currentAlarmLayout.getId();
@@ -191,7 +197,10 @@ public class MainActivity extends AppCompatActivity {
                 long currentTimeInMillis = System.currentTimeMillis();
                 if(currentAlarm.getTimeInMillis() > currentTimeInMillis + 3000) {
                     if (previousState == false) {
-
+                        currentAlarm.schedule(getApplicationContext());
+                    }
+                    if (previousState == true){
+                        currentAlarm.cancelAlarm(getApplicationContext());
                     }
                 }
             }
@@ -209,11 +218,12 @@ public class MainActivity extends AppCompatActivity {
 
     }
     private void printCloseNotes(List<Alarm> alarms){
-        long timeInMillis = chosenTime.getTimeInMillis();
+        long timeInMillis = System.currentTimeMillis();
 
         for(Alarm note : alarms){
-            long closeTimeBarrier = note.getTimeInMillis() - timeInMillis;
-            if(closeTimeBarrier <= Alarm.DAY){
+            long closeTimeBarrier = Math.abs(note.getTimeInMillis() - timeInMillis);
+            // Debug. Remove true statement.
+            if(closeTimeBarrier <= Alarm.DAY || true){
                 addNoteToLayout(note);
             }
         }
@@ -245,6 +255,14 @@ public class MainActivity extends AppCompatActivity {
         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
         return sdf.format(time);
     }
-
+    public void disableUpdate(){
+        this.ignoreUpdate = true;
+    }
+    public void enableUpdate(){
+        this.ignoreUpdate = false;
+    }
+    public boolean isUpdateDisabled(){
+        return this.ignoreUpdate;
+    }
     // Debug methods, have to be removed before release
 }
