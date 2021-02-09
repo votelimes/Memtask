@@ -69,25 +69,36 @@ public class CreateAlarmActivity extends AppCompatActivity {
         minutesPicker.setMaxValue(59);
         minutesPicker.setValue(selectedNote.getMinute());
 
+        // Hours, minutes pickers
         hoursPicker.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
             @Override public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
+                nowCalendar = Calendar.getInstance();
+
+                int selectedHour = hoursPicker.getValue();
+                int selectedMinute = minutesPicker.getValue();
 
                 Calendar selectedTimeCalendar = Calendar.getInstance();
-                selectedTimeCalendar.setTimeInMillis(nowCalendar.getTimeInMillis());
+                selectedTimeCalendar.set(Calendar.HOUR_OF_DAY, selectedHour);
+                selectedTimeCalendar.set(Calendar.MINUTE, selectedMinute);
 
-                selectedTimeCalendar.set(Calendar.HOUR_OF_DAY, newVal);
-                selectedTimeCalendar.set(Calendar.MINUTE, minutesPicker.getValue());
+                selectedNote.setTimeInMillis(selectedTimeCalendar.getTimeInMillis());
 
+                Calendar settlementCalendar = selectedTimeCalendar;
 
                 long time_in_milliseconds_before = nowCalendar.getTimeInMillis();
-                long time_in_milliseconds_after = selectedTimeCalendar.getTimeInMillis();
+                long time_in_milliseconds_after = settlementCalendar.getTimeInMillis();
 
-                //86400000; +1 day, 604800000; +1 week
+
+                long timeBarrier = time_in_milliseconds_after - time_in_milliseconds_before;
                 if(selectedNote.getRepeatMode() <= 1){
-                    if(time_in_milliseconds_after < time_in_milliseconds_before &&
-                            time_in_milliseconds_before - time_in_milliseconds_after < 86400000){
-                        selectedTimeCalendar.add(Calendar.DAY_OF_YEAR, 1);
-                        time_in_milliseconds_after = selectedTimeCalendar.getTimeInMillis();
+                    if(timeBarrier < 0 && Math.abs(timeBarrier) < Alarm.DAY){
+                        settlementCalendar.add(Calendar.MILLISECOND, Alarm.DAY);
+                        time_in_milliseconds_after = settlementCalendar.getTimeInMillis();
+                    }
+                    else if(timeBarrier < 0 && Math.abs(timeBarrier)
+                            < Alarm.DAY && Math.abs(timeBarrier) < Alarm.WEEK){
+                        settlementCalendar.add(Calendar.MILLISECOND, Alarm.WEEK);
+                        time_in_milliseconds_after = settlementCalendar.getTimeInMillis();
                     }
                 }
 
@@ -103,31 +114,44 @@ public class CreateAlarmActivity extends AppCompatActivity {
 
                 setBeforeAlarmText((long)difference_in_days, (long)difference_in_hours,
                                                             (long)difference_in_minutes);
-
-                selectedNote.setTimeInMillis(selectedTimeCalendar.getTimeInMillis());
             }
         });
         minutesPicker.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
             @Override public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
+                nowCalendar = Calendar.getInstance();
+                int selectedHour = hoursPicker.getValue();
+                int selectedMinute = minutesPicker.getValue();
 
                 Calendar selectedTimeCalendar = Calendar.getInstance();
-                selectedTimeCalendar.setTimeInMillis(nowCalendar.getTimeInMillis());
+                selectedTimeCalendar.set(Calendar.HOUR_OF_DAY, selectedHour);
+                selectedTimeCalendar.set(Calendar.MINUTE, selectedMinute);
 
-                selectedTimeCalendar.set(Calendar.MINUTE, newVal);
-                selectedTimeCalendar.set(Calendar.HOUR_OF_DAY, hoursPicker.getValue());
+                selectedNote.setTimeInMillis(selectedTimeCalendar.getTimeInMillis());
 
                 long time_in_milliseconds_before = nowCalendar.getTimeInMillis();
                 long time_in_milliseconds_after = selectedTimeCalendar.getTimeInMillis();
 
-                //86400000; +1 day, 604800000; +1 week
+
+                long timeBarrier = time_in_milliseconds_after - time_in_milliseconds_before;
                 if(selectedNote.getRepeatMode() <= 1){
-                    if(time_in_milliseconds_after < time_in_milliseconds_before &&
-                            time_in_milliseconds_before - time_in_milliseconds_after < 86400000){
-                        selectedTimeCalendar.add(Calendar.DAY_OF_YEAR, 1);
+                    if(timeBarrier < 0 && Math.abs(timeBarrier) <= Alarm.DAY){
+                        selectedTimeCalendar.add(Calendar.MILLISECOND, Alarm.DAY);
+                        time_in_milliseconds_after = selectedTimeCalendar.getTimeInMillis();
+                    }
+                    else if(timeBarrier < 0 && Math.abs(timeBarrier)
+                            < Alarm.DAY && Math.abs(timeBarrier) <= Alarm.WEEK){
+                        selectedTimeCalendar.add(Calendar.MILLISECOND, Alarm.WEEK);
                         time_in_milliseconds_after = selectedTimeCalendar.getTimeInMillis();
                     }
                 }
+                //DEBUG
+                int changedMinute = selectedTimeCalendar.get(Calendar.MINUTE);
+                int changedHour = selectedTimeCalendar.get(Calendar.HOUR_OF_DAY);
+                int changedDay = selectedTimeCalendar.get(Calendar.DAY_OF_MONTH);
+                //DEBUG
 
+                double difference_in_seconds = (time_in_milliseconds_after - time_in_milliseconds_before)
+                                                / 1000;
                 double difference_in_minutes = ((time_in_milliseconds_after - time_in_milliseconds_before)
                         / 1000) / 60;
                 double difference_in_hours = (((time_in_milliseconds_after - time_in_milliseconds_before)
@@ -140,8 +164,6 @@ public class CreateAlarmActivity extends AppCompatActivity {
 
                 setBeforeAlarmText((long)difference_in_days, (long)difference_in_hours,
                         (long)difference_in_minutes);
-
-                selectedNote.setTimeInMillis(selectedTimeCalendar.getTimeInMillis());
             }
         });
 

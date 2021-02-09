@@ -29,8 +29,10 @@ public class Alarm implements Serializable {
     protected String note;
     protected boolean vibrate;
 
-    public final static long DAY = 86400000;
-    public final static long WEEK = 604800000;
+    public final static int DAY = 86400000;
+    public final static int WEEK = DAY*7;
+    public final static int MONTH = WEEK*4;
+    public final static int YEAR = MONTH*12;
 
     // 0: once, 1: every day, 2: every week, 3: every month
     protected int repeatMode;
