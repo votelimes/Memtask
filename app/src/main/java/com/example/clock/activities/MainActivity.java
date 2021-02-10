@@ -36,7 +36,6 @@ public class MainActivity extends AppCompatActivity {
     private LinearLayout userNoteLayout;
     private Context mContext;
     private int lastClickedUserNoteIndex = -1;
-    private Calendar chosenTime;
     private LiveData<List<Alarm>> alarmsData;
     private boolean ignoreUpdate = false;
 
@@ -55,7 +54,6 @@ public class MainActivity extends AppCompatActivity {
 
         mContext = this;
 
-        chosenTime = Calendar.getInstance();
         alarmsData = App.getInstance().getAlarmsLiveData();
         alarmsData.observe(this, new Observer<List<Alarm>>() {
             @Override
@@ -119,6 +117,7 @@ public class MainActivity extends AppCompatActivity {
             enableSwitch.setChecked(false);
             App.getInstance().update(alarm);
         }
+
         userNoteLayout.addView(newNoteLayout);
 
         newNoteLayout.setOnClickListener(new View.OnClickListener() {
@@ -192,17 +191,19 @@ public class MainActivity extends AppCompatActivity {
                 Alarm currentAlarm = App.getInstance().getById(currentAlarmId);
                 boolean previousState = currentAlarm.isEnabled();
                 currentAlarm.setEnabled(activeSwitch.isChecked());
-                App.getInstance().update(currentAlarm);
 
                 long currentTimeInMillis = System.currentTimeMillis();
                 if(currentAlarm.getTimeInMillis() > currentTimeInMillis + 3000) {
                     if (previousState == false) {
                         currentAlarm.schedule(getApplicationContext());
+                        currentAlarm.setEnabled(true);
                     }
                     if (previousState == true){
                         currentAlarm.cancelAlarm(getApplicationContext());
+                        currentAlarm.setEnabled(false);
                     }
                 }
+                App.getInstance().update(currentAlarm);
             }
         });
 
@@ -213,9 +214,6 @@ public class MainActivity extends AppCompatActivity {
         GradientDrawable gradientDrawable = (GradientDrawable) background;
         gradientDrawable.mutate();
         gradientDrawable.setStroke(3, color);
-    }
-    public void onNoteClick(View view){
-
     }
     private void printCloseNotes(List<Alarm> alarms){
         long timeInMillis = System.currentTimeMillis();
