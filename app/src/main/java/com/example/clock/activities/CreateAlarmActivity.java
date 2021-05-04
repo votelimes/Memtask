@@ -58,6 +58,7 @@ public class CreateAlarmActivity extends AppCompatActivity {
 
         if(selectedNote == null){
             selectedNote = new Alarm(Calendar.getInstance(), 1);
+            selectedNote.setEnabled(true);
             resultCode = 1;
         }
 

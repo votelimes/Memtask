@@ -24,7 +24,6 @@ import com.example.clock.data.Alarm;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -85,7 +84,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void addNoteToLayout(Alarm alarm){
-
         LinearLayout newNoteLayout = (LinearLayout) View.inflate(this, R.layout.user_note, null);
         newNoteLayout.setId((int) alarm.alarmId);
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
@@ -110,14 +108,6 @@ public class MainActivity extends AppCompatActivity {
         SwitchCompat enableSwitch = newNoteLayout.
                 findViewWithTag("switch_layout").findViewWithTag("switch");
 
-        // Performance moment, may be restructured
-        if(alarm.getTimeInMillis() > alarm.getTimeInMillis()) {
-            disableUpdate();
-            alarm.setEnabled(false);
-            enableSwitch.setChecked(false);
-            App.getInstance().update(alarm);
-        }
-
         userNoteLayout.addView(newNoteLayout);
 
         newNoteLayout.setOnClickListener(new View.OnClickListener() {
@@ -125,19 +115,19 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if (lastClickedUserNoteIndex == v.getId()) {
                     try {
-                        changeStrokeColor(findViewById(lastClickedUserNoteIndex), getColor(R.color.light_green));
+                        changeStrokeColor(findViewById(lastClickedUserNoteIndex), App.getColor("mainTheme5"));
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
                     lastClickedUserNoteIndex = -1;
                 } else {
                     try {
-                        changeStrokeColor(findViewById(lastClickedUserNoteIndex), getColor(R.color.light_green));
+                        changeStrokeColor(findViewById(lastClickedUserNoteIndex), App.getColor("mainTheme5"));
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
                     try {
-                        changeStrokeColor(v, getColor(R.color.red));
+                        changeStrokeColor(v, App.getColor("mainTheme4"));
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -145,6 +135,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+
         newNoteLayout.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
@@ -179,7 +170,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
         enableSwitch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -207,7 +197,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        Log.d("New note layout ID: ", String.valueOf(newNoteLayout.getId()));
+        enableSwitch.setChecked(alarm.isEnabled());
     }
     private void changeStrokeColor(View v, int color){
         Drawable background = (Drawable) v.getBackground();
@@ -236,7 +226,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (resultCode != 1 || resultCode != 2){
             try{
-                changeStrokeColor(findViewById(lastClickedUserNoteIndex), getColor(R.color.light_green));
+                changeStrokeColor(findViewById(lastClickedUserNoteIndex), App.getColor("mainTheme4"));
             } catch (Exception e){
                 e.printStackTrace();
             }

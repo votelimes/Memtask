@@ -38,8 +38,9 @@ public class Alarm implements Serializable {
     protected int repeatMode;
     // 1, 2, 3, 4, 5, 6, 7
     protected boolean sunday, monday, tuesday, wednesday, thursday, friday, saturday;
-    protected boolean enabled = false, started = false, recurring = false;
-
+    protected boolean enabled = false;
+    protected boolean started = false;
+    protected boolean recurring = false;
 
     public Alarm(Calendar calendar, int repeatMode, String note){
 

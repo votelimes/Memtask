@@ -5,11 +5,14 @@ import android.app.Application;
 import androidx.lifecycle.LiveData;
 import androidx.room.Room;
 
+import com.example.clock.R;
 import com.example.clock.data.Alarm;
 import com.example.clock.data.AlarmDao;
 import com.example.clock.data.Database;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -21,6 +24,7 @@ public class App extends Application {
     private Database database;
     private AlarmDao alarmDao;
 
+    private static Map<String, Integer> color; // Theme colors storage
 
     @Override
     public void onCreate() {
@@ -32,6 +36,12 @@ public class App extends Application {
         alarmDao = database.alarmDao();
 
         alarmsLiveData = alarmDao.getAlarmsLive();
+        color = new HashMap<>();
+        color.put("mainTheme1", getColor(R.color.mainTheme1)); // Theme colors INIT
+        color.put("mainTheme2", getColor(R.color.mainTheme2));
+        color.put("mainTheme3", getColor(R.color.mainTheme3));
+        color.put("mainTheme4", getColor(R.color.mainTheme4));
+        color.put("mainTheme5", getColor(R.color.mainTheme5));
     }
 
     public static App getInstance() {
@@ -88,6 +98,9 @@ public class App extends Application {
         });
     }
 
+    public static int getColor(String colorTag){
+        return color.get(colorTag);
+    }
     public static LiveData<List<Alarm>> getAlarmsLiveData() {
         return alarmsLiveData;
     }
