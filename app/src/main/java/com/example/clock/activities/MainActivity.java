@@ -6,7 +6,9 @@ import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.Layout;
+import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -25,23 +27,31 @@ import com.example.clock.R;
 import com.example.clock.app.App;
 import com.example.clock.data.Alarm;
 
+import java.io.Console;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class MainActivity extends AppCompatActivity {
 
-    private final String[] dayNames = {"NULL", "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
+    // Dynamic variables
     private Context mContext;
     private int lastClickedUserNoteIndex = -1;
     private LiveData<List<Alarm>> alarmsData;
     private boolean ignoreUpdate = false;
-    private enum FieldType {TASK, IDEA, PROJECT}
-    private enum LayoutType {LINEAR, CONSTRAINT}
     private int taskFieldId = 10020;
     private int ideaFieldId = 10021;
     private int noteFieldId = 10022;
     private int lastProjectFieldId = 10022;
+
+    // Types
+    SimpleDateFormat hoursFormatter;
+    private final String[] dayNames = {"NULL", "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
+    private enum FieldType {TASK, IDEA, PROJECT}
+    private enum LayoutType {LINEAR, CONSTRAINT}
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,6 +75,27 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+
+        // Clock text view init
+        final Handler handler = new Handler();
+        Timer    timer = new Timer();
+        TimerTask doAsynchronousTask = new TimerTask() {
+            @Override
+            public void run() {
+                handler.post(new Runnable() {
+                    @SuppressWarnings("unchecked")
+                    public void run() {
+                        try {
+                            updateMainClock();
+                        }
+                        catch (Exception e) {
+                            Log.d("ERROR:", "Unable to create timer event #1 main");
+                        }
+                    }
+                });
+            }
+        };
+        timer.schedule(doAsynchronousTask, 0, 60);
     }
 
     public void onAddClock(View view) {
@@ -285,6 +316,24 @@ public class MainActivity extends AppCompatActivity {
             layout.removeAllViews();
         }
     }
+    private void updateMainClock(){
+        TextView timeView = (TextView) findViewById(R.id.mainClockTextView);
+        TextView timeViewIndex = (TextView) findViewById(R.id.mainClockTimeIndex);
+        if(App.Settings.is24HTimeUses) {
+            SimpleDateFormat hoursFormatter = new SimpleDateFormat("HH:mm");
+            timeView.setText(hoursFormatter.format(new Date()));
+            timeViewIndex.setText("");
+        }
+        else{
+            SimpleDateFormat hoursFormatter = new SimpleDateFormat("hh:mm aa");
+            String timeString = hoursFormatter.format(new Date());
+            String[] time = timeString.split(" ");
+
+            timeView.setText(time[0]);
+            timeViewIndex.setText(time[1]);
+        }
+    }
+
 
     @Override
     protected void onActivityResult (int requestCode, int resultCode, Intent data){

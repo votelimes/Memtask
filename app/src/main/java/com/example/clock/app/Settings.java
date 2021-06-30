@@ -15,6 +15,8 @@ public class Settings
     public boolean isNoteFieldShows = true;
     //public boolean isTaskFieldShows = true;
 
+    public boolean is24HTimeUses = false;
+
     private Map<String, Integer> color;
 
     public Settings(Context context){
