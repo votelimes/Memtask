@@ -115,26 +115,26 @@ public class MainActivity extends AppCompatActivity {
 
         userNoteLayout.addView(newNoteLayout);
 
-        changeStrokeColor(newNoteLayout, App.getColor("mainTheme5"));
+        changeStrokeColor(newNoteLayout, App.Settings.getColor("mainTheme5"));
 
         newNoteLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (lastClickedUserNoteIndex == v.getId()) {
                     try {
-                        changeStrokeColor(findViewById(lastClickedUserNoteIndex), App.getColor("mainTheme5"));
+                        changeStrokeColor(findViewById(lastClickedUserNoteIndex), App.Settings.getColor("mainTheme5"));
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
                     lastClickedUserNoteIndex = -1;
                 } else {
                     try {
-                        changeStrokeColor(findViewById(lastClickedUserNoteIndex), App.getColor("mainTheme5"));
+                        changeStrokeColor(findViewById(lastClickedUserNoteIndex), App.Settings.getColor("mainTheme5"));
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
                     try {
-                        changeStrokeColor(v, App.getColor("mainTheme4"));
+                        changeStrokeColor(v, App.Settings.getColor("mainTheme4"));
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -208,7 +208,7 @@ public class MainActivity extends AppCompatActivity {
     }
     private void addViewToLayout(int constraintLParentId, int topOfFieldId, FieldType type){
 
-        int bgColor = App.getColor("mainTheme3");
+        int bgColor = App.Settings.getColor("mainTheme3");
 
         ConstraintLayout parentView = (ConstraintLayout) findViewById(constraintLParentId);
         LinearLayout newLayout = new LinearLayout(mContext);
@@ -292,7 +292,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (resultCode != 1 || resultCode != 2){
             try{
-                changeStrokeColor(findViewById(lastClickedUserNoteIndex), App.getColor("mainTheme4"));
+                changeStrokeColor(findViewById(lastClickedUserNoteIndex), App.Settings.getColor("mainTheme4"));
             } catch (Exception e){
                 e.printStackTrace();
             }
