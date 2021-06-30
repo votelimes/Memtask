@@ -6,22 +6,24 @@ import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
-import android.util.Log;
+import android.text.Layout;
 import android.view.View;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 
 import com.example.clock.R;
 import com.example.clock.app.App;
 import com.example.clock.data.Alarm;
-import com.google.android.material.bottomsheet.BottomSheetBehavior;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -29,36 +31,33 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    private BottomSheetBehavior mBottomSheetBehavior;
-
     private final String[] dayNames = {"NULL", "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
-    private LinearLayout userNoteLayout;
     private Context mContext;
     private int lastClickedUserNoteIndex = -1;
     private LiveData<List<Alarm>> alarmsData;
     private boolean ignoreUpdate = false;
+    private enum FieldType {TASK, IDEA, PROJECT}
+    private enum LayoutType {LINEAR, CONSTRAINT}
+    private int taskFieldId = 10020;
+    private int ideaFieldId = 10021;
+    private int noteFieldId = 10022;
+    private int lastProjectFieldId = 10022;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        userNoteLayout = findViewById(R.id.userNoteTopLayout);
-
-        View bottomSheet = findViewById( R.id.bottom_sheet );
-        mBottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
-        mBottomSheetBehavior.setDraggable(true);
-        mBottomSheetBehavior.setPeekHeight(600);
-        mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
-
         mContext = this;
+
+        addViewToLayout(R.id.fieldTopLayout, R.id.mainStrutMiddle,  FieldType.TASK);
 
         alarmsData = App.getInstance().getAlarmsLiveData();
         alarmsData.observe(this, new Observer<List<Alarm>>() {
             @Override
             public void onChanged(List<Alarm> alarms) {
                 if(!isUpdateDisabled()) {
-                    clearNoteLayout();
+                    clearLayout(taskFieldId, LayoutType.LINEAR);
                     printCloseNotes(alarms);
                 }
                 else{
@@ -83,7 +82,13 @@ public class MainActivity extends AppCompatActivity {
         startActivityForResult(clock_window, 1);
     }
 
-    private void addNoteToLayout(Alarm alarm){
+    public void onNoteClick(View view){
+        addViewToLayout(R.id.fieldTopLayout, lastProjectFieldId,  FieldType.TASK);
+    }
+
+    private void addTaskToLayout(Alarm alarm){
+        LinearLayout userNoteLayout = (LinearLayout) findViewById(taskFieldId);
+
         LinearLayout newNoteLayout = (LinearLayout) View.inflate(this, R.layout.user_note, null);
         newNoteLayout.setId((int) alarm.alarmId);
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
@@ -109,6 +114,8 @@ public class MainActivity extends AppCompatActivity {
                 findViewWithTag("switch_layout").findViewWithTag("switch");
 
         userNoteLayout.addView(newNoteLayout);
+
+        changeStrokeColor(newNoteLayout, App.getColor("mainTheme5"));
 
         newNoteLayout.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -199,6 +206,57 @@ public class MainActivity extends AppCompatActivity {
 
         enableSwitch.setChecked(alarm.isEnabled());
     }
+    private void addViewToLayout(int constraintLParentId, int topOfFieldId, FieldType type){
+
+        int bgColor = App.getColor("mainTheme3");
+
+        ConstraintLayout parentView = (ConstraintLayout) findViewById(constraintLParentId);
+        LinearLayout newLayout = new LinearLayout(mContext);
+        newLayout.setOrientation(LinearLayout.VERTICAL);
+
+        GradientDrawable gradientDrawable   =   new GradientDrawable();
+        gradientDrawable.setCornerRadii(new float[]{20, 20, 20, 20, 20, 20, 20, 20});
+        gradientDrawable.setColor(bgColor);
+        newLayout.setBackground(gradientDrawable);
+
+        if(type == FieldType.TASK) {
+            newLayout.setId(taskFieldId);
+
+            newLayout.setPadding(15, 15, 15, 15);
+            parentView.addView(newLayout);
+
+            ConstraintSet constraintSet = new ConstraintSet();
+            constraintSet.clone(parentView);
+
+            constraintSet.connect(newLayout.getId(), ConstraintSet.START, R.id.parent, ConstraintSet.START, 0);
+
+            if (topOfFieldId == 10022) {
+                constraintSet.connect(newLayout.getId(), ConstraintSet.TOP, R.id.mainStrutMiddle, ConstraintSet.BOTTOM, 0);
+            } else {
+                constraintSet.connect(newLayout.getId(), ConstraintSet.TOP, topOfFieldId, ConstraintSet.BOTTOM, 0);
+            }
+            constraintSet.applyTo(parentView);
+
+            ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) newLayout.getLayoutParams();
+            params.width = ConstraintLayout.LayoutParams.MATCH_PARENT;
+            params.height = ConstraintLayout.LayoutParams.MATCH_PARENT;
+
+            params.topMargin = 100;
+            params.leftMargin = 20;
+            params.rightMargin = 20;
+
+            newLayout.setLayoutParams(params);
+        }
+        else if(type == FieldType.IDEA){
+            newLayout.setId(ideaFieldId);
+        }
+        else if(type == FieldType.PROJECT){
+            newLayout.setId(lastProjectFieldId + 1);
+            lastProjectFieldId++;
+
+
+        }
+    }
     private void changeStrokeColor(View v, int color){
         Drawable background = (Drawable) v.getBackground();
         GradientDrawable gradientDrawable = (GradientDrawable) background;
@@ -212,12 +270,20 @@ public class MainActivity extends AppCompatActivity {
             long closeTimeBarrier = Math.abs(note.getTimeInMillis() - timeInMillis);
             // Debug. Remove true statement.
             if(closeTimeBarrier <= Alarm.DAY || true){
-                addNoteToLayout(note);
+                addTaskToLayout(note);
             }
         }
     }
-    private void clearNoteLayout(){
-        userNoteLayout.removeAllViews();
+    private void clearLayout(int layoutId, LayoutType type){
+
+        if(type == LayoutType.LINEAR){
+            LinearLayout layout = (LinearLayout) findViewById(layoutId);
+            layout.removeAllViews();
+        }
+        else if(type == LayoutType.CONSTRAINT){
+            ConstraintLayout layout = (ConstraintLayout) findViewById(layoutId);
+            layout.removeAllViews();
+        }
     }
 
     @Override

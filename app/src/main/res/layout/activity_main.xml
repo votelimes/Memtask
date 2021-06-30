@@ -1,64 +1,106 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout
+<androidx.constraintlayout.widget.ConstraintLayout
+    android:id="@+id/mainConstraintLayoutTop"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".activities.MainActivity">
+    tools:context=".activities.MainActivity"
+    android:background="@color/mainTheme1"
+    >
+
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        >
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            >
-            <com.google.android.material.appbar.AppBarLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:theme="@style/Theme.Clock.AppBarOverlay">
+        tools:layout_editor_absoluteX="70dp"
+        tools:layout_editor_absoluteY="0dp">
 
-                <androidx.appcompat.widget.Toolbar
-                    android:id="@+id/toolbar"
-                    android:layout_width="match_parent"
-                    android:layout_height="?attr/actionBarSize"
-                    android:background="?attr/colorPrimary"
-                    app:popupTheme="@style/Theme.Clock.PopupOverlay" />
-            </com.google.android.material.appbar.AppBarLayout>
-        </LinearLayout>
-    </ScrollView>
-    <androidx.core.widget.NestedScrollView
-        android:id="@+id/bottom_sheet"
-        android:layout_width="match_parent"
-        android:layout_height="550dp"
-        android:clipToPadding="true"
-        android:background="@color/white"
-        android:paddingStart="10dp"
-        android:paddingEnd="10dp"
-        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
-        >
-            <LinearLayout
-                android:id="@+id/userNoteTopLayout"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/fieldTopLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            >
+
+            <TextView
+                android:id="@+id/mainClockTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="100dp"
+                android:background="@color/transparent"
+                android:gravity="bottom"
+                android:text="09:55"
+                android:textColor="@color/white"
+                android:textSize="40sp"
+                app:layout_constraintEnd_toStartOf="@+id/mainClockTimeIndex"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintHorizontal_chainStyle="packed"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/mainClockTimeIndex"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="PM"
+                android:textColor="@color/white"
+                android:textSize="16sp"
+                android:paddingBottom="5dp"
+                app:layout_constraintBottom_toBottomOf="@+id/mainClockTextView"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toEndOf="@+id/mainClockTextView" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/mainButton1"
+                android:layout_width="135dp"
+                android:layout_height="45dp"
+                android:layout_marginStart="25dp"
+                android:layout_marginTop="270dp"
+                android:background="@drawable/custom_button2"
+                android:fontFamily="sans-serif"
+                android:onClick="onAddClock"
+                android:text="Set"
+                android:textAllCaps="false"
+                android:textColor="@color/mainTheme4"
+                android:textSize="20sp"
+                android:textStyle="normal"
+                app:layout_anchorGravity="top|end"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/mainButton2"
+                android:layout_width="135dp"
+                android:layout_height="45dp"
+                android:layout_marginEnd="25dp"
+                android:layout_marginTop="270dp"
+                android:background="@drawable/custom_button2"
+                android:text="Note"
+                android:fontFamily="sans-serif"
+                android:textSize="20sp"
+                android:textAllCaps="false"
+                android:textStyle="normal"
+                android:textColor="@color/mainTheme4"
+                android:onClick="onNoteClick"
+                app:layout_anchorGravity="top|end"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <View
+                android:id="@+id/mainStrutMiddle"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical"
+                android:background="@color/white"
+                app:layout_constraintTop_toBottomOf="@id/mainButton1"
+                app:layout_constraintStart_toStartOf="parent"
+                android:layout_marginTop="28dp"
+                android:padding="7dp"
                 >
-            </LinearLayout>
-    </androidx.core.widget.NestedScrollView>
+            </View>
 
-    <androidx.appcompat.widget.AppCompatButton
-        android:layout_width="35dp"
-        android:layout_height="55dp"
-        app:layout_anchor="@id/bottom_sheet"
-        app:layout_anchorGravity="top|end"
-        android:onClick="onAddClock"
-        />
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/grey"
-        app:layout_anchor="@id/bottom_sheet"
-        app:layout_anchorGravity="top"
-        />
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </ScrollView>
+</androidx.constraintlayout.widget.ConstraintLayout>
