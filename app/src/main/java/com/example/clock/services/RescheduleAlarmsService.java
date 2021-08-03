@@ -8,7 +8,7 @@ import androidx.lifecycle.LifecycleService;
 import androidx.lifecycle.Observer;
 
 import com.example.clock.app.App;
-import com.example.clock.data.Alarm;
+import com.example.clock.data.Task;
 
 import java.util.List;
 
@@ -23,10 +23,10 @@ public class RescheduleAlarmsService extends LifecycleService {
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
 
-        App.getAlarmsLiveData().observe(this, new Observer<List<Alarm>>() {
+        App.getAlarmsLiveData().observe(this, new Observer<List<Task>>() {
             @Override
-            public void onChanged(List<Alarm> alarms) {
-                for (Alarm a : alarms) {
+            public void onChanged(List<Task> tasks) {
+                for (Task a : tasks) {
                     if (a.isStarted()) {
                         a.schedule(getApplicationContext());
                     }

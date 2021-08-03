@@ -21,7 +21,7 @@ import androidx.appcompat.widget.SwitchCompat;
 
 import com.example.clock.R;
 import com.example.clock.app.App;
-import com.example.clock.data.Alarm;
+import com.example.clock.data.Task;
 
 import java.util.Calendar;
 
@@ -30,7 +30,7 @@ public class CreateAlarmActivity extends AppCompatActivity {
     NumberPicker hoursPicker;
     NumberPicker minutesPicker;
 
-    Alarm selectedNote;
+    Task selectedNote;
 
     RelativeLayout repeatModeLayout;
     RelativeLayout vibrateModeLayout;
@@ -54,10 +54,10 @@ public class CreateAlarmActivity extends AppCompatActivity {
         nowCalendar = Calendar.getInstance();
 
         selectedNote = null;
-        selectedNote = (Alarm) getIntent().getSerializableExtra("selectedNote");
+        selectedNote = (Task) getIntent().getSerializableExtra("selectedNote");
 
         if(selectedNote == null){
-            selectedNote = new Alarm(Calendar.getInstance(), 1);
+            selectedNote = new Task(Calendar.getInstance(), 1);
             selectedNote.setEnabled(true);
             resultCode = 1;
         }
@@ -92,13 +92,13 @@ public class CreateAlarmActivity extends AppCompatActivity {
 
                 long timeBarrier = time_in_milliseconds_after - time_in_milliseconds_before;
                 if(selectedNote.getRepeatMode() <= 1){
-                    if(timeBarrier < 0 && Math.abs(timeBarrier) < Alarm.DAY){
-                        settlementCalendar.add(Calendar.MILLISECOND, Alarm.DAY);
+                    if(timeBarrier < 0 && Math.abs(timeBarrier) < Task.DAY){
+                        settlementCalendar.add(Calendar.MILLISECOND, Task.DAY);
                         time_in_milliseconds_after = settlementCalendar.getTimeInMillis();
                     }
                     else if(timeBarrier < 0 && Math.abs(timeBarrier)
-                            < Alarm.DAY && Math.abs(timeBarrier) < Alarm.WEEK){
-                        settlementCalendar.add(Calendar.MILLISECOND, Alarm.WEEK);
+                            < Task.DAY && Math.abs(timeBarrier) < Task.WEEK){
+                        settlementCalendar.add(Calendar.MILLISECOND, Task.WEEK);
                         time_in_milliseconds_after = settlementCalendar.getTimeInMillis();
                     }
                 }
@@ -135,13 +135,13 @@ public class CreateAlarmActivity extends AppCompatActivity {
 
                 long timeBarrier = time_in_milliseconds_after - time_in_milliseconds_before;
                 if(selectedNote.getRepeatMode() <= 1){
-                    if(timeBarrier < 0 && Math.abs(timeBarrier) <= Alarm.DAY){
-                        selectedTimeCalendar.add(Calendar.MILLISECOND, Alarm.DAY);
+                    if(timeBarrier < 0 && Math.abs(timeBarrier) <= Task.DAY){
+                        selectedTimeCalendar.add(Calendar.MILLISECOND, Task.DAY);
                         time_in_milliseconds_after = selectedTimeCalendar.getTimeInMillis();
                     }
                     else if(timeBarrier < 0 && Math.abs(timeBarrier)
-                            < Alarm.DAY && Math.abs(timeBarrier) <= Alarm.WEEK){
-                        selectedTimeCalendar.add(Calendar.MILLISECOND, Alarm.WEEK);
+                            < Task.DAY && Math.abs(timeBarrier) <= Task.WEEK){
+                        selectedTimeCalendar.add(Calendar.MILLISECOND, Task.WEEK);
                         time_in_milliseconds_after = selectedTimeCalendar.getTimeInMillis();
                     }
                 }
@@ -313,7 +313,7 @@ public class CreateAlarmActivity extends AppCompatActivity {
     }
     private void showUserNoteDialog(){
         Intent createNoteWindow = new Intent(this, InputNoteActivity.class);
-        String currentNote = selectedNote.getNote();
+        String currentNote = selectedNote.getDescription();
 
         createNoteWindow.putExtra("note", currentNote);
         startActivityForResult(createNoteWindow, 1);
@@ -346,7 +346,7 @@ public class CreateAlarmActivity extends AppCompatActivity {
         boolean  success = false;
         if (resultCode == 1){
             String new_note = (String) data.getStringExtra("note");
-            selectedNote.setNote(new_note);
+            selectedNote.setDescription(new_note);
         }
     }
 

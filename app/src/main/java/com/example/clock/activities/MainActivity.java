@@ -7,11 +7,9 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.os.Handler;
-import android.text.Layout;
 import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -25,11 +23,9 @@ import androidx.lifecycle.Observer;
 
 import com.example.clock.R;
 import com.example.clock.app.App;
-import com.example.clock.data.Alarm;
+import com.example.clock.data.Task;
 
-import java.io.Console;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Timer;
@@ -40,11 +36,11 @@ public class MainActivity extends AppCompatActivity {
     // Dynamic variables
     private Context mContext;
     private int lastClickedUserNoteIndex = -1;
-    private LiveData<List<Alarm>> alarmsData;
+    private LiveData<List<Task>> alarmsData;
     private boolean ignoreUpdate = false;
-    private int taskFieldId = 10020;
-    private int ideaFieldId = 10021;
-    private int noteFieldId = 10022;
+    private final int taskFieldId = 10020;
+    private final int ideaFieldId = 10021;
+    private final int noteFieldId = 10022;
     private int lastProjectFieldId = 10022;
 
     // Types
@@ -63,12 +59,12 @@ public class MainActivity extends AppCompatActivity {
         addViewToLayout(R.id.fieldTopLayout, R.id.mainStrutMiddle,  FieldType.TASK);
 
         alarmsData = App.getInstance().getAlarmsLiveData();
-        alarmsData.observe(this, new Observer<List<Alarm>>() {
+        alarmsData.observe(this, new Observer<List<Task>>() {
             @Override
-            public void onChanged(List<Alarm> alarms) {
+            public void onChanged(List<Task> tasks) {
                 if(!isUpdateDisabled()) {
                     clearLayout(taskFieldId, LayoutType.LINEAR);
-                    printCloseNotes(alarms);
+                    printCloseNotes(tasks);
                 }
                 else{
                     enableUpdate();
@@ -100,10 +96,10 @@ public class MainActivity extends AppCompatActivity {
 
     public void onAddClock(View view) {
         Intent clock_window = new Intent(this, CreateAlarmActivity.class);
-        Alarm selectedNote = null;
+        Task selectedNote = null;
         if(lastClickedUserNoteIndex != -1) {
-            for (Alarm note : App.getInstance().getAlarmsLiveData().getValue()) {
-                if (note.alarmId == lastClickedUserNoteIndex) {
+            for (Task note : App.getInstance().getAlarmsLiveData().getValue()) {
+                if (note.getTaskId() == lastClickedUserNoteIndex) {
                     selectedNote = note;
                     break;
                 }
@@ -117,11 +113,11 @@ public class MainActivity extends AppCompatActivity {
         addViewToLayout(R.id.fieldTopLayout, lastProjectFieldId,  FieldType.TASK);
     }
 
-    private void addTaskToLayout(Alarm alarm){
+    private void addTaskToLayout(Task task){
         LinearLayout userNoteLayout = (LinearLayout) findViewById(taskFieldId);
 
         LinearLayout newNoteLayout = (LinearLayout) View.inflate(this, R.layout.user_note, null);
-        newNoteLayout.setId((int) alarm.alarmId);
+        newNoteLayout.setId((int) task.getTaskId());
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.MATCH_PARENT
@@ -132,14 +128,14 @@ public class MainActivity extends AppCompatActivity {
         newNoteLayout.setLayoutParams(params);
         TextView time = (TextView) newNoteLayout.findViewWithTag("time_day_of_week")
                 .findViewWithTag("time");
-        time.setText(timeInMillisToTime(alarm.getTimeInMillis()));
+        time.setText(timeInMillisToTime(task.getTimeInMillis()));
 
         TextView day_of_week = (TextView) newNoteLayout.findViewWithTag("time_day_of_week")
                 .findViewWithTag("day_of_week");
-        day_of_week.setText(dayNames[alarm.getDayOfWeek()]);
+        day_of_week.setText(dayNames[task.getDayOfWeek()]);
 
         TextView userNote = (TextView) newNoteLayout.findViewWithTag("text");
-        userNote.setText(alarm.getNote());
+        userNote.setText(task.getDescription());
 
         SwitchCompat enableSwitch = newNoteLayout.
                 findViewWithTag("switch_layout").findViewWithTag("switch");
@@ -213,29 +209,29 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 disableUpdate();
                 SwitchCompat activeSwitch = (SwitchCompat) v;
-                LinearLayout currentAlarmLayout = (LinearLayout) activeSwitch.getParent().getParent();
-                long currentAlarmId = currentAlarmLayout.getId();
+                LinearLayout currentTaskLayout = (LinearLayout) activeSwitch.getParent().getParent();
+                long currentTaskId = currentTaskLayout.getId();
 
-                Alarm currentAlarm = App.getInstance().getById(currentAlarmId);
-                boolean previousState = currentAlarm.isEnabled();
-                currentAlarm.setEnabled(activeSwitch.isChecked());
+                Task currentTask = App.getInstance().getById(currentTaskId);
+                boolean previousState = currentTask.isEnabled();
+                currentTask.setEnabled(activeSwitch.isChecked());
 
                 long currentTimeInMillis = System.currentTimeMillis();
-                if(currentAlarm.getTimeInMillis() > currentTimeInMillis + 3000) {
+                if(currentTask.getTimeInMillis() > currentTimeInMillis + 3000) {
                     if (previousState == false) {
-                        currentAlarm.schedule(getApplicationContext());
-                        currentAlarm.setEnabled(true);
+                        currentTask.schedule(getApplicationContext());
+                        currentTask.setEnabled(true);
                     }
                     if (previousState == true){
-                        currentAlarm.cancelAlarm(getApplicationContext());
-                        currentAlarm.setEnabled(false);
+                        currentTask.cancelAlarm(getApplicationContext());
+                        currentTask.setEnabled(false);
                     }
                 }
-                App.getInstance().update(currentAlarm);
+                App.getInstance().update(currentTask);
             }
         });
 
-        enableSwitch.setChecked(alarm.isEnabled());
+        enableSwitch.setChecked(task.isEnabled());
     }
     private void addViewToLayout(int constraintLParentId, int topOfFieldId, FieldType type){
 
@@ -294,13 +290,13 @@ public class MainActivity extends AppCompatActivity {
         gradientDrawable.mutate();
         gradientDrawable.setStroke(3, color);
     }
-    private void printCloseNotes(List<Alarm> alarms){
+    private void printCloseNotes(List<Task> tasks){
         long timeInMillis = System.currentTimeMillis();
 
-        for(Alarm note : alarms){
+        for(Task note : tasks){
             long closeTimeBarrier = Math.abs(note.getTimeInMillis() - timeInMillis);
             // Debug. Remove true statement.
-            if(closeTimeBarrier <= Alarm.DAY || true){
+            if(closeTimeBarrier <= Task.DAY || true){
                 addTaskToLayout(note);
             }
         }

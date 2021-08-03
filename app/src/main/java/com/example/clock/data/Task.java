@@ -15,18 +15,15 @@ import androidx.room.PrimaryKey;
 
 import com.example.clock.broadcastreceiver.AlarmBroadcastReceiver;
 
-import java.io.Serializable;
 import java.util.Calendar;
 
-@Entity(tableName = "alarm_table")
-public class Alarm implements Serializable {
+@Entity(tableName = "task_table")
+public class Task extends UserCase {
 
     @PrimaryKey(autoGenerate = true)
     @NonNull
-    @ColumnInfo(name = "alarmId")
-    public long alarmId;
-    protected long timeInMillis;
-    protected String note;
+    @ColumnInfo(name = "taskId")
+    private long taskId;
     protected boolean vibrate;
 
     public final static int DAY = 86400000;
@@ -42,42 +39,42 @@ public class Alarm implements Serializable {
     protected boolean started = false;
     protected boolean recurring = false;
 
-    public Alarm(Calendar calendar, int repeatMode, String note){
+    public Task(Calendar calendar, int repeatMode, String description){
 
         timeInMillis = calendar.getTimeInMillis();
 
         this.repeatMode = repeatMode;
-        this.note = note;
+        this.description = description;
         this.vibrate = true;
     }
 
-    public Alarm(Calendar calendar, int repeatMode){
+    public Task(Calendar calendar, int repeatMode){
 
         timeInMillis = calendar.getTimeInMillis();
 
-        this.note = "";
+        this.description = "";
         this.repeatMode = repeatMode;
         this.vibrate = true;
     }
 
     @Ignore
-    public Alarm(long alarmId, int repeatMode, long timeInMillis, String note){
-        this.alarmId = alarmId;
+    public Task(long taskId, int repeatMode, long timeInMillis, String description){
+        this.taskId = taskId;
         this.repeatMode = repeatMode;
         this.timeInMillis = timeInMillis;
-        this.note = note;
+        this.description = description;
         this.vibrate = true;
     }
 
-    public Alarm(long alarmId, int repeatMode, boolean started, boolean recurring, long timeInMillis, String note,
-                 boolean sunday, boolean monday, boolean tuesday, boolean wednesday,
-                 boolean thursday, boolean friday, boolean saturday){
-        this.alarmId = alarmId;
+    public Task(long taskId, int repeatMode, boolean started, boolean recurring, long timeInMillis, String description,
+                boolean sunday, boolean monday, boolean tuesday, boolean wednesday,
+                boolean thursday, boolean friday, boolean saturday){
+        this.taskId = taskId;
         this.repeatMode = repeatMode;
         this.started = started;
         this.recurring = recurring;
         this.timeInMillis = timeInMillis;
-        this.note = note;
+        this.description = description;
         this.vibrate = true;
         this.monday = monday;
         this.tuesday = tuesday;
@@ -100,9 +97,9 @@ public class Alarm implements Serializable {
         intent.putExtra("SATURDAY", saturday);
         intent.putExtra("SUNDAY", sunday);
 
-        intent.putExtra("TITLE", note);
+        intent.putExtra("TITLE", description);
 
-        PendingIntent alarmPendingIntent = PendingIntent.getBroadcast(context, (int) alarmId, intent, 0);
+        PendingIntent alarmPendingIntent = PendingIntent.getBroadcast(context, (int) taskId, intent, 0);
 
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(this.getTimeInMillis());
@@ -115,9 +112,9 @@ public class Alarm implements Serializable {
         if (!recurring) {
             String toastText = null;
             try {
-                toastText = String.format("One Time Alarm %s scheduled for %s at %02d:%02d", note,
+                toastText = String.format("One Time Alarm %s scheduled for %s at %02d:%02d", description,
                         toDay(calendar.get(Calendar.DAY_OF_WEEK)),
-                        calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), alarmId);
+                        calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), taskId);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -130,8 +127,8 @@ public class Alarm implements Serializable {
             );
         }
         else {
-            String toastText = String.format("Recurring Alarm %s scheduled for %s at %02d:%02d", note, getRecurringDaysText(),
-                    calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), alarmId);
+            String toastText = String.format("Recurring Alarm %s scheduled for %s at %02d:%02d", description, getRecurringDaysText(),
+                    calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), taskId);
 
             Toast.makeText(context, toastText, Toast.LENGTH_LONG).show();
 
@@ -150,14 +147,14 @@ public class Alarm implements Serializable {
     public void cancelAlarm(Context context) {
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(context, AlarmBroadcastReceiver.class);
-        PendingIntent alarmPendingIntent = PendingIntent.getBroadcast(context, (int) alarmId, intent, 0);
+        PendingIntent alarmPendingIntent = PendingIntent.getBroadcast(context, (int) taskId, intent, 0);
         alarmManager.cancel(alarmPendingIntent);
         this.started = false;
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(this.timeInMillis);
 
         String toastText = String.format("Alarm cancelled for %02d:%02d with id %d",
-                calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), alarmId);
+                calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), taskId);
 
         Toast.makeText(context, toastText, Toast.LENGTH_SHORT).show();
         Log.i("cancel", toastText);
@@ -195,8 +192,8 @@ public class Alarm implements Serializable {
 
         this.timeInMillis = calendar.getTimeInMillis();
     }
-    public void setId(long id){
-        this.alarmId = id;
+    public void setTaskId(long id){
+        this.taskId = id;
     }
     public void setRepeatMode(int repeatMode){
         this.repeatMode = repeatMode;
@@ -208,9 +205,7 @@ public class Alarm implements Serializable {
     public void setVibrate(boolean vibrate){
         this.vibrate = vibrate;
     }
-    public void setNote(String note){
-        this.note = note;
-    }
+
     public void setTimeInMillis(long timeInMillis){
         this.timeInMillis = timeInMillis;
     }
@@ -314,11 +309,8 @@ public class Alarm implements Serializable {
     public long getTimeInMillis(){
         return this.timeInMillis;
     }
-    public String getNote(){
-        return this.note;
-    }
-    public long getId(){
-        return this.alarmId;
+    public long getTaskId(){
+        return this.taskId;
     }
 
     public boolean isEnabled(){

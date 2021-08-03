@@ -14,9 +14,9 @@
     to the presentation</string>
 
     <string name="repeat_mode">Repeat mode</string>
-    <string name="vibrate_mode">Vibrate when alarm sounds</string>
+    <string name="vibrate_mode">Vibrate when task sounds</string>
     <string name="ringtone">Ringtone</string>
-    <string name="vibrate">Vibrate when alarm sounds</string>
+    <string name="vibrate">Vibrate when task sounds</string>
     <string name="delete_after_off">Delete after goes off</string>
 
     <string-array name="repeat_modes">

@@ -21,7 +21,7 @@
         android:id="@+id/text_input_note"
         android:layout_width="200dp"
         android:layout_height="wrap_content"
-        android:text="Create alarm note"
+        android:text="Create task note"
         android:textAlignment="center"
         android:textSize="20sp"
         android:textColor="@color/black"
@@ -54,7 +54,7 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="This message will be displayed on the screen when the alarm rings."
+        android:text="This message will be displayed on the screen when the task rings."
         android:layout_below="@id/input_input_note"
         android:layout_marginLeft="15dp"
         android:layout_marginRight="15dp"

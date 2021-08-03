@@ -11,36 +11,36 @@ import androidx.room.Update;
 import java.util.List;
 
 @Dao
-public interface AlarmDao {
+public interface TaskDao {
 
-    @Query("SELECT * FROM alarm_table")
-    List <Alarm> getAll();
+    @Query("SELECT * FROM task_table")
+    List <Task> getAll();
 
-    @Query("SELECT * FROM alarm_table WHERE alarmId = :id")
-    Alarm getById(long id);
+    @Query("SELECT * FROM task_table WHERE taskId = :id")
+    Task getById(long id);
 
     //@Query("SELECT * FROM alarm_table ORDER BY created ASC")
-    @Query("SELECT * FROM alarm_table")
-    LiveData<List<Alarm>> getAlarmsLive();
+    @Query("SELECT * FROM task_table")
+    LiveData<List<Task>> getAlarmsLive();
 
-    @Query("DELETE FROM alarm_table")
+    @Query("DELETE FROM task_table")
     int clear();
 
     @Insert
-    long insert(Alarm mAlarm);
+    long insert(Task mTask);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    long insertWithReplace(Alarm mAlarm);
+    long insertWithReplace(Task mTask);
 
     @Query("SELECT last_insert_rowid()")
     long getLastId();
 
     @Update
-    void update(Alarm mAlarm);
+    void update(Task mTask);
 
-    @Query("DELETE FROM alarm_table WHERE alarmId = :id")
+    @Query("DELETE FROM task_table WHERE taskId = :id")
     void deleteById(long id);
 
     @Delete
-    void delete(Alarm mAlarm);
+    void delete(Task mTask);
 }

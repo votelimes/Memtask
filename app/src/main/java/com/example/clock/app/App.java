@@ -4,24 +4,22 @@ import android.app.Application;
 
 import androidx.lifecycle.LiveData;
 import androidx.room.Room;
-import com.example.clock.app.Settings;
 
-import com.example.clock.data.Alarm;
-import com.example.clock.data.AlarmDao;
+import com.example.clock.data.Task;
+import com.example.clock.data.TaskDao;
 import com.example.clock.data.Database;
 
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 public class App extends Application {
 
     public static App instance;
-    private static LiveData<List<Alarm>> alarmsLiveData;
+    private static LiveData<List<Task>> alarmsLiveData;
 
     private Database database;
-    private AlarmDao alarmDao;
+    private TaskDao taskDao;
     public static Settings Settings;
 
     //private static Map<String, Integer> color; // Theme colors storage
@@ -34,9 +32,9 @@ public class App extends Application {
         this.database = Room.databaseBuilder(this, Database.class, "user_db")
                 .allowMainThreadQueries()
                 .build();
-        alarmDao = database.alarmDao();
+        taskDao = database.taskDao();
 
-        alarmsLiveData = alarmDao.getAlarmsLive();
+        alarmsLiveData = taskDao.getAlarmsLive();
         Settings = new Settings(this.getApplicationContext());
     }
 
@@ -48,23 +46,23 @@ public class App extends Application {
         return database;
     }
 
-    public void insert(Alarm alarm){
+    public void insert(Task task){
         Executor myExecutor = Executors.newSingleThreadExecutor();
         myExecutor.execute(() -> {
-            alarmDao.insert(alarm);
+            taskDao.insert(task);
         });
     }
-    public void insertWithReplace(Alarm alarm){
+    public void insertWithReplace(Task task){
         Executor myExecutor = Executors.newSingleThreadExecutor();
         myExecutor.execute(() -> {
-            alarmDao.insertWithReplace(alarm);
+            taskDao.insertWithReplace(task);
         });
     }
-    public void remove(Alarm alarm){
+    public void remove(Task task){
         Executor myExecutor = Executors.newSingleThreadExecutor();
         myExecutor.execute(() -> {
             try {
-                alarmDao.delete(alarm);
+                taskDao.delete(task);
             } catch (Exception e){
                 e.printStackTrace();
             }
@@ -74,26 +72,26 @@ public class App extends Application {
         Executor myExecutor = Executors.newSingleThreadExecutor();
         myExecutor.execute(() -> {
             try {
-                alarmDao.deleteById(id);
+                taskDao.deleteById(id);
             } catch (Exception e){
                 e.printStackTrace();
             }
         });
     }
-    public Alarm getById(long id){
-        return alarmDao.getById(id);
+    public Task getById(long id){
+        return taskDao.getById(id);
     }
-    public void update(Alarm alarm){
+    public void update(Task task){
         Executor myExecutor = Executors.newSingleThreadExecutor();
         myExecutor.execute(() -> {
             try {
-                alarmDao.update(alarm);
+                taskDao.update(task);
             } catch (Exception e){
                 e.printStackTrace();
             }
         });
     }
-    public static LiveData<List<Alarm>> getAlarmsLiveData() {
+    public static LiveData<List<Task>> getAlarmsLiveData() {
         return alarmsLiveData;
     }
 }

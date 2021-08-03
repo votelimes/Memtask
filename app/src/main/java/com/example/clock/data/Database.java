@@ -8,9 +8,9 @@ import androidx.room.RoomDatabase;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-@androidx.room.Database(entities = {Alarm.class}, version = 1)
+@androidx.room.Database(entities = {Task.class}, version = 1)
 public abstract class Database extends RoomDatabase {
-    public abstract AlarmDao alarmDao();
+    public abstract TaskDao taskDao();
 
     private static volatile Database INSTANCE;
     private static final int NUMBER_OF_THREADS = 4;
@@ -23,7 +23,7 @@ public abstract class Database extends RoomDatabase {
                     INSTANCE = Room.databaseBuilder(
                             context.getApplicationContext(),
                             Database.class,
-                            "alarm_database"
+                            "core_database"
                     ).build();
                 }
             }
