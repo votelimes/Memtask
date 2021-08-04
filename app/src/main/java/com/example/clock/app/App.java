@@ -22,14 +22,12 @@ public class App extends Application {
     private TaskDao taskDao;
     public static Settings Settings;
 
-    //private static Map<String, Integer> color; // Theme colors storage
-
     @Override
     public void onCreate() {
         super.onCreate();
         this.instance = this;
 
-        this.database = Room.databaseBuilder(this, Database.class, "user_db")
+        this.database = Room.databaseBuilder(this, Database.class, "memtask_db")
                 .allowMainThreadQueries()
                 .build();
         taskDao = database.taskDao();
@@ -94,4 +92,5 @@ public class App extends Application {
     public static LiveData<List<Task>> getAlarmsLiveData() {
         return alarmsLiveData;
     }
+
 }

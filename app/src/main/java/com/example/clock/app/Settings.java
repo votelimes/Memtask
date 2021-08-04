@@ -13,7 +13,7 @@ public class Settings
     public boolean isTaskFieldShows = true;
     public boolean isIdeaFieldShows = true;
     public boolean isNoteFieldShows = true;
-    //public boolean isTaskFieldShows = true;
+    public boolean isProjectFieldShows = true;
 
     public boolean is24HTimeUses = false;
 
