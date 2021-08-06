@@ -1,8 +1,8 @@
-package com.example.clock.data;
+package com.example.clock.model;
 
 import java.io.Serializable;
 
-public class UserCase implements Serializable  {
+public class UserCaseBase implements Serializable  {
 
     protected long timeInMillis;
     protected String description;
@@ -10,7 +10,7 @@ public class UserCase implements Serializable  {
     protected int color;
     protected boolean completed;
 
-    public UserCase(){
+    public UserCaseBase(){
 
         timeInMillis = 0;
         description = "null";

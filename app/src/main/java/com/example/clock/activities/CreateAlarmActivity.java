@@ -21,7 +21,7 @@ import androidx.appcompat.widget.SwitchCompat;
 
 import com.example.clock.R;
 import com.example.clock.app.App;
-import com.example.clock.data.Task;
+import com.example.clock.model.Task;
 
 import java.util.Calendar;
 

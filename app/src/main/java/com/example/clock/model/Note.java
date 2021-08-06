@@ -1,4 +1,4 @@
-package com.example.clock.data;
+package com.example.clock.model;
 
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
@@ -6,7 +6,7 @@ import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
 @Entity(tableName = "note_table")
-public class Note extends UserCase{
+public class Note extends UserCaseBase {
 
     @PrimaryKey(autoGenerate = true)
     @NonNull

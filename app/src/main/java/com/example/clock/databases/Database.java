@@ -1,9 +1,18 @@
-package com.example.clock.data;
+package com.example.clock.databases;
 
 import android.content.Context;
 
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
+
+import com.example.clock.dao.IdeaDao;
+import com.example.clock.dao.NoteDao;
+import com.example.clock.dao.ProjectDao;
+import com.example.clock.dao.TaskDao;
+import com.example.clock.model.Idea;
+import com.example.clock.model.Note;
+import com.example.clock.model.Project;
+import com.example.clock.model.Task;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;

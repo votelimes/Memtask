@@ -1,4 +1,4 @@
-package com.example.clock.data;
+package com.example.clock.model;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -18,7 +18,7 @@ import com.example.clock.broadcastreceiver.AlarmBroadcastReceiver;
 import java.util.Calendar;
 
 @Entity(tableName = "task_table")
-public class Task extends UserCase {
+public class Task extends UserCaseBase {
 
     @PrimaryKey(autoGenerate = true)
     @NonNull

@@ -5,9 +5,9 @@ import android.app.Application;
 import androidx.lifecycle.LiveData;
 import androidx.room.Room;
 
-import com.example.clock.data.Task;
-import com.example.clock.data.TaskDao;
-import com.example.clock.data.Database;
+import com.example.clock.model.Task;
+import com.example.clock.dao.TaskDao;
+import com.example.clock.databases.Database;
 
 import java.util.List;
 import java.util.concurrent.Executor;

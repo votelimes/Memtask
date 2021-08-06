@@ -1,4 +1,4 @@
-package com.example.clock.data;
+package com.example.clock.model;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;

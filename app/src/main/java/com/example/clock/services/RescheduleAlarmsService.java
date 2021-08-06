@@ -8,7 +8,7 @@ import androidx.lifecycle.LifecycleService;
 import androidx.lifecycle.Observer;
 
 import com.example.clock.app.App;
-import com.example.clock.data.Task;
+import com.example.clock.model.Task;
 
 import java.util.List;
 

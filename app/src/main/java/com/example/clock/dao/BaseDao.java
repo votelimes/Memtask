@@ -1,4 +1,4 @@
-package com.example.clock.data;
+package com.example.clock.dao;
 
 import androidx.room.Dao;
 import androidx.room.Delete;

@@ -1,14 +1,12 @@
-package com.example.clock.data;
+package com.example.clock.model;
 
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
-import java.io.Serializable;
-
 @Entity(tableName = "idea_table")
-public class Idea extends UserCase {
+public class Idea extends UserCaseBase {
 
     @PrimaryKey(autoGenerate = true)
     @NonNull

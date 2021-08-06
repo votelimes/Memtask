@@ -1,13 +1,15 @@
-package com.example.clock.data;
+package com.example.clock.dao;
 
 import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Query;
 
+import com.example.clock.model.Idea;
+
 import java.util.List;
 
 @Dao
-public interface IdeaDao extends BaseDao<Idea>{
+public interface IdeaDao extends BaseDao<Idea> {
 
     @Query("SELECT * FROM idea_table")
     List<Idea> getAll();

@@ -1,13 +1,15 @@
-package com.example.clock.data;
+package com.example.clock.dao;
 
 import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Query;
 
+import com.example.clock.model.Note;
+
 import java.util.List;
 
 @Dao
-public interface NoteDao extends BaseDao<Note>{
+public interface NoteDao extends BaseDao<Note> {
 
     @Query("SELECT * FROM note_table")
     List<Note> getAll();

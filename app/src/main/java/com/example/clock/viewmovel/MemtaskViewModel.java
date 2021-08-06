@@ -2,13 +2,13 @@ package com.example.clock.viewmovel;
 
 import androidx.lifecycle.ViewModel;
 
-import com.example.clock.data.UserCaseRepo;
+import com.example.clock.repositories.MemtaskRepository;
 
 public class MemtaskViewModel extends ViewModel {
-    public UserCaseRepo repository;
+    public MemtaskRepository repository;
 
     MemtaskViewModel(){
-        repository = new UserCaseRepo();
+        repository = new MemtaskRepository();
 
 
     }

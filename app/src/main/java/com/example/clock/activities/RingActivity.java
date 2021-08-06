@@ -7,7 +7,7 @@ import android.view.View;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.clock.R;
-import com.example.clock.data.Task;
+import com.example.clock.model.Task;
 import com.example.clock.services.AlarmService;
 
 import java.util.Calendar;
