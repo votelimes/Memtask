@@ -1,5 +1,7 @@
 package com.example.clock.viewmodels;
 
+import android.app.Application;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
@@ -11,14 +13,34 @@ import com.example.clock.model.Task;
 import com.example.clock.repositories.MemtaskRepository;
 
 import java.util.List;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 public class MemtaskViewModelBase extends ViewModel {
-    public MemtaskRepository repository;
+    protected MemtaskRepository repository;
 
-    MemtaskViewModelBase(){
+    MemtaskViewModelBase(Application application){
         super();
-        repository = new MemtaskRepository();
+        repository = new MemtaskRepository(application);
     }
+
+    //Getting existing data
+    public Task getTask (long taskId) {
+        return repository.getTask(taskId);
+    }
+
+    public Idea getIdea (long ideaId) {
+        return repository.getIdea(ideaId);
+    }
+
+    public Note getNote (long noteId) {
+        return repository.getNote(noteId);
+    }
+
+    public Project getProject (long projectId) {
+        return repository.getProject(projectId);
+    }
+
 
     //Adding new data
     public void addTask (Task newTask) {

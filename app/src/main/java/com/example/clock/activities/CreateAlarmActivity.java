@@ -174,6 +174,7 @@ public class CreateAlarmActivity extends AppCompatActivity {
         repeatModeLayout.setId(1001);
         TextView textView = (TextView) repeatModeLayout.findViewWithTag("custom_button_text2");
         textView.setText(repeatModes[selectedNote.getRepeatMode()]);
+        /*
         LinearLayout propertiesLayout = (LinearLayout) findViewById(R.id.properties_layout_full);
         repeatModeLayout.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -250,6 +251,7 @@ public class CreateAlarmActivity extends AppCompatActivity {
             }
         });
         propertiesLayout.addView(noteLayout);
+        */
     }
     protected void setBeforeAlarmText(long days, long hours, long minutes){
         Calendar calendar = Calendar.getInstance();

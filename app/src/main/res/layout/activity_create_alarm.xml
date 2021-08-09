@@ -74,14 +74,16 @@
             android:theme="@style/DefaultNumberPickerTheme"
             />
     </RelativeLayout>
-    <LinearLayout
+    <androidx.fragment.app.FragmentContainerView
         android:id="@+id/properties_layout_full"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_height="wrap_content"
         android:layout_weight="40"
         android:orientation="vertical"
-        android:gravity="top|end"
+        android:gravity="top|start"
         android:paddingTop="50dp"
+        android:name="com.example.clock.fragments.ManageTaskCoreFragment"
         >
-    </LinearLayout>
+
+    </androidx.fragment.app.FragmentContainerView>
 </LinearLayout>

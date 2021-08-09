@@ -7,4 +7,16 @@
     <style name="CustomButtonTheme" parent="Theme.AppCompat.Light.Dialog.Alert">
         <item name="android:windowBackground">@drawable/custom_button1</item>
     </style>
+
+    <style name="DefaultSpinnerTheme">
+        <item name="android:textSize">18sp</item>
+        <item name="android:textAlignment">textStart</item>
+        <item name="paddingStart">0dp</item>
+    </style>
+
+    <style name="DefaultTheme">
+        <item name="android:textSize">18sp</item>
+    </style>
+
+
 </resources>

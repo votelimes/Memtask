@@ -1,7 +1,14 @@
 package com.example.clock.repositories;
 
+import android.app.Application;
+
+import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
+import androidx.room.DatabaseConfiguration;
+import androidx.room.InvalidationTracker;
+import androidx.room.Room;
+import androidx.sqlite.db.SupportSQLiteOpenHelper;
 
 import com.example.clock.databases.Database;
 import com.example.clock.dao.IdeaDao;
@@ -27,30 +34,57 @@ public class MemtaskRepository {
     private NoteDao noteDao;
     private ProjectDao projectDao;
 
-    public MemtaskRepository(){
-        taskMutableLiveData = new MutableLiveData<>();
-        ideaMutableLiveData = new MutableLiveData<>();
-        noteMutableLiveData = new MutableLiveData<>();
-        projectMutableLiveData = new MutableLiveData<>();
+    public MemtaskRepository(Application application){
+        this.taskMutableLiveData = new MutableLiveData<>();
+        this.ideaMutableLiveData = new MutableLiveData<>();
+        this.noteMutableLiveData = new MutableLiveData<>();
+        this.projectMutableLiveData = new MutableLiveData<>();
 
+        this.database = Room.databaseBuilder(application, Database.class, "memtask_db")
+                .allowMainThreadQueries()
+                .build();
+    }
 
+    //Getting existing data
+    public Task getTask (long taskId) {
+        return taskDao.getById(taskId);
+    }
+
+    public Idea getIdea (long ideaId) {
+        return ideaDao.getById(ideaId);
+    }
+
+    public Note getNote (long noteId) {
+        return noteDao.getById(noteId);
+    }
+
+    public Project getProject (long projectId) {
+        return projectDao.getById(projectId);
     }
 
     // Adding new data
     public void addTask (Task newTask) {
-        taskDao.insertWithReplace(newTask);
+        Database.databaseWriteExecutor.execute(() -> {
+            taskDao.insertWithReplace(newTask);
+        });
     }
 
     public void addIdea (Idea newIdea) {
-        ideaDao.insertWithReplace(newIdea);
+        Database.databaseWriteExecutor.execute(() -> {
+            ideaDao.insertWithReplace(newIdea);
+        });
     }
 
     public void addNote (Note newNote) {
-        noteDao.insertWithReplace(newNote);
+        Database.databaseWriteExecutor.execute(() -> {
+            noteDao.insertWithReplace(newNote);
+        });
     }
 
     public void addProject (Project newProject) {
-        projectDao.insertWithReplace(newProject);
+        Database.databaseWriteExecutor.execute(() -> {
+            projectDao.insertWithReplace(newProject);
+        });
     }
 
     //Removing existing data
@@ -72,19 +106,27 @@ public class MemtaskRepository {
 
     //Updating existing data
     public void updateTask (Task updatableTask) {
-        taskDao.update(updatableTask);
+        Database.databaseWriteExecutor.execute(() -> {
+            taskDao.update(updatableTask);
+        });
     }
 
     public void updateIdea (Idea updatableIdea) {
-        ideaDao.update(updatableIdea);
+        Database.databaseWriteExecutor.execute(() -> {
+            ideaDao.update(updatableIdea);
+        });
     }
 
     public void updateNote (Note updatableNote) {
-        noteDao.update(updatableNote);
+        Database.databaseWriteExecutor.execute(() -> {
+            noteDao.update(updatableNote);
+        });
     }
 
     public void updateProject (Project updatableProject) {
-        projectDao.update(updatableProject);
+        Database.databaseWriteExecutor.execute(() -> {
+            projectDao.update(updatableProject);
+        });
     }
 
     //For binding observables

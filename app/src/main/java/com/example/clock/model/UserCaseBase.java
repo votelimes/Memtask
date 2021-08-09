@@ -17,6 +17,9 @@ public class UserCaseBase implements Serializable  {
         color = 0;
         completed = false;
     }
+    public long getTimeInMillis(){
+        return timeInMillis;
+    }
 
     public String getDescription() {
         return description;
@@ -28,6 +31,10 @@ public class UserCaseBase implements Serializable  {
 
     public boolean isCompleted() {
         return completed;
+    }
+
+    public void setTimeInMillis(long timeInMillis) {
+        this.timeInMillis = timeInMillis;
     }
 
     public void setDescription(String note) {

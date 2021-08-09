@@ -1,3 +1,6 @@
 <resources>
     <dimen name="fab_margin">16dp</dimen>
+
+    <dimen name="small_font">14sp</dimen>
+    <dimen name="big_font">18sp</dimen>
 </resources>
