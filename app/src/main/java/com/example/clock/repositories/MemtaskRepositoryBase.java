@@ -22,7 +22,7 @@ import com.example.clock.dao.TaskDao;
 
 import java.util.List;
 
-public class MemtaskRepository {
+public class MemtaskRepositoryBase {
     private MutableLiveData<List<Task>> taskMutableLiveData;
     private MutableLiveData<List<Idea>> ideaMutableLiveData;
     private MutableLiveData<List<Note>> noteMutableLiveData;
@@ -34,7 +34,7 @@ public class MemtaskRepository {
     private NoteDao noteDao;
     private ProjectDao projectDao;
 
-    public MemtaskRepository(Application application){
+    public MemtaskRepositoryBase(Application application){
         this.taskMutableLiveData = new MutableLiveData<>();
         this.ideaMutableLiveData = new MutableLiveData<>();
         this.noteMutableLiveData = new MutableLiveData<>();
@@ -43,6 +43,11 @@ public class MemtaskRepository {
         this.database = Room.databaseBuilder(application, Database.class, "memtask_db")
                 .allowMainThreadQueries()
                 .build();
+
+        taskDao = database.taskDao();
+        ideaDao = database.ideaDao();
+        noteDao = database.noteDao();
+        projectDao = database.projectDao();
     }
 
     //Getting existing data

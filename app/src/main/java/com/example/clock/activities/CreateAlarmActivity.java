@@ -5,12 +5,10 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Gravity;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.LinearLayout;
 import android.widget.NumberPicker;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -21,11 +19,14 @@ import androidx.appcompat.widget.SwitchCompat;
 
 import com.example.clock.R;
 import com.example.clock.app.App;
+import com.example.clock.fragments.ManageTaskCoreFragment;
 import com.example.clock.model.Task;
 
 import java.util.Calendar;
 
 public class CreateAlarmActivity extends AppCompatActivity {
+
+    ManageTaskCoreFragment currentFragment;
 
     NumberPicker hoursPicker;
     NumberPicker minutesPicker;
@@ -174,6 +175,12 @@ public class CreateAlarmActivity extends AppCompatActivity {
         repeatModeLayout.setId(1001);
         TextView textView = (TextView) repeatModeLayout.findViewWithTag("custom_button_text2");
         textView.setText(repeatModes[selectedNote.getRepeatMode()]);
+
+        currentFragment = (ManageTaskCoreFragment)getSupportFragmentManager()
+            .findFragmentById(R.id.manage_task_fragment_container_view);
+
+
+
         /*
         LinearLayout propertiesLayout = (LinearLayout) findViewById(R.id.properties_layout_full);
         repeatModeLayout.setOnTouchListener(new View.OnTouchListener() {

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="10dp"
+    tools:context=".fragments.BlankFragment">
+
+    <!-- TODO: Update blank fragment layout -->
+    <TextView
+        android:id="@+id/fragment_manage_task_note_input_text1"
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        android:hint="Empty note"
+        android:text=""
+        android:textSize="18sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/fragment_manage_task_note_input_button_save"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/custom_button2"
+        android:backgroundTint="@color/light_blue"
+        android:text="Save"
+        app:layout_constraintTop_toBottomOf="@+id/fragment_manage_task_note_input_text1"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/fragment_manage_task_note_input_button_discard"
+        />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/fragment_manage_task_note_input_button_discard"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/custom_button2"
+        android:backgroundTint="@color/light_blue"
+        android:text="Discard"
+        app:layout_constraintTop_toBottomOf="@+id/fragment_manage_task_note_input_text1"
+        tools:layout_editor_absoluteX="10dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/fragment_manage_task_note_input_button_save"
+        />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

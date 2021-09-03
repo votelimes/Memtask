@@ -1,10 +1,12 @@
 package com.example.clock.activities;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -13,6 +15,10 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
@@ -26,6 +32,7 @@ import com.example.clock.app.App;
 import com.example.clock.model.Task;
 
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Timer;
@@ -48,6 +55,19 @@ public class MainActivity extends AppCompatActivity {
     private final String[] dayNames = {"NULL", "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
     private enum FieldType {TASK, IDEA, PROJECT}
     private enum LayoutType {LINEAR, CONSTRAINT}
+
+    ActivityResultLauncher<Intent> activityLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            new ActivityResultCallback<ActivityResult>() {
+                @Override
+                public void onActivityResult(ActivityResult result) {
+                    if (result.getResultCode() == Activity.RESULT_OK) {
+                        // There are no request codes
+                        Intent data = result.getData();
+                        //Unpack result
+                    }
+                }
+            });
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,18 +115,33 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onAddClock(View view) {
-        Intent clock_window = new Intent(this, CreateAlarmActivity.class);
-        Task selectedNote = null;
-        if(lastClickedUserNoteIndex != -1) {
-            for (Task note : App.getInstance().getAlarmsLiveData().getValue()) {
-                if (note.getTaskId() == lastClickedUserNoteIndex) {
-                    selectedNote = note;
-                    break;
-                }
-            }
+
+        Intent intent = new Intent(this, ManageTaskActivity.class);
+
+        if(lastClickedUserNoteIndex == -1){
+            intent.putExtra("ManagingTask", new Task(Calendar
+                    .getInstance(), 0, ""));
         }
-        clock_window.putExtra("selectedNote", selectedNote);
-        startActivityForResult(clock_window, 1);
+        else{
+            intent.putExtra("ManagingTask", new Task(Calendar
+                    .getInstance(), 0, ""));
+        }
+
+        activityLauncher.launch(intent);
+
+
+//        Intent clock_window = new Intent(this, CreateAlarmActivity.class);
+//        Task selectedNote = null;
+//        if(lastClickedUserNoteIndex != -1) {
+//            for (Task note : App.getInstance().getAlarmsLiveData().getValue()) {
+//                if (note.getTaskId() == lastClickedUserNoteIndex) {
+//                    selectedNote = note;
+//                    break;
+//                }
+//            }
+//        }
+//        clock_window.putExtra("selectedNote", selectedNote);
+//        startActivityForResult(clock_window, 1);
     }
 
     public void onNoteClick(View view){

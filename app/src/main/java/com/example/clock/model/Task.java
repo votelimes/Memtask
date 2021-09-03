@@ -5,6 +5,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
+import android.widget.Switch;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -16,6 +17,7 @@ import androidx.room.PrimaryKey;
 import com.example.clock.broadcastreceiver.AlarmBroadcastReceiver;
 
 import java.util.Calendar;
+import java.util.GregorianCalendar;
 
 @Entity(tableName = "task_table")
 public class Task extends UserCaseBase {
@@ -33,8 +35,10 @@ public class Task extends UserCaseBase {
 
     // 0: once, 1: every day, 2: every week, 3: every month
     protected int repeatMode;
+    protected String repeatModeString;
     // 1, 2, 3, 4, 5, 6, 7
-    protected boolean sunday, monday, tuesday, wednesday, thursday, friday, saturday;
+    protected boolean sunday = false, monday = false, tuesday = false, wednesday = false,
+            thursday = false, friday = false, saturday = false;
     protected boolean enabled = false;
     protected boolean started = false;
     protected boolean recurring = false;
@@ -46,6 +50,18 @@ public class Task extends UserCaseBase {
         this.repeatMode = repeatMode;
         this.description = description;
         this.vibrate = true;
+
+        switch (repeatMode) {
+            case 0: this.repeatModeString = "Once";
+                break;
+            case 1: this.repeatModeString = "Every day";
+                break;
+            case 2: this.repeatModeString = "Every week";
+                break;
+            case 3: this.repeatModeString = "Every month";
+                break;
+            default: this.repeatModeString = "Once";
+        }
     }
 
     public Task(Calendar calendar, int repeatMode){
@@ -55,6 +71,18 @@ public class Task extends UserCaseBase {
         this.description = "";
         this.repeatMode = repeatMode;
         this.vibrate = true;
+
+        switch (repeatMode) {
+            case 0: this.repeatModeString = "Once";
+                break;
+            case 1: this.repeatModeString = "Every day";
+                break;
+            case 2: this.repeatModeString = "Every week";
+                break;
+            case 3: this.repeatModeString = "Every month";
+                break;
+            default: this.repeatModeString = "Once";
+        }
     }
 
     @Ignore
@@ -64,6 +92,18 @@ public class Task extends UserCaseBase {
         this.timeInMillis = timeInMillis;
         this.description = description;
         this.vibrate = true;
+
+        switch (repeatMode) {
+            case 0: this.repeatModeString = "Once";
+                break;
+            case 1: this.repeatModeString = "Every day";
+                break;
+            case 2: this.repeatModeString = "Every week";
+                break;
+            case 3: this.repeatModeString = "Every month";
+                break;
+            default: this.repeatModeString = "Once";
+        }
     }
 
     public Task(long taskId, int repeatMode, boolean started, boolean recurring, long timeInMillis, String description,
@@ -82,6 +122,18 @@ public class Task extends UserCaseBase {
         this.thursday = thursday;
         this.friday = friday;
         this.saturday = saturday;
+
+        switch (repeatMode) {
+            case 0: this.repeatModeString = "Once";
+                break;
+            case 1: this.repeatModeString = "Every day";
+                break;
+            case 2: this.repeatModeString = "Every week";
+                break;
+            case 3: this.repeatModeString = "Every month";
+                break;
+            default: this.repeatModeString = "Once";
+        }
     }
 
     public void schedule(Context context) {
@@ -202,6 +254,9 @@ public class Task extends UserCaseBase {
             this.setActiveDayOfWeek(0, true);
         }
     }
+    public void setRepeatModeString(String repeatMode){
+        this.repeatModeString = repeatMode;
+    }
     public void setVibrate(boolean vibrate){
         this.vibrate = vibrate;
     }
@@ -255,6 +310,10 @@ public class Task extends UserCaseBase {
 
     public int getRepeatMode(){
         return this.repeatMode;
+    }
+    // 0: once, 1: every day, 2: every week, 3: every month
+    public String getRepeatModeString(){
+        return this.repeatModeString;
     }
     public int getYear(){
         Calendar calendar = Calendar.getInstance();
