@@ -1,106 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    android:id="@+id/mainConstraintLayoutTop"
+<layout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+    >
+    <data>
+        <variable
+            name="viewmodel"
+            type="com.example.clock.viewmodels.MainViewModel" />
+    </data>
+    <androidx.constraintlayout.widget.ConstraintLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".activities.MainActivity"
-    android:background="@color/mainTheme1"
     >
-
-    <ScrollView
+    <androidx.recyclerview.widget.RecyclerView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:layout_editor_absoluteX="70dp"
-        tools:layout_editor_absoluteY="0dp">
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        >
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/fieldTopLayout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            >
-
-            <TextView
-                android:id="@+id/mainClockTextView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="100dp"
-                android:background="@color/transparent"
-                android:gravity="bottom"
-                android:text="09:55"
-                android:textColor="@color/white"
-                android:textSize="40sp"
-                app:layout_constraintEnd_toStartOf="@+id/mainClockTimeIndex"
-                app:layout_constraintHorizontal_bias="0.5"
-                app:layout_constraintHorizontal_chainStyle="packed"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <TextView
-                android:id="@+id/mainClockTimeIndex"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="PM"
-                android:textColor="@color/white"
-                android:textSize="16sp"
-                android:paddingBottom="5dp"
-                app:layout_constraintBottom_toBottomOf="@+id/mainClockTextView"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.5"
-                app:layout_constraintStart_toEndOf="@+id/mainClockTextView" />
-
-            <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/mainButton1"
-                android:layout_width="135dp"
-                android:layout_height="45dp"
-                android:layout_marginStart="25dp"
-                android:layout_marginTop="270dp"
-                android:background="@drawable/custom_button2"
-                android:fontFamily="sans-serif"
-                android:onClick="onAddClock"
-                android:text="Set"
-                android:textAllCaps="false"
-                android:textColor="@color/mainTheme4"
-                android:textSize="20sp"
-                android:textStyle="normal"
-                app:layout_anchorGravity="top|end"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/mainButton2"
-                android:layout_width="135dp"
-                android:layout_height="45dp"
-                android:layout_marginEnd="25dp"
-                android:layout_marginTop="270dp"
-                android:background="@drawable/custom_button2"
-                android:text="Note"
-                android:fontFamily="sans-serif"
-                android:textSize="20sp"
-                android:textAllCaps="false"
-                android:textStyle="normal"
-                android:textColor="@color/mainTheme4"
-                android:onClick="onNoteClick"
-                app:layout_anchorGravity="top|end"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <View
-                android:id="@+id/mainStrutMiddle"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical"
-                android:background="@color/white"
-                app:layout_constraintTop_toBottomOf="@id/mainButton1"
-                app:layout_constraintStart_toStartOf="parent"
-                android:layout_marginTop="28dp"
-                android:padding="7dp"
-                >
-            </View>
-
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-    </ScrollView>
-</androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.recyclerview.widget.RecyclerView>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

@@ -6,11 +6,12 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -24,12 +25,19 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
+import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.clock.R;
+import com.example.clock.adapters.MainActivityListAdapter;
 import com.example.clock.app.App;
 import com.example.clock.model.Task;
+import com.example.clock.viewmodels.MainViewModel;
+import com.example.clock.viewmodels.ViewModelFactoryBase;
+import com.example.clock.databinding.ActivityMainBinding;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -40,6 +48,7 @@ import java.util.TimerTask;
 
 public class MainActivity extends AppCompatActivity {
 
+    // REMOVING, OLD
     // Dynamic variables
     private Context mContext;
     private int lastClickedUserNoteIndex = -1;
@@ -51,10 +60,14 @@ public class MainActivity extends AppCompatActivity {
     private int lastProjectFieldId = 10022;
 
     // Types
-    SimpleDateFormat hoursFormatter;
     private final String[] dayNames = {"NULL", "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
     private enum FieldType {TASK, IDEA, PROJECT}
     private enum LayoutType {LINEAR, CONSTRAINT}
+
+    // NEW, NOT REMOVING
+    MainViewModel mViewModel;
+    ViewModelFactoryBase mFactory;
+    ActivityMainBinding mActivityBinding;
 
     ActivityResultLauncher<Intent> activityLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
@@ -72,19 +85,27 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        mActivityBinding = DataBindingUtil
+                .setContentView(this, R.layout.activity_main);
+        mFactory = new ViewModelFactoryBase(getApplication());
+        mViewModel = new ViewModelProvider(this, mFactory).get(MainViewModel.class);
+        mActivityBinding.setViewmodel(mViewModel);
+
+        MainActivityListAdapter mainTaskListAdapter =
+                new MainActivityListAdapter(this);
 
         mContext = this;
 
-        addViewToLayout(R.id.fieldTopLayout, R.id.mainStrutMiddle,  FieldType.TASK);
+
+        //addViewToLayout(R.id.fieldTopLayout, R.id.mainStrutMiddle,  FieldType.TASK);
 
         alarmsData = App.getInstance().getAlarmsLiveData();
         alarmsData.observe(this, new Observer<List<Task>>() {
             @Override
             public void onChanged(List<Task> tasks) {
                 if(!isUpdateDisabled()) {
-                    clearLayout(taskFieldId, LayoutType.LINEAR);
-                    printCloseNotes(tasks);
+                    //clearLayout(taskFieldId, LayoutType.LINEAR);
+                    //printCloseNotes(tasks);
                 }
                 else{
                     enableUpdate();
@@ -92,7 +113,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // Clock text view init
+        /*// Clock text view init
         final Handler handler = new Handler();
         Timer    timer = new Timer();
         TimerTask doAsynchronousTask = new TimerTask() {
@@ -111,7 +132,7 @@ public class MainActivity extends AppCompatActivity {
                 });
             }
         };
-        timer.schedule(doAsynchronousTask, 0, 60);
+        timer.schedule(doAsynchronousTask, 0, 60);*/
     }
 
     public void onAddClock(View view) {

@@ -28,13 +28,7 @@ public class ManageTaskViewModel extends MemtaskViewModelBase {
 
     public ManageTaskViewModel(Application application, Task managingTask){
         mManagingTaskRepository = new Observer(managingTask);
-        loadData(application, managingTask);
-    }
-
-    protected void loadData(Application application, Task managingTask){
-        new Thread(() -> {
-            mRepository = new MemtaskRepositoryBase(application);
-        }).start();
+        loadData(application);
     }
 
     public  LiveData<List<Task>> getData(Application application){

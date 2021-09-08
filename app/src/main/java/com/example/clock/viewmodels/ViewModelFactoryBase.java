@@ -24,7 +24,11 @@ public class ViewModelFactoryBase extends ViewModelProvider.NewInstanceFactory {
     public <T extends ViewModel> T create(Class<T> modelClass) {
         if (modelClass == ManageTaskViewModel.class) {
             return (T) new ManageTaskViewModel(mApplication, (Task) mParams[0]);
-        } else {
+        }
+        else if(modelClass == MainViewModel.class){
+            return (T) new MainViewModel(mApplication);
+        }
+        else {
             return super.create(modelClass);
         }
     }
