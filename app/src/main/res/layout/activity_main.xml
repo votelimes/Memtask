@@ -9,16 +9,32 @@
             type="com.example.clock.viewmodels.MainViewModel" />
     </data>
     <androidx.constraintlayout.widget.ConstraintLayout
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    >
-    <androidx.recyclerview.widget.RecyclerView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        android:layout_height="match_parent"
         >
-
-    </androidx.recyclerview.widget.RecyclerView>
+            <com.google.android.material.appbar.AppBarLayout
+                android:id="@+id/main_app_bar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                >
+                <com.google.android.material.appbar.MaterialToolbar
+                    android:id="@+id/topAppBar"
+                    android:layout_width="match_parent"
+                    android:layout_height="?attr/actionBarSize"
+                    app:title="Menu 1"
+                    app:menu="@menu/menu_main"
+                    app:navigationIcon="@drawable/outline_menu_24"
+                    style="@style/Widget.MaterialComponents.Toolbar.Primary"
+                    />
+            </com.google.android.material.appbar.AppBarLayout>
+            <androidx.fragment.app.FragmentContainerView
+                android:id="@+id/main_fragment_container_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@id/main_app_bar"
+                app:layout_constraintStart_toStartOf="parent"
+                />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

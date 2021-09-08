@@ -91,9 +91,13 @@ public class MainActivity extends AppCompatActivity {
         mViewModel = new ViewModelProvider(this, mFactory).get(MainViewModel.class);
         mActivityBinding.setViewmodel(mViewModel);
 
-        MainActivityListAdapter mainTaskListAdapter =
-                new MainActivityListAdapter(this);
 
+
+
+
+
+
+        ///OLD
         mContext = this;
 
 
