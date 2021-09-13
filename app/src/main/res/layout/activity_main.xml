@@ -14,6 +14,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:openDrawer="start"
+
         >
         <androidx.coordinatorlayout.widget.CoordinatorLayout
             android:layout_width="match_parent"
@@ -25,15 +26,19 @@
                     android:layout_height="wrap_content"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
+                    style="@style/Widget.MaterialComponents.ActionBar.PrimarySurface"
+                    android:fitsSystemWindows="true"
                     >
                     <com.google.android.material.appbar.MaterialToolbar
                         android:id="@+id/topAppBar"
                         android:layout_width="match_parent"
                         android:layout_height="?attr/actionBarSize"
-                        app:title="Menu 1"
+                        app:title="@string/top_app_bar"
                         app:menu="@menu/menu_main"
                         app:navigationIcon="@drawable/outline_menu_24"
-                        style="@style/Widget.MaterialComponents.Toolbar.Primary"
+                        style="@style/Widget.MaterialComponents.Toolbar.PrimarySurface"
+                        android:background="@color/transparent"
+                        android:elevation="0dp"
                         />
                 </com.google.android.material.appbar.AppBarLayout>
                 <androidx.fragment.app.FragmentContainerView
@@ -45,8 +50,11 @@
                     />
         </androidx.coordinatorlayout.widget.CoordinatorLayout>
         <com.google.android.material.navigation.NavigationView
+            android:id="@+id/nav_view"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_gravity="start" />
+            android:layout_gravity="start"
+            app:menu="@menu/left_fragments_menu"
+            />
     </androidx.drawerlayout.widget.DrawerLayout>
 </layout>

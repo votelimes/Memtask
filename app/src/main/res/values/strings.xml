@@ -32,4 +32,8 @@
     </string-array>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="top_app_bar">TopAppBar</string>
+    <string name="open_nav_drawer">Navigation drawer open</string>
+    <string name="close_nav_drawer">Navigation drawer close</string>
+
 </resources>
