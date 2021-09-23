@@ -17,8 +17,8 @@ public interface TaskDao extends BaseDao<Task> {
     @Query("SELECT * FROM task_table WHERE taskId = :id")
     Task getById(long id);
 
-    @Query("SELECT * FROM task_table")
-    LiveData<List<Task>> getAlarmsLive();
+    @Query("SELECT * FROM task_table ORDER BY timeInMillis DESC")
+    LiveData<List<Task>> getTasksLiveData();
 
     @Query("DELETE FROM task_table")
     int clear();

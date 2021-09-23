@@ -17,8 +17,8 @@ public interface ProjectDao  extends BaseDao<Project> {
     @Query("SELECT * FROM project_table WHERE projectId = :id")
     Project getById(long id);
 
-    @Query("SELECT * FROM project_table")
-    LiveData<List<Project>> getAlarmsLive();
+    @Query("SELECT * FROM project_table ORDER BY timeInMillis DESC")
+    LiveData<List<Project>> getProjectsLiveData();
 
     @Query("DELETE FROM project_table")
     int clear();

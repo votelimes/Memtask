@@ -22,14 +22,17 @@ import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
+import androidx.core.view.GravityCompat;
 import androidx.databinding.DataBindingUtil;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.Fragment;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
@@ -38,6 +41,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.clock.R;
 import com.example.clock.adapters.MainActivityListAdapter;
 import com.example.clock.app.App;
+import com.example.clock.fragments.CategoriesListFragment;
+import com.example.clock.fragments.DefaultListFragment;
 import com.example.clock.model.Task;
 import com.example.clock.viewmodels.MainViewModel;
 import com.example.clock.viewmodels.ViewModelFactoryBase;
@@ -49,6 +54,7 @@ import com.google.android.material.navigation.NavigationView;
 import org.jetbrains.annotations.NotNull;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -67,7 +73,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     DrawerLayout drawerLayout;
     NavigationView navigationView;
 
-    ActivityResultLauncher<Intent> activityLauncher = registerForActivityResult(
+    final ActivityResultLauncher<Intent> activityLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
             result -> {
                 if (result.getResultCode() == Activity.RESULT_OK) {
@@ -105,10 +111,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         toolbar.setNavigationOnClickListener(v -> {
             drawerLayout.open();
         });
-
-
-
     }
+
 
     private void changeStrokeColor(View v, int color){
         Drawable background = (Drawable) v.getBackground();
@@ -145,8 +149,34 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return sdf.format(time);
     }
 
+    protected void displayFragment(int viewId){
+
+    }
+
     @Override
     public boolean onNavigationItemSelected(@NonNull @NotNull MenuItem item) {
+        Fragment nextFragment = null;
+        String title = "testActionBar";
+
+        switch (item.getItemId()){
+            case R.id.categories_item:
+                nextFragment = new CategoriesListFragment();
+                break;
+            case R.id.test_list:
+                nextFragment = new DefaultListFragment();
+                break;
+        }
+
+        if(nextFragment != null){
+            getSupportFragmentManager().beginTransaction()
+                    .setReorderingAllowed(true)
+                    .replace(R.id.main_fragment_container_view, nextFragment)
+                    .commit();
+        }
+        drawerLayout.closeDrawer(GravityCompat.START);
+
+        toolbar.setTitle(title);
+
         return false;
     }
 

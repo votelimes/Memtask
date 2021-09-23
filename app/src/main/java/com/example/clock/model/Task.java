@@ -28,20 +28,17 @@ public class Task extends UserCaseBase {
     private long taskId;
     protected boolean vibrate;
 
-    public final static int DAY = 86400000;
-    public final static int WEEK = DAY*7;
-    public final static int MONTH = WEEK*4;
-    public final static int YEAR = MONTH*12;
-
     // 0: once, 1: every day, 2: every week, 3: every month
     protected int repeatMode;
     protected String repeatModeString;
+
     // 1, 2, 3, 4, 5, 6, 7
-    protected boolean sunday = false, monday = false, tuesday = false, wednesday = false,
-            thursday = false, friday = false, saturday = false;
+    protected boolean sunday = false, monday = false, tuesday = false,
+            wednesday = false, thursday = false, friday = false, saturday = false;
+
+    protected boolean recurring = false;
     protected boolean enabled = false;
     protected boolean started = false;
-    protected boolean recurring = false;
 
     public Task(Calendar calendar, int repeatMode, String description){
 

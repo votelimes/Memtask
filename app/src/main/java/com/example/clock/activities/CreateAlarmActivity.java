@@ -71,7 +71,7 @@ public class CreateAlarmActivity extends AppCompatActivity {
         minutesPicker.setMaxValue(59);
         minutesPicker.setValue(selectedNote.getMinute());
 
-        // Hours, minutes pickers
+        /*// Hours, minutes pickers
         hoursPicker.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
             @Override public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
                 nowCalendar = Calendar.getInstance();
@@ -167,7 +167,7 @@ public class CreateAlarmActivity extends AppCompatActivity {
                 setBeforeAlarmText((long)difference_in_days, (long)difference_in_hours,
                         (long)difference_in_minutes);
             }
-        });
+        });*/
 
 
         repeatModes = getResources().getStringArray(R.array.repeat_modes);
@@ -338,7 +338,6 @@ public class CreateAlarmActivity extends AppCompatActivity {
         resultCode = 1;
         Intent resultIntent = new Intent();
         setResult(resultCode, resultIntent);
-        App.getInstance().insertWithReplace(selectedNote);
         finish();
     }
     @Override

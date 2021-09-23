@@ -23,7 +23,8 @@ public class RescheduleAlarmsService extends LifecycleService {
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
 
-        App.getAlarmsLiveData().observe(this, new Observer<List<Task>>() {
+        /*!!! CHECK !!!*/
+        /*App.getAlarmsLiveData().observe(this, new Observer<List<Task>>() {
             @Override
             public void onChanged(List<Task> tasks) {
                 for (Task a : tasks) {
@@ -32,7 +33,7 @@ public class RescheduleAlarmsService extends LifecycleService {
                     }
                 }
             }
-        });
+        });*/
 
         return START_STICKY;
     }

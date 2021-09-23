@@ -14,6 +14,7 @@ import androidx.databinding.library.baseAdapters.BR;
 import androidx.lifecycle.LiveData;
 
 import com.example.clock.app.App;
+import com.example.clock.model.Project;
 import com.example.clock.model.Task;
 import com.example.clock.repositories.ManageTaskRepository;
 import com.example.clock.repositories.MemtaskRepositoryBase;
@@ -22,20 +23,27 @@ import java.util.List;
 
 public class ManageTaskViewModel extends MemtaskViewModelBase {
 
-    private MemtaskRepositoryBase mRepository;
-
     public Observer mManagingTaskRepository;
+
+    private MemtaskRepositoryBase mRepository;
 
     public ManageTaskViewModel(Application application, Task managingTask){
         mManagingTaskRepository = new Observer(managingTask);
         loadData(application);
     }
 
-    public  LiveData<List<Task>> getData(Application application){
+    public  LiveData<List<Task>> getTasksData(Application application){
         if(mRepository == null){
             loadData(application);
         }
-        return mRepository.requestTaskData();
+        return this.tasksLiveData;
+    }
+
+    public  LiveData<List<Project>> getProjectsData(Application application){
+        if(mRepository == null){
+            loadData(application);
+        }
+        return this.projectsLiveData;
     }
 
     public void onSaveClick(View view){
