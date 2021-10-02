@@ -26,6 +26,7 @@ public class Task extends UserCaseBase {
     @NonNull
     @ColumnInfo(name = "taskId")
     private long taskId;
+
     protected boolean vibrate;
 
     // 0: once, 1: every day, 2: every week, 3: every month
@@ -40,13 +41,14 @@ public class Task extends UserCaseBase {
     protected boolean enabled = false;
     protected boolean started = false;
 
-    public Task(Calendar calendar, int repeatMode, String description){
+    public Task(Calendar calendar, int repeatMode, String description, long categoryId){
 
         timeInMillis = calendar.getTimeInMillis();
 
         this.repeatMode = repeatMode;
         this.description = description;
         this.vibrate = true;
+        this.categoryId = categoryId;
 
         switch (repeatMode) {
             case 0: this.repeatModeString = "Once";
@@ -61,13 +63,14 @@ public class Task extends UserCaseBase {
         }
     }
 
-    public Task(Calendar calendar, int repeatMode){
+    public Task(Calendar calendar, int repeatMode, long categoryId){
 
         timeInMillis = calendar.getTimeInMillis();
 
         this.description = "";
         this.repeatMode = repeatMode;
         this.vibrate = true;
+        this.categoryId = categoryId;
 
         switch (repeatMode) {
             case 0: this.repeatModeString = "Once";
@@ -83,12 +86,13 @@ public class Task extends UserCaseBase {
     }
 
     @Ignore
-    public Task(long taskId, int repeatMode, long timeInMillis, String description){
+    public Task(long taskId, int repeatMode, long timeInMillis, String description, long categoryId){
         this.taskId = taskId;
         this.repeatMode = repeatMode;
         this.timeInMillis = timeInMillis;
         this.description = description;
         this.vibrate = true;
+        this.categoryId = categoryId;
 
         switch (repeatMode) {
             case 0: this.repeatModeString = "Once";
@@ -105,7 +109,7 @@ public class Task extends UserCaseBase {
 
     public Task(long taskId, int repeatMode, boolean started, boolean recurring, long timeInMillis, String description,
                 boolean sunday, boolean monday, boolean tuesday, boolean wednesday,
-                boolean thursday, boolean friday, boolean saturday){
+                boolean thursday, boolean friday, boolean saturday, long categoryId){
         this.taskId = taskId;
         this.repeatMode = repeatMode;
         this.started = started;
@@ -119,6 +123,7 @@ public class Task extends UserCaseBase {
         this.thursday = thursday;
         this.friday = friday;
         this.saturday = saturday;
+        this.categoryId = categoryId;
 
         switch (repeatMode) {
             case 0: this.repeatModeString = "Once";

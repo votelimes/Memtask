@@ -36,4 +36,8 @@
     <string name="open_nav_drawer">Navigation drawer open</string>
     <string name="close_nav_drawer">Navigation drawer close</string>
 
+    <!-- Task card-->
+    <string name="task_description">Описание задачи</string>
+
+
 </resources>

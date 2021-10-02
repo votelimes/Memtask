@@ -1,67 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<com.google.android.material.card.MaterialCardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="horizontal"
-    android:gravity="top"
-    android:layout_marginTop="12dp"
-    android:layout_marginBottom="12dp"
-    android:paddingTop="15dp"
-    android:paddingBottom="15dp"
-    android:background="@drawable/note_border"
+
+    android:layout_width="350dp"
+    android:layout_height="100dp"
+    android:layout_gravity="center"
+    app:cardCornerRadius="15dp"
+
+    android:clickable="true"
+    android:focusable="true"
+    android:checkable="true"
     >
-    <LinearLayout
-        android:tag="time_day_of_week"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_marginStart="15dp"
-        >
-        <TextView
-            android:tag="time"
-            android:layout_width="65dp"
-            android:layout_height="25dp"
-            android:text="20:00"
-            android:textColor="@color/dark_grey"
-            android:textAlignment="textStart"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            />
-        <TextView
-            android:tag="day_of_week"
-            android:layout_width="65dp"
-            android:layout_height="30dp"
-            android:text="Thu"
-            android:textColor="@color/dark_grey"
-            android:textAlignment="textStart"
-            android:textSize="20sp"
-            android:paddingLeft="1dp"
-            />
-    </LinearLayout>
-    <TextView
-        android:layout_width="240dp"
-        android:layout_height="wrap_content"
-        android:text="@string/note_text_plug"
-        android:textColor="@color/black"
-        android:textAlignment="textStart"
-        android:textSize="16sp"
-        android:paddingTop="2dp"
-        android:tag="text"
-        />
-    <LinearLayout
-        android:tag="switch_layout"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        >
-        <androidx.appcompat.widget.SwitchCompat
-            android:tag="switch"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:thumb="@drawable/switch_thumb_selector"
-            app:track="@drawable/switch_track_selector"
-            />
-    </LinearLayout>
-</LinearLayout>
+
+</com.google.android.material.card.MaterialCardView >

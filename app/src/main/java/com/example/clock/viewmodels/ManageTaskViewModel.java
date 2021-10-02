@@ -8,15 +8,13 @@ import android.widget.AutoCompleteTextView;
 import androidx.annotation.NonNull;
 import androidx.databinding.BaseObservable;
 import androidx.databinding.Bindable;
-import androidx.databinding.Observable;
-import androidx.databinding.ObservableField;
+
 import androidx.databinding.library.baseAdapters.BR;
 import androidx.lifecycle.LiveData;
 
-import com.example.clock.app.App;
+
 import com.example.clock.model.Project;
 import com.example.clock.model.Task;
-import com.example.clock.repositories.ManageTaskRepository;
 import com.example.clock.repositories.MemtaskRepositoryBase;
 
 import java.util.List;

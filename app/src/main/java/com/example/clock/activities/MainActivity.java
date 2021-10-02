@@ -2,33 +2,21 @@ package com.example.clock.activities;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.LinearLayout;
-import android.widget.TextView;
-import android.widget.Toast;
 
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.SwitchCompat;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.core.view.GravityCompat;
 import androidx.databinding.DataBindingUtil;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -36,30 +24,24 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.clock.R;
-import com.example.clock.adapters.MainActivityListAdapter;
-import com.example.clock.app.App;
+import com.example.clock.fragments.CardsListFragment;
 import com.example.clock.fragments.CategoriesListFragment;
 import com.example.clock.fragments.DefaultListFragment;
+import com.example.clock.model.Category;
 import com.example.clock.model.Task;
 import com.example.clock.viewmodels.MainViewModel;
 import com.example.clock.viewmodels.ViewModelFactoryBase;
 import com.example.clock.databinding.ActivityMainBinding;
-import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.navigation.NavigationView;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener{
 
@@ -111,6 +93,78 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         toolbar.setNavigationOnClickListener(v -> {
             drawerLayout.open();
         });
+
+
+
+        /*final Handler handler = new Handler(Looper.getMainLooper());
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                populateDBTasks(2, mViewModel);
+            }
+        }, 5000);*/
+
+        /*final Handler handler2 = new Handler(Looper.getMainLooper());
+        handler2.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                printDBTasks(mViewModel);
+            }
+        }, 10000);*/
+
+        LiveData<List<Task>> testLD = mViewModel.requestTasksData();
+        mViewModel.requestTasksData().observe(this, new Observer<List<Task>>() {
+            // СДЕЛАЙ ВСЕ ЗАМЕНЫ ОБЪЕКТОВ В БД ТОЛЬКО ПО ID ИНАЧЕ НЕ РАБОТАЕТ И ЭТО ПРАВИЛЬНО
+            @Override
+            public void onChanged(List<Task> tasks) {
+                LiveData<List<Task>> taskLD = mViewModel.requestTasksData();
+                List<Task> data =  mViewModel.requestTasksData().getValue();
+
+                int i = 0;
+                i++;
+            }
+        });
+
+
+    }
+
+    private void printDBTasks(MainViewModel viewModel){
+        LiveData<List<Task>> taskLD = mViewModel.requestTasksData();
+        List<Task> data =  mViewModel.requestTasksData().getValue();
+
+
+
+        Task task1 = mViewModel.getTask(1);
+        Task task2 = mViewModel.getTask(2);
+        Task task3 = mViewModel.getTask(3);
+        Task task4 = mViewModel.getTask(4);
+
+        for(Task value : data){
+            Log.d("ID: ", String.valueOf(value.getTaskId()));
+            Log.d("DESC: ", value.getDescription());
+        }
+    }
+
+    private void populateDBTasks(int objectsCount, MainViewModel viewModel){
+
+        Calendar calendar = GregorianCalendar.getInstance();
+        for(int i = 0; i < objectsCount; i++){
+            calendar.add(Calendar.HOUR_OF_DAY, 1);
+            Task task = new Task(calendar, 0, "Iteration #" + String.valueOf(i + 1), 0);
+            viewModel.addTask(task);
+
+            Log.d("ADD: ", "Task #" + String.valueOf(i + 1) + " ADDED");
+        }
+    }
+
+    private void populateDBCategories(int objectsCount, MainViewModel viewModel){
+
+        Calendar calendar = GregorianCalendar.getInstance();
+        for(int i = 0; i < objectsCount; i++){
+            calendar.add(Calendar.HOUR_OF_DAY, 1);
+            Category category = new Category("Category #" + String.valueOf(i + 1), "TEST");
+            viewModel.addCategory(category);
+        }
     }
 
 
@@ -121,7 +175,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         gradientDrawable.setStroke(3, color);
     }
 
-    private void updateMainClock(){
+    /*private void updateMainClock(){
         TextView timeView = (TextView) findViewById(R.id.mainClockTextView);
         TextView timeViewIndex = (TextView) findViewById(R.id.mainClockTimeIndex);
         if(App.Settings.is24HTimeUses) {
@@ -137,7 +191,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             timeView.setText(time[0]);
             timeViewIndex.setText(time[1]);
         }
-    }
+    }*/
 
     // Utility methods
     public int pxToDp(Context context, int px) {
@@ -154,7 +208,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     @Override
-    public boolean onNavigationItemSelected(@NonNull @NotNull MenuItem item) {
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         Fragment nextFragment = null;
         String title = "testActionBar";
 
@@ -163,7 +217,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 nextFragment = new CategoriesListFragment();
                 break;
             case R.id.test_list:
-                nextFragment = new DefaultListFragment();
+                nextFragment = new CardsListFragment();
                 break;
         }
 

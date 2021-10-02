@@ -1,16 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".fragments.CategoriesListFragment">
+    tools:context=".fragments.CategoriesListFragment"
+    android:background="@color/white"
+    >
+    <!--<include layout="@layout/card_list_item"/>-->
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="Categories fragment"
-        android:textSize="50sp"
-        />
 
-</FrameLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,10 +1,21 @@
 package com.example.clock.model;
 
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 
 public class UserCaseBase implements Serializable  {
 
+    protected long categoryId;
+
     protected long timeInMillis;
+
     protected String description;
 
     protected int color;
@@ -29,6 +40,19 @@ public class UserCaseBase implements Serializable  {
         return color;
     }
 
+    public long getCategoryId() {
+        return categoryId;
+    }
+
+    public String getTime24() {
+        Calendar time = GregorianCalendar.getInstance();
+        time.setTimeInMillis(timeInMillis);
+
+        SimpleDateFormat myFormatObj = new SimpleDateFormat("HH:mm");
+
+        return myFormatObj.format(time.getTime());
+    }
+
     public boolean isCompleted() {
         return completed;
     }
@@ -49,4 +73,7 @@ public class UserCaseBase implements Serializable  {
         this.completed = completed;
     }
 
+    public void setCategoryId(long categoryId) {
+        this.categoryId = categoryId;
+    }
 }

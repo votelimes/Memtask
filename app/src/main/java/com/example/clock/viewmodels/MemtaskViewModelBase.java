@@ -6,6 +6,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.example.clock.model.Category;
 import com.example.clock.model.Project;
 import com.example.clock.model.Task;
 import com.example.clock.repositories.MemtaskRepositoryBase;
@@ -17,6 +18,7 @@ public class MemtaskViewModelBase extends ViewModel {
     protected MemtaskRepositoryBase mRepository;
     protected LiveData<List<Task>> tasksLiveData;
     protected LiveData<List<Project>> projectsLiveData;
+    protected LiveData<List<Category>> categoriesLiveData;
 
     public MemtaskViewModelBase() {
         super();
@@ -24,11 +26,11 @@ public class MemtaskViewModelBase extends ViewModel {
 
     //Load data
     protected void loadData(Application application){
-        new Thread(() -> {
-            mRepository = new MemtaskRepositoryBase(application);
-            tasksLiveData = mRepository.getAllTasksLive();
-            projectsLiveData = mRepository.getAllProjectsLive();
-        }).start();
+
+        mRepository = new MemtaskRepositoryBase(application);
+        tasksLiveData = mRepository.getAllTasksLive();
+        projectsLiveData = mRepository.getAllProjectsLive();
+        categoriesLiveData = mRepository.getAllCategoriesLive();
     }
 
     //Getting existing data
@@ -50,6 +52,10 @@ public class MemtaskViewModelBase extends ViewModel {
         mRepository.addProject(newProject);
     }
 
+    public void addCategory(Category newCategory){
+        mRepository.addCategory(newCategory);
+    }
+
     //Removing existing data
     public void removeTask (Task removableTask) {
         mRepository.removeTask(removableTask);
@@ -57,6 +63,10 @@ public class MemtaskViewModelBase extends ViewModel {
 
     public void removeProject (Project removableProject) {
         mRepository.removeProject(removableProject);
+    }
+
+    public void removeCategory(Category removableCategory){
+        mRepository.removeCategory(removableCategory);
     }
 
     //Updating existing data
@@ -68,6 +78,10 @@ public class MemtaskViewModelBase extends ViewModel {
         mRepository.updateProject(updatableProject);
     }
 
+    public void updateCategory(Category updatableCategory){
+        mRepository.updateCategory(updatableCategory);
+    }
+
     //Retrieving live data
     public LiveData<List<Task>> requestTasksData(){
         return this.tasksLiveData;
@@ -75,5 +89,9 @@ public class MemtaskViewModelBase extends ViewModel {
 
     public LiveData<List<Project>> requestProjectsData(){
         return this.projectsLiveData;
+    }
+
+    public LiveData<List<Category>> requestCategoriesData(){
+        return this.categoriesLiveData;
     }
 }
