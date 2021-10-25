@@ -94,13 +94,40 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             drawerLayout.open();
         });
 
-
-
         /*final Handler handler = new Handler(Looper.getMainLooper());
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                populateDBTasks(2, mViewModel);
+                Calendar calendar = GregorianCalendar.getInstance();
+                calendar.set(Calendar.HOUR_OF_DAY, 12);
+                Task task1 = new Task(calendar.getTimeInMillis(),
+                        0, "Name1",  "Test 1",
+                        "Category 1", 0);
+                calendar.set(Calendar.HOUR_OF_DAY, 12);
+                Task task2 = new Task(calendar.getTimeInMillis(),
+                        0, "Name2",  "Test 2",
+                        "Category 1", 0);
+                calendar.set(Calendar.HOUR_OF_DAY, 12);
+                Task task3 = new Task(calendar.getTimeInMillis(),
+                        0, "Name3",  "Test 3",
+                        "Category 2", 0);
+                calendar.set(Calendar.HOUR_OF_DAY, 12);
+                Task task4 = new Task(calendar.getTimeInMillis(),
+                        0, "Name4",  "Test 4",
+                        "Category 2", 0);
+
+                mViewModel.addTask(task1);
+                mViewModel.addTask(task2);
+                mViewModel.addTask(task3);
+                mViewModel.addTask(task4);
+
+                Category category1 = new Category("Category 1", "d1",
+                        "1", 0);
+                Category category2 = new Category("Category 2", "d2",
+                        "2", 999999);
+
+                mViewModel.addCategory(category1);
+                mViewModel.addCategory(category2);
             }
         }, 5000);*/
 
@@ -128,7 +155,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     }
 
-    private void printDBTasks(MainViewModel viewModel){
+    /*private void printDBTasks(MainViewModel viewModel){
         LiveData<List<Task>> taskLD = mViewModel.requestTasksData();
         List<Task> data =  mViewModel.requestTasksData().getValue();
 
@@ -165,7 +192,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             Category category = new Category("Category #" + String.valueOf(i + 1), "TEST");
             viewModel.addCategory(category);
         }
-    }
+    }*/
 
 
     private void changeStrokeColor(View v, int color){
@@ -192,20 +219,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             timeViewIndex.setText(time[1]);
         }
     }*/
-
-    // Utility methods
-    public int pxToDp(Context context, int px) {
-        return  ((int) (px / context.getResources().getDisplayMetrics().density));
-    }
-    public String timeInMillisToTime(long timeInMillis){
-        Date time = new Date(timeInMillis);
-        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
-        return sdf.format(time);
-    }
-
-    protected void displayFragment(int viewId){
-
-    }
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {

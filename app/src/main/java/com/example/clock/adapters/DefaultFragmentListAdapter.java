@@ -1,23 +1,30 @@
 package com.example.clock.adapters;
 
+import android.text.format.DateUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.clock.R;
 import com.example.clock.model.Category;
 import com.example.clock.model.Task;
 
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 
 public class DefaultFragmentListAdapter extends RecyclerView.Adapter<DefaultFragmentListAdapter.ViewHolder> {
 
     private List<Task> tasksDataSet;
-    private List<Category> categoriesDataSet;
+    private long currentCategoryID;
+    private Date selectedDay;
 
     /**
      * Provide a reference to the type of views that you are using
@@ -57,9 +64,11 @@ public class DefaultFragmentListAdapter extends RecyclerView.Adapter<DefaultFrag
         }
     }
 
-    public DefaultFragmentListAdapter(List<Task> tasksDataSet, List<Category> categoriesDataSet) {
+    public DefaultFragmentListAdapter(@NonNull List<Task> tasksDataSet,
+                                       @NonNull long currentCategoryID, Date selectedDay) {
         this.tasksDataSet = tasksDataSet;
-        this.categoriesDataSet = categoriesDataSet;
+        this.currentCategoryID = currentCategoryID;
+        this.selectedDay = selectedDay;
     }
 
     // Create new views (invoked by the layout manager)
@@ -67,9 +76,11 @@ public class DefaultFragmentListAdapter extends RecyclerView.Adapter<DefaultFrag
     public ViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
         // Create a new view, which defines the UI of the list item
         View view = LayoutInflater.from(viewGroup.getContext())
-                .inflate(R.layout.user_note, viewGroup, false);
+                .inflate(R.layout.card_list_item, viewGroup, false);
 
-        return new ViewHolder(view);
+       ViewHolder viewH = new ViewHolder(view);
+
+        return viewH;
     }
 
     // Replace the contents of a view (invoked by the layout manager)
@@ -82,12 +93,28 @@ public class DefaultFragmentListAdapter extends RecyclerView.Adapter<DefaultFrag
 
         viewHolder.getNotificationImage().setBackgroundResource(R.drawable.baseline_schedule_black_18);
         viewHolder.getTime().setText(currentTask.getTime24());
-        for(Category category : categoriesDataSet){
-            if(category.getCategoryId() == currentTask.getCategoryId()){
-                viewHolder.getListName().setText(category.getName());
-                break;
+
+        /*if (this.selectedDay != null){
+            Calendar selectedDate = GregorianCalendar.getInstance();
+            selectedDate.setTimeInMillis(this.selectedDay.getTime());
+            selectedDate.set(Calendar.HOUR_OF_DAY, 1); // 0 - 23
+
+            Calendar taskDate = GregorianCalendar.getInstance();
+
+
+            for (Task task : tasksDataSet) {
+                taskDate.setTimeInMillis(task.getTimeInMillis());
+                if (selectedDate.get(Calendar.YEAR) == taskDate.get(Calendar.YEAR)
+                    && selectedDate.get(Calendar.MONTH) == taskDate.get(Calendar.MONTH)
+                    && selectedDate.get(Calendar.DAY_OF_MONTH) == taskDate.get(Calendar.DAY_OF_MONTH)) {
+
+                    viewHolder.getListName().setText(task.getCategoryName());
+                    break;
+                }
             }
-        }
+        }*/
+
+        viewHolder.getListName().setText(currentTask.getCategoryName());
         viewHolder.getDescription().setText(currentTask.getDescription());
     }
 

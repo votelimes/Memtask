@@ -41,12 +41,15 @@ public class Task extends UserCaseBase {
     protected boolean enabled = false;
     protected boolean started = false;
 
-    public Task(Calendar calendar, int repeatMode, String description, long categoryId){
+    public Task(long timeInMillis, int repeatMode, String name, String description,
+                String categoryName, long categoryId){
 
-        timeInMillis = calendar.getTimeInMillis();
+        this.timeInMillis = timeInMillis;
 
         this.repeatMode = repeatMode;
+        this.mName = name;
         this.description = description;
+        this.mCategoryName = categoryName;
         this.vibrate = true;
         this.categoryId = categoryId;
 
@@ -63,6 +66,7 @@ public class Task extends UserCaseBase {
         }
     }
 
+    @Ignore
     public Task(Calendar calendar, int repeatMode, long categoryId){
 
         timeInMillis = calendar.getTimeInMillis();
@@ -107,6 +111,7 @@ public class Task extends UserCaseBase {
         }
     }
 
+    @Ignore
     public Task(long taskId, int repeatMode, boolean started, boolean recurring, long timeInMillis, String description,
                 boolean sunday, boolean monday, boolean tuesday, boolean wednesday,
                 boolean thursday, boolean friday, boolean saturday, long categoryId){
@@ -456,5 +461,41 @@ public class Task extends UserCaseBase {
         }
 
         return days;
+    }
+
+    public void setSunday(boolean sunday) {
+        this.sunday = sunday;
+    }
+
+    public void setMonday(boolean monday) {
+        this.monday = monday;
+    }
+
+    public void setTuesday(boolean tuesday) {
+        this.tuesday = tuesday;
+    }
+
+    public void setWednesday(boolean wednesday) {
+        this.wednesday = wednesday;
+    }
+
+    public void setThursday(boolean thursday) {
+        this.thursday = thursday;
+    }
+
+    public void setFriday(boolean friday) {
+        this.friday = friday;
+    }
+
+    public void setSaturday(boolean saturday) {
+        this.saturday = saturday;
+    }
+
+    public void setRecurring(boolean recurring) {
+        this.recurring = recurring;
+    }
+
+    public void setStarted(boolean started) {
+        this.started = started;
     }
 }

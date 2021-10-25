@@ -14,7 +14,8 @@ public class Category {
     private long mCategoryId;
 
     private String mName;
-    //private String mDescription;
+
+    private String mDescription;
 
     private String mType;
     private int mColor;
@@ -25,6 +26,7 @@ public class Category {
         //mDescription = "";
         mType = "FIELD";
         mColor = Integer.parseInt("FFFFFF", 16);
+        mDescription = "";
     }
 
     public Category(@NonNull String name, @NonNull String type){
@@ -32,27 +34,17 @@ public class Category {
         mName = name;
         mType = type;
         mColor = Integer.parseInt("FFFFFF", 16);
-
-        /*if(description == null){
-            mDescription = "";
-        }
-        else{
-            mDescription = description;
-        }*/
+        mDescription = "";
     }
 
-    public Category(@NonNull String name, @NonNull String type, int color){
+    public Category(@NonNull String name,
+                    @NonNull String description,
+                    @NonNull String type, int color){
         mCategoryId = 0;
         mName = name;
         mType = type;
         mColor = color;
-
-        /*if(description == null){
-            mDescription = "";
-        }
-        else{
-            mDescription = description;
-        }*/
+        mDescription = description;
     }
 
     public long getCategoryId() {
@@ -85,5 +77,13 @@ public class Category {
 
     public void setColor(int mColor) {
         this.mColor = mColor;
+    }
+
+    public String getDescription() {
+        return mDescription;
+    }
+
+    public void setDescription(String mDescription) {
+        this.mDescription = mDescription;
     }
 }

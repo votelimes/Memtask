@@ -30,7 +30,9 @@ public class RingActivity extends AppCompatActivity {
         Calendar calendar = Calendar.getInstance();
         calendar.add(Calendar.MINUTE, 10);
 
-        Task task = new Task(calendar, 0, "", 0);
+        Task task = new Task(calendar.getTimeInMillis(), 0,
+                "Name2",  "Test 2",
+                "Category 1", 0);
         task.setDescription("Snooze");
         task.schedule(getApplicationContext());
 

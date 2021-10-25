@@ -2,6 +2,10 @@ package com.example.clock.fragments;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
@@ -22,37 +26,39 @@ public class CardsListFragment extends Fragment {
     Context mContext;
 
     public CardsListFragment(){
-        super(R.layout.fragment_cards_list);
+        //super(R.layout.fragment_cards_list);
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        return inflater.inflate(R.layout.fragment_cards_list, container, false);
+    }
 
-        if (savedInstanceState == null) {
-            getChildFragmentManager().beginTransaction()
-                    .setReorderingAllowed(true)
-                    .add(R.id.main_fragment_container_view, CardsListFragment.class, null)
-                    .commit();
-        }
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState){
+        super.onViewCreated(view, savedInstanceState);
 
         ViewModelFactoryBase mFactory = new ViewModelFactoryBase(this
-                        .getActivity()
-                        .getApplication());
+                .getActivity()
+                .getApplication());
 
         mContext = getContext();
 
         mViewModel = new ViewModelProvider(getActivity(), mFactory).get(MainViewModel.class);
+
         mRecyclerView = getView().findViewById(R.id.cards_list);
 
         mLayoutManager = new LinearLayoutManager(mContext,
-                LinearLayoutManager.HORIZONTAL, false);
+                LinearLayoutManager.VERTICAL, false);
+
 
         mViewModel.requestTasksData().observe(getViewLifecycleOwner(), data -> {
             mRecyclerViewAdapter = new DefaultFragmentListAdapter(
                     mViewModel.requestTasksData().getValue(),
-                    mViewModel.requestCategoriesData().getValue()
-                    );
+                    mViewModel.getCurrentCategoryID(), null
+            );
             mRecyclerView.setLayoutManager(mLayoutManager);
             mRecyclerView.setAdapter(mRecyclerViewAdapter);
         });

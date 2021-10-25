@@ -14,22 +14,27 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="@color/dark_grey"
         >
         <TextView
             android:id="@+id/text1_default_list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:text="Def List Fragment"
-            android:textSize="50sp"
+            android:text="Список задач:"
+            android:textSize="40sp"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             />
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/cards_list"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             app:layout_constraintTop_toBottomOf="@id/text1_default_list"
             app:layout_constraintStart_toStartOf="parent"
+            android:layout_gravity="center_horizontal"
+            android:paddingTop="15dp"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
             />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

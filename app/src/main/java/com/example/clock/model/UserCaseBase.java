@@ -18,6 +18,10 @@ public class UserCaseBase implements Serializable  {
 
     protected String description;
 
+    protected String mName;
+
+    protected String mCategoryName;
+
     protected int color;
     protected boolean completed;
 
@@ -53,6 +57,14 @@ public class UserCaseBase implements Serializable  {
         return myFormatObj.format(time.getTime());
     }
 
+    public String getName() {
+        return mName;
+    }
+
+    public String getCategoryName() {
+        return mCategoryName;
+    }
+
     public boolean isCompleted() {
         return completed;
     }
@@ -75,5 +87,13 @@ public class UserCaseBase implements Serializable  {
 
     public void setCategoryId(long categoryId) {
         this.categoryId = categoryId;
+    }
+
+    public void setName(String mName) {
+        this.mName = mName;
+    }
+
+    public void setCategoryName(String mCategoryName) {
+        this.mCategoryName = mCategoryName;
     }
 }

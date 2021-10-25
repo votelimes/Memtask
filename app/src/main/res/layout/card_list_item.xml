@@ -8,7 +8,8 @@
     app:layout_constraintTop_toTopOf="parent"
     app:layout_constraintStart_toStartOf="parent"
     app:cardCornerRadius="15dp"
-
+    android:layout_marginTop="20dp"
+    android:layout_gravity="center_horizontal"
     >
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
