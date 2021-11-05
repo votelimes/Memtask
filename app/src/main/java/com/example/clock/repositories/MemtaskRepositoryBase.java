@@ -25,9 +25,8 @@ public class MemtaskRepositoryBase {
     private CategoryDao mCategoryDao;
     private ThemeDao mThemeDao;
 
-    public MemtaskRepositoryBase(Application application){
-        this.mDatabase = Room.databaseBuilder(application, Database.class, "memtask_db")
-                .build();
+    public MemtaskRepositoryBase(Application application, Database database){
+        this.mDatabase = database;
 
         mTaskDao = mDatabase.taskDao();
         mProjectDao = mDatabase.projectDao();

@@ -63,7 +63,6 @@ public class CategoriesListFragmentAdapter extends RecyclerView.Adapter<Categori
         Category currentCategory = categoriesDataSet.get(position);
 
         viewHolder.getListNameView().setText(currentCategory.getName());
-
     }
 
     // Return the size of your dataset (invoked by the layout manager)

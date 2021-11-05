@@ -15,6 +15,7 @@ import android.view.View;
 import com.example.clock.R;
 
 import com.example.clock.adapters.CardsListFragmentAdapter;
+import com.example.clock.app.App;
 import com.example.clock.databinding.ActivityManageCategoryBinding;
 import com.example.clock.databinding.ActivityManageTaskBinding;
 import com.example.clock.model.Category;
@@ -63,11 +64,12 @@ public class ManageCategoryActivity extends AppCompatActivity {
 
         mFactory = new ViewModelFactoryBase(
                 getApplication(),
+                App.getDatabase(),
                 managingCategory
         );
         mViewModel = new ViewModelProvider(this, mFactory).get(ManageCategoryViewModel.class);
 
-        mViewModel.getThemesLiveData(getApplication()).observe(this, data -> {
+        mViewModel.getThemesLiveData(getApplication(), App.getDatabase()).observe(this, data -> {
 
             if(data == null){
                 return;

@@ -75,7 +75,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onCreate(savedInstanceState);
         mActivityBinding = DataBindingUtil
                 .setContentView(this, R.layout.activity_main);
-        mFactory = new ViewModelFactoryBase(getApplication());
+        mFactory = new ViewModelFactoryBase(getApplication(), App.getDatabase());
         mViewModel = new ViewModelProvider(this, mFactory).get(MainViewModel.class);
         mActivityBinding.setViewmodel(mViewModel);
 
@@ -99,25 +99,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             drawerLayout.open();
         });
 
-        LiveData<List<Task>> testLD = mViewModel.requestTasksData();
-        mViewModel.requestTasksData().observe(this, new Observer<List<Task>>() {
-            // СДЕЛАЙ ВСЕ ЗАМЕНЫ ОБЪЕКТОВ В БД ТОЛЬКО ПО ID ИНАЧЕ НЕ РАБОТАЕТ И ЭТО ПРАВИЛЬНО
-            @Override
-            public void onChanged(List<Task> tasks) {
-                LiveData<List<Task>> taskLD = mViewModel.requestTasksData();
-                List<Task> data =  mViewModel.requestTasksData().getValue();
-            }
-        });
-
         setupApplication();
-    }
-
-
-    private void changeStrokeColor(View v, int color){
-        Drawable background = (Drawable) v.getBackground();
-        GradientDrawable gradientDrawable = (GradientDrawable) background;
-        gradientDrawable.mutate();
-        gradientDrawable.setStroke(3, color);
     }
 
     /*private void updateMainClock(){

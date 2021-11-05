@@ -17,6 +17,7 @@ import com.example.clock.BR;
 import com.example.clock.model.Project;
 import com.example.clock.model.Task;
 import com.example.clock.repositories.MemtaskRepositoryBase;
+import com.example.clock.storageutils.Database;
 
 import java.util.List;
 
@@ -26,21 +27,21 @@ public class ManageTaskViewModel extends MemtaskViewModelBase {
 
     private MemtaskRepositoryBase mRepository;
 
-    public ManageTaskViewModel(Application application, Task managingTask){
+    public ManageTaskViewModel(Application application, Database database, Task managingTask){
         mManagingTaskRepository = new Observer(managingTask);
-        loadData(application);
+        loadData(application, database);
     }
 
-    public  LiveData<List<Task>> getTasksData(Application application){
+    public  LiveData<List<Task>> getTasksData(Application application, Database database){
         if(mRepository == null){
-            loadData(application);
+            loadData(application, database);
         }
         return this.tasksLiveData;
     }
 
-    public  LiveData<List<Project>> getProjectsData(Application application){
+    public  LiveData<List<Project>> getProjectsData(Application application, Database database){
         if(mRepository == null){
-            loadData(application);
+            loadData(application, database);
         }
         return this.projectsLiveData;
     }

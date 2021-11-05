@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.example.clock.model.Category;
 import com.example.clock.model.Task;
+import com.example.clock.storageutils.Database;
 
 public class ViewModelFactoryBase extends ViewModelProvider.NewInstanceFactory {
     private Application mApplication;
@@ -24,13 +25,13 @@ public class ViewModelFactoryBase extends ViewModelProvider.NewInstanceFactory {
     @Override
     public <T extends ViewModel> T create(Class<T> modelClass) {
         if (modelClass == ManageTaskViewModel.class) {
-            return (T) new ManageTaskViewModel(mApplication, (Task) mParams[0]);
+            return (T) new ManageTaskViewModel(mApplication, (Database) mParams[0], (Task) mParams[1]);
         }
         else if (modelClass == ManageCategoryViewModel.class) {
-            return (T) new ManageCategoryViewModel(mApplication, (Category) mParams[0]);
+            return (T) new ManageCategoryViewModel(mApplication, (Database) mParams[0], (Category) mParams[1]);
         }
         else if(modelClass == MainViewModel.class){
-            return (T) new MainViewModel(mApplication);
+            return (T) new MainViewModel(mApplication, (Database) mParams[0]);
         }
         else {
             return super.create(modelClass);

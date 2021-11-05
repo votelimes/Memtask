@@ -16,6 +16,7 @@ import com.example.clock.model.Project;
 import com.example.clock.model.Task;
 import com.example.clock.model.Theme;
 import com.example.clock.repositories.MemtaskRepositoryBase;
+import com.example.clock.storageutils.Database;
 
 import java.util.List;
 
@@ -23,21 +24,21 @@ public class ManageCategoryViewModel extends MemtaskViewModelBase {
 
     public Observer mManagingCategoryRepository;
 
-    public ManageCategoryViewModel(Application application, Category managingCategory){
+    public ManageCategoryViewModel(Application application, Database database, Category managingCategory){
         mManagingCategoryRepository = new Observer(managingCategory);
-        loadData(application);
+        loadData(application, database);
     }
 
-    public LiveData<List<Category>> getCategoriesLiveData(Application application){
+    public LiveData<List<Category>> getCategoriesLiveData(Application application, Database database){
         if(mRepository == null){
-            loadData(application);
+            loadData(application, database);
         }
         return this.categoriesLiveData;
     }
 
-    public LiveData<List<Theme>> getThemesLiveData(Application application){
+    public LiveData<List<Theme>> getThemesLiveData(Application application, Database database){
         if(mRepository == null){
-            loadData(application);
+            loadData(application, database);
         }
         return this.themesLiveData;
     }

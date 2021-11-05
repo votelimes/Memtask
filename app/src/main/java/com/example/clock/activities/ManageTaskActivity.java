@@ -11,6 +11,7 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 
 import com.example.clock.R;
+import com.example.clock.app.App;
 import com.example.clock.databinding.ActivityManageTaskBinding;
 import com.example.clock.model.Category;
 import com.example.clock.model.Task;
@@ -57,6 +58,7 @@ public class ManageTaskActivity extends AppCompatActivity {
 
         mFactory = new ViewModelFactoryBase(
                 getApplication(),
+                App.getDatabase(),
                 managingTask
                 );
         mViewModel = new ViewModelProvider(this, mFactory).get(ManageTaskViewModel.class);

@@ -4,13 +4,14 @@ import android.app.Application;
 
 
 import com.example.clock.model.Task;
+import com.example.clock.storageutils.Database;
 
 public class ManageTaskRepository extends MemtaskRepositoryBase {
 
     private Task mManagingTask;
 
-    public ManageTaskRepository(Application application, Task managingTask) {
-        super(application);
+    public ManageTaskRepository(Application application, Database database, Task managingTask) {
+        super(application, database);
 
         this.mManagingTask = managingTask;
     }

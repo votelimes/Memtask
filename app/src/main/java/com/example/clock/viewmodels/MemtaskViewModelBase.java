@@ -7,11 +7,13 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.example.clock.app.App;
 import com.example.clock.model.Category;
 import com.example.clock.model.Project;
 import com.example.clock.model.Task;
 import com.example.clock.model.Theme;
 import com.example.clock.repositories.MemtaskRepositoryBase;
+import com.example.clock.storageutils.Database;
 
 import java.util.List;
 
@@ -28,8 +30,8 @@ public class MemtaskViewModelBase extends ViewModel {
     }
 
     //Load data
-    protected void loadData(Application application){
-        mRepository = new MemtaskRepositoryBase(application);
+    protected void loadData(Application application, Database database){
+        mRepository = new MemtaskRepositoryBase(application, database);
         tasksLiveData = mRepository.getAllTasksLive();
         projectsLiveData = mRepository.getAllProjectsLive();
         categoriesLiveData = mRepository.getAllCategoriesLive();
