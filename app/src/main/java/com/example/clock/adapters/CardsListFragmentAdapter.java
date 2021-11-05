@@ -1,7 +1,5 @@
 package com.example.clock.adapters;
 
-import android.text.format.DateUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,15 +10,12 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.clock.R;
-import com.example.clock.model.Category;
 import com.example.clock.model.Task;
 
-import java.util.Calendar;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.List;
 
-public class DefaultFragmentListAdapter extends RecyclerView.Adapter<DefaultFragmentListAdapter.ViewHolder> {
+public class CardsListFragmentAdapter extends RecyclerView.Adapter<CardsListFragmentAdapter.ViewHolder> {
 
     private List<Task> tasksDataSet;
     private long currentCategoryID;
@@ -64,8 +59,8 @@ public class DefaultFragmentListAdapter extends RecyclerView.Adapter<DefaultFrag
         }
     }
 
-    public DefaultFragmentListAdapter(@NonNull List<Task> tasksDataSet,
-                                       @NonNull long currentCategoryID, Date selectedDay) {
+    public CardsListFragmentAdapter(@NonNull List<Task> tasksDataSet,
+                                    @NonNull long currentCategoryID, Date selectedDay) {
         this.tasksDataSet = tasksDataSet;
         this.currentCategoryID = currentCategoryID;
         this.selectedDay = selectedDay;

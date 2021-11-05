@@ -1,29 +1,32 @@
 package com.example.clock.app;
 
 import android.app.Application;
+import android.content.SharedPreferences;
 
-import androidx.lifecycle.LiveData;
-import androidx.room.Room;
+import androidx.preference.PreferenceManager;
 
-import com.example.clock.model.Task;
-import com.example.clock.dao.TaskDao;
-import com.example.clock.databases.Database;
-
-import java.util.List;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
+import com.example.clock.storageutils.Settings;
 
 public class App extends Application {
 
     public static App instance;
-    public static Settings Settings;
+    public static Settings mSettings;
+    SharedPreferences.OnSharedPreferenceChangeListener settingsUpdateListener;
 
     @Override
     public void onCreate() {
         super.onCreate();
-        this.instance = this;
+        instance = this;
 
-        Settings = new Settings(getApplicationContext());
+        mSettings = new Settings(getApplicationContext());
+
+        settingsUpdateListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
+            public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
+                mSettings.updateData();
+            }
+        };
+
+        mSettings.getSharedPref().registerOnSharedPreferenceChangeListener(settingsUpdateListener);
     }
 
     public static App getInstance() {

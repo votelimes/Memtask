@@ -5,8 +5,10 @@ import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
+import java.io.Serializable;
+
 @Entity(tableName = "category_table")
-public class Category {
+public class Category implements Serializable {
 
     @PrimaryKey(autoGenerate = true)
     @NonNull
@@ -18,14 +20,18 @@ public class Category {
     private String mDescription;
 
     private String mType;
-    private int mColor;
+    private int mFirstColor;
+    private int mSecondColor;
+
+    private long mThemeID;
+
 
     public Category(){
         mCategoryId = 0;
         mName = "New list";
         //mDescription = "";
         mType = "FIELD";
-        mColor = Integer.parseInt("FFFFFF", 16);
+        mFirstColor = Integer.parseInt("FFFFFF", 16);
         mDescription = "";
     }
 
@@ -33,18 +39,21 @@ public class Category {
         mCategoryId = 0;
         mName = name;
         mType = type;
-        mColor = Integer.parseInt("FFFFFF", 16);
+        mFirstColor = Integer.parseInt("FFFFFF", 16);
         mDescription = "";
     }
 
     public Category(@NonNull String name,
                     @NonNull String description,
-                    @NonNull String type, int color){
+                    @NonNull String type){
         mCategoryId = 0;
         mName = name;
         mType = type;
-        mColor = color;
         mDescription = description;
+
+        mFirstColor = 0;
+        mSecondColor = 0;
+        mThemeID = -2;
     }
 
     public long getCategoryId() {
@@ -71,12 +80,12 @@ public class Category {
         this.mType = mType;
     }
 
-    public int getColor() {
-        return mColor;
+    public int getFirstColor() {
+        return mFirstColor;
     }
 
-    public void setColor(int mColor) {
-        this.mColor = mColor;
+    public void setFirstColor(int mColor) {
+        this.mFirstColor = mColor;
     }
 
     public String getDescription() {
@@ -85,5 +94,27 @@ public class Category {
 
     public void setDescription(String mDescription) {
         this.mDescription = mDescription;
+    }
+
+    public int getSecondColor() {
+        return this.mSecondColor;
+    }
+
+    public void setSecondColor(int color){
+        this.mSecondColor = color;
+    }
+
+    public long getThemeID() {
+        return mThemeID;
+    }
+
+    public void setThemeID(long mThemeID) {
+        this.mThemeID = mThemeID;
+    }
+
+    public void installTheme(Theme theme){
+        setFirstColor(theme.getFirstColor());
+        setSecondColor(theme.getSecondColor());
+        setThemeID(theme.getId());
     }
 }

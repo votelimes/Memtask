@@ -45,9 +45,8 @@ public class ManageTaskViewModel extends MemtaskViewModelBase {
         return this.projectsLiveData;
     }
 
-    public void onSaveClick(View view){
-        AutoCompleteTextView newView = (AutoCompleteTextView) view;
-        String selectedValue = newView.getText().toString();
+    public void saveChanges(){
+        this.mRepository.addTask(this.mManagingTaskRepository.mManagingTask);
     }
 
     public static class Observer extends BaseObservable{
@@ -59,6 +58,11 @@ public class ManageTaskViewModel extends MemtaskViewModelBase {
         }
 
         @Bindable
+        public String getTaskName() {
+            return this.mManagingTask.getName();
+        }
+
+        @Bindable
         public String getTaskDescription(){
             return this.mManagingTask.getDescription();
         }
@@ -67,7 +71,12 @@ public class ManageTaskViewModel extends MemtaskViewModelBase {
         public String getTaskRepeatModeString(){
             return this.mManagingTask.getRepeatModeString();
         }
-        
+
+        public void setTaskName(String name) {
+            this.mManagingTask.setName(name);
+            notifyPropertyChanged(BR.taskDescription);
+        }
+
         public void setTaskDescription(String description){
             this.mManagingTask.setDescription(description);
             notifyPropertyChanged(BR.taskDescription);
@@ -77,5 +86,6 @@ public class ManageTaskViewModel extends MemtaskViewModelBase {
             this.mManagingTask.setRepeatModeString(repeatMode);
             notifyPropertyChanged(BR.taskRepeatModeString);
         }
+
     }
 }

@@ -32,6 +32,13 @@
                     android:title="Статистика"
                     android:contentDescription="Обычный лист 1"
                     app:showAsAction="ifRoom" />
+
+                <item
+                    android:id="@+id/settings_item"
+                    android:icon="@drawable/ic_baseline_settings_applications_24"
+                    android:title="Настройки"
+                    android:contentDescription="Обычный лист 1"
+                    app:showAsAction="ifRoom" />
             </menu>
         </item>
 </menu>

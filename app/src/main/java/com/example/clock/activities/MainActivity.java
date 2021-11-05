@@ -26,11 +26,15 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.clock.R;
+import com.example.clock.app.App;
 import com.example.clock.fragments.CardsListFragment;
 import com.example.clock.fragments.CategoriesListFragment;
 import com.example.clock.fragments.DefaultListFragment;
+import com.example.clock.fragments.SettingsFragment;
 import com.example.clock.model.Category;
 import com.example.clock.model.Task;
+import com.example.clock.model.Theme;
+import com.example.clock.storageutils.Settings;
 import com.example.clock.viewmodels.MainViewModel;
 import com.example.clock.viewmodels.ViewModelFactoryBase;
 import com.example.clock.databinding.ActivityMainBinding;
@@ -38,6 +42,7 @@ import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.navigation.NavigationView;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -94,51 +99,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             drawerLayout.open();
         });
 
-        /*final Handler handler = new Handler(Looper.getMainLooper());
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                Calendar calendar = GregorianCalendar.getInstance();
-                calendar.set(Calendar.HOUR_OF_DAY, 12);
-                Task task1 = new Task(calendar.getTimeInMillis(),
-                        0, "Name1",  "Test 1",
-                        "Category 1", 0);
-                calendar.set(Calendar.HOUR_OF_DAY, 12);
-                Task task2 = new Task(calendar.getTimeInMillis(),
-                        0, "Name2",  "Test 2",
-                        "Category 1", 0);
-                calendar.set(Calendar.HOUR_OF_DAY, 12);
-                Task task3 = new Task(calendar.getTimeInMillis(),
-                        0, "Name3",  "Test 3",
-                        "Category 2", 0);
-                calendar.set(Calendar.HOUR_OF_DAY, 12);
-                Task task4 = new Task(calendar.getTimeInMillis(),
-                        0, "Name4",  "Test 4",
-                        "Category 2", 0);
-
-                mViewModel.addTask(task1);
-                mViewModel.addTask(task2);
-                mViewModel.addTask(task3);
-                mViewModel.addTask(task4);
-
-                Category category1 = new Category("Category 1", "d1",
-                        "1", 0);
-                Category category2 = new Category("Category 2", "d2",
-                        "2", 999999);
-
-                mViewModel.addCategory(category1);
-                mViewModel.addCategory(category2);
-            }
-        }, 5000);*/
-
-        /*final Handler handler2 = new Handler(Looper.getMainLooper());
-        handler2.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                printDBTasks(mViewModel);
-            }
-        }, 10000);*/
-
         LiveData<List<Task>> testLD = mViewModel.requestTasksData();
         mViewModel.requestTasksData().observe(this, new Observer<List<Task>>() {
             // СДЕЛАЙ ВСЕ ЗАМЕНЫ ОБЪЕКТОВ В БД ТОЛЬКО ПО ID ИНАЧЕ НЕ РАБОТАЕТ И ЭТО ПРАВИЛЬНО
@@ -146,53 +106,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             public void onChanged(List<Task> tasks) {
                 LiveData<List<Task>> taskLD = mViewModel.requestTasksData();
                 List<Task> data =  mViewModel.requestTasksData().getValue();
-
-                int i = 0;
-                i++;
             }
         });
 
-
+        setupApplication();
     }
-
-    /*private void printDBTasks(MainViewModel viewModel){
-        LiveData<List<Task>> taskLD = mViewModel.requestTasksData();
-        List<Task> data =  mViewModel.requestTasksData().getValue();
-
-
-
-        Task task1 = mViewModel.getTask(1);
-        Task task2 = mViewModel.getTask(2);
-        Task task3 = mViewModel.getTask(3);
-        Task task4 = mViewModel.getTask(4);
-
-        for(Task value : data){
-            Log.d("ID: ", String.valueOf(value.getTaskId()));
-            Log.d("DESC: ", value.getDescription());
-        }
-    }
-
-    private void populateDBTasks(int objectsCount, MainViewModel viewModel){
-
-        Calendar calendar = GregorianCalendar.getInstance();
-        for(int i = 0; i < objectsCount; i++){
-            calendar.add(Calendar.HOUR_OF_DAY, 1);
-            Task task = new Task(calendar, 0, "Iteration #" + String.valueOf(i + 1), 0);
-            viewModel.addTask(task);
-
-            Log.d("ADD: ", "Task #" + String.valueOf(i + 1) + " ADDED");
-        }
-    }
-
-    private void populateDBCategories(int objectsCount, MainViewModel viewModel){
-
-        Calendar calendar = GregorianCalendar.getInstance();
-        for(int i = 0; i < objectsCount; i++){
-            calendar.add(Calendar.HOUR_OF_DAY, 1);
-            Category category = new Category("Category #" + String.valueOf(i + 1), "TEST");
-            viewModel.addCategory(category);
-        }
-    }*/
 
 
     private void changeStrokeColor(View v, int color){
@@ -228,9 +146,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         switch (item.getItemId()){
             case R.id.categories_item:
                 nextFragment = new CategoriesListFragment();
+                title = "Категории";
                 break;
             case R.id.test_list:
                 nextFragment = new CardsListFragment();
+                title = "ТЕСТ";
+                break;
+            case R.id.settings_item:
+                nextFragment = new SettingsFragment();
+                title = "Настройки";
                 break;
         }
 
@@ -247,8 +171,121 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return false;
     }
 
-    @Override
-    public void onPointerCaptureChanged(boolean hasCapture) {
 
+    private void setupApplication(){
+
+        if(App.mSettings.getSetupState() == false){
+
+            // Themes installation
+
+            List<Theme> defaultThemesList = new ArrayList<Theme>(20);
+
+            defaultThemesList.add(new Theme(1, "Celadon",
+                    "#BAF2BB", "#000000", 0));
+
+            defaultThemesList.add(new Theme(2, "Celadon",
+                    "#BAF2BB", "#000000", 0));
+
+            defaultThemesList.add(new Theme(3, "Fiery Rose",
+                    "#EF626C", "#FFFFFF", 0));
+
+            defaultThemesList.add(new Theme(4, "Orange Red Crayola",
+                    "#FF5E5B", "#FFFFFF", 0));
+
+            defaultThemesList.add(new Theme(5, "Middle Green",
+                    "#5B8C5A", "#FFFFFF", 0));
+
+            defaultThemesList.add(new Theme(6, "Sky Blue Crayola",
+                    "#90E0F3", "#000000", 0));
+
+            defaultThemesList.add(new Theme(7, "Orange Yellow",
+                    "#FABC2A", "#000000", 0));
+
+            defaultThemesList.add(new Theme(8, "Mauve Taupe",
+                    "#925E78", "#FFFFFF", 0));
+
+            defaultThemesList.add(new Theme(9, "Cyan Process",
+                    "#00A5E0", "#FFFFFF", 0));
+
+            defaultThemesList.add(new Theme(10, "Orchid Crayola",
+                    "#EF9CDA", "#000000", 0));
+
+            defaultThemesList.add(new Theme(11, "Black Coffee",
+                    "#32292F", "#FFFFFF", 0));
+
+            defaultThemesList.add(new Theme(12, "Umber",
+                    "#705D56", "#FFFFFF", 0));
+
+            defaultThemesList.add(new Theme(13, "Ocean Green",
+                    "#65B891", "#FFFFFF", 0));
+
+            defaultThemesList.add(new Theme(14, "Pastel Pink",
+                    "#DAA89B", "#000000", 0));
+
+            defaultThemesList.add(new Theme(15, "Blue Bell",
+                    "#998FC7", "#FFFFFF", 0));
+
+            defaultThemesList.add(new Theme(16, "Steel Teal",
+                    "#6E8387", "#FFFFFF", 0));
+
+            defaultThemesList.add(new Theme(17, "Caput Mortuum",
+                    "#522A27", "#FFFFFF", 0));
+
+            defaultThemesList.add(new Theme(18, "Satin Sheen Gold",
+                    "#C59849", "#FFFFFF", 0));
+
+            defaultThemesList.add(new Theme(19, "United Nations Blue",
+                    "#6290C3", "#FFFFFF", 0));
+
+            defaultThemesList.add(new Theme(20, "Mandarin",
+                    "#F37748", "#FFFFFF", 0));
+
+            for (Theme theme: defaultThemesList) {
+                mViewModel.addTheme(theme);
+            }
+
+            // Categories installation
+            List<Category> defaultCategoriesList = new ArrayList<Category>(3);
+            defaultCategoriesList.add(new Category("Дом",
+                    "Домашние дела, покупки и т.д.", ""));
+            defaultCategoriesList.get(0).setThemeID(13);
+            defaultCategoriesList.add(new Category("Работа",
+                    "Будильники, встречи и т.д.", ""));
+            defaultCategoriesList.get(1).setThemeID(14);
+
+            for (Category category: defaultCategoriesList) {
+                mViewModel.addCategory(category);
+            }
+            // Some Tasks installation
+            List<Task> defaultTasksList = new ArrayList<Task>(5);
+            Calendar calendar = GregorianCalendar.getInstance();
+
+            defaultTasksList.add(new Task(calendar, 0, 1 ));
+            defaultTasksList.get(0).setName("Оплатить счета");
+            defaultTasksList.get(0).setDescription("Оплатить счета за дом");
+
+            defaultTasksList.add(new Task(calendar, 0, 1 ));
+            defaultTasksList.get(1).setName("Полить цветы");
+            defaultTasksList.get(1).setDescription("Полить все цветы кроме Замиокулькаса");
+
+            defaultTasksList.add(new Task(calendar, 0, 2 ));
+            defaultTasksList.get(2).setName("Утренний будильник");
+            defaultTasksList.get(2).setDescription("");
+
+            defaultTasksList.add(new Task(calendar, 0, 2 ));
+            defaultTasksList.get(3).setName("Планерка");
+            defaultTasksList.get(3).setDescription("Пусто");
+
+            for (Task task: defaultTasksList) {
+                mViewModel.addTask(task);
+            }
+
+            Log.d("MAIN_ACT: ", "INITIAL SETUP COMPLETED");
+            App.mSettings.setSetupState(true);
+        }
+        else{
+            return;
+        }
     }
+
 }

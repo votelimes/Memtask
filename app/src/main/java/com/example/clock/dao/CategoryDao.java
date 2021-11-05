@@ -18,7 +18,7 @@ public interface CategoryDao extends BaseDao<Category>{
     Category getById(long id);
 
     @Query("SELECT * FROM category_table ORDER BY mName DESC")
-    LiveData<List<Category>> getProjectsLiveData();
+    LiveData<List<Category>> getCategoriesLiveData();
 
     @Query("DELETE FROM category_table")
     int clear();
