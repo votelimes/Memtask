@@ -25,11 +25,19 @@
         <item>Mon to Fri</item>
         <item>Custom</item>
     </string-array>
+
     <string-array name="ring_types">
 
         <item>Choose system ring</item>
         <item>Choose custom ring</item>
     </string-array>
+
+    <string-array name="task_dialog_long">
+        <item>Изменить</item>
+        <item>Удалить</item>
+    </string-array>
+
+
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="top_app_bar">TopAppBar</string>

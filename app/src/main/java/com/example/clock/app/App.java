@@ -12,7 +12,7 @@ import com.example.clock.storageutils.Settings;
 public class App extends Application {
 
     public static App instance;
-    public static Settings mSettings;
+    private static Settings mSettings;
     private static Database mDatabase;
     SharedPreferences.OnSharedPreferenceChangeListener settingsUpdateListener;
 
@@ -41,5 +41,9 @@ public class App extends Application {
 
     public static Database getDatabase(){
         return mDatabase;
+    }
+
+    public static Settings getSettings(){
+        return mSettings;
     }
 }

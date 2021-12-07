@@ -52,6 +52,8 @@ public class Task extends UserCaseBase {
         this.mCategoryName = categoryName;
         this.vibrate = true;
         this.categoryId = categoryId;
+        /*this.startTime = 0;
+        this.endTime = 0;*/
 
         switch (repeatMode) {
             case 0: this.repeatModeString = "Once";

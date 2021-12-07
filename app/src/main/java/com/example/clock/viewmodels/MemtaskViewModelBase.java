@@ -17,7 +17,7 @@ import com.example.clock.storageutils.Database;
 
 import java.util.List;
 
-public class MemtaskViewModelBase extends ViewModel {
+public abstract class MemtaskViewModelBase extends ViewModel {
 
     protected MemtaskRepositoryBase mRepository;
     protected LiveData<List<Task>> tasksLiveData;

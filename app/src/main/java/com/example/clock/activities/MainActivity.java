@@ -1,19 +1,9 @@
 package com.example.clock.activities;
 
-import android.app.Activity;
-import android.content.Context;
-import android.content.Intent;
-import android.graphics.drawable.Drawable;
-import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
 import android.view.MenuItem;
-import android.view.View;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
@@ -21,30 +11,24 @@ import androidx.core.view.GravityCompat;
 import androidx.databinding.DataBindingUtil;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.clock.R;
 import com.example.clock.app.App;
 import com.example.clock.fragments.CardsListFragment;
 import com.example.clock.fragments.CategoriesListFragment;
-import com.example.clock.fragments.DefaultListFragment;
 import com.example.clock.fragments.SettingsFragment;
 import com.example.clock.model.Category;
 import com.example.clock.model.Task;
 import com.example.clock.model.Theme;
-import com.example.clock.storageutils.Settings;
 import com.example.clock.viewmodels.MainViewModel;
 import com.example.clock.viewmodels.ViewModelFactoryBase;
 import com.example.clock.databinding.ActivityMainBinding;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.navigation.NavigationView;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 
@@ -59,16 +43,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     MaterialToolbar toolbar;
     DrawerLayout drawerLayout;
     NavigationView navigationView;
-
-    final ActivityResultLauncher<Intent> activityLauncher = registerForActivityResult(
-            new ActivityResultContracts.StartActivityForResult(),
-            result -> {
-                if (result.getResultCode() == Activity.RESULT_OK) {
-                    // There are no request codes
-                    Intent data = result.getData();
-                    //Unpack result
-                }
-            });
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,6 +74,45 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         });
 
         setupApplication();
+
+        Fragment nextFragment = null;
+        if(App.getSettings().getLastCategoryID() != -1) {
+            switch ((int) App.getSettings().getCurrentWindow()) {
+                // Calendar
+                case 0:
+
+                    break;
+
+                // Categories list
+                case 1:
+                    nextFragment = new CategoriesListFragment();
+                    break;
+
+                // Tasks list
+                case 2:
+                    nextFragment = new CardsListFragment();
+                    break;
+
+                // Statistic
+                case 3:
+
+                    break;
+
+                // Settings
+                case 4:
+                    nextFragment = new SettingsFragment();
+                    break;
+
+            }
+        }
+        else{
+            nextFragment = new CategoriesListFragment();
+        }
+        getSupportFragmentManager().beginTransaction()
+                .setReorderingAllowed(true)
+                .replace(R.id.main_fragment_container_view, nextFragment)
+                .addToBackStack(null)
+                .commit();
     }
 
     /*private void updateMainClock(){
@@ -129,6 +142,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             case R.id.categories_item:
                 nextFragment = new CategoriesListFragment();
                 title = "Категории";
+                App.getSettings().setCurrentWindow(1);
                 break;
             case R.id.test_list:
                 nextFragment = new CardsListFragment();
@@ -137,6 +151,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             case R.id.settings_item:
                 nextFragment = new SettingsFragment();
                 title = "Настройки";
+                App.getSettings().setCurrentWindow(4);
                 break;
         }
 
@@ -144,6 +159,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             getSupportFragmentManager().beginTransaction()
                     .setReorderingAllowed(true)
                     .replace(R.id.main_fragment_container_view, nextFragment)
+                    .addToBackStack(null)
                     .commit();
         }
         drawerLayout.closeDrawer(GravityCompat.START);
@@ -153,10 +169,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return false;
     }
 
-
     private void setupApplication(){
 
-        if(App.mSettings.getSetupState() == false){
+        if(App.getSettings().getSetupState() == false){
 
             // Themes installation
 
@@ -263,11 +278,23 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
 
             Log.d("MAIN_ACT: ", "INITIAL SETUP COMPLETED");
-            App.mSettings.setSetupState(true);
+            App.getSettings().setSetupState(true);
         }
         else{
             return;
         }
     }
 
+    @Override
+    public void onBackPressed() {
+
+        int count = getSupportFragmentManager().getBackStackEntryCount();
+
+        if (count == 0) {
+            super.onBackPressed();
+            //additional code
+        } else {
+            getSupportFragmentManager().popBackStack();
+        }
+    }
 }

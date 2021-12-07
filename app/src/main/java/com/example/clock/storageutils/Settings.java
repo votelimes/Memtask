@@ -9,8 +9,10 @@ import androidx.preference.PreferenceManager;
 
 public class Settings {
 
+    // 0 Calendar, 1 Category list, 2 Tasks list, 3 Statistic, 4 Settings.
     private Pair<Long, String> mCurrentCategory;
     private Pair<Boolean, String> mSetupState;
+    private Pair<Long, String> mLastCategoryID;
 
     private SharedPreferences mSharedPref;
 
@@ -22,13 +24,17 @@ public class Settings {
 
     public void updateData(){
 
-        String mCurrentCategoryPrefTag = "current_category";
+        String mCurrentCategoryPrefTag = "current_window";
         mCurrentCategory = new Pair<Long, String>
-                (mSharedPref.getLong(mCurrentCategoryPrefTag, -1), mCurrentCategoryPrefTag);
+                (mSharedPref.getLong(mCurrentCategoryPrefTag, 1), mCurrentCategoryPrefTag);
 
         String mSetupStateTag = "Time";
         mSetupState = new Pair<Boolean, String>
                 (mSharedPref.getBoolean(mSetupStateTag, false), mSetupStateTag);
+
+        String mLastCategoryIDTag = "last_category_id";
+        mLastCategoryID = new Pair<Long, String>
+                (mSharedPref.getLong(mLastCategoryIDTag, -1), mLastCategoryIDTag);
 
     }
 
@@ -36,19 +42,38 @@ public class Settings {
         return this.mSharedPref;
     }
 
-    public long getCurrentCategory(){
+    public long getCurrentWindow(){
         return this.mCurrentCategory.first.longValue();
     }
 
-    public void setCurrentCategory(long id){
+    public void setCurrentWindow(long id){
         SharedPreferences.Editor editor = mSharedPref.edit();
+        mCurrentCategory = new Pair<Long, String>
+                (id, mCurrentCategory.second);
+
+
         editor.putLong(mCurrentCategory.second, id);
 
         editor.commit();
     }
 
+    public void setLastCategoryID(long id){
+        SharedPreferences.Editor editor = mSharedPref.edit();
+        mLastCategoryID = new Pair<Long, String>
+                (id, mLastCategoryID.second);
+
+
+        editor.putLong(mLastCategoryID.second, id);
+
+        editor.commit();
+    }
+
+    public long getLastCategoryID(){
+        return this.mLastCategoryID.first;
+    }
+
     public boolean getSetupState(){
-        return this.mSetupState.first.booleanValue();
+        return this.mSetupState.first;
     }
 
     public void setSetupState(boolean state){
@@ -57,4 +82,6 @@ public class Settings {
 
         editor.commit();
     }
+
+
 }

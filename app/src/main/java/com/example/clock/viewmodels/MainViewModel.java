@@ -12,6 +12,7 @@ public class MainViewModel extends MemtaskViewModelBase {
         loadData(application, database);
 
         mCurrentCategoryID = -1;
+
     }
 
     public long getCurrentCategoryID() {

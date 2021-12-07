@@ -16,6 +16,9 @@ public class UserCaseBase implements Serializable  {
 
     protected long timeInMillis;
 
+    protected long startTime;
+
+    protected long endTime;
     protected String description;
 
     protected String mName;
@@ -31,7 +34,10 @@ public class UserCaseBase implements Serializable  {
         description = "null";
         color = 0;
         completed = false;
+        /*startTime = 0;
+        endTime = 0;*/
     }
+
     public long getTimeInMillis(){
         return timeInMillis;
     }
@@ -65,6 +71,14 @@ public class UserCaseBase implements Serializable  {
         return mCategoryName;
     }
 
+    public long getStartTime() {
+        return startTime;
+    }
+
+    public long getEndTime() {
+        return endTime;
+    }
+
     public boolean isCompleted() {
         return completed;
     }
@@ -95,5 +109,13 @@ public class UserCaseBase implements Serializable  {
 
     public void setCategoryName(String mCategoryName) {
         this.mCategoryName = mCategoryName;
+    }
+
+    public void setStartTime(long startTime) {
+        this.startTime = startTime;
+    }
+
+    public void setEndTime(long endTime) {
+        this.endTime = endTime;
     }
 }

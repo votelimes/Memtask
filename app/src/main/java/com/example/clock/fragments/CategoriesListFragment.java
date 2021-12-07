@@ -1,9 +1,12 @@
 package com.example.clock.fragments;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
@@ -36,7 +39,15 @@ public class CategoriesListFragment extends Fragment {
     LinearLayoutManager mLayoutManager;
     ConstraintLayout mMainLayoutView;
     Context mContext;
-
+    final ActivityResultLauncher<Intent> activityLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == Activity.RESULT_OK) {
+                    // There are no request codes
+                    Intent data = result.getData();
+                    //Unpack result
+                }
+            });
 
 
     @Override
@@ -67,16 +78,11 @@ public class CategoriesListFragment extends Fragment {
 
 
         mRecyclerViewAdapter = new CategoriesListFragmentAdapter(
+                getActivity(), activityLauncher,
                 mViewModel.requestCategoriesData().getValue());
         mRecyclerView.setLayoutManager(mLayoutManager);
         mRecyclerView.setAdapter(mRecyclerViewAdapter);
 
-        /*mViewModel.requestCategoriesData().observe(getViewLifecycleOwner(), data -> {
-            mRecyclerViewAdapter = new CategoriesListFragmentAdapter(
-                    mViewModel.requestCategoriesData().getValue());
-            mRecyclerView.setLayoutManager(mLayoutManager);
-            mRecyclerView.setAdapter(mRecyclerViewAdapter);
-        });*/
         mViewModel.requestCategoriesData().observe(getViewLifecycleOwner(), hoardObserver);
 
         ExtendedFloatingActionButton addButton = getView()
@@ -94,10 +100,10 @@ public class CategoriesListFragment extends Fragment {
         @Override
         public void onChanged(@Nullable final List<Category> updatedHoard) {
             mRecyclerViewAdapter = new CategoriesListFragmentAdapter(
+                    getActivity(), activityLauncher,
                     mViewModel.requestCategoriesData().getValue());
             mRecyclerView.setLayoutManager(mLayoutManager);
             mRecyclerView.setAdapter(mRecyclerViewAdapter);
-            Log.d("LD:UPD: ", "OBS");
         }
     };
 }

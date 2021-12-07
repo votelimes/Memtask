@@ -1,16 +1,22 @@
 package com.example.clock.adapters;
 
+import android.app.Activity;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.clock.R;
 import com.example.clock.model.Task;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.util.Date;
 import java.util.List;
@@ -20,6 +26,8 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<CardsListFrag
     private List<Task> tasksDataSet;
     private long currentCategoryID;
     private Date selectedDay;
+
+    private Activity mActivity;
 
     /**
      * Provide a reference to the type of views that you are using
@@ -32,14 +40,43 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<CardsListFrag
         private final TextView listName;
         private final TextView description;
 
-        public ViewHolder(View view) {
+        private final AppCompatActivity mActivity;
+
+        public ViewHolder(View view, Context context) {
             super(view);
+
+            mActivity = (AppCompatActivity) context;
 
             notificationImage = (ImageView) view.findViewById(R.id.card_notification_image);
 
             time = (TextView) view.findViewById(R.id.card_time);
             listName = (TextView) view.findViewById(R.id.card_list_name);
             description = (TextView) view.findViewById(R.id.card_description);
+
+            view.findViewById(R.id.card_constraint).setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+
+                    MaterialAlertDialogBuilder taskOptionsDialog = new MaterialAlertDialogBuilder(mActivity)
+                            .setTitle("Выберите действие")
+                            .setItems(R.array.task_dialog_long, new DialogInterface.OnClickListener(){
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    switch (i){
+                                        case 0: // Изменить
+
+
+                                            break;
+                                        case 1: // Удалить
+
+                                            break;
+                                    }
+                                }
+                            });
+                    taskOptionsDialog.show();
+                    return true;
+                }
+            });
         }
 
         public ImageView getNotificationImage() {
@@ -59,11 +96,13 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<CardsListFrag
         }
     }
 
-    public CardsListFragmentAdapter(@NonNull List<Task> tasksDataSet,
+    public CardsListFragmentAdapter(Context context, ActivityResultLauncher resultLauncher, @NonNull List<Task> tasksDataSet,
                                     @NonNull long currentCategoryID, Date selectedDay) {
         this.tasksDataSet = tasksDataSet;
         this.currentCategoryID = currentCategoryID;
         this.selectedDay = selectedDay;
+        this.mActivity =  (Activity) context;
+
     }
 
     // Create new views (invoked by the layout manager)
@@ -73,7 +112,7 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<CardsListFrag
         View view = LayoutInflater.from(viewGroup.getContext())
                 .inflate(R.layout.card_list_item, viewGroup, false);
 
-       ViewHolder viewH = new ViewHolder(view);
+       ViewHolder viewH = new ViewHolder(view, mActivity);
 
         return viewH;
     }
