@@ -211,7 +211,7 @@ public class ManageCategoryActivity extends AppCompatActivity {
         }
 
         mViewModel.saveChanges();
-        setResult(RESULT_OK);
+        setResult(10); // 10 Save category result
         finish();
     }
 }

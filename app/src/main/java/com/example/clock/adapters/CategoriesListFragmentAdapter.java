@@ -1,6 +1,7 @@
 package com.example.clock.adapters;
 
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,6 +11,7 @@ import android.widget.TextView;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -18,6 +20,7 @@ import com.example.clock.app.App;
 import com.example.clock.fragments.CardsListFragment;
 import com.example.clock.model.Category;
 import com.example.clock.viewmodels.MainViewModel;
+import com.google.android.material.appbar.MaterialToolbar;
 
 import java.util.List;
 
@@ -26,63 +29,50 @@ public class CategoriesListFragmentAdapter extends RecyclerView.Adapter<Categori
     private List<Category> categoriesDataSet;
 
     private Context mContext;
-    private ActivityResultLauncher mResultLauncher;
-
-
+    private ActivityResultLauncher<Intent> mResultLauncher;
+    private MaterialToolbar mToolbar;
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
 
+        private final ConstraintLayout mainLayout;
         private final TextView name;
-        private final AppCompatActivity mActivity;
-        private final MainViewModel mainViewModel;
-
         private long mCategoryID;
 
-        public ViewHolder(View view, Context context) {
+        public ViewHolder(View view) {
             super(view);
 
             name = (TextView) view.findViewById(R.id.category_list_name);
-            mActivity = (AppCompatActivity) context;
+            mainLayout = (ConstraintLayout) view.findViewById(R.id.category_constraint);
+            mCategoryID = -1;
 
-            mainViewModel = new ViewModelProvider(mActivity).get(MainViewModel.class);
-
-            view.findViewById(R.id.category_constraint).setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    App.getSettings().setCurrentWindow(2);
-                    App.getSettings().setLastCategoryID(mCategoryID);
-
-                    mActivity.getSupportFragmentManager().beginTransaction()
-                            .setReorderingAllowed(true)
-                            .replace(R.id.main_fragment_container_view, new CardsListFragment())
-                            .addToBackStack(null)
-                            .commit();
-
-                    //TextView textView = (TextView) view.findViewById(R.id.category_list_name);
-                    //Log.d("CATEGORY:NAME:: ",textView.getText().toString());
-                    /*Log.d("CATEGORY:ID:: ",String.valueOf(mCategoryID));*/
-                }
-            });
+            //mainViewModel = new ViewModelProvider(mActivity).get(MainViewModel.class);
         }
 
         public TextView getListNameView() {
             return name;
         }
 
-        public long getCategoryID() {
+        public ConstraintLayout getMainLayout(){
+            return mainLayout;
+        }
+
+        public long getCategoryID(){
             return mCategoryID;
         }
 
-        public void setCategoryID(long categoryID) {
-            this.mCategoryID = categoryID;
+        public void setCategoryID(long categoryID){
+            mCategoryID = categoryID;
         }
-
     }
 
-    public CategoriesListFragmentAdapter(Context context, ActivityResultLauncher resultLauncher, @NonNull List<Category> categoriesDataSet) {
+    public CategoriesListFragmentAdapter(Context context, ActivityResultLauncher<Intent> resultLauncher, @NonNull List<Category> categoriesDataSet) {
         this.mContext = context;
         this.categoriesDataSet = categoriesDataSet;
         this.mResultLauncher = resultLauncher;
+
+        if(categoriesDataSet != null && categoriesDataSet.size() != 0) {
+            this.mToolbar = (MaterialToolbar) ((AppCompatActivity) context).findViewById(R.id.topAppBar);
+        }
     }
 
     // Create new views (invoked by the layout manager)
@@ -92,7 +82,7 @@ public class CategoriesListFragmentAdapter extends RecyclerView.Adapter<Categori
         View view = LayoutInflater.from(viewGroup.getContext())
                 .inflate(R.layout.category_list_item, viewGroup, false);
 
-        ViewHolder viewH = new ViewHolder(view, mContext);
+        ViewHolder viewH = new ViewHolder(view);
         return viewH;
     }
 
@@ -101,7 +91,26 @@ public class CategoriesListFragmentAdapter extends RecyclerView.Adapter<Categori
     public void onBindViewHolder(ViewHolder viewHolder, final int position) {
         Category currentCategory = categoriesDataSet.get(position);
         viewHolder.getListNameView().setText(currentCategory.getName());
-        viewHolder.setCategoryID(categoriesDataSet.get(position).getCategoryId());
+        viewHolder.setCategoryID(currentCategory.getCategoryId());
+
+        viewHolder.getMainLayout().setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                App.getSettings().setCurrentWindow(2);
+                App.getSettings().setLastCategory(viewHolder.getCategoryID(), viewHolder
+                        .getListNameView()
+                        .getText()
+                        .toString());
+
+                AppCompatActivity activity = (AppCompatActivity) view.getContext();
+                activity.getSupportFragmentManager()
+                        .beginTransaction()
+                        .setReorderingAllowed(true)
+                        .replace(R.id.main_fragment_container_view, new CardsListFragment())
+                        .addToBackStack(null)
+                        .commit();
+            }
+        });
     }
 
     // Return the size of your dataset (invoked by the layout manager)

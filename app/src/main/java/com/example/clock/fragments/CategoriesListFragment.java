@@ -19,6 +19,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.example.clock.R;
 import com.example.clock.activities.ManageCategoryActivity;
@@ -26,6 +27,7 @@ import com.example.clock.adapters.CategoriesListFragmentAdapter;
 import com.example.clock.model.Category;
 import com.example.clock.viewmodels.MainViewModel;
 import com.example.clock.viewmodels.ViewModelFactoryBase;
+import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 
 import java.util.List;
@@ -42,10 +44,11 @@ public class CategoriesListFragment extends Fragment {
     final ActivityResultLauncher<Intent> activityLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
             result -> {
-                if (result.getResultCode() == Activity.RESULT_OK) {
-                    // There are no request codes
-                    Intent data = result.getData();
-                    //Unpack result
+                if (result.getResultCode() == 10) {
+                    Toast.makeText(getActivity(), "Категория сохранена", Toast.LENGTH_SHORT).show();
+                }
+                else{
+                    Toast.makeText(getActivity(), "Изменения отменены", Toast.LENGTH_SHORT).show();
                 }
             });
 
@@ -94,6 +97,9 @@ public class CategoriesListFragment extends Fragment {
                 startActivity(intent);
             }
         });
+
+        MaterialToolbar toolbar = getActivity().findViewById(R.id.topAppBar);
+        toolbar.setTitle("Категории");
     }
 
     final Observer<List<Category>> hoardObserver = new Observer<List<Category>>() {

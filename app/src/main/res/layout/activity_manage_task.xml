@@ -14,7 +14,6 @@
         android:layout_height="match_parent"
         tools:context=".manage_task"
         android:padding="10dp"
-        android:onClick="onClick"
         >
 
         <com.google.android.material.textfield.TextInputLayout
@@ -33,7 +32,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Task name"
-                android:text="@{viewmodel.mManagingTaskRepository.getTaskName}"
+                android:text="@={viewmodel.mManagingTaskRepository.TaskName}"
                 />
 
         </com.google.android.material.textfield.TextInputLayout>
@@ -54,7 +53,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Task description"
-                android:text="@{viewmodel.mManagingTaskRepository.getTaskDescription}"
+                android:text="@={viewmodel.mManagingTaskRepository.TaskDescription}"
                 />
 
         </com.google.android.material.textfield.TextInputLayout>

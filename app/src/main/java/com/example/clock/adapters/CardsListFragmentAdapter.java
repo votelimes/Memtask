@@ -1,8 +1,7 @@
 package com.example.clock.adapters;
 
-import android.app.Activity;
-import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,10 +11,14 @@ import android.widget.TextView;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.clock.R;
+import com.example.clock.activities.ManageTaskActivity;
 import com.example.clock.model.Task;
+import com.example.clock.viewmodels.MainViewModel;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.util.Date;
@@ -23,11 +26,10 @@ import java.util.List;
 
 public class CardsListFragmentAdapter extends RecyclerView.Adapter<CardsListFragmentAdapter.ViewHolder> {
 
-    private List<Task> tasksDataSet;
+    private final List<Task> tasksDataSet;
     private long currentCategoryID;
     private Date selectedDay;
-
-    private Activity mActivity;
+    private final ActivityResultLauncher<Intent> resultLauncher;
 
     /**
      * Provide a reference to the type of views that you are using
@@ -35,48 +37,28 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<CardsListFrag
      */
     public static class ViewHolder extends RecyclerView.ViewHolder {
 
+        private final ConstraintLayout mainLayout;
+
         private final ImageView notificationImage;
         private final TextView time;
+        private final TextView name;
+
         private final TextView listName;
-        private final TextView description;
+        //private final TextView description;
 
-        private final AppCompatActivity mActivity;
 
-        public ViewHolder(View view, Context context) {
+        public ViewHolder(View view) {
             super(view);
 
-            mActivity = (AppCompatActivity) context;
 
             notificationImage = (ImageView) view.findViewById(R.id.card_notification_image);
 
+
             time = (TextView) view.findViewById(R.id.card_time);
-            listName = (TextView) view.findViewById(R.id.card_list_name);
-            description = (TextView) view.findViewById(R.id.card_description);
-
-            view.findViewById(R.id.card_constraint).setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View v) {
-
-                    MaterialAlertDialogBuilder taskOptionsDialog = new MaterialAlertDialogBuilder(mActivity)
-                            .setTitle("Выберите действие")
-                            .setItems(R.array.task_dialog_long, new DialogInterface.OnClickListener(){
-                                @Override
-                                public void onClick(DialogInterface dialogInterface, int i) {
-                                    switch (i){
-                                        case 0: // Изменить
-
-
-                                            break;
-                                        case 1: // Удалить
-
-                                            break;
-                                    }
-                                }
-                            });
-                    taskOptionsDialog.show();
-                    return true;
-                }
-            });
+            listName = (TextView) view.findViewById(R.id.card_category_name);
+            name = (TextView) view.findViewById(R.id.card_name);
+            //description = (TextView) view.findViewById(R.id.card_description);
+            mainLayout = (ConstraintLayout) view.findViewById(R.id.card_constraint);
         }
 
         public ImageView getNotificationImage() {
@@ -87,22 +69,26 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<CardsListFrag
             return time;
         }
 
+        public TextView getName() {
+            return name;
+        }
+
         public TextView getListName() {
             return listName;
         }
 
-        public TextView getDescription() {
+        /*public TextView getDescription() {
             return description;
-        }
+        }*/
+
+        public ConstraintLayout getMainLayout(){ return mainLayout; }
     }
 
-    public CardsListFragmentAdapter(Context context, ActivityResultLauncher resultLauncher, @NonNull List<Task> tasksDataSet,
-                                    @NonNull long currentCategoryID, Date selectedDay) {
+    public CardsListFragmentAdapter(ActivityResultLauncher<Intent> resultLauncher, @NonNull List<Task> tasksDataSet) {
         this.tasksDataSet = tasksDataSet;
         this.currentCategoryID = currentCategoryID;
         this.selectedDay = selectedDay;
-        this.mActivity =  (Activity) context;
-
+        this.resultLauncher = resultLauncher;
     }
 
     // Create new views (invoked by the layout manager)
@@ -112,7 +98,7 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<CardsListFrag
         View view = LayoutInflater.from(viewGroup.getContext())
                 .inflate(R.layout.card_list_item, viewGroup, false);
 
-       ViewHolder viewH = new ViewHolder(view, mActivity);
+       ViewHolder viewH = new ViewHolder(view);
 
         return viewH;
     }
@@ -128,28 +114,42 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<CardsListFrag
         viewHolder.getNotificationImage().setBackgroundResource(R.drawable.baseline_schedule_black_18);
         viewHolder.getTime().setText(currentTask.getTime24());
 
-        /*if (this.selectedDay != null){
-            Calendar selectedDate = GregorianCalendar.getInstance();
-            selectedDate.setTimeInMillis(this.selectedDay.getTime());
-            selectedDate.set(Calendar.HOUR_OF_DAY, 1); // 0 - 23
+        viewHolder.getListName().setText("");
+        viewHolder.getName().setText(currentTask.getName());
+        //viewHolder.getDescription().setText(currentTask.getDescription());
 
-            Calendar taskDate = GregorianCalendar.getInstance();
+        viewHolder.getMainLayout().setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
 
+                MaterialAlertDialogBuilder taskOptionsDialog = new MaterialAlertDialogBuilder(view.getContext())
+                        .setTitle("Выберите действие")
+                        .setItems(R.array.task_dialog_long, new DialogInterface.OnClickListener(){
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                switch (i){
+                                    case 0: // Изменить
+                                        Intent intent = new Intent(view.getContext(), ManageTaskActivity.class);
+                                        intent.putExtra("ManagingTask", currentTask);
 
-            for (Task task : tasksDataSet) {
-                taskDate.setTimeInMillis(task.getTimeInMillis());
-                if (selectedDate.get(Calendar.YEAR) == taskDate.get(Calendar.YEAR)
-                    && selectedDate.get(Calendar.MONTH) == taskDate.get(Calendar.MONTH)
-                    && selectedDate.get(Calendar.DAY_OF_MONTH) == taskDate.get(Calendar.DAY_OF_MONTH)) {
+                                        resultLauncher.launch(intent);
+                                        break;
+                                    case 1: // Удалить
 
-                    viewHolder.getListName().setText(task.getCategoryName());
-                    break;
-                }
+                                        AppCompatActivity act = (AppCompatActivity) view.getContext();
+                                        MainViewModel viewModel = new ViewModelProvider(act)
+                                                .get(MainViewModel.class);
+
+                                        viewModel.removeTaskByID(currentTask.getTaskId());
+
+                                        break;
+                                }
+                            }
+                        });
+                taskOptionsDialog.show();
+                return true;
             }
-        }*/
-
-        viewHolder.getListName().setText(currentTask.getCategoryName());
-        viewHolder.getDescription().setText(currentTask.getDescription());
+        });
     }
 
     // Return the size of your dataset (invoked by the layout manager)

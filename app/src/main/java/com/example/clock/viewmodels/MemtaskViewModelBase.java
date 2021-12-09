@@ -66,16 +66,16 @@ public abstract class MemtaskViewModelBase extends ViewModel {
     }
 
     //Removing existing data
-    public void removeTask (Task removableTask) {
-        mRepository.removeTask(removableTask);
+    public void removeTaskByID (long id) {
+        mRepository.removeTaskByID(id);
     }
 
-    public void removeProject (Project removableProject) {
-        mRepository.removeProject(removableProject);
+    public void removeProjectByID (long id) {
+        mRepository.removeProjectByID(id);
     }
 
-    public void removeCategory(Category removableCategory){
-        mRepository.removeCategory(removableCategory);
+    public void removeCategoryByID (long id){
+        mRepository.removeCategoryByID(id);
     }
 
     //Updating existing data

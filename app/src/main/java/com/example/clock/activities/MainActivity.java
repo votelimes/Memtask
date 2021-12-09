@@ -39,6 +39,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     ViewModelFactoryBase mFactory;
     ActivityMainBinding mActivityBinding;
 
+
     //Menu
     MaterialToolbar toolbar;
     DrawerLayout drawerLayout;
@@ -76,16 +77,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         setupApplication();
 
         Fragment nextFragment = null;
-        if(App.getSettings().getLastCategoryID() != -1) {
+        String title = "";
+        if(App.getSettings().getLastCategory().first != -1) {
             switch ((int) App.getSettings().getCurrentWindow()) {
                 // Calendar
                 case 0:
-
+                    title = "Календарь";
                     break;
 
                 // Categories list
                 case 1:
                     nextFragment = new CategoriesListFragment();
+                    title = "Категории";
                     break;
 
                 // Tasks list
@@ -95,12 +98,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                 // Statistic
                 case 3:
-
+                    title = "Календарь";
                     break;
 
                 // Settings
                 case 4:
                     nextFragment = new SettingsFragment();
+                    title = "Настройки";
                     break;
 
             }
@@ -111,8 +115,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         getSupportFragmentManager().beginTransaction()
                 .setReorderingAllowed(true)
                 .replace(R.id.main_fragment_container_view, nextFragment)
-                .addToBackStack(null)
                 .commit();
+        toolbar.setTitle(title);
     }
 
     /*private void updateMainClock(){
@@ -136,7 +140,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         Fragment nextFragment = null;
-        String title = "testActionBar";
+        String title = "";
 
         switch (item.getItemId()){
             case R.id.categories_item:
@@ -249,6 +253,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             defaultCategoriesList.add(new Category("Работа",
                     "Будильники, встречи и т.д.", ""));
             defaultCategoriesList.get(1).setThemeID(14);
+            defaultCategoriesList.add(new Category("Прочее",
+                    "Все остальное", ""));
+            defaultCategoriesList.get(2).setThemeID(10);
 
             for (Category category: defaultCategoriesList) {
                 mViewModel.addCategory(category);

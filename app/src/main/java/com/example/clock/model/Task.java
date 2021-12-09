@@ -377,8 +377,8 @@ public class Task extends UserCaseBase {
     public long getTimeInMillis(){
         return this.timeInMillis;
     }
-    public long getTaskId(){
-        return this.taskId;
+    public long getTaskId() {
+        return taskId;
     }
 
     public boolean isEnabled(){

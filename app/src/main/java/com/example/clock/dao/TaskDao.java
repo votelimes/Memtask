@@ -18,7 +18,7 @@ public interface TaskDao extends BaseDao<Task> {
     Task getById(long id);
 
     //@Query("SELECT * FROM task_table ORDER BY timeInMillis DESC")
-    @Query("SELECT * FROM task_table")
+    @Query("SELECT * FROM task_table ORDER by mName ASC")
     LiveData<List<Task>> getTasksLiveData();
 
     @Query("DELETE FROM task_table")

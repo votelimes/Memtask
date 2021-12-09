@@ -25,8 +25,6 @@ public class ManageTaskViewModel extends MemtaskViewModelBase {
 
     public Observer mManagingTaskRepository;
 
-    private MemtaskRepositoryBase mRepository;
-
     public ManageTaskViewModel(Application application, Database database, Task managingTask){
         mManagingTaskRepository = new Observer(managingTask);
         loadData(application, database);

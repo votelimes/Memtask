@@ -13,6 +13,7 @@ public class Settings {
     private Pair<Long, String> mCurrentCategory;
     private Pair<Boolean, String> mSetupState;
     private Pair<Long, String> mLastCategoryID;
+    private Pair<String, String> mLastCategoryName;
 
     private SharedPreferences mSharedPref;
 
@@ -36,6 +37,10 @@ public class Settings {
         mLastCategoryID = new Pair<Long, String>
                 (mSharedPref.getLong(mLastCategoryIDTag, -1), mLastCategoryIDTag);
 
+        String mLastCategoryNameTag = "last_category_name";
+        mLastCategoryName = new Pair<String, String>
+                (mSharedPref.getString(mLastCategoryNameTag, "Категория"), mLastCategoryNameTag);
+
     }
 
     public SharedPreferences getSharedPref(){
@@ -57,19 +62,26 @@ public class Settings {
         editor.commit();
     }
 
-    public void setLastCategoryID(long id){
+    public void setLastCategory(long id, String name){
+
+
         SharedPreferences.Editor editor = mSharedPref.edit();
+
         mLastCategoryID = new Pair<Long, String>
                 (id, mLastCategoryID.second);
 
-
         editor.putLong(mLastCategoryID.second, id);
+
+        mLastCategoryName = new Pair<String, String>
+                (name, mLastCategoryName.second);
+
+        editor.putString(mLastCategoryName.second, name);
 
         editor.commit();
     }
 
-    public long getLastCategoryID(){
-        return this.mLastCategoryID.first;
+    public Pair<Long, String> getLastCategory(){
+        return new Pair<Long , String>(mLastCategoryID.first, mLastCategoryName.first);
     }
 
     public boolean getSetupState(){
@@ -82,6 +94,4 @@ public class Settings {
 
         editor.commit();
     }
-
-
 }

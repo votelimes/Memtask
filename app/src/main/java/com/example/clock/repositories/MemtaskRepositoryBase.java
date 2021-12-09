@@ -19,11 +19,11 @@ import java.util.List;
 
 public class MemtaskRepositoryBase {
 
-    private Database mDatabase;
-    private TaskDao mTaskDao;
-    private ProjectDao mProjectDao;
-    private CategoryDao mCategoryDao;
-    private ThemeDao mThemeDao;
+    private final Database mDatabase;
+    private final TaskDao mTaskDao;
+    private final ProjectDao mProjectDao;
+    private final CategoryDao mCategoryDao;
+    private final ThemeDao mThemeDao;
 
     public MemtaskRepositoryBase(Application application, Database database){
         this.mDatabase = database;
@@ -94,16 +94,36 @@ public class MemtaskRepositoryBase {
         mTaskDao.delete(removableTask);
     }
 
+    public void removeTaskByID (long id){
+        Database.databaseWriteExecutor.execute(() -> {
+            mTaskDao.deleteById(id);
+        });
+    }
+
     public void removeProject (Project removableProject) {
         mProjectDao.delete(removableProject);
+    }
+
+    public void removeProjectByID (long id){
+        Database.databaseWriteExecutor.execute(() -> {
+            mProjectDao.deleteById(id);
+        });
     }
 
     public void removeCategory (Category removableCategory) {
         mCategoryDao.delete(removableCategory);
     }
 
-    public void removeThemeByID (long themeID){
-        mThemeDao.deleteByID(themeID);
+    public void removeCategoryByID (long id){
+        Database.databaseWriteExecutor.execute(() -> {
+            mCategoryDao.deleteById(id);
+        });
+    }
+
+    public void removeThemeByID (long id){
+        Database.databaseWriteExecutor.execute(() -> {
+            mThemeDao.deleteByID(id);
+        });
     }
 
 

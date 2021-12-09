@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -27,6 +28,7 @@ import com.example.clock.model.Category;
 import com.example.clock.model.Task;
 import com.example.clock.viewmodels.MainViewModel;
 import com.example.clock.viewmodels.ViewModelFactoryBase;
+import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -40,14 +42,16 @@ public class CardsListFragment extends Fragment {
     LinearLayoutManager mLayoutManager;
     ConstraintLayout mMainLayoutView;
     Context mContext;
+    MaterialToolbar toolbar;
 
     final ActivityResultLauncher<Intent> activityLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
             result -> {
-                if (result.getResultCode() == Activity.RESULT_OK) {
-                    // There are no request codes
-                    Intent data = result.getData();
-                    //Unpack result
+                if (result.getResultCode() == 20) {
+                    Toast.makeText(getActivity(), "Задача сохранена", Toast.LENGTH_SHORT).show();
+                }
+                else{
+                    Toast.makeText(getActivity(), "Изменения отменены", Toast.LENGTH_SHORT).show();
                 }
             });
 
@@ -74,19 +78,12 @@ public class CardsListFragment extends Fragment {
 
         mMainLayoutView = getView().findViewById(R.id.fragment_cards_constraint);
 
+        toolbar = getActivity().findViewById(R.id.topAppBar);
+
         mLayoutManager = new LinearLayoutManager(mContext,
                 LinearLayoutManager.VERTICAL, false);
 
-        mViewModel.requestTasksData().observe(getViewLifecycleOwner(), data -> {
-            mRecyclerViewAdapter = new CardsListFragmentAdapter(
-                    getActivity(),
-                    activityLauncher,
-                    mViewModel.requestTasksData().getValue(),
-                    App.getSettings().getLastCategoryID(), null
-            );
-            mRecyclerView.setLayoutManager(mLayoutManager);
-            mRecyclerView.setAdapter(mRecyclerViewAdapter);
-        });
+        mViewModel.requestTasksData().observe(getViewLifecycleOwner(), hoardObserver);
 
         ExtendedFloatingActionButton addButton = getView()
                 .findViewById(R.id.fragment_cards_add_button);
@@ -94,21 +91,23 @@ public class CardsListFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(getActivity(), ManageTaskActivity.class);
-                //intent.putExtra();
-
-
-                startActivity(intent);
+                activityLauncher.launch(intent);
             }
         });
+
+
     }
 
     final Observer<List<Task>> hoardObserver = new Observer<List<Task>>() {
         @Override
         public void onChanged(@Nullable final List<Task> updatedHoard) {
+
+
             mRecyclerViewAdapter = new CardsListFragmentAdapter(
-                    getActivity(), activityLauncher,
-                    mViewModel.requestTasksData().getValue(),
-                    App.getSettings().getLastCategoryID(), null);
+                    activityLauncher,
+                    mViewModel.getTasksByCategory(App.getSettings().getLastCategory().first));
+            toolbar.setTitle(App.getSettings().getLastCategory().second);
+
             mRecyclerView.setLayoutManager(mLayoutManager);
             mRecyclerView.setAdapter(mRecyclerViewAdapter);
         }
