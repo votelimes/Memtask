@@ -19,6 +19,7 @@ import com.example.clock.fragments.CardsListFragment;
 import com.example.clock.fragments.CategoriesListFragment;
 import com.example.clock.fragments.SettingsFragment;
 import com.example.clock.model.Category;
+import com.example.clock.model.Project;
 import com.example.clock.model.Task;
 import com.example.clock.model.Theme;
 import com.example.clock.viewmodels.MainViewModel;
@@ -148,10 +149,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 title = "Категории";
                 App.getSettings().setCurrentWindow(1);
                 break;
-            case R.id.test_list:
-                nextFragment = new CardsListFragment();
-                title = "ТЕСТ";
-                break;
             case R.id.settings_item:
                 nextFragment = new SettingsFragment();
                 title = "Настройки";
@@ -280,8 +277,37 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             defaultTasksList.get(3).setName("Планерка");
             defaultTasksList.get(3).setDescription("Пусто");
 
+            defaultTasksList.add(new Task(calendar, 0, 2 ));
+            defaultTasksList.get(4).setName("Поискать номер регистратуры");
+            defaultTasksList.get(4).setDescription("Пусто");
+            defaultTasksList.get(4).setParent(1);
+            defaultTasksList.get(4).setCategoryId(1);
+
+            defaultTasksList.add(new Task(calendar, 0, 2 ));
+            defaultTasksList.get(5).setName("Позвонить по номеру");
+            defaultTasksList.get(5).setDescription("Пусто");
+            defaultTasksList.get(5).setParent(1);
+            defaultTasksList.get(5).setCategoryId(1);
+
+            defaultTasksList.add(new Task(calendar, 0, 2 ));
+            defaultTasksList.get(6).setName("Записать дату приема");
+            defaultTasksList.get(6).setDescription("Пусто");
+            defaultTasksList.get(6).setParent(1);
+            defaultTasksList.get(6).setCategoryId(1);
+
             for (Task task: defaultTasksList) {
                 mViewModel.addTask(task);
+            }
+
+            // Some projects installation
+            List<Project> defaultProjectsList = new ArrayList<Project>(5);
+            calendar = GregorianCalendar.getInstance();
+            defaultProjectsList.add(new Project());
+            defaultProjectsList.get(0).setCategoryId(1);
+            defaultProjectsList.get(0).setmName("Вылечить зуб");
+
+            for (Project project: defaultProjectsList) {
+                mViewModel.addProject(project);
             }
 
             Log.d("MAIN_ACT: ", "INITIAL SETUP COMPLETED");

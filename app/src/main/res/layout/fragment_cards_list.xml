@@ -16,7 +16,8 @@
         android:id="@+id/fragment_cards_constraint"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#D1D1ED"
+
+        android:clipToPadding="false"
         >
         <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
             android:id="@+id/fragment_cards_add_button"
@@ -30,17 +31,21 @@
             android:contentDescription="TODO"
             android:elevation="6dp"
             />
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/cards_list"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            android:layout_gravity="center_horizontal"
-            android:paddingTop="15dp"
-            android:paddingBottom="15dp"
-            android:paddingStart="20dp"
-            android:paddingEnd="20dp"
-            />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/cards_list"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_gravity="center_horizontal"
+                android:paddingTop="15dp"
+                android:paddingStart="25dp"
+                android:paddingEnd="25dp"
+                android:clipChildren="false"
+                android:clipToPadding="false"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

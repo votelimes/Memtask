@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +15,7 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -25,7 +27,11 @@ import com.example.clock.adapters.CardsListFragmentAdapter;
 import com.example.clock.adapters.CategoriesListFragmentAdapter;
 import com.example.clock.app.App;
 import com.example.clock.model.Category;
+import com.example.clock.model.Project;
 import com.example.clock.model.Task;
+import com.example.clock.model.Theme;
+import com.example.clock.storageutils.LiveDataTransformations;
+import com.example.clock.storageutils.Tuple3;
 import com.example.clock.viewmodels.MainViewModel;
 import com.example.clock.viewmodels.ViewModelFactoryBase;
 import com.google.android.material.appbar.MaterialToolbar;
@@ -83,7 +89,7 @@ public class CardsListFragment extends Fragment {
         mLayoutManager = new LinearLayoutManager(mContext,
                 LinearLayoutManager.VERTICAL, false);
 
-        mViewModel.requestTasksData().observe(getViewLifecycleOwner(), hoardObserver);
+        mViewModel.intermediate.observe(getViewLifecycleOwner(), hoardObserver);
 
         ExtendedFloatingActionButton addButton = getView()
                 .findViewById(R.id.fragment_cards_add_button);
@@ -98,16 +104,17 @@ public class CardsListFragment extends Fragment {
 
     }
 
-    final Observer<List<Task>> hoardObserver = new Observer<List<Task>>() {
+    final Observer<Tuple3<List<Task>, List<Project>, List<Theme>>> hoardObserver = new Observer<Tuple3<List<Task>, List<Project>, List<Theme>>>() {
         @Override
-        public void onChanged(@Nullable final List<Task> updatedHoard) {
-
-
+        public void onChanged(@Nullable final Tuple3<List<Task>, List<Project>, List<Theme>> updatedHoard) {
             mRecyclerViewAdapter = new CardsListFragmentAdapter(
                     activityLauncher,
-                    mViewModel.getTasksByCategory(App.getSettings().getLastCategory().first));
-            toolbar.setTitle(App.getSettings().getLastCategory().second);
+                    new Tuple3<List<Task>, List<Project>, List<Theme>>
+                            (mViewModel.getTasksByCategory(App.getSettings().getLastCategory().first),
+                                mViewModel.getProjectsByCategory(App.getSettings().getLastCategory().first),
+                                mViewModel.getThemes()));
 
+            toolbar.setTitle(App.getSettings().getLastCategory().second);
             mRecyclerView.setLayoutManager(mLayoutManager);
             mRecyclerView.setAdapter(mRecyclerViewAdapter);
         }

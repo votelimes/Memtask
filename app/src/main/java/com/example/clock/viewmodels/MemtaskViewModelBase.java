@@ -103,4 +103,8 @@ public abstract class MemtaskViewModelBase extends ViewModel {
     public LiveData<List<Category>> requestCategoriesData(){
         return this.categoriesLiveData;
     }
+
+    public LiveData<List<Theme>> requestThemesData() {
+        return this.themesLiveData;
+    }
 }

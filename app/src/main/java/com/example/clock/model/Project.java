@@ -11,13 +11,15 @@ public class Project extends UserCaseBase {
     @PrimaryKey(autoGenerate = true)
     @NonNull
     @ColumnInfo(name = "projectId")
-    public long noteId;
+    public long projectId;
 
-    public long getNoteId() {
-        return noteId;
+    public long getProjectId() {
+        return projectId;
     }
 
-    public void setNoteId(long noteId) {
-        this.noteId = noteId;
+    public void setProjectId(long projectId) {
+        this.projectId = projectId;
     }
+
+
 }

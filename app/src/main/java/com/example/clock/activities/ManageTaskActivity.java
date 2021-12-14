@@ -4,13 +4,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.ViewModelProvider;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
 
 import com.example.clock.R;
 import com.example.clock.app.App;
@@ -41,7 +39,7 @@ public class ManageTaskActivity extends AppCompatActivity {
         final String[] repeatModes = new String[] {"Once", "Every day", "Every week", "Every month"};
         ArrayAdapter<String> repeatModesAdapter = new ArrayAdapter<>(
                 ManageTaskActivity.this,
-                R.layout.card_list_item,
+                R.layout.card_task,
                 repeatModes
         );
         /*repeatModesView.setAdapter(repeatModesAdapter);

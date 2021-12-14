@@ -41,6 +41,8 @@ public class Task extends UserCaseBase {
     protected boolean enabled = false;
     protected boolean started = false;
 
+    protected long parent;
+
     public Task(long timeInMillis, int repeatMode, String name, String description,
                 String categoryName, long categoryId){
 
@@ -52,6 +54,7 @@ public class Task extends UserCaseBase {
         this.mCategoryName = categoryName;
         this.vibrate = true;
         this.categoryId = categoryId;
+        this.parent = -1;
         /*this.startTime = 0;
         this.endTime = 0;*/
 
@@ -77,6 +80,7 @@ public class Task extends UserCaseBase {
         this.repeatMode = repeatMode;
         this.vibrate = true;
         this.categoryId = categoryId;
+        this.parent = -1;
 
         switch (repeatMode) {
             case 0: this.repeatModeString = "Once";
@@ -99,6 +103,8 @@ public class Task extends UserCaseBase {
         this.description = description;
         this.vibrate = true;
         this.categoryId = categoryId;
+        this.parent = -1;
+
 
         switch (repeatMode) {
             case 0: this.repeatModeString = "Once";
@@ -131,6 +137,8 @@ public class Task extends UserCaseBase {
         this.friday = friday;
         this.saturday = saturday;
         this.categoryId = categoryId;
+
+        this.parent = -1;
 
         switch (repeatMode) {
             case 0: this.repeatModeString = "Once";
@@ -500,4 +508,14 @@ public class Task extends UserCaseBase {
     public void setStarted(boolean started) {
         this.started = started;
     }
+
+    public long getParent() {
+        return parent;
+    }
+
+    public void setParent(long parent) {
+        this.parent = parent;
+    }
+
+
 }

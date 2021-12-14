@@ -1,5 +1,7 @@
 package com.example.clock.adapters;
 
+import static com.example.clock.app.App.*;
+
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.util.Log;
@@ -11,6 +13,8 @@ import androidx.databinding.BindingConversion;
 import androidx.databinding.BindingMethod;
 import androidx.databinding.BindingMethods;
 
+import com.example.clock.R;
+import com.example.clock.app.App;
 import com.google.android.material.button.MaterialButton;
 
 public class BindingAdapters {
@@ -36,6 +40,17 @@ public class BindingAdapters {
 
 
         view.setBackgroundColor(color);
+    }
+
+    @BindingAdapter({"app:completeness"})
+    public static void completeness(View view, boolean state){
+
+        if(state == false){
+            view.setBackground(getInstance().getDrawable(R.drawable.progress_check_48));
+        }
+        else{
+            view.setBackground(getInstance().getDrawable(R.drawable.outline_check_circle_black_48));
+        }
     }
 
     public static ColorDrawable convertInttoColorDrawable(int color) {
