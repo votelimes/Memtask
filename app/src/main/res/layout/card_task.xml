@@ -12,16 +12,13 @@
     android:layout_gravity="center_horizontal"
     app:cardElevation="20dp"
     app:cardBackgroundColor="#EFFAFB"
-    android:layout_marginTop="24dp"
-    android:layout_marginBottom="24dp"
-    android:outlineProvider="bounds"
-    android:clipToOutline="false"
+    android:layout_marginTop="16dp"
+    android:layout_marginBottom="16dp"
     >
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:elevation="50dp"
         >
         <LinearLayout
             android:id="@+id/card_constraint"

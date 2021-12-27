@@ -42,6 +42,7 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
     private final ActivityResultLauncher<Intent> resultLauncher;
     private final List<UserCaseBase> mainDataSet;
     private final List<Theme> themesDataSet;
+    private final List<Task> projectTasksList;
     /**
      * Provide a reference to the type of views that you are using
      * (custom ViewHolder).
@@ -131,12 +132,19 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
                                     Tuple3<List<Task>, List<Project>, List<Theme>> data) {
         List<Task> tasksDataSet = data.first;
         List<Project> projectsDataSet = data.second;
+        projectTasksList = new ArrayList<Task>();
 
         mainDataSet = new ArrayList<UserCaseBase>(Math.max(tasksDataSet.size(), projectsDataSet.size()));
 
         for(int i = 0; i < Math.max(tasksDataSet.size(), projectsDataSet.size()); i++){
+
             if(i < tasksDataSet.size()){
-                mainDataSet.add((UserCaseBase) tasksDataSet.get(i));
+                if(tasksDataSet.get(i).getParent() != -1){
+                    projectTasksList.add(tasksDataSet.get(i));
+                }
+                else {
+                    mainDataSet.add((UserCaseBase) tasksDataSet.get(i));
+                }
             }
             if(i < projectsDataSet.size()){
                 mainDataSet.add((UserCaseBase) projectsDataSet.get(i));
@@ -217,9 +225,7 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
                     }
                 });
             }
-            else{
-                currentViewHolder.itemView.setVisibility(View.GONE);
-            }
+
         }
         else if(getItemViewType(position) == VIEW_TYPE_PROJECT){
             Project currentProject = (Project) mainDataSet.get(position);
@@ -228,7 +234,16 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
 
             viewHolder.getName().setText(currentProject.getName());
 
-            List<Task> filteredTasks = filterByParent(currentProject.getProjectId());
+            List<Task> filteredTasks = new ArrayList<Task>();
+
+            for (Object obj : projectTasksList ) {
+                if(obj.getClass() == Task.class){
+                    Task task = (Task) obj;
+                    if(currentProject.getProjectId() == task.getParent()) {
+                        filteredTasks.add(task);
+                    }
+                }
+            }
 
             AppCompatActivity activity = (AppCompatActivity) viewHolder.itemView.getContext();
 
@@ -249,20 +264,6 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
 
             viewHolder.getDateTime().setText(currentProject.getEndDateTime24());
         }
-    }
-
-    private List<Task> filterByParent(long parentID){
-        List<Task> tasksList = new ArrayList<Task>((int) (mainDataSet.size() - mainDataSet.size() / 5));
-        for (Object obj : mainDataSet ) {
-            if(obj.getClass() == Task.class){
-                Task task = (Task) obj;
-                if(parentID == task.getParent()) {
-                    tasksList.add(task);
-                }
-            }
-        }
-
-        return tasksList;
     }
 
     // Return the size of your dataset (invoked by the layout manager)
