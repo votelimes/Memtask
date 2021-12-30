@@ -9,18 +9,22 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 
 import com.example.clock.R;
 import com.example.clock.app.App;
 import com.example.clock.databinding.ActivityManageTaskBinding;
 import com.example.clock.model.Category;
+import com.example.clock.model.Project;
 import com.example.clock.model.Task;
 import com.example.clock.viewmodels.ManageTaskViewModel;
 import com.example.clock.viewmodels.ViewModelFactoryBase;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.GregorianCalendar;
+import java.util.Objects;
 
 public class ManageTaskActivity extends AppCompatActivity {
 
@@ -28,6 +32,7 @@ public class ManageTaskActivity extends AppCompatActivity {
     ViewModelFactoryBase mFactory;
     ActivityManageTaskBinding mActivityBinding;
     TextInputEditText nameText;
+    TextInputLayout mRepeatModesLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,35 +40,38 @@ public class ManageTaskActivity extends AppCompatActivity {
         mActivityBinding = DataBindingUtil
                 .setContentView(this, R.layout.activity_manage_task);
 
-        //AutoCompleteTextView repeatModesView = findViewById(R.id.manage_task_repeat_text_view);
-        final String[] repeatModes = new String[] {"Once", "Every day", "Every week", "Every month"};
-        ArrayAdapter<String> repeatModesAdapter = new ArrayAdapter<>(
-                ManageTaskActivity.this,
-                R.layout.card_task,
-                repeatModes
-        );
-        /*repeatModesView.setAdapter(repeatModesAdapter);
-        repeatModesView.setText(repeatModes[0], false);
-        repeatModesView.setOnItemClickListener((parent, view, position, id) -> {
-            String selectedMode = repeatModesAdapter.getItem(position);
-            mViewModel.mManagingTaskRepository.setRepeatModeString(selectedMode);
-        });*/
+        String mode =  getIntent()
+                .getStringExtra("mode");
 
         Task managingTask = (Task) getIntent().getSerializableExtra("ManagingTask");
         Category managingTaskCategory = (Category) getIntent()
                 .getSerializableExtra("ManagingTaskCategory");
 
-        if(managingTask == null){
+        Project managingProject = (Project) getIntent().getSerializableExtra("ManagingProject");
+
+        if(managingTask == null && mode.equals("Task")){
             managingTask = new Task(GregorianCalendar.getInstance().getTimeInMillis(),
                     0, "",  "",
                     "", App.getSettings().getLastCategory().first);
         }
+        else if(managingProject == null && mode.equals("Project")){
+            managingProject = new Project();
+        }
 
-        mFactory = new ViewModelFactoryBase(
-                getApplication(),
-                App.getDatabase(),
-                managingTask
-                );
+        if(mode.equals("Task")) {
+            mFactory = new ViewModelFactoryBase(
+                    getApplication(),
+                    App.getDatabase(),
+                    managingTask
+            );
+        }
+        else if(mode.equals("Project")){
+            mFactory = new ViewModelFactoryBase(
+                    getApplication(),
+                    App.getDatabase(),
+                    managingProject
+            );
+        }
         mViewModel = new ViewModelProvider(this, mFactory).get(ManageTaskViewModel.class);
 
         mActivityBinding.setViewmodel(mViewModel);
@@ -77,7 +85,7 @@ public class ManageTaskActivity extends AppCompatActivity {
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                String nameTextString = nameText.getText().toString();
+                String nameTextString = Objects.requireNonNull(nameText.getText()).toString();
                 int isCorrect = isNameCorrect(nameTextString);
                 if(isCorrect == 1){
                     nameText.setError("Задача должна иметь имя");
@@ -96,6 +104,21 @@ public class ManageTaskActivity extends AppCompatActivity {
         });
 
         TextInputEditText descriptionText = findViewById(R.id.manage_task_edit_text);
+        if(mViewModel.mManagingTaskRepository.isTaskMode()){
+            AutoCompleteTextView repeatModesView = findViewById(R.id.manage_task_repeat_text_view);
+            final String[] repeatModes = new String[] {"Once", "Every day", "Every week", "Every month"};
+            ArrayAdapter<String> repeatModesAdapter = new ArrayAdapter<>(
+                    ManageTaskActivity.this,
+                    R.layout.dropdown_repeatmodes_item,
+                    repeatModes
+            );
+            repeatModesView.setAdapter(repeatModesAdapter);
+            repeatModesView.setText(repeatModes[0], false);
+            repeatModesView.setOnItemClickListener((parent, view, position, id) -> {
+                String selectedMode = repeatModesAdapter.getItem(position);
+                mViewModel.mManagingTaskRepository.setRepeatModeString(selectedMode);
+            });
+        }
     }
 
     private int isNameCorrect(String name){
@@ -112,8 +135,7 @@ public class ManageTaskActivity extends AppCompatActivity {
 
 
     public void onExit(View view){
-
-        String nameTextString = nameText.getText().toString();
+        String nameTextString = Objects.requireNonNull(nameText.getText()).toString();
         int isCorrect = isNameCorrect(nameTextString);
         MaterialAlertDialogBuilder errorDialog = new MaterialAlertDialogBuilder(this)
                 .setPositiveButton("Хорошо", null);
@@ -132,7 +154,12 @@ public class ManageTaskActivity extends AppCompatActivity {
         }
 
         mViewModel.saveChanges();
-        setResult(20); // 20 Task created
+        if(mViewModel.mManagingTaskRepository.isTaskMode()) {
+            setResult(20); // 20 Task created
+        }
+        else if(mViewModel.mManagingTaskRepository.isProjectMode()){
+            setResult(30); // 30 Project created
+        }
         finish();
     }
 }

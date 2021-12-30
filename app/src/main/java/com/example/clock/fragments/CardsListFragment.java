@@ -2,6 +2,7 @@ package com.example.clock.fragments;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -13,6 +14,7 @@ import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.LiveData;
@@ -35,6 +37,7 @@ import com.example.clock.storageutils.Tuple3;
 import com.example.clock.viewmodels.MainViewModel;
 import com.example.clock.viewmodels.ViewModelFactoryBase;
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -54,7 +57,10 @@ public class CardsListFragment extends Fragment {
             new ActivityResultContracts.StartActivityForResult(),
             result -> {
                 if (result.getResultCode() == 20) {
-                    Toast.makeText(getActivity(), "Задача сохранена", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), "Задача добавлена", Toast.LENGTH_SHORT).show();
+                }
+                else if(result.getResultCode() == 30){
+                    Toast.makeText(getActivity(), "Проект создан", Toast.LENGTH_SHORT).show();
                 }
                 else{
                     Toast.makeText(getActivity(), "Изменения отменены", Toast.LENGTH_SHORT).show();
@@ -97,6 +103,29 @@ public class CardsListFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(getActivity(), ManageTaskActivity.class);
+                MaterialAlertDialogBuilder selectObjectTypeDialog = new MaterialAlertDialogBuilder(view.getContext())
+                        .setTitle("Выберите действие")
+                        .setItems(R.array.task_dialog_long, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                switch (i) {
+                                    case 0: // Изменить
+                                        Intent taskIntent = new Intent(view.getContext(), ManageTaskActivity.class);
+                                        taskIntent.putExtra("mode", "Task");
+
+                                        activityLauncher.launch(taskIntent);
+                                        break;
+                                    case 1: // Удалить
+                                        Intent projectIntent = new Intent(view.getContext(), ManageTaskActivity.class);
+                                        projectIntent.putExtra("mode", "Project");
+
+                                        activityLauncher.launch(projectIntent);
+                                        break;
+                                }
+                            }
+                        });
+                selectObjectTypeDialog.show();
+
                 activityLauncher.launch(intent);
             }
         });

@@ -30,6 +30,11 @@ public class ManageTaskViewModel extends MemtaskViewModelBase {
         loadData(application, database);
     }
 
+    public ManageTaskViewModel(Application application, Database database, Project managingProject){
+        mManagingTaskRepository = new Observer(managingProject);
+        loadData(application, database);
+    }
+
     public  LiveData<List<Task>> getTasksData(Application application, Database database){
         if(mRepository == null){
             loadData(application, database);
@@ -51,40 +56,88 @@ public class ManageTaskViewModel extends MemtaskViewModelBase {
     public static class Observer extends BaseObservable{
 
         private Task mManagingTask;
+        private Project mManagingProject;
 
         Observer(@NonNull Task managingTask){
             this.mManagingTask = managingTask;
+            this.mManagingProject = null;
+        }
+
+        Observer(@NonNull Project managingProject){
+            this.mManagingProject = managingProject;
+            this.mManagingTask = null;
         }
 
         @Bindable
         public String getTaskName() {
-            return this.mManagingTask.getName();
+            if(mManagingTask != null){
+                return this.mManagingTask.getName();
+            }
+            else if(mManagingProject != null){
+                return this.mManagingProject.getName();
+            }
+
+            return "WRONG CASE PASS";
         }
 
         @Bindable
         public String getTaskDescription(){
-            return this.mManagingTask.getDescription();
+            if(mManagingTask != null){
+                return this.mManagingTask.getDescription();
+            }
+            else if(mManagingProject != null){
+                return this.mManagingProject.getDescription();
+            }
+
+            return "WRONG CASE PASS";
         }
 
         @Bindable
         public String getTaskRepeatModeString(){
-            return this.mManagingTask.getRepeatModeString();
+            if(mManagingTask != null){
+                return this.mManagingTask.getRepeatModeString();
+            }
+
+            return "WRONG CASE PASS";
         }
 
         public void setTaskName(String name) {
-            this.mManagingTask.setName(name);
+            if(mManagingTask != null){
+                this.mManagingTask.setName(name);
+            }
+            else if(mManagingProject != null){
+                this.mManagingProject.setName(name);
+            }
             notifyPropertyChanged(BR.taskDescription);
         }
 
         public void setTaskDescription(String description){
-            this.mManagingTask.setDescription(description);
+            if(mManagingTask != null){
+                this.mManagingTask.setDescription(description);
+            }
+            else if(mManagingProject != null){
+                this.mManagingProject.setDescription(description);
+            }
             notifyPropertyChanged(BR.taskDescription);
         }
 
         public void setRepeatModeString(String repeatMode){
-            this.mManagingTask.setRepeatModeString(repeatMode);
+            if(mManagingTask != null){
+                this.mManagingTask.setRepeatModeString(repeatMode);
+            }
+
             notifyPropertyChanged(BR.taskRepeatModeString);
         }
 
+        public boolean isTaskMode(){
+            return mManagingTask != null;
+        }
+
+        public boolean isProjectMode(){
+            return mManagingProject != null;
+        }
+
     }
+
+
 }

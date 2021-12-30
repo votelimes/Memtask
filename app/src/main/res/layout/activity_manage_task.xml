@@ -5,6 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     >
     <data>
+        <import type="android.view.View"/>
         <variable
             name="viewmodel"
             type="com.example.clock.viewmodels.ManageTaskViewModel" />
@@ -31,7 +32,7 @@
                 android:id="@+id/manage_task_text_name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Task name"
+                android:hint='@{viewmodel.mManagingTaskRepository.isTaskMode ? "Task name" : "Project name"}'
                 android:text="@={viewmodel.mManagingTaskRepository.TaskName}"
                 />
 
@@ -52,11 +53,19 @@
                 android:id="@+id/manage_task_edit_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Task description"
+                android:hint='@{viewmodel.mManagingTaskRepository.isTaskMode ? "Task description" : "Project description"}'
                 android:text="@={viewmodel.mManagingTaskRepository.TaskDescription}"
                 />
 
         </com.google.android.material.textfield.TextInputLayout>
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/manage_task_barrier_1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:barrierDirection="bottom"
+            app:constraint_referenced_ids="manage_task_text_input"
+
+            />
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/manage_task_repeat_input"
             android:layout_width="match_parent"
@@ -64,18 +73,16 @@
             app:startIconDrawable="@drawable/outline_description_black_36"
             style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense.ExposedDropdownMenu"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/manage_task_text_input"
+            app:layout_constraintTop_toBottomOf="@+id/manage_task_barrier_1"
             android:layout_marginTop="10dp"
+            android:visibility="@{viewmodel.mManagingTaskRepository.isTaskMode ? View.VISIBLE : View.GONE}"
             >
-
             <AutoCompleteTextView
                 android:id="@+id/manage_task_repeat_text_view"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Repeat mode"
-
                 app:textAdv="@{viewmodel.mManagingTaskRepository.getTaskRepeatModeString}"
-
                 android:inputType="none"
                 />
 

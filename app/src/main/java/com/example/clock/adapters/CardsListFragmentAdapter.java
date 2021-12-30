@@ -43,13 +43,10 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
     private final List<UserCaseBase> mainDataSet;
     private final List<Theme> themesDataSet;
     private final List<Task> projectTasksList;
-    /**
-     * Provide a reference to the type of views that you are using
-     * (custom ViewHolder).
-     */
+
     public static class TaskViewHolder extends RecyclerView.ViewHolder {
 
-        private final LinearLayout mainLayout;
+        private final MaterialCardView mainLayout;
 
         private final ImageView notificationImage;
         private final TextView time;
@@ -58,7 +55,7 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
         public TaskViewHolder(View view) {
             super(view);
 
-            mainLayout = (LinearLayout) view.findViewById(R.id.card_constraint);
+            mainLayout = (MaterialCardView) view.findViewById(R.id.card_top_layout);
 
             notificationImage = (ImageView) view.findViewById(R.id.card_notification_image);
 
@@ -79,7 +76,7 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
             return name;
         }
 
-        public LinearLayout getMainLayout(){ return mainLayout; }
+        public MaterialCardView getMainLayout(){ return mainLayout; }
     }
 
     public static class ProjectViewHolder extends RecyclerView.ViewHolder {
@@ -205,6 +202,7 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
                                             case 0: // Изменить
                                                 Intent intent = new Intent(view.getContext(), ManageTaskActivity.class);
                                                 intent.putExtra("ManagingTask", currentTask);
+                                                intent.putExtra("mode", "Task");
 
                                                 resultLauncher.launch(intent);
                                                 break;
@@ -234,9 +232,42 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
 
             viewHolder.getName().setText(currentProject.getName());
 
+            viewHolder.getMainLayout().setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View view) {
+
+                    MaterialAlertDialogBuilder taskOptionsDialog = new MaterialAlertDialogBuilder(view.getContext())
+                            .setTitle("Выберите действие")
+                            .setItems(R.array.task_dialog_long, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    switch (i) {
+                                        case 0: // Изменить
+                                            Intent intent = new Intent(view.getContext(), ManageTaskActivity.class);
+                                            intent.putExtra("ManagingProject", currentProject);
+                                            intent.putExtra("mode", "Project");
+
+                                            resultLauncher.launch(intent);
+                                            break;
+                                        case 1: // Удалить
+
+                                            AppCompatActivity act = (AppCompatActivity) view.getContext();
+                                            MainViewModel viewModel = new ViewModelProvider(act)
+                                                    .get(MainViewModel.class);
+
+                                            viewModel.removeProjectByID(currentProject.getProjectId());
+                                            break;
+                                    }
+                                }
+                            });
+                    taskOptionsDialog.show();
+                    return true;
+                }
+            });
+
             List<Task> filteredTasks = new ArrayList<Task>();
 
-            for (Object obj : projectTasksList ) {
+            for (Object obj : projectTasksList) {
                 if(obj.getClass() == Task.class){
                     Task task = (Task) obj;
                     if(currentProject.getProjectId() == task.getParent()) {
@@ -252,11 +283,46 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
                     .sorted(Comparator.comparingLong(Task::getTimeCreated))
                     .collect(Collectors.toList());
 
+            // Project child items installation
             sortedTasks.forEach(task -> {
                 View list_item = activity
                         .getLayoutInflater()
                         .inflate(R.layout.card_project_list_item, null);
                 ((TextView) list_item.findViewById(R.id.card_project_item_name)).setText(task.getmName());
+                list_item.setOnLongClickListener(new View.OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(View view) {
+                        MaterialAlertDialogBuilder taskOptionsDialog = new MaterialAlertDialogBuilder(view.getContext())
+                                .setTitle("Выберите действие")
+                                .setItems(R.array.task_dialog_long, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        switch (i) {
+                                            case 0: // Изменить
+                                                Intent intent = new Intent(view.getContext(), ManageTaskActivity.class);
+                                                intent.putExtra("ManagingProject", currentProject);
+                                                intent.putExtra("mode", "Project");
+
+                                                resultLauncher.launch(intent);
+                                                break;
+                                            case 1: // Удалить
+
+                                                AppCompatActivity act = (AppCompatActivity) view.getContext();
+                                                MainViewModel viewModel = new ViewModelProvider(act)
+                                                        .get(MainViewModel.class);
+
+                                                viewModel.removeTaskByID(currentProject.getProjectId());
+                                                break;
+                                        }
+                                    }
+                                });
+
+
+                        return true;
+                    }
+                });
+
+
                 viewHolder
                         .getItemsLayout()
                         .addView(list_item);
