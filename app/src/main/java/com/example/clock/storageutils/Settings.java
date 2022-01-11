@@ -10,7 +10,7 @@ import androidx.preference.PreferenceManager;
 public class Settings {
 
     // 0 Calendar, 1 Category list, 2 Tasks list, 3 Statistic, 4 Settings.
-    private Pair<Long, String> mCurrentCategory;
+    private Pair<Long, String> mCurrentWindow;
     private Pair<Boolean, String> mSetupState;
     private Pair<Long, String> mLastCategoryID;
     private Pair<String, String> mLastCategoryName;
@@ -25,9 +25,9 @@ public class Settings {
 
     public void updateData(){
 
-        String mCurrentCategoryPrefTag = "current_window";
-        mCurrentCategory = new Pair<Long, String>
-                (mSharedPref.getLong(mCurrentCategoryPrefTag, 1), mCurrentCategoryPrefTag);
+        String mCurrentWindowPrefTag = "current_window";
+        mCurrentWindow = new Pair<Long, String>
+                (mSharedPref.getLong(mCurrentWindowPrefTag, 2), mCurrentWindowPrefTag);
 
         String mSetupStateTag = "Time";
         mSetupState = new Pair<Boolean, String>
@@ -48,16 +48,16 @@ public class Settings {
     }
 
     public long getCurrentWindow(){
-        return this.mCurrentCategory.first.longValue();
+        return this.mCurrentWindow.first.longValue();
     }
 
     public void setCurrentWindow(long id){
         SharedPreferences.Editor editor = mSharedPref.edit();
-        mCurrentCategory = new Pair<Long, String>
-                (id, mCurrentCategory.second);
+        mCurrentWindow = new Pair<Long, String>
+                (id, mCurrentWindow.second);
 
 
-        editor.putLong(mCurrentCategory.second, id);
+        editor.putLong(mCurrentWindow.second, id);
 
         editor.commit();
     }

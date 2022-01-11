@@ -14,6 +14,7 @@ public class App extends Application {
     public static App instance;
     private static Settings mSettings;
     private static Database mDatabase;
+    private static Database mSilentDatabase;
     SharedPreferences.OnSharedPreferenceChangeListener settingsUpdateListener;
 
     @Override
@@ -22,6 +23,8 @@ public class App extends Application {
         instance = this;
 
         mDatabase = Room.databaseBuilder(this, Database.class, "memtask_db")
+                .build();
+        mSilentDatabase = mDatabase = Room.databaseBuilder(this, Database.class, "memtask_db")
                 .build();
 
         mSettings = new Settings(getApplicationContext());
@@ -42,6 +45,10 @@ public class App extends Application {
     public static Database getDatabase(){
         return mDatabase;
     }
+
+    public static Database getSilentDatabase(){
+        return mSilentDatabase;
+    };
 
     public static Settings getSettings(){
         return mSettings;

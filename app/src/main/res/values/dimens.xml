@@ -6,4 +6,5 @@
 
     <dimen name="textMM">26sp</dimen>
     <dimen name="textSM">18sp</dimen>
+    <dimen name="text_margin">16dp</dimen>
 </resources>

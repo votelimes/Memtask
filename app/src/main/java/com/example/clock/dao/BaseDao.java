@@ -11,20 +11,20 @@ import androidx.room.Update;
 import java.util.List;
 
 @Dao
-public interface BaseDao<StorageObject> {
+public abstract class BaseDao<StorageObject> {
 
     @Insert
-    long insert(StorageObject obj);
+    public abstract long insert(StorageObject obj);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    long insertWithReplace(StorageObject obj);
+    public abstract long insertWithReplace(StorageObject obj);
 
     @Query("SELECT last_insert_rowid()")
-    long getLastId();
+    public abstract long getLastId();
 
     @Update
-    void update(StorageObject obj);
+    public abstract void update(StorageObject obj);
 
     @Delete
-    void delete(StorageObject obj);
+    public abstract void delete(StorageObject obj);
 }

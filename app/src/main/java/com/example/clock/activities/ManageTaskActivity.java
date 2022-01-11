@@ -1,6 +1,7 @@
 package com.example.clock.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.util.Pair;
 import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -19,11 +20,19 @@ import com.example.clock.model.Project;
 import com.example.clock.model.Task;
 import com.example.clock.viewmodels.ManageTaskViewModel;
 import com.example.clock.viewmodels.ViewModelFactoryBase;
+import com.google.android.material.datepicker.MaterialDatePicker;
+import com.google.android.material.datepicker.MaterialPickerOnPositiveButtonClickListener;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
+import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
+import com.wdullaer.materialdatetimepicker.time.TimePickerDialog;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.Locale;
 import java.util.Objects;
 
 public class ManageTaskActivity extends AppCompatActivity {
@@ -33,6 +42,8 @@ public class ManageTaskActivity extends AppCompatActivity {
     ActivityManageTaskBinding mActivityBinding;
     TextInputEditText nameText;
     TextInputLayout mRepeatModesLayout;
+
+    int selectedField; // 1 startTime, 2 endTime, 3 NotifyTime
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,8 +55,6 @@ public class ManageTaskActivity extends AppCompatActivity {
                 .getStringExtra("mode");
 
         Task managingTask = (Task) getIntent().getSerializableExtra("ManagingTask");
-        Category managingTaskCategory = (Category) getIntent()
-                .getSerializableExtra("ManagingTaskCategory");
 
         Project managingProject = (Project) getIntent().getSerializableExtra("ManagingProject");
 
@@ -55,13 +64,14 @@ public class ManageTaskActivity extends AppCompatActivity {
                     "", App.getSettings().getLastCategory().first);
         }
         else if(managingProject == null && mode.equals("Project")){
-            managingProject = new Project();
+            managingProject = new Project("", "", App.getSettings().getLastCategory().first);
         }
 
         if(mode.equals("Task")) {
             mFactory = new ViewModelFactoryBase(
                     getApplication(),
                     App.getDatabase(),
+                    App.getSilentDatabase(),
                     managingTask
             );
         }
@@ -69,6 +79,7 @@ public class ManageTaskActivity extends AppCompatActivity {
             mFactory = new ViewModelFactoryBase(
                     getApplication(),
                     App.getDatabase(),
+                    App.getSilentDatabase(),
                     managingProject
             );
         }
@@ -103,22 +114,51 @@ public class ManageTaskActivity extends AppCompatActivity {
             }
         });
 
-        TextInputEditText descriptionText = findViewById(R.id.manage_task_edit_text);
         if(mViewModel.mManagingTaskRepository.isTaskMode()){
             AutoCompleteTextView repeatModesView = findViewById(R.id.manage_task_repeat_text_view);
-            final String[] repeatModes = new String[] {"Once", "Every day", "Every week", "Every month"};
+            final String[] repeatModes = getResources().getStringArray(R.array.repeat_modes);
             ArrayAdapter<String> repeatModesAdapter = new ArrayAdapter<>(
                     ManageTaskActivity.this,
                     R.layout.dropdown_repeatmodes_item,
                     repeatModes
             );
             repeatModesView.setAdapter(repeatModesAdapter);
-            repeatModesView.setText(repeatModes[0], false);
             repeatModesView.setOnItemClickListener((parent, view, position, id) -> {
                 String selectedMode = repeatModesAdapter.getItem(position);
                 mViewModel.mManagingTaskRepository.setRepeatModeString(selectedMode);
             });
         }
+
+        TextInputEditText rangeLayout = findViewById(R.id.manage_task_text_range);
+        rangeLayout.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean b) {
+                if(b){
+                    MaterialDatePicker datepicker = MaterialDatePicker
+                            .Builder
+                            .dateRangePicker()
+                            .setTitleText("Дата начала — дата окончания")
+                            .setSelection(
+                                    new Pair<>(
+                                            MaterialDatePicker.thisMonthInUtcMilliseconds(),
+                                            MaterialDatePicker.todayInUtcMilliseconds()
+                                    )
+                            )
+                            .build();
+
+                    datepicker.addOnPositiveButtonClickListener(new MaterialPickerOnPositiveButtonClickListener<Pair<Long, Long>>() {
+                        @Override
+                        public void onPositiveButtonClick(Pair<Long, Long> selection) {
+
+                            mViewModel.mManagingTaskRepository
+                                    .setRangeMillis(selection.first, selection.second);
+                            datepicker.dismiss();
+                        }
+                    });
+                    datepicker.show(getSupportFragmentManager(), datepicker.toString());
+                }
+            }
+        });
     }
 
     private int isNameCorrect(String name){
@@ -132,7 +172,6 @@ public class ManageTaskActivity extends AppCompatActivity {
             return 0;
         }
     }
-
 
     public void onExit(View view){
         String nameTextString = Objects.requireNonNull(nameText.getText()).toString();

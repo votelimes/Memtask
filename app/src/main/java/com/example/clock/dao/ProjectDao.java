@@ -9,20 +9,17 @@ import com.example.clock.model.Project;
 import java.util.List;
 
 @Dao
-public interface ProjectDao  extends BaseDao<Project> {
+public abstract class ProjectDao  extends BaseDao<Project> {
 
     @Query("SELECT * FROM project_table")
-    List<Project> getAll();
+    public abstract List<Project> getAll();
 
-    @Query("SELECT * FROM project_table WHERE projectId = :id")
-    Project getById(long id);
-
-    @Query("SELECT * FROM project_table ORDER BY timeInMillis DESC")
-    LiveData<List<Project>> getProjectsLiveData();
+    @Query("SELECT * FROM project_table ORDER BY mNotificationStartMillis DESC")
+    public abstract LiveData<List<Project>> getProjectsLiveData();
 
     @Query("DELETE FROM project_table")
-    int clear();
+    public abstract int clear();
 
     @Query("DELETE FROM project_table WHERE projectId = :id")
-    void deleteById(long id);
+    public abstract void deleteById(String id);
 }

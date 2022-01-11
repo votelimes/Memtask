@@ -1,25 +1,26 @@
 package com.example.clock.model;
 
+import android.util.Log;
+
 import java.io.Serializable;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.UUID;
 
 public class UserCaseBase implements Serializable  {
 
     protected long categoryId;
 
-    protected long timeInMillis;
+    protected long mThemeID;
+
+    protected long mNotificationStartMillis;
 
     protected long startTime;
     protected long endTime;
 
-    protected String description;
+    protected String mDescription;
 
     protected String mName;
 
@@ -35,24 +36,28 @@ public class UserCaseBase implements Serializable  {
     protected long timesExpired;
     protected long timesCancelled;
 
+    protected boolean isImportant;
+
     public UserCaseBase(){
-
-        timeInMillis = 0;
-        description = "null";
-        color = 0;
-        completed = false;
-        /*startTime = 0;
-        endTime = 0;*/
-
-        timeCreated = getCurrentTime();
+        mNotificationStartMillis = -1;
+        categoryId = -1;
+        mThemeID = -1;
     }
 
-    public long getTimeInMillis(){
-        return timeInMillis;
+    protected String generateUUID(){
+        return UUID.randomUUID().toString();
     }
+
+    public long getNotificationStartMillis(){
+        return mNotificationStartMillis;
+    }
+    public void setNotificationStartMillis(long millis){
+        this.mNotificationStartMillis = millis;
+    }
+
 
     public String getDescription() {
-        return description;
+        return mDescription;
     }
 
     public int getColor() {
@@ -65,7 +70,7 @@ public class UserCaseBase implements Serializable  {
 
     public String getTime24() {
         Calendar time = GregorianCalendar.getInstance();
-        time.setTimeInMillis(timeInMillis);
+        time.setTimeInMillis(mNotificationStartMillis);
 
         SimpleDateFormat myFormatObj = new SimpleDateFormat("HH:mm");
 
@@ -119,13 +124,30 @@ public class UserCaseBase implements Serializable  {
         return completed;
     }
 
-    public void setTimeInMillis(long timeInMillis) {
-        this.timeInMillis = timeInMillis;
+    public void setAlarmTime(long timeInMillis) {
+        this.mNotificationStartMillis = timeInMillis;
     }
 
     public void setDescription(String note) {
-        this.description = note;
+        this.mDescription = note;
         setTimeChanged(getCurrentTime());
+    }
+
+    public void setRange(String rangeStart, String rangeEnd){
+        Calendar calendar = GregorianCalendar.getInstance();
+        SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy");
+        try {
+            calendar.setTime(sdf.parse(rangeStart));
+            startTime = calendar.getTimeInMillis();
+        } catch (ParseException e){
+            Log.e("TASK ALARM TIME SETUP ERROR: ", e.getMessage());
+        }
+        try {
+            calendar.setTime(sdf.parse(rangeEnd));
+            endTime = calendar.getTimeInMillis();
+        } catch (ParseException e){
+            Log.e("TASK ALARM TIME SETUP ERROR: ", e.getMessage());
+        }
     }
 
     public void setColor(int color) {
@@ -239,5 +261,21 @@ public class UserCaseBase implements Serializable  {
 
     public void setExpired(boolean expired) {
         this.expired = expired;
+    }
+
+    public boolean isImportant() {
+        return isImportant;
+    }
+
+    public void setImportant(boolean important) {
+        isImportant = important;
+    }
+
+    public long getThemeID() {
+        return mThemeID;
+    }
+
+    public void setThemeID(long mThemeID) {
+        this.mThemeID = mThemeID;
     }
 }

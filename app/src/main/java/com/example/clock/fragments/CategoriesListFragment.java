@@ -24,6 +24,7 @@ import android.widget.Toast;
 import com.example.clock.R;
 import com.example.clock.activities.ManageCategoryActivity;
 import com.example.clock.adapters.CategoriesListFragmentAdapter;
+import com.example.clock.app.App;
 import com.example.clock.model.Category;
 import com.example.clock.viewmodels.MainViewModel;
 import com.example.clock.viewmodels.ViewModelFactoryBase;
@@ -66,7 +67,7 @@ public class CategoriesListFragment extends Fragment {
 
         ViewModelFactoryBase mFactory = new ViewModelFactoryBase(this
                 .getActivity()
-                .getApplication());
+                .getApplication(), App.getDatabase(), App.getSilentDatabase());
 
         mContext = getContext();
 

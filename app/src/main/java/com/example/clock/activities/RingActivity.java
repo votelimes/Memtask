@@ -26,7 +26,7 @@ public class RingActivity extends AppCompatActivity {
         finish();
     }
 
-    public void onSnooze10(View view) {
+    /*public void onSnooze10(View view) {
         Calendar calendar = Calendar.getInstance();
         calendar.add(Calendar.MINUTE, 10);
 
@@ -39,5 +39,5 @@ public class RingActivity extends AppCompatActivity {
         Intent intentService = new Intent(getApplicationContext(), AlarmService.class);
         getApplicationContext().stopService(intentService);
         finish();
-    }
+    }*/
 }

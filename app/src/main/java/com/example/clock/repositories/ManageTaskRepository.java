@@ -10,15 +10,9 @@ public class ManageTaskRepository extends MemtaskRepositoryBase {
 
     private Task mManagingTask;
 
-    public ManageTaskRepository(Application application, Database database, Task managingTask) {
-        super(application, database);
-
+    public ManageTaskRepository(Application application, Database database, Database silentDatabase, Task managingTask) {
+        super(application, database, silentDatabase);
         this.mManagingTask = managingTask;
-    }
-
-    public String getManagingTaskRepeatModeString(){
-
-        return this.mManagingTask.getRepeatModeString();
     }
 
     public boolean getManagingTaskVibrate(){
@@ -27,10 +21,6 @@ public class ManageTaskRepository extends MemtaskRepositoryBase {
 
     public String getManagingTaskDescription(){
         return this.mManagingTask.getDescription();
-    }
-
-    public void setManagingTaskRepeatModeString(String repeatMode){
-        this.mManagingTask.setRepeatModeString(repeatMode);
     }
 
     public void setManagingTaskVibrate(boolean isVibrate){

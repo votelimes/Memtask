@@ -16,12 +16,31 @@
     <color name="dark_grey">#373839</color>
     <color name="red">#C30C0C</color>
 
+
     <color name="mainTheme1">#3062DA</color> <!--1st background color-->
     <color name="mainTheme2">#7CA1F9</color> <!--2nd background color-->
     <color name="mainTheme3">#FFFFFF</color> <!--Task and task space background color-->
     <color name="mainTheme4">#1D489C</color> <!--Active task stroke color-->
     <color name="mainTheme5">#B2B2B2</color> <!--Inactive task stroke color-->
 
+    <color name="text_main">#4B4F5B</color>
+    <color name="text_grey">#9699A9</color>
+    <color name="text_light">#F2FDFF</color>
 
+    <color name="main_1">#073B4C</color>
+    <color name="main_2">#118AB2</color>
+    <color name="main_3">#EF476F</color>
+    <color name="main_4">#FFD166</color>
+    <color name="main_5">#06D6A0</color>
+    <color name="main_6">#118AB2</color>
+
+    <color name="calendar_select_light">#9CFCE2</color>
+    <color name="calendar_current_light">#F8B4C4</color>
+
+    <color name="zeroDayLoadUnused">#F2FDFF</color>
+    <color name="minDayLoad">#4CAF50</color>
+    <color name="mediumDayLoad">#FFC73B</color>
+    <color name="highDayLoad">#FF5722</color>
+    <color name="maxDayLoad">#970000</color>
 
 </resources>

@@ -3,6 +3,7 @@ package com.example.clock.dao;
 import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Query;
+import androidx.room.Transaction;
 
 import com.example.clock.model.Category;
 import com.example.clock.model.Project;
@@ -10,19 +11,25 @@ import com.example.clock.model.Project;
 import java.util.List;
 
 @Dao
-public interface CategoryDao extends BaseDao<Category>{
+public abstract class CategoryDao extends BaseDao<Category>{
     @Query("SELECT * FROM category_table")
-    List<Category> getAll();
-
-    @Query("SELECT * FROM category_table WHERE categoryId = :id")
-    Category getById(long id);
+    public abstract List<Category> getAll();
 
     @Query("SELECT * FROM category_table ORDER BY mName ASC")
-    LiveData<List<Category>> getCategoriesLiveData();
+    public abstract LiveData<List<Category>> getCategoriesLiveData();
 
     @Query("DELETE FROM category_table")
-    int clear();
+    public abstract int clear();
 
     @Query("DELETE FROM category_table WHERE categoryId = :id")
-    void deleteById(long id);
+    public abstract void delete(long id);
+
+    @Query("DELETE FROM task_table WHERE categoryId = :id")
+    public abstract void deleteTasksByID(long id);
+
+    @Transaction
+    public void deleteWithItemsTransaction(long id){
+        delete(id);
+        deleteTasksByID(id);
+    }
 }

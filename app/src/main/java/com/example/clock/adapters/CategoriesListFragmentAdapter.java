@@ -1,6 +1,7 @@
 package com.example.clock.adapters;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -16,11 +17,13 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.clock.R;
+import com.example.clock.activities.ManageTaskActivity;
 import com.example.clock.app.App;
 import com.example.clock.fragments.CardsListFragment;
 import com.example.clock.model.Category;
 import com.example.clock.viewmodels.MainViewModel;
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.util.List;
 
@@ -96,7 +99,7 @@ public class CategoriesListFragmentAdapter extends RecyclerView.Adapter<Categori
         viewHolder.getMainLayout().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                App.getSettings().setCurrentWindow(2);
+                App.getSettings().setCurrentWindow(20);
                 App.getSettings().setLastCategory(viewHolder.getCategoryID(), viewHolder
                         .getListNameView()
                         .getText()
@@ -109,6 +112,32 @@ public class CategoriesListFragmentAdapter extends RecyclerView.Adapter<Categori
                         .replace(R.id.main_fragment_container_view, new CardsListFragment())
                         .addToBackStack(null)
                         .commit();
+            }
+        });
+        viewHolder.getMainLayout().setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                MaterialAlertDialogBuilder taskOptionsDialog = new MaterialAlertDialogBuilder(view.getContext())
+                        .setTitle("Выберите действие")
+                        .setItems(R.array.category_choice, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                switch (i) {
+                                    case 0: // Изменить
+
+                                        break;
+                                    case 1: // Удалить
+
+                                        AppCompatActivity act = (AppCompatActivity) view.getContext();
+                                        MainViewModel viewModel = new ViewModelProvider(act)
+                                                .get(MainViewModel.class);
+                                        viewModel.removeCategoryWithItems(viewHolder.getCategoryID());
+                                        break;
+                                }
+                            }
+                        });
+                taskOptionsDialog.show();
+                return true;
             }
         });
     }

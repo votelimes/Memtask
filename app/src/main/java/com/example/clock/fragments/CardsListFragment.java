@@ -36,6 +36,8 @@ import com.example.clock.storageutils.LiveDataTransformations;
 import com.example.clock.storageutils.Tuple3;
 import com.example.clock.viewmodels.MainViewModel;
 import com.example.clock.viewmodels.ViewModelFactoryBase;
+import com.github.clans.fab.FloatingActionButton;
+import com.github.clans.fab.FloatingActionMenu;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
@@ -80,7 +82,7 @@ public class CardsListFragment extends Fragment {
 
         ViewModelFactoryBase mFactory = new ViewModelFactoryBase(this
                 .getActivity()
-                .getApplication());
+                .getApplication(), App.getDatabase(), App.getSilentDatabase());
 
         mContext = getContext();
 
@@ -92,58 +94,44 @@ public class CardsListFragment extends Fragment {
 
         toolbar = getActivity().findViewById(R.id.topAppBar);
 
+        toolbar.setTitle(App.getSettings().getLastCategory().second);
+
         mLayoutManager = new LinearLayoutManager(mContext,
                 LinearLayoutManager.VERTICAL, false);
 
         mViewModel.intermediate.observe(getViewLifecycleOwner(), hoardObserver);
 
-        ExtendedFloatingActionButton addButton = getView()
-                .findViewById(R.id.fragment_cards_add_button);
-        addButton.setOnClickListener(new View.OnClickListener() {
+        FloatingActionButton fabTask = getView().findViewById(R.id.fragment_cards_fab_task);
+        FloatingActionButton fabProject = getView().findViewById(R.id.fragment_cards_fab_proj);
+        FloatingActionMenu fabMenu = getView().findViewById(R.id.fragment_cards_fabl);
+
+
+        fabTask.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(getActivity(), ManageTaskActivity.class);
-                MaterialAlertDialogBuilder selectObjectTypeDialog = new MaterialAlertDialogBuilder(view.getContext())
-                        .setTitle("Выберите действие")
-                        .setItems(R.array.task_dialog_long, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                switch (i) {
-                                    case 0: // Изменить
-                                        Intent taskIntent = new Intent(view.getContext(), ManageTaskActivity.class);
-                                        taskIntent.putExtra("mode", "Task");
-
-                                        activityLauncher.launch(taskIntent);
-                                        break;
-                                    case 1: // Удалить
-                                        Intent projectIntent = new Intent(view.getContext(), ManageTaskActivity.class);
-                                        projectIntent.putExtra("mode", "Project");
-
-                                        activityLauncher.launch(projectIntent);
-                                        break;
-                                }
-                            }
-                        });
-                selectObjectTypeDialog.show();
-
-                activityLauncher.launch(intent);
+                Intent taskIntent = new Intent(view.getContext(), ManageTaskActivity.class);
+                taskIntent.putExtra("mode", "Task");
+                fabMenu.close(true);
+                activityLauncher.launch(taskIntent);
             }
         });
-
-
+        fabProject.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent projectIntent = new Intent(view.getContext(), ManageTaskActivity.class);
+                projectIntent.putExtra("mode", "Project");
+                fabMenu.close(true);
+                activityLauncher.launch(projectIntent);
+            }
+        });
     }
 
     final Observer<Tuple3<List<Task>, List<Project>, List<Theme>>> hoardObserver = new Observer<Tuple3<List<Task>, List<Project>, List<Theme>>>() {
         @Override
         public void onChanged(@Nullable final Tuple3<List<Task>, List<Project>, List<Theme>> updatedHoard) {
+            mViewModel.mergeAndSortLists();
             mRecyclerViewAdapter = new CardsListFragmentAdapter(
-                    activityLauncher,
-                    new Tuple3<List<Task>, List<Project>, List<Theme>>
-                            (mViewModel.getTasksByCategory(App.getSettings().getLastCategory().first),
-                                mViewModel.getProjectsByCategory(App.getSettings().getLastCategory().first),
-                                mViewModel.getThemes()));
-
-            toolbar.setTitle(App.getSettings().getLastCategory().second);
+                    activityLauncher, mViewModel);
             mRecyclerView.setLayoutManager(mLayoutManager);
             mRecyclerView.setAdapter(mRecyclerViewAdapter);
         }

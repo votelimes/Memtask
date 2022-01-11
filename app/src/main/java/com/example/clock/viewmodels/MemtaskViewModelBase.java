@@ -30,31 +30,29 @@ public abstract class MemtaskViewModelBase extends ViewModel {
     }
 
     //Load data
-    protected void loadData(Application application, Database database){
-        mRepository = new MemtaskRepositoryBase(application, database);
+    protected void loadData(Application application, Database database, Database silentDatabase){
+        mRepository = new MemtaskRepositoryBase(application, database, silentDatabase);
         tasksLiveData = mRepository.getAllTasksLive();
         projectsLiveData = mRepository.getAllProjectsLive();
         categoriesLiveData = mRepository.getAllCategoriesLive();
         themesLiveData = mRepository.getAllThemesLive();
     }
 
-    //Getting existing data
-    public Task getTask (long taskId) {
-        return mRepository.getTask(taskId);
-    }
-
-    public Project getProject (long projectId) {
-        return mRepository.getProject(projectId);
-    }
-
-
     //Adding new data
     public void addTask (Task newTask) {
         mRepository.addTask(newTask);
     }
 
+    public void addTaskSilently(Task task){
+        mRepository.addTaskSilently(task);
+    }
+
     public void addProject (Project newProject) {
         mRepository.addProject(newProject);
+    }
+
+    public void addProjectSilently(Project project){
+        addProjectSilently(project);
     }
 
     public void addCategory(Category newCategory){
@@ -66,12 +64,20 @@ public abstract class MemtaskViewModelBase extends ViewModel {
     }
 
     //Removing existing data
-    public void removeTaskByID (long id) {
+    public void removeTaskByID (String id) {
         mRepository.removeTaskByID(id);
     }
 
-    public void removeProjectByID (long id) {
+    public void removeTaskByIDSilently(String id){
+        mRepository.removeTaskByIDSilently(id);
+    }
+
+    public void removeProjectByID (String id) {
         mRepository.removeProjectByID(id);
+    }
+
+    public void removeProjectByIDSilently(String id){
+        mRepository.removeProjectByIDSilently(id);
     }
 
     public void removeCategoryByID (long id){

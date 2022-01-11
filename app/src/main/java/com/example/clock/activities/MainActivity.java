@@ -15,6 +15,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.example.clock.R;
 import com.example.clock.app.App;
+import com.example.clock.fragments.CalendarFragment;
 import com.example.clock.fragments.CardsListFragment;
 import com.example.clock.fragments.CategoriesListFragment;
 import com.example.clock.fragments.SettingsFragment;
@@ -28,6 +29,8 @@ import com.example.clock.databinding.ActivityMainBinding;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.navigation.NavigationView;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -51,7 +54,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onCreate(savedInstanceState);
         mActivityBinding = DataBindingUtil
                 .setContentView(this, R.layout.activity_main);
-        mFactory = new ViewModelFactoryBase(getApplication(), App.getDatabase());
+        mFactory = new ViewModelFactoryBase(getApplication(), App.getDatabase(), App.getSilentDatabase());
         mViewModel = new ViewModelProvider(this, mFactory).get(MainViewModel.class);
         mActivityBinding.setViewmodel(mViewModel);
 
@@ -81,25 +84,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         String title = "";
         if(App.getSettings().getLastCategory().first != -1) {
             switch ((int) App.getSettings().getCurrentWindow()) {
-                // Calendar
-                case 0:
-                    title = "Календарь";
-                    break;
-
                 // Categories list
                 case 1:
                     nextFragment = new CategoriesListFragment();
                     title = "Категории";
                     break;
-
-                // Tasks list
+                // Calendar
                 case 2:
-                    nextFragment = new CardsListFragment();
+                    nextFragment = new CalendarFragment();
+                    title = "Календарь активностей";
                     break;
-
                 // Statistic
                 case 3:
-                    title = "Календарь";
+                    title = "Статистика";
                     break;
 
                 // Settings
@@ -107,11 +104,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     nextFragment = new SettingsFragment();
                     title = "Настройки";
                     break;
-
+                // Tasks list
+                case 20:
+                    nextFragment = new CardsListFragment();
+                    break;
             }
         }
         else{
-            nextFragment = new CategoriesListFragment();
+            //nextFragment = new CategoriesListFragment();
+            nextFragment = new CalendarFragment();
         }
         getSupportFragmentManager().beginTransaction()
                 .setReorderingAllowed(true)
@@ -119,24 +120,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 .commit();
         toolbar.setTitle(title);
     }
-
-    /*private void updateMainClock(){
-        TextView timeView = (TextView) findViewById(R.id.mainClockTextView);
-        TextView timeViewIndex = (TextView) findViewById(R.id.mainClockTimeIndex);
-        if(App.Settings.is24HTimeUses) {
-            SimpleDateFormat hoursFormatter = new SimpleDateFormat("HH:mm");
-            timeView.setText(hoursFormatter.format(new Date()));
-            timeViewIndex.setText("");
-        }
-        else{
-            SimpleDateFormat hoursFormatter = new SimpleDateFormat("hh:mm aa");
-            String timeString = hoursFormatter.format(new Date());
-            String[] time = timeString.split(" ");
-
-            timeView.setText(time[0]);
-            timeViewIndex.setText(time[1]);
-        }
-    }*/
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -148,6 +131,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 nextFragment = new CategoriesListFragment();
                 title = "Категории";
                 App.getSettings().setCurrentWindow(1);
+                break;
+            case R.id.calendar_item:
+                nextFragment = new CalendarFragment();
+                title = "Календарь";
+                App.getSettings().setCurrentWindow(2);
                 break;
             case R.id.settings_item:
                 nextFragment = new SettingsFragment();
@@ -243,7 +231,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
 
             // Categories installation
-            List<Category> defaultCategoriesList = new ArrayList<Category>(3);
+            List<Category> defaultCategoriesList = new ArrayList<Category>(4);
             defaultCategoriesList.add(new Category("Дом",
                     "Домашние дела, покупки и т.д.", ""));
             defaultCategoriesList.get(0).setThemeID(13);
@@ -254,60 +242,85 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     "Все остальное", ""));
             defaultCategoriesList.get(2).setThemeID(10);
 
+            defaultCategoriesList.add(new Category("Спорт / Здоровье",
+                    "", ""));
+            defaultCategoriesList.get(3).setThemeID(12);
+
             for (Category category: defaultCategoriesList) {
                 mViewModel.addCategory(category);
-            }
-            // Some Tasks installation
-            List<Task> defaultTasksList = new ArrayList<Task>(5);
-            Calendar calendar = GregorianCalendar.getInstance();
-
-            defaultTasksList.add(new Task(calendar, 0, 1 ));
-            defaultTasksList.get(0).setName("Оплатить счета");
-            defaultTasksList.get(0).setDescription("Оплатить счета за дом");
-
-            defaultTasksList.add(new Task(calendar, 0, 1 ));
-            defaultTasksList.get(1).setName("Полить цветы");
-            defaultTasksList.get(1).setDescription("Полить все цветы кроме Замиокулькаса");
-
-            defaultTasksList.add(new Task(calendar, 0, 2 ));
-            defaultTasksList.get(2).setName("Утренний будильник");
-            defaultTasksList.get(2).setDescription("");
-
-            defaultTasksList.add(new Task(calendar, 0, 2 ));
-            defaultTasksList.get(3).setName("Планерка");
-            defaultTasksList.get(3).setDescription("Пусто");
-
-            defaultTasksList.add(new Task(calendar, 0, 2 ));
-            defaultTasksList.get(4).setName("Поискать номер регистратуры");
-            defaultTasksList.get(4).setDescription("Пусто");
-            defaultTasksList.get(4).setParent(1);
-            defaultTasksList.get(4).setCategoryId(1);
-
-            defaultTasksList.add(new Task(calendar, 0, 2 ));
-            defaultTasksList.get(5).setName("Позвонить по номеру");
-            defaultTasksList.get(5).setDescription("Пусто");
-            defaultTasksList.get(5).setParent(1);
-            defaultTasksList.get(5).setCategoryId(1);
-
-            defaultTasksList.add(new Task(calendar, 0, 2 ));
-            defaultTasksList.get(6).setName("Записать дату приема");
-            defaultTasksList.get(6).setDescription("Пусто");
-            defaultTasksList.get(6).setParent(1);
-            defaultTasksList.get(6).setCategoryId(1);
-
-            for (Task task: defaultTasksList) {
-                mViewModel.addTask(task);
             }
 
             // Some projects installation
             List<Project> defaultProjectsList = new ArrayList<Project>(5);
-            calendar = GregorianCalendar.getInstance();
-            defaultProjectsList.add(new Project());
-            defaultProjectsList.get(0).setCategoryId(1);
-            defaultProjectsList.get(0).setmName("Вылечить зуб");
+            defaultProjectsList.add(new Project("Вылечить зуб", "", 1));
+            defaultProjectsList.add(new Project("Сделать презентацию", "Способы оптимизации алгоритмов", 2));
+            defaultProjectsList.get(1).setRange("24.01.2022", "29.01.2022");
 
             for (Project project: defaultProjectsList) {
                 mViewModel.addProject(project);
+            }
+
+            // Some Tasks installation
+            List<Task> defaultTasksList = new ArrayList<Task>(5);
+            Calendar calendar = GregorianCalendar.getInstance();
+            SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
+
+            try {
+                calendar.setTime(sdf.parse("25.01.2022 00:00:00"));
+            } catch (ParseException e){
+                Log.e("INITIAL SETUP ERROR: ", e.getMessage());
+            }
+
+            defaultTasksList.add(new Task("Оплатить счета", "Оплатить счета за дом", 1 ));
+            defaultTasksList.get(0).setAlarmTime("25.01.2022 11:20");
+            defaultTasksList.get(0).setRepeatMode(4);
+
+            defaultTasksList.add(new Task("Полить цветы", "Полить все цветы кроме, замиокулькаса", 1 ));
+            defaultTasksList.get(1).setAlarmTime("25.01.2022 17:40");
+            defaultTasksList.get(1).setRepeatMode(3);
+            defaultTasksList.get(1).setTuesday(true);
+
+            defaultTasksList.add(new Task("Забрать посылку", "", 1 ));
+            defaultTasksList.get(2).setAlarmTime("26.01.2022 16:00");
+
+            defaultTasksList.add(new Task("Утренняя разминка", "", 4 ));
+            defaultTasksList.get(3).setAlarmTime("26.01.2022 10:00");
+            defaultTasksList.get(3).setRepeatMode(3);
+            defaultTasksList.get(3).setMonday(true);
+            defaultTasksList.get(3).setWednesday(true);
+            defaultTasksList.get(3).setFriday(true);
+
+            defaultTasksList.add(new Task("Забрать ключи у Димана", "Ключи от офиса 303", 2 ));
+            defaultTasksList.get(4).setAlarmTime("26.01.2022 15:00");
+
+            defaultTasksList.add(new Task("Отправиться на прием к врачу", "Кабинет 6", 4 ));
+            defaultTasksList.get(5).setAlarmTime("11.01.2022 7:40");
+            defaultTasksList.get(5).setRepeatMode(1);
+
+            // Project tasks
+            defaultTasksList.add(new Task("Поискать номер регистратуры", "", 1 ));
+            defaultTasksList.get(6).setParentID(defaultProjectsList.get(0).getProjectId());
+
+            defaultTasksList.add(new Task("Позвонить по номеру", "", 1 ));
+            defaultTasksList.get(7).setParentID(defaultProjectsList.get(0).getProjectId());
+
+            defaultTasksList.add(new Task("Записать дату приема", "", 1 ));
+            defaultTasksList.get(8).setParentID(defaultProjectsList.get(0).getProjectId());
+
+
+            // Project tasks
+            defaultTasksList.add(new Task("Подготовить литературу", "Поискать на programmer-lib", 2 ));
+            defaultTasksList.get(9).setAlarmTime("24.01.2022 11:00");
+            defaultTasksList.get(9).setParentID(defaultProjectsList.get(1).getProjectId());
+            defaultTasksList.add(new Task("Определить структуру", "3 раздела, 12 слайдов", 2 ));
+            defaultTasksList.get(10).setAlarmTime("25.01.2022 11:00");
+            defaultTasksList.get(10).setParentID(defaultProjectsList.get(1).getProjectId());
+            defaultTasksList.add(new Task("Написать текст", "8 страниц, 14пт", 2 ));
+            defaultTasksList.get(11).setAlarmTime("27.01.2022 17:00");
+            defaultTasksList.get(11).setParentID(defaultProjectsList.get(1).getProjectId());
+
+            for (Task task: defaultTasksList) {
+                mViewModel.addTask(task);
             }
 
             Log.d("MAIN_ACT: ", "INITIAL SETUP COMPLETED");
@@ -329,5 +342,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         } else {
             getSupportFragmentManager().popBackStack();
         }
+        mViewModel.clean();
     }
 }

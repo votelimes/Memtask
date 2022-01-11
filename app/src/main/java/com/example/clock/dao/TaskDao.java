@@ -9,21 +9,18 @@ import com.example.clock.model.Task;
 import java.util.List;
 
 @Dao
-public interface TaskDao extends BaseDao<Task> {
+public abstract class TaskDao extends BaseDao<Task> {
 
     @Query("SELECT * FROM task_table")
-    List <Task> getAll();
-
-    @Query("SELECT * FROM task_table WHERE taskId = :id")
-    Task getById(long id);
+    public abstract List <Task> getAll();
 
     //@Query("SELECT * FROM task_table ORDER BY timeInMillis DESC")
     @Query("SELECT * FROM task_table ORDER by mName ASC")
-    LiveData<List<Task>> getTasksLiveData();
+    public abstract LiveData<List<Task>> getTasksLiveData();
 
     @Query("DELETE FROM task_table")
-    int clear();
+    public abstract int clear();
 
     @Query("DELETE FROM task_table WHERE taskId = :id")
-    void deleteById(long id);
+    public abstract void deleteById(String id);
 }

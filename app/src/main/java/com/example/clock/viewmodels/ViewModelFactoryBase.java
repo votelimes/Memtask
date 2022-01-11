@@ -2,6 +2,7 @@ package com.example.clock.viewmodels;
 
 import android.app.Application;
 
+import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -26,19 +27,22 @@ public class ViewModelFactoryBase extends ViewModelProvider.NewInstanceFactory {
     @Override
     public <T extends ViewModel> T create(Class<T> modelClass) {
         if (modelClass == ManageTaskViewModel.class) {
-            if(mParams[1].getClass() == Task.class){
-                return (T) new ManageTaskViewModel(mApplication, (Database) mParams[0], (Task) mParams[1]);
+            if(mParams[2].getClass() == Task.class){
+                return (T) new ManageTaskViewModel(mApplication, (Database) mParams[0], (Database) mParams[1], (Task) mParams[2]);
             }
-            else if(mParams[1].getClass() == Project.class){
-                return (T) new ManageTaskViewModel(mApplication, (Database) mParams[0], (Project) mParams[1]);
+            else if(mParams[2].getClass() == Project.class){
+                return (T) new ManageTaskViewModel(mApplication, (Database) mParams[0], (Database) mParams[1], (Project) mParams[2]);
             }
             return null;
         }
         else if (modelClass == ManageCategoryViewModel.class) {
-            return (T) new ManageCategoryViewModel(mApplication, (Database) mParams[0], (Category) mParams[1]);
+            return (T) new ManageCategoryViewModel(mApplication, (Database) mParams[0], (Database) mParams[1], (Category) mParams[2]);
         }
         else if(modelClass == MainViewModel.class){
-            return (T) new MainViewModel(mApplication, (Database) mParams[0]);
+            return (T) new MainViewModel(mApplication, (Database) mParams[0], (Database) mParams[1]);
+        }
+        else if(modelClass == CalendarViewModel.class){
+            return (T) new CalendarViewModel(mApplication, (LifecycleOwner) mParams[0], (Database) mParams[1], (Database) mParams[2]);
         }
         else {
             return super.create(modelClass);

@@ -16,6 +16,10 @@ public class Theme {
     private int mFirstColor;
     private int mSecondColor;
 
+    private int mIconColor;
+
+    private int mTextColor;
+
     private int mImage;
 
     public Theme(long mId, String name, int mFirstColor, int mSecondColor, int mImage) {
@@ -72,5 +76,21 @@ public class Theme {
 
     public void setImage(int mImage) {
         this.mImage = mImage;
+    }
+
+    public int getTextColor() {
+        return mTextColor;
+    }
+
+    public void setTextColor(int mTextColor) {
+        this.mTextColor = mTextColor;
+    }
+
+    public int getIconColor() {
+        return mIconColor;
+    }
+
+    public void setIconColor(int mIconColor) {
+        this.mIconColor = mIconColor;
     }
 }

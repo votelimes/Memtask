@@ -11,21 +11,21 @@ import android.widget.TextView;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.clock.R;
 import com.example.clock.activities.ManageTaskActivity;
+import com.example.clock.databinding.CategoryTaskBinding;
 import com.example.clock.model.Project;
 import com.example.clock.model.Task;
-import com.example.clock.model.Theme;
-import com.example.clock.model.UserCaseBase;
-import com.example.clock.storageutils.Tuple3;
 import com.example.clock.viewmodels.MainViewModel;
+import com.github.clans.fab.FloatingActionButton;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.mikhaellopez.circularprogressbar.CircularProgressBar;
 
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
@@ -40,43 +40,83 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
     private long currentCategoryID;
     private Date selectedDay;
     private final ActivityResultLauncher<Intent> resultLauncher;
-    private final List<UserCaseBase> mainDataSet;
-    private final List<Theme> themesDataSet;
-    private final List<Task> projectTasksList;
+    private final MainViewModel mViewModel;
 
     public static class TaskViewHolder extends RecyclerView.ViewHolder {
-
+        private final CategoryTaskBinding binding;
         private final MaterialCardView mainLayout;
 
-        private final ImageView notificationImage;
-        private final TextView time;
+        private final TextView range;
+        private final ImageView important;
+        private final LinearLayout categoryLayout;
+        private final TextView categoryName;
         private final TextView name;
+        private final TextView description;
+        private final ImageView alarmImage;
+        private final TextView alarmTime;
 
-        public TaskViewHolder(View view) {
-            super(view);
+        public TaskViewHolder(CategoryTaskBinding binding) {
+            super(binding.getRoot());
+            this.binding = binding;
+            View view = binding.getRoot();
 
-            mainLayout = (MaterialCardView) view.findViewById(R.id.card_top_layout);
-
-            notificationImage = (ImageView) view.findViewById(R.id.card_notification_image);
-
-            time = (TextView) view.findViewById(R.id.card_time);
-
-            name = (TextView) view.findViewById(R.id.card_name);
+            mainLayout = (MaterialCardView) view.findViewById(R.id.task_top_layout);
+            range = (TextView) view.findViewById(R.id.task_range);
+            important = (ImageView) view.findViewById(R.id.task_important);
+            categoryLayout = (LinearLayout) view.findViewById(R.id.task_category_layout);
+            categoryName = (TextView) view.findViewById(R.id.task_category_name);
+            name = (TextView) view.findViewById(R.id.task_name);
+            description = (TextView) view.findViewById(R.id.task_description);
+            alarmImage = (ImageView) view.findViewById(R.id.task_alarm_image);
+            alarmTime = (TextView) view.findViewById(R.id.task_alarm_time);
         }
 
-        public ImageView getNotificationImage() {
-            return notificationImage;
+        public void bind(MainViewModel vm, int pos){
+            binding.setVm(vm);
+            binding.setPos((Integer) pos);
+            binding.setMode(MainViewModel.MODE_INDEPENDENTLY);
+            binding.executePendingBindings();
         }
 
-        public TextView getTime() {
-            return time;
+        public CategoryTaskBinding getBinding() {
+            return binding;
+        }
+
+        public MaterialCardView getMainLayout() {
+            return mainLayout;
+        }
+
+        public TextView getRange() {
+            return range;
+        }
+
+        public ImageView getImportant() {
+            return important;
+        }
+
+        public LinearLayout getCategoryLayout() {
+            return categoryLayout;
+        }
+
+        public TextView getCategoryName() {
+            return categoryName;
         }
 
         public TextView getName() {
             return name;
         }
 
-        public MaterialCardView getMainLayout(){ return mainLayout; }
+        public TextView getDescription() {
+            return description;
+        }
+
+        public ImageView getAlarmImage() {
+            return alarmImage;
+        }
+
+        public TextView getAlarmTime() {
+            return alarmTime;
+        }
     }
 
     public static class ProjectViewHolder extends RecyclerView.ViewHolder {
@@ -124,32 +164,61 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
 
     }
 
+    public static class Project2ViewHolder extends RecyclerView.ViewHolder{
 
-    public CardsListFragmentAdapter(ActivityResultLauncher<Intent> resultLauncher,
-                                    Tuple3<List<Task>, List<Project>, List<Theme>> data) {
-        List<Task> tasksDataSet = data.first;
-        List<Project> projectsDataSet = data.second;
-        projectTasksList = new ArrayList<Task>();
+        private final MaterialCardView mainLayout;
+        private final LinearLayout itemsLayout;
 
-        mainDataSet = new ArrayList<UserCaseBase>(Math.max(tasksDataSet.size(), projectsDataSet.size()));
 
-        for(int i = 0; i < Math.max(tasksDataSet.size(), projectsDataSet.size()); i++){
+        private final TextView range;
+        private final TextView name;
+        private final TextView progressText;
+        private final CircularProgressBar progressBar;
 
-            if(i < tasksDataSet.size()){
-                if(tasksDataSet.get(i).getParent() != -1){
-                    projectTasksList.add(tasksDataSet.get(i));
-                }
-                else {
-                    mainDataSet.add((UserCaseBase) tasksDataSet.get(i));
-                }
-            }
-            if(i < projectsDataSet.size()){
-                mainDataSet.add((UserCaseBase) projectsDataSet.get(i));
-            }
+        public Project2ViewHolder(View view) {
+            super(view);
+
+            mainLayout = (MaterialCardView) view.findViewById(R.id.project2_top_layout);
+
+            itemsLayout = (LinearLayout) view.findViewById(R.id.project2_children);
+
+            name = (TextView) view.findViewById(R.id.project2_name);
+
+            progressBar = (CircularProgressBar) view.findViewById(R.id.project2_progress);
+
+            progressText = (TextView) view.findViewById(R.id.project2_progress_text);
+
+            range = (TextView) view.findViewById(R.id.project2_range);
         }
 
-        themesDataSet = data.third;
+        public MaterialCardView getMainLayout() {
+            return mainLayout;
+        }
 
+        public LinearLayout getItemsLayout() {
+            return itemsLayout;
+        }
+
+        public TextView getRange() {
+            return range;
+        }
+
+        public TextView getName() {
+            return name;
+        }
+
+        public TextView getProgressText() {
+            return progressText;
+        }
+
+        public CircularProgressBar getProgressBar() {
+            return progressBar;
+        }
+    }
+
+    public CardsListFragmentAdapter(ActivityResultLauncher<Intent> resultLauncher,
+                                    MainViewModel viewModel) {
+        mViewModel = viewModel;
         this.currentCategoryID = currentCategoryID;
         this.selectedDay = selectedDay;
         this.resultLauncher = resultLauncher;
@@ -161,11 +230,24 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
         // Create a new view, which defines the UI of the list item
 
         if (viewType == VIEW_TYPE_TASK) {
-            return new TaskViewHolder(LayoutInflater.from(viewGroup.getContext())
-                    .inflate(R.layout.card_task, viewGroup, false));
+            LayoutInflater layoutInflater =
+                    LayoutInflater.from(viewGroup.getContext());
+            CategoryTaskBinding taskBinding =
+                    CategoryTaskBinding.inflate(layoutInflater, viewGroup, false);
+
+            return new TaskViewHolder(taskBinding);
         }
-        return new ProjectViewHolder(LayoutInflater.from(viewGroup.getContext())
-                .inflate(R.layout.card_project, viewGroup, false));
+        // DEF PROJECT
+        else if(viewType == VIEW_TYPE_PROJECT && false){
+            return new ProjectViewHolder(LayoutInflater.from(viewGroup.getContext())
+                    .inflate(R.layout.card_project, viewGroup, false));
+        }
+        // NEW PROJECT2
+        else if(viewType == VIEW_TYPE_PROJECT){
+            return new Project2ViewHolder(LayoutInflater.from(viewGroup.getContext())
+                    .inflate(R.layout.project2, viewGroup, false));
+        }
+        return null;
     }
 
     // Replace the contents of a view (invoked by the layout manager)
@@ -177,22 +259,15 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
 
         if(getItemViewType(position) == VIEW_TYPE_TASK) {
 
-            Task currentTask = (Task) mainDataSet.get(position);
+            Task currentTask = (Task) mViewModel.getByPos(position);
 
-            if(currentTask.getParent() == -1){
+            if(currentTask.getParentID().equals("")){
                 TaskViewHolder viewHolder = (TaskViewHolder) currentViewHolder;
 
-                viewHolder.getNotificationImage().setBackgroundResource(R.drawable.baseline_schedule_black_18);
-                viewHolder.getTime().setText(currentTask.getTime24());
-
-                //viewHolder.getListName().setText("");
-                viewHolder.getName().setText(currentTask.getName());
-                //viewHolder.getDescription().setText(currentTask.getDescription());
-
+                viewHolder.bind(mViewModel, position);
                 viewHolder.getMainLayout().setOnLongClickListener(new View.OnLongClickListener() {
                     @Override
                     public boolean onLongClick(View view) {
-
                         MaterialAlertDialogBuilder taskOptionsDialog = new MaterialAlertDialogBuilder(view.getContext())
                                 .setTitle("Выберите действие")
                                 .setItems(R.array.task_dialog_long, new DialogInterface.OnClickListener() {
@@ -211,9 +286,7 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
                                                 AppCompatActivity act = (AppCompatActivity) view.getContext();
                                                 MainViewModel viewModel = new ViewModelProvider(act)
                                                         .get(MainViewModel.class);
-
-                                                viewModel.removeTaskByID(currentTask.getTaskId());
-
+                                                removeItem(MainViewModel.MODE_INDEPENDENTLY, currentViewHolder.getAdapterPosition());
                                                 break;
                                         }
                                     }
@@ -225,17 +298,17 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
             }
 
         }
-        else if(getItemViewType(position) == VIEW_TYPE_PROJECT){
-            Project currentProject = (Project) mainDataSet.get(position);
 
-            ProjectViewHolder viewHolder = (ProjectViewHolder) currentViewHolder;
+        else if(getItemViewType(position) == VIEW_TYPE_PROJECT){
+            Project currentProject = (Project) mViewModel.getByPos(position);
+
+            Project2ViewHolder viewHolder = (Project2ViewHolder) currentViewHolder;
 
             viewHolder.getName().setText(currentProject.getName());
 
             viewHolder.getMainLayout().setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View view) {
-
                     MaterialAlertDialogBuilder taskOptionsDialog = new MaterialAlertDialogBuilder(view.getContext())
                             .setTitle("Выберите действие")
                             .setItems(R.array.task_dialog_long, new DialogInterface.OnClickListener() {
@@ -265,82 +338,50 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
                 }
             });
 
-            List<Task> filteredTasks = new ArrayList<Task>();
-
-            for (Object obj : projectTasksList) {
-                if(obj.getClass() == Task.class){
-                    Task task = (Task) obj;
-                    if(currentProject.getProjectId() == task.getParent()) {
-                        filteredTasks.add(task);
-                    }
-                }
-            }
-
+            List<Task> filteredTasks = mViewModel.getTasksByProject(currentProject.getProjectId());
             AppCompatActivity activity = (AppCompatActivity) viewHolder.itemView.getContext();
 
             List<Task> sortedTasks = filteredTasks
                     .parallelStream()
                     .sorted(Comparator.comparingLong(Task::getTimeCreated))
                     .collect(Collectors.toList());
+            // ---Children installation---
+            LayoutInflater layoutInflater =
+                    LayoutInflater.from(viewHolder.itemView.getContext());
 
-            // Project child items installation
-            sortedTasks.forEach(task -> {
-                View list_item = activity
-                        .getLayoutInflater()
-                        .inflate(R.layout.card_project_list_item, null);
-                ((TextView) list_item.findViewById(R.id.card_project_item_name)).setText(task.getmName());
-                list_item.setOnLongClickListener(new View.OnLongClickListener() {
-                    @Override
-                    public boolean onLongClick(View view) {
-                        MaterialAlertDialogBuilder taskOptionsDialog = new MaterialAlertDialogBuilder(view.getContext())
-                                .setTitle("Выберите действие")
-                                .setItems(R.array.task_dialog_long, new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialogInterface, int i) {
-                                        switch (i) {
-                                            case 0: // Изменить
-                                                Intent intent = new Intent(view.getContext(), ManageTaskActivity.class);
-                                                intent.putExtra("ManagingProject", currentProject);
-                                                intent.putExtra("mode", "Project");
+            for(int i = 0; i < sortedTasks.size(); i++){
+                CategoryTaskBinding taskBinding = CategoryTaskBinding.inflate(layoutInflater, (ViewGroup) viewHolder.itemView, false);
+                taskBinding.setVm(mViewModel);
+                taskBinding.setPos(i);
+                taskBinding.setMode(MainViewModel.MODE_PROJECT_ITEM);
+                viewHolder.getItemsLayout().addView(taskBinding.getRoot(), 0);
+                taskBinding.executePendingBindings();
+            }
+            FloatingActionButton fab = viewHolder.getMainLayout().findViewById(R.id.project2_add);
+            fab.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
 
-                                                resultLauncher.launch(intent);
-                                                break;
-                                            case 1: // Удалить
-
-                                                AppCompatActivity act = (AppCompatActivity) view.getContext();
-                                                MainViewModel viewModel = new ViewModelProvider(act)
-                                                        .get(MainViewModel.class);
-
-                                                viewModel.removeTaskByID(currentProject.getProjectId());
-                                                break;
-                                        }
-                                    }
-                                });
-
-
-                        return true;
-                    }
-                });
-
-
-                viewHolder
-                        .getItemsLayout()
-                        .addView(list_item);
+                }
             });
-
-            viewHolder.getDateTime().setText(currentProject.getEndDateTime24());
         }
+    }
+
+    private void removeItem(int mode, int position){
+        mViewModel.removeSilently(mode, position);
+        notifyItemRemoved(position);
+        notifyItemRangeChanged(position, mViewModel.getPoolSize());
     }
 
     // Return the size of your dataset (invoked by the layout manager)
     @Override
     public int getItemCount() {
-        return mainDataSet.size();
+        return mViewModel.getPoolSize();
     }
 
     @Override
     public int getItemViewType(int position) {
-        Object obj = (Object) mainDataSet.get(position);
+        Object obj = (Object) mViewModel.getByPos(position);
 
         if(obj.getClass() == Task.class){
             return VIEW_TYPE_TASK;
@@ -352,4 +393,6 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
             return VIEW_TYPE_UNDEFINED;
         }
     }
+
+
 }

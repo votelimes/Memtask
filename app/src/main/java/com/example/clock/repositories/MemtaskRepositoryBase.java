@@ -3,7 +3,6 @@ package com.example.clock.repositories;
 import android.app.Application;
 
 import androidx.lifecycle.LiveData;
-import androidx.room.Room;
 
 import com.example.clock.dao.CategoryDao;
 import com.example.clock.dao.ThemeDao;
@@ -20,39 +19,34 @@ import java.util.List;
 public class MemtaskRepositoryBase {
 
     private final Database mDatabase;
+    private final Database mSilentDatabase;
     private final TaskDao mTaskDao;
+    private final TaskDao mSilentTaskDao;
     private final ProjectDao mProjectDao;
+    private final ProjectDao mSilentProjectDao;
     private final CategoryDao mCategoryDao;
     private final ThemeDao mThemeDao;
 
-    public MemtaskRepositoryBase(Application application, Database database){
+    public MemtaskRepositoryBase(Application application, Database database, Database silentDatabase){
         this.mDatabase = database;
+        this.mSilentDatabase = silentDatabase;
 
         mTaskDao = mDatabase.taskDao();
         mProjectDao = mDatabase.projectDao();
         mCategoryDao = mDatabase.categoryDao();
         mThemeDao = mDatabase.themeDao();
+        mSilentTaskDao = mSilentDatabase.taskDao();
+        mSilentProjectDao = mSilentDatabase.projectDao();
     }
 
     //Getting existing data
-    public Task getTask (long taskId) {
-        return mTaskDao.getById(taskId);
-    }
 
     public LiveData<List<Task>> getAllTasksLive(){
         return this.mDatabase.taskDao().getTasksLiveData();
     }
 
-    public Project getProject (long projectId) {
-        return mProjectDao.getById(projectId);
-    }
-
     public LiveData<List<Project>> getAllProjectsLive(){
         return this.mDatabase.projectDao().getProjectsLiveData();
-    }
-
-    public Category getCategory (long categoryId) {
-        return mCategoryDao.getById(categoryId);
     }
 
     public LiveData<List<Category>> getAllCategoriesLive(){
@@ -71,9 +65,21 @@ public class MemtaskRepositoryBase {
         });
     }
 
+    public void addTaskSilently(Task newTask){
+        Database.databaseWriteExecutor.execute(() -> {
+            mSilentTaskDao.insertWithReplace(newTask);
+        });
+    }
+
     public void addProject (Project newProject) {
         Database.databaseWriteExecutor.execute(() -> {
             mProjectDao.insertWithReplace(newProject);
+        });
+    }
+
+    public void addProjectSilently(Project newProject){
+        Database.databaseWriteExecutor.execute(() -> {
+            mSilentProjectDao.insertWithReplace(newProject);
         });
     }
 
@@ -94,9 +100,15 @@ public class MemtaskRepositoryBase {
         mTaskDao.delete(removableTask);
     }
 
-    public void removeTaskByID (long id){
+    public void removeTaskByID (String id){
         Database.databaseWriteExecutor.execute(() -> {
             mTaskDao.deleteById(id);
+        });
+    }
+
+    public void removeTaskByIDSilently(String id){
+        mSilentDatabase.databaseWriteExecutor.execute(() -> {
+            mSilentTaskDao.deleteById(id);
         });
     }
 
@@ -104,9 +116,15 @@ public class MemtaskRepositoryBase {
         mProjectDao.delete(removableProject);
     }
 
-    public void removeProjectByID (long id){
+    public void removeProjectByID (String id){
         Database.databaseWriteExecutor.execute(() -> {
             mProjectDao.deleteById(id);
+        });
+    }
+
+    public void removeProjectByIDSilently(String id){
+        mSilentDatabase.databaseWriteExecutor.execute(() -> {
+            mSilentProjectDao.deleteById(id);
         });
     }
 
@@ -116,7 +134,7 @@ public class MemtaskRepositoryBase {
 
     public void removeCategoryByID (long id){
         Database.databaseWriteExecutor.execute(() -> {
-            mCategoryDao.deleteById(id);
+            mCategoryDao.delete(id);
         });
     }
 
@@ -126,6 +144,11 @@ public class MemtaskRepositoryBase {
         });
     }
 
+    public void removeCategoryWithItems(long id){
+        Database.databaseWriteExecutor.execute(() -> {
+            mCategoryDao.deleteWithItemsTransaction(id);
+        });
+    }
 
     //Updating existing data
     public void updateTask (Task updatableTask) {

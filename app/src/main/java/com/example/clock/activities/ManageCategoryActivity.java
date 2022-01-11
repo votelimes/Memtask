@@ -65,12 +65,13 @@ public class ManageCategoryActivity extends AppCompatActivity {
         mFactory = new ViewModelFactoryBase(
                 getApplication(),
                 App.getDatabase(),
+                App.getSilentDatabase(),
                 managingCategory
         );
         mViewModel = new ViewModelProvider(this, mFactory).get(ManageCategoryViewModel.class);
 
-        mViewModel.getThemesLiveData(getApplication(), App.getDatabase()).observe(this, data -> {
-
+        mViewModel.getThemesLiveData(getApplication(), App.getDatabase(), App.getSilentDatabase())
+                .observe(this, data -> {
             if(data == null){
                 return;
             }

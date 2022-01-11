@@ -9,6 +9,7 @@
         <variable
             name="task"
             type="com.example.clock.model.Task" />
+
     </data>
 
     <!-- TODO: Update blank fragment layout -->
@@ -16,37 +17,46 @@
         android:id="@+id/fragment_cards_constraint"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-
         android:clipToPadding="false"
         android:paddingTop="12dp"
         >
-        <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-            android:id="@+id/fragment_cards_add_button"
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/cards_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingTop="15dp"
+            android:clipChildren="false"
+            android:clipToPadding="false"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+
+            />
+        <com.github.clans.fab.FloatingActionMenu
+            android:id="@+id/fragment_cards_fabl"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
-            android:layout_margin="16dp"
-            app:icon="@drawable/ic_baseline_add_24"
-            android:text="Новая"
-            android:contentDescription="TODO"
-            android:elevation="6dp"
-            />
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/cards_list"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:menu_icon="@drawable/ic_outline_add_24"
+            app:menu_colorNormal="@color/main_4"
+            android:layout_marginBottom="20dp"
+            android:layout_marginEnd="12dp"
+            >
+            <com.github.clans.fab.FloatingActionButton
+                android:id="@+id/fragment_cards_fab_task"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_gravity="center_horizontal"
-                android:paddingTop="15dp"
-                android:paddingStart="25dp"
-                android:paddingEnd="25dp"
-                android:clipChildren="false"
-                android:clipToPadding="false"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_baseline_add_task_24"
+                app:fab_colorNormal="@color/main_3"
                 />
-
+            <com.github.clans.fab.FloatingActionButton
+                android:id="@+id/fragment_cards_fab_proj"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_outline_post_add_24"
+                app:fab_colorNormal="@color/main_2"
+                />
+        </com.github.clans.fab.FloatingActionMenu>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

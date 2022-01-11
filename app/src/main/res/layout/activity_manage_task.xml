@@ -5,6 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     >
     <data>
+        <import type="android.text.InputType" />
         <import type="android.view.View"/>
         <variable
             name="viewmodel"
@@ -12,82 +13,208 @@
     </data>
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:context=".manage_task"
-        android:padding="10dp"
-        >
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/manage_task_layout_name"
+        android:layout_height="match_parent">
+        <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:startIconDrawable="@drawable/outline_description_black_36"
-            app:endIconDrawable="@drawable/outline_cancel_black_36"
-            app:endIconMode="clear_text"
+            android:layout_height="match_parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             >
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/manage_task_text_name"
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint='@{viewmodel.mManagingTaskRepository.isTaskMode ? "Task name" : "Project name"}'
-                android:text="@={viewmodel.mManagingTaskRepository.TaskName}"
-                />
+                android:layout_height="match_parent"
+                tools:context=".manage_task"
+                android:padding="10dp"
+                >
 
-        </com.google.android.material.textfield.TextInputLayout>
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/manage_task_text_input"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:startIconDrawable="@drawable/outline_description_black_36"
-            app:endIconDrawable="@drawable/outline_cancel_black_36"
-            app:endIconMode="clear_text"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/manage_task_layout_name"
-            android:layout_marginTop="10dp"
-            >
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/manage_task_layout_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:startIconDrawable="@drawable/outline_description_black_36"
+                    app:endIconMode="clear_text"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    >
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/manage_task_edit_text"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint='@{viewmodel.mManagingTaskRepository.isTaskMode ? "Task description" : "Project description"}'
-                android:text="@={viewmodel.mManagingTaskRepository.TaskDescription}"
-                />
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/manage_task_text_name"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint='@{viewmodel.mManagingTaskRepository.isTaskMode ? "Название задачи" : "Название проекта"}'
+                        android:text="@={viewmodel.mManagingTaskRepository.TaskName}"
+                        />
 
-        </com.google.android.material.textfield.TextInputLayout>
-        <androidx.constraintlayout.widget.Barrier
-            android:id="@+id/manage_task_barrier_1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:barrierDirection="bottom"
-            app:constraint_referenced_ids="manage_task_text_input"
+                </com.google.android.material.textfield.TextInputLayout>
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/manage_task_text_input"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:startIconDrawable="@drawable/outline_description_black_36"
+                    app:endIconMode="clear_text"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/manage_task_layout_name"
+                    android:layout_marginTop="10dp"
+                    >
 
-            />
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/manage_task_repeat_input"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:startIconDrawable="@drawable/outline_description_black_36"
-            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense.ExposedDropdownMenu"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/manage_task_barrier_1"
-            android:layout_marginTop="10dp"
-            android:visibility="@{viewmodel.mManagingTaskRepository.isTaskMode ? View.VISIBLE : View.GONE}"
-            >
-            <AutoCompleteTextView
-                android:id="@+id/manage_task_repeat_text_view"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Repeat mode"
-                app:textAdv="@{viewmodel.mManagingTaskRepository.getTaskRepeatModeString}"
-                android:inputType="none"
-                />
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/manage_task_edit_text"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint='@{viewmodel.mManagingTaskRepository.isTaskMode ? "Описание задачи" : "Описание проекта"}'
+                        android:text="@={viewmodel.mManagingTaskRepository.TaskDescription}"
+                        />
 
-        </com.google.android.material.textfield.TextInputLayout>
+                </com.google.android.material.textfield.TextInputLayout>
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/manage_task_layout_range"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:startIconDrawable="@drawable/ic_baseline_date_range_36"
+                    app:endIconMode="clear_text"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/manage_task_text_input"
+                    android:layout_marginTop="10dp"
+                    >
 
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/manage_task_text_range"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint='Выберите срок выполнения'
+                        android:text="@{viewmodel.mManagingTaskRepository.getRange}"
+                        android:inputType="@{InputType.TYPE_NULL}"
+                        />
+
+                </com.google.android.material.textfield.TextInputLayout>
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/manage_task_layout_notify"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:startIconDrawable="@drawable/baseline_alarm_black_36"
+                    app:endIconDrawable="@drawable/baseline_alarm_black_36"
+                    app:endIconMode="clear_text"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/manage_task_layout_range"
+                    android:layout_marginTop="10dp"
+                    android:visibility="@{viewmodel.mManagingTaskRepository.isTaskMode ? View.VISIBLE : View.GONE}"
+                    >
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/manage_task_text_notify"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint='Уведомление'
+                        android:text="@={viewmodel.mManagingTaskRepository.TaskName}"
+                        android:inputType="@{InputType.TYPE_NULL}"
+                        />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <androidx.constraintlayout.widget.Barrier
+                    android:id="@+id/manage_task_barrier_1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:barrierDirection="bottom"
+                    app:constraint_referenced_ids="manage_task_layout_notify"
+
+                    />
+                <com.google.android.material.divider.MaterialDivider
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:dividerInsetStart="16dp"
+                    app:dividerInsetEnd="16dp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="@id/manage_task_repeat_input"
+                    android:layout_marginBottom="4dp"
+                    />
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/manage_task_repeat_input"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:startIconDrawable="@drawable/ic_baseline_event_repeat_36"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense.ExposedDropdownMenu"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/manage_task_layout_notify"
+                    android:layout_marginTop="10dp"
+                    android:visibility="@{viewmodel.mManagingTaskRepository.isTaskMode ? View.VISIBLE : View.GONE}"
+
+                    >
+                    <AutoCompleteTextView
+                        android:id="@+id/manage_task_repeat_text_view"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Выберите режим повторения"
+                        app:textAdv="@{viewmodel.mManagingTaskRepository.getTaskRepeatModeString}"
+                        android:inputType="@{InputType.TYPE_NULL}"
+                        />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.checkbox.MaterialCheckBox
+                    android:id="@+id/manage_task_pon"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Понедельник"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/manage_task_repeat_input"
+                    />
+                <com.google.android.material.checkbox.MaterialCheckBox
+                    android:id="@+id/manage_task_vt"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Вторник"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/manage_task_pon"
+                    />
+                <com.google.android.material.checkbox.MaterialCheckBox
+                    android:id="@+id/manage_task_sr"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Среда"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/manage_task_vt"
+                    />
+                <com.google.android.material.checkbox.MaterialCheckBox
+                    android:id="@+id/manage_task_cht"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Четверг"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/manage_task_sr"
+                    />
+                <com.google.android.material.checkbox.MaterialCheckBox
+                    android:id="@+id/manage_task_pt"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Пятница"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/manage_task_cht"
+                    />
+                <com.google.android.material.checkbox.MaterialCheckBox
+                    android:id="@+id/manage_task_sub"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Суббота"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/manage_task_pt"
+                    />
+                <com.google.android.material.checkbox.MaterialCheckBox
+                    android:id="@+id/manage_task_vsk"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Воскресенье"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/manage_task_sub"
+                    />
+                <androidx.constraintlayout.widget.Group
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:constraint_referenced_ids="manage_task_pon, manage_task_vt, manage_task_sr, manage_task_cht, manage_task_pt, manage_task_sub, manage_task_vsk"
+                    android:visibility="@{viewmodel.mManagingTaskRepository.getRepeatState ? View.VISIBLE : View.GONE}"
+                    />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </ScrollView>
         <com.google.android.material.button.MaterialButton
             android:id="@+id/manage_task_button_save"
             android:layout_width="140dp"
@@ -102,6 +229,5 @@
             android:layout_margin="16dp"
             android:onClick="onExit"
             />
-
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

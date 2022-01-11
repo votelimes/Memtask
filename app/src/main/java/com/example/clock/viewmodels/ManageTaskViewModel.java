@@ -2,9 +2,6 @@ package com.example.clock.viewmodels;
 
 
 import android.app.Application;
-import android.util.Log;
-import android.view.View;
-import android.widget.AutoCompleteTextView;
 
 import androidx.annotation.NonNull;
 import androidx.databinding.BaseObservable;
@@ -14,43 +11,54 @@ import androidx.lifecycle.LiveData;
 
 
 import com.example.clock.BR;
+import com.example.clock.R;
+import com.example.clock.app.App;
 import com.example.clock.model.Project;
 import com.example.clock.model.Task;
-import com.example.clock.repositories.MemtaskRepositoryBase;
 import com.example.clock.storageutils.Database;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.Locale;
 
 public class ManageTaskViewModel extends MemtaskViewModelBase {
 
     public Observer mManagingTaskRepository;
 
-    public ManageTaskViewModel(Application application, Database database, Task managingTask){
+    public ManageTaskViewModel(Application application, Database database, Database silentDatabase, Task managingTask){
         mManagingTaskRepository = new Observer(managingTask);
-        loadData(application, database);
+        loadData(application, database, silentDatabase);
     }
 
-    public ManageTaskViewModel(Application application, Database database, Project managingProject){
+    public ManageTaskViewModel(Application application, Database database, Database silentDatabase, Project managingProject){
         mManagingTaskRepository = new Observer(managingProject);
-        loadData(application, database);
+        loadData(application, database, silentDatabase);
     }
 
-    public  LiveData<List<Task>> getTasksData(Application application, Database database){
+    public  LiveData<List<Task>> getTasksData(Application application, Database database, Database silentDatabase){
         if(mRepository == null){
-            loadData(application, database);
+            loadData(application, database, silentDatabase);
         }
         return this.tasksLiveData;
     }
 
-    public  LiveData<List<Project>> getProjectsData(Application application, Database database){
+    public  LiveData<List<Project>> getProjectsData(Application application, Database database, Database silentDatabase){
         if(mRepository == null){
-            loadData(application, database);
+            loadData(application, database, silentDatabase);
         }
         return this.projectsLiveData;
     }
 
     public void saveChanges(){
-        this.mRepository.addTask(this.mManagingTaskRepository.mManagingTask);
+        if(mManagingTaskRepository.isTaskMode()) {
+            this.mRepository.addTask(this.mManagingTaskRepository.mManagingTask);
+        }
+        else if(mManagingTaskRepository.isProjectMode()){
+            this.mRepository.addProject(this.mManagingTaskRepository.mManagingProject);
+        }
     }
 
     public static class Observer extends BaseObservable{
@@ -95,9 +103,19 @@ public class ManageTaskViewModel extends MemtaskViewModelBase {
         @Bindable
         public String getTaskRepeatModeString(){
             if(mManagingTask != null){
-                return this.mManagingTask.getRepeatModeString();
-            }
 
+                String[] stringArray = App.getInstance().getResources().getStringArray(R.array.repeat_modes);
+                switch (this.mManagingTask.getRepeatMode()){
+                    case 0:
+                        return stringArray[0];
+                    case 1:
+                        return stringArray[1];
+                    case 2:
+                        return stringArray[2];
+                    case 3:
+                        return stringArray[3];
+                }
+            }
             return "WRONG CASE PASS";
         }
 
@@ -123,7 +141,19 @@ public class ManageTaskViewModel extends MemtaskViewModelBase {
 
         public void setRepeatModeString(String repeatMode){
             if(mManagingTask != null){
-                this.mManagingTask.setRepeatModeString(repeatMode);
+                String[] stringArray = App.getInstance().getResources().getStringArray(R.array.repeat_modes);
+                if(repeatMode.equals(stringArray[0])){
+                    this.mManagingTask.setRepeatMode(0);
+                }
+                else if(repeatMode.equals(stringArray[1])){
+                    this.mManagingTask.setRepeatMode(1);
+                }
+                else if(repeatMode.equals(stringArray[2])){
+                    this.mManagingTask.setRepeatMode(2);
+                }
+                else if(repeatMode.equals(stringArray[3])){
+                    this.mManagingTask.setRepeatMode(3);
+                }
             }
 
             notifyPropertyChanged(BR.taskRepeatModeString);
@@ -137,7 +167,84 @@ public class ManageTaskViewModel extends MemtaskViewModelBase {
             return mManagingProject != null;
         }
 
+        public String getStartTime(){
+            long startTime = 0;
+            if(mManagingTask != null){
+                startTime = mManagingTask.getStartTime();
+            }
+            if(mManagingProject != null){
+                startTime = mManagingProject.getStartTime();
+            }
+
+            Calendar startTimeCal = GregorianCalendar.getInstance();
+            startTimeCal.setTimeInMillis(startTime);
+
+            Date startDate = startTimeCal.getTime();
+
+            SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy");
+
+            return sdf.format(startDate);
+        }
+
+        public String getEndTime(){
+            long endTime = 0;
+            if(mManagingTask != null){
+                endTime = mManagingTask.getEndTime();
+            }
+            if(mManagingProject != null){
+                endTime = mManagingProject.getEndTime();
+            }
+
+            Calendar endTimeCal = GregorianCalendar.getInstance();
+            endTimeCal.setTimeInMillis(endTime);
+
+            Date endDate = endTimeCal.getTime();
+
+            SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy");
+
+            return sdf.format(endDate);
+        }
+
+        @Bindable
+        public String getRange(){
+            long firstDateLong = 0;
+            long endDateLong = 0;
+
+            if(mManagingTask != null){
+                firstDateLong = mManagingTask.getStartTime();
+                endDateLong = mManagingTask.getEndTime();
+            }
+            if(mManagingProject != null){
+                firstDateLong = mManagingProject.getStartTime();
+                endDateLong = mManagingProject.getEndTime();
+            }
+
+            Date firstDate=new Date(firstDateLong);
+            Date endDate=new Date(endDateLong);
+
+            SimpleDateFormat sdf2 = new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault());
+
+
+            return sdf2.format(firstDate) + " — " + sdf2.format(endDate) ;
+        }
+
+        public void setRangeMillis(long start, long end){
+            if(mManagingTask != null){
+                mManagingTask.setStartTime(start);
+                mManagingTask.setEndTime(end);
+            }
+            if(mManagingProject != null){
+                mManagingTask.setStartTime(start);
+                mManagingTask.setEndTime(end);
+            }
+            notifyPropertyChanged(BR.range);
+        }
+
+        @Bindable
+        public boolean getRepeatState(){
+            return mManagingTask != null && mManagingTask.getRepeatMode() != 0;
+        }
+
+
     }
-
-
 }

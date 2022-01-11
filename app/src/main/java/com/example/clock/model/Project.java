@@ -8,16 +8,32 @@ import androidx.room.PrimaryKey;
 @Entity(tableName = "project_table")
 public class Project extends UserCaseBase {
 
-    @PrimaryKey(autoGenerate = true)
+    @PrimaryKey()
     @NonNull
     @ColumnInfo(name = "projectId")
-    public long projectId;
+    public String projectId;
 
-    public long getProjectId() {
+    public Project(){
+        this.projectId = generateUUID();
+
+        this.mName = "";
+        this.mDescription = "";
+        this.categoryId = -1;
+    }
+
+    public Project(String name, String description, long categoryID){
+        super();
+        this.projectId = generateUUID();
+        this.mName = name;
+        this.mDescription = description;
+        this.categoryId = categoryID;
+    }
+
+    public String getProjectId() {
         return projectId;
     }
 
-    public void setProjectId(long projectId) {
+    public void setProjectId(String projectId) {
         this.projectId = projectId;
     }
 

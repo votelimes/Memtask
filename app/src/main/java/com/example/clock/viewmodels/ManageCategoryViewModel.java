@@ -24,21 +24,21 @@ public class ManageCategoryViewModel extends MemtaskViewModelBase {
 
     public Observer mManagingCategoryRepository;
 
-    public ManageCategoryViewModel(Application application, Database database, Category managingCategory){
+    public ManageCategoryViewModel(Application application, Database database, Database silentDatabase, Category managingCategory){
         mManagingCategoryRepository = new Observer(managingCategory);
-        loadData(application, database);
+        loadData(application, database, silentDatabase);
     }
 
-    public LiveData<List<Category>> getCategoriesLiveData(Application application, Database database){
+    public LiveData<List<Category>> getCategoriesLiveData(Application application, Database database, Database silentDatabase){
         if(mRepository == null){
-            loadData(application, database);
+            loadData(application, database, silentDatabase);
         }
         return this.categoriesLiveData;
     }
 
-    public LiveData<List<Theme>> getThemesLiveData(Application application, Database database){
+    public LiveData<List<Theme>> getThemesLiveData(Application application, Database database, Database silentDatabase){
         if(mRepository == null){
-            loadData(application, database);
+            loadData(application, database, silentDatabase);
         }
         return this.themesLiveData;
     }

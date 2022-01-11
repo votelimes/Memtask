@@ -20,10 +20,10 @@
     <string name="delete_after_off">Delete after goes off</string>
 
     <string-array name="repeat_modes">
-        <item>Once</item>
-        <item>Daily</item>
-        <item>Mon to Fri</item>
-        <item>Custom</item>
+        <item>Однократно</item>
+        <item>Ежедневно</item>
+        <item>По будням</item>
+        <item>Выбрать дни</item>
     </string-array>
 
     <string-array name="ring_types">
@@ -37,6 +37,23 @@
         <item>Удалить</item>
     </string-array>
 
+    <string-array name="user_case_choice">
+        <item>Задача</item>
+        <item>Проект</item>
+    </string-array>
+
+    <string-array name="category_choice">
+        <item>Изменить</item>
+        <item>Удалить</item>
+    </string-array>
+
+    <integer-array name="calendar_day_load_interval">
+        <item>0</item>
+        <item>5</item>
+        <item>9</item>
+        <item>13</item>
+    </integer-array>
+
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
@@ -46,6 +63,9 @@
 
     <!-- Task card-->
     <string name="task_description">Описание задачи</string>
+
+    <string name="mtrl_picker_save" description="Button text to indicate that the widget will save the user's selection [CHAR_LIMIT=16]">Сохранить</string>
+    <string name="mtrl_picker_cancel" description="Button text to indicate that the widget will ignore the user's selection [CHAR_LIMIT=16]" translatable="false">...</string>
 
 
 </resources>
