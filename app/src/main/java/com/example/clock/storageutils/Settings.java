@@ -7,6 +7,9 @@ import android.util.Pair;
 import androidx.annotation.NonNull;
 import androidx.preference.PreferenceManager;
 
+import com.example.clock.R;
+import com.example.clock.app.App;
+
 public class Settings {
 
     // 0 Calendar, 1 Category list, 2 Tasks list, 3 Statistic, 4 Settings.
@@ -14,8 +17,11 @@ public class Settings {
     private Pair<Boolean, String> mSetupState;
     private Pair<Long, String> mLastCategoryID;
     private Pair<String, String> mLastCategoryName;
+    private Pair<Boolean, String> mUseDarkTheme;
+    private Pair<Boolean, String> mUseRandomThemes;
+    private Pair<String, String> mCalendarMode;
 
-    private SharedPreferences mSharedPref;
+    private final SharedPreferences mSharedPref;
 
     public Settings(@NonNull Context context) {
 
@@ -41,6 +47,18 @@ public class Settings {
         mLastCategoryName = new Pair<String, String>
                 (mSharedPref.getString(mLastCategoryNameTag, "Категория"), mLastCategoryNameTag);
 
+        //Settings fragment prefs
+        String mUseRandomThemesTag = "use_random_themes";
+        mUseRandomThemes = new Pair<Boolean, String>
+                (mSharedPref.getBoolean(mUseRandomThemesTag, false), mUseRandomThemesTag);
+
+        String mCalendarModeTag = "calendar_mode";
+        mCalendarMode = new Pair<String, String>
+                (mSharedPref.getString(mCalendarModeTag, App.getInstance().getString(R.string.preference_calendar_mode_value_default)), mCalendarModeTag);
+
+        String mUseDarkThemeTag = "dark_theme";
+        mUseRandomThemes = new Pair<Boolean, String>
+                (mSharedPref.getBoolean(mUseDarkThemeTag, false), mUseDarkThemeTag);
     }
 
     public SharedPreferences getSharedPref(){
@@ -93,5 +111,17 @@ public class Settings {
         editor.putBoolean(mSetupState.second, state);
 
         editor.commit();
+    }
+
+    public boolean getUseDarkTheme(){
+        return this.mUseDarkTheme.first;
+    }
+
+    public boolean getGenerateRandomThemes(){
+        return this.mUseRandomThemes.first;
+    }
+
+    public String getCalendarMode(){
+        return this.mCalendarMode.first;
     }
 }

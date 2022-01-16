@@ -3,11 +3,22 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     >
     <androidx.preference.SwitchPreferenceCompat
-        app:key="black_theme"
-        app:title="Темная тема"
+        app:key="dark_theme"
+        app:title="Использовать темную тему"
+        android:defaultValue="false"
         />
 
-
-
+    <androidx.preference.SwitchPreferenceCompat
+        app:key="use_random_themes"
+        app:title="Генерировать случайные цвета при создании активностей"
+        android:defaultValue="true"
+        />
+    <androidx.preference.ListPreference
+        app:key="calendar_mode"
+        app:title="Режим календаря"
+        android:entries="@array/preference_calendar_mode_names"
+        android:entryValues="@array/preference_calendar_mode_values"
+        android:defaultValue="@string/preference_calendar_mode_value_default"
+        />
 
 </androidx.preference.PreferenceScreen>

@@ -6,15 +6,10 @@
     tools:context=".fragments.CalendarFragment"
     >
     <data>
+        <import type="android.view.View"/>
         <variable
             name="vm"
             type="com.example.clock.viewmodels.CalendarViewModel" />
-        <variable
-            name="mode"
-            type="Integer" />
-        <variable
-            name="pos"
-            type="Integer" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -22,7 +17,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:clipToPadding="false"
-        android:paddingTop="12dp"
         >
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/calendar_list"
@@ -45,6 +39,17 @@
             app:layout_constraintBottom_toBottomOf="parent"
             android:layout_marginEnd="16dp"
             android:layout_marginBottom="16dp"
+            />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Нет задач на выбранный период"
+            android:textSize="22sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginTop="550dp"
+            android:visibility="@{vm.mTaskPoolCountHolder.getSelectedDayTasksCount > 0 ? View.GONE : View.VISIBLE}"
             />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

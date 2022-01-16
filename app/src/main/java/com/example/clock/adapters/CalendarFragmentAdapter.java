@@ -1,11 +1,12 @@
 package com.example.clock.adapters;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.text.style.RelativeSizeSpan;
 import android.text.style.StyleSpan;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,7 +17,7 @@ import android.widget.TextView;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
+import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.RecyclerView;
@@ -25,8 +26,8 @@ import com.example.clock.R;
 import com.example.clock.activities.ManageTaskActivity;
 import com.example.clock.app.App;
 import com.example.clock.databinding.CalendarTaskBinding;
-import com.example.clock.fragments.CalendarFragment;
 import com.example.clock.model.Task;
+import com.example.clock.model.TaskAndTheme;
 import com.example.clock.viewmodels.CalendarViewModel;
 import com.example.clock.viewmodels.MainViewModel;
 import com.google.android.material.card.MaterialCardView;
@@ -41,11 +42,8 @@ import com.prolificinteractive.materialcalendarview.OnRangeSelectedListener;
 import com.prolificinteractive.materialcalendarview.spans.DotSpan;
 
 import org.threeten.bp.LocalDate;
-import org.threeten.bp.temporal.ChronoField;
 
-import java.util.Calendar;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.List;
 
 public class CalendarFragmentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
@@ -57,6 +55,9 @@ public class CalendarFragmentAdapter extends RecyclerView.Adapter<RecyclerView.V
     private Date selectedDay;
     private final ActivityResultLauncher<Intent> resultLauncher;
     private final CalendarViewModel mViewModel;
+    private MaterialCalendarView calendar;
+    private LifecycleOwner lifecycleOwner;
+    private CalendarDay currentDate;
 
     public static class TaskViewHolder extends RecyclerView.ViewHolder {
         private final CalendarTaskBinding binding;
@@ -141,6 +142,7 @@ public class CalendarFragmentAdapter extends RecyclerView.Adapter<RecyclerView.V
         MedLoadDayDecorator medLoadDecorator;
         HighLoadDayDecorator highLoadDecorator;
         MaxLoadDayDecorator maxLoadDecorator;
+        TodayDecorator todayDecorator;
 
         public CalendarViewHolder(View view) {
             super(view);
@@ -149,17 +151,17 @@ public class CalendarFragmentAdapter extends RecyclerView.Adapter<RecyclerView.V
             medLoadDecorator = new MedLoadDayDecorator();
             highLoadDecorator = new HighLoadDayDecorator();
             maxLoadDecorator = new MaxLoadDayDecorator();
+            todayDecorator = new TodayDecorator(view.getContext());
 
-            calendar.setTitleMonths(new CharSequence[]{"Январь", "Февраль", "Март", "Апрель", "Май", "Июнь",
-                    "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"});
-
-            CalendarDay today = CalendarDay.today();
-            calendar.setCurrentDate(today);
-            calendar.addDecorators(minLoadDecorator, medLoadDecorator,
+            calendar.setTitleMonths(R.array.calendar_month_names);
+            currentDate = CalendarDay.today();
+            calendar.setCurrentDate(currentDate);
+            calendar.addDecorators(todayDecorator, minLoadDecorator, medLoadDecorator,
                     highLoadDecorator, maxLoadDecorator);
             calendar.setOnDateChangedListener(this);
             calendar.setOnRangeSelectedListener(this);
-
+            calendar.setOnMonthChangedListener(this);
+            mViewModel.updateMonthTasksPack().observe(lifecycleOwner, taskPackObserver);
         }
         public MaterialCalendarView getCalendar(){
             return calendar;
@@ -167,7 +169,7 @@ public class CalendarFragmentAdapter extends RecyclerView.Adapter<RecyclerView.V
 
         @Override
         public void onDateSelected(@NonNull MaterialCalendarView widget, @NonNull CalendarDay date, boolean selected) {
-            mViewModel.setDate(date, null);
+            mViewModel.setDateAndUpdate(date, null);
             notifyDataSetChanged();
         }
 
@@ -176,21 +178,24 @@ public class CalendarFragmentAdapter extends RecyclerView.Adapter<RecyclerView.V
             CalendarDay firstSelected = dates.get(0);
             CalendarDay lastSelected = dates.get(dates.size() - 1);
             if(firstSelected.getDate().toEpochDay() > lastSelected.getDate().toEpochDay()){
-                mViewModel.setDate(lastSelected, firstSelected);
+                mViewModel.setDateAndUpdate(lastSelected, firstSelected);
             }
             else if(firstSelected.getDate().toEpochDay() < lastSelected.getDate().toEpochDay()){
-                mViewModel.setDate(firstSelected, lastSelected);
+                mViewModel.setDateAndUpdate(firstSelected, lastSelected);
             }
             else{
-                mViewModel.setDate(firstSelected, null);
+                mViewModel.setDateAndUpdate(firstSelected, null);
             }
             notifyDataSetChanged();
         }
 
         @Override
         public void onMonthChanged(MaterialCalendarView widget, CalendarDay date) {
+            widget.setSelectedDate(date);
+            currentDate = date;
             mViewModel.setDate(date, null);
-            notifyDataSetChanged();
+            mViewModel.requestMonthTasksPack().removeObservers(lifecycleOwner);
+            mViewModel.updateMonthTasksPack().observe(lifecycleOwner, taskPackObserver);
         }
 
         public class MinLoadDayDecorator implements DayViewDecorator {
@@ -301,15 +306,44 @@ public class CalendarFragmentAdapter extends RecyclerView.Adapter<RecyclerView.V
                 this.today = CalendarDay.from(date);
             }
         }
+        public class TodayDecorator implements DayViewDecorator {
+            private final Drawable drawable;
+
+            public TodayDecorator(Context context) {
+                drawable = context.getDrawable(R.drawable.today_calendar_decorator);
+            }
+
+            @Override
+            public boolean shouldDecorate(CalendarDay day) {
+
+                return day.getDate().toEpochDay() == LocalDate.now().toEpochDay();
+            }
+
+            @Override
+            public void decorate(DayViewFacade view) {
+                view.setSelectionDrawable(drawable);
+            }
+        }
 
 
+        final Observer<List<TaskAndTheme>> taskPackObserver = new Observer<List<TaskAndTheme>>() {
+            @Override
+            public void onChanged(List<TaskAndTheme> data) {
+                mViewModel.init();
+                calendar.invalidateDecorators();
+                //notifyDataSetChanged();
+
+                //calendar.setCurrentDate(currentDate);
+            }
+        };
     }
 
     public CalendarFragmentAdapter(ActivityResultLauncher<Intent> resultLauncher,
-                                   CalendarViewModel viewModel) {
+                                   CalendarViewModel viewModel, LifecycleOwner lcowner) {
         mViewModel = viewModel;
         this.selectedDay = selectedDay;
         this.resultLauncher = resultLauncher;
+        this.lifecycleOwner = lcowner;
     }
 
     // Create new views (invoked by the layout manager)
@@ -340,7 +374,7 @@ public class CalendarFragmentAdapter extends RecyclerView.Adapter<RecyclerView.V
     public void onBindViewHolder(RecyclerView.ViewHolder currentViewHolder, final int position) {
         if(getItemViewType(position) == VIEW_TYPE_TASK) {
 
-            Task currentTask = (Task) mViewModel.getByPos(position - 1);
+            Task currentTask = (Task) mViewModel.getTaskByPos(position - 1);
 
             TaskViewHolder viewHolder = (TaskViewHolder) currentViewHolder;
 

@@ -115,6 +115,6 @@ public class Category implements Serializable {
     public void installTheme(Theme theme){
         setFirstColor(theme.getFirstColor());
         setSecondColor(theme.getSecondColor());
-        setThemeID(theme.getId());
+        setThemeID(theme.getID());
     }
 }

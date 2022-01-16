@@ -5,6 +5,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
+import androidx.room.ForeignKey;
 import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
@@ -18,13 +19,18 @@ public class Task extends UserCaseBase {
 
     @PrimaryKey()
     @NonNull
-    @ColumnInfo(name = "taskId")
+    @ColumnInfo(name = "task_ID")
     private String taskId;
+
 
     protected boolean vibrate;
 
     // 0: Однократно, 1: Каждый день, 2: По будням, 3: Выбрать дни 4: Ежемесячно
     protected int repeatMode;
+
+
+    protected boolean notifyEnabled;
+    protected long mNotificationStartMillis;
 
     // 1, 2, 3, 4, 5, 6, 7
     protected boolean sunday;
@@ -240,7 +246,12 @@ public class Task extends UserCaseBase {
         Toast.makeText(context, toastText, Toast.LENGTH_SHORT).show();
         Log.i("cancel", toastText);
     }*/
-
+    public long getNotificationStartMillis(){
+        return mNotificationStartMillis;
+    }
+    public void setNotificationStartMillis(long millis){
+        this.mNotificationStartMillis = millis;
+    }
     public void setYear(int year){
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(this.mNotificationStartMillis);
@@ -296,7 +307,10 @@ public class Task extends UserCaseBase {
         } catch (ParseException e){
             Log.e("TASK ALARM TIME SETUP ERROR: ", e.getMessage());
         }
+
     }
+
+
     public void setDayOfWeek(int dayOfWeek){
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(this.mNotificationStartMillis);
@@ -410,9 +424,6 @@ public class Task extends UserCaseBase {
         calendar.setTimeInMillis(this.mNotificationStartMillis);
 
         return calendar.get(Calendar.MINUTE);
-    }
-    public long getNotificationStartMillis(){
-        return this.mNotificationStartMillis;
     }
     public String getTaskId() {
         return taskId;
@@ -544,5 +555,13 @@ public class Task extends UserCaseBase {
 
     public void setParentID(String parentID) {
         this.mParentID = parentID;
+    }
+
+    public boolean isNotifyEnabled() {
+        return notifyEnabled;
+    }
+
+    public void setNotifyEnabled(boolean notifyEnabled) {
+        this.notifyEnabled = notifyEnabled;
     }
 }

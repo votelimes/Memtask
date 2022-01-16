@@ -48,11 +48,36 @@
     </string-array>
 
     <integer-array name="calendar_day_load_interval">
-        <item>0</item>
-        <item>5</item>
-        <item>9</item>
-        <item>13</item>
+        <item>2</item>
+        <item>7</item>
+        <item>11</item>
+        <item>15</item>
     </integer-array>
+
+    <string-array name="calendar_month_names">
+        <item>Январь</item>
+        <item>Февраль</item>
+        <item>Март</item>
+        <item>Апрель</item>
+        <item>Май</item>
+        <item>Июнь</item>
+        <item>Июль</item>
+        <item>Август</item>
+        <item>Сентябрь</item>
+        <item>Октябрь</item>
+        <item>Ноябрь</item>
+        <item>Декабрь</item>
+    </string-array>
+
+    <string-array name="preference_calendar_mode_names">
+        <item>Месяцы</item>
+        <item>Недели</item>
+    </string-array>
+    <string-array name="preference_calendar_mode_values">
+        <item>month</item>
+        <item>week</item>
+    </string-array>
+    <string name="preference_calendar_mode_value_default">month</string>
 
 
     <!-- TODO: Remove or change this placeholder text -->

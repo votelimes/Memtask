@@ -8,12 +8,14 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,6 +25,8 @@ import com.example.clock.R;
 import com.example.clock.activities.ManageTaskActivity;
 import com.example.clock.adapters.CalendarFragmentAdapter;
 import com.example.clock.app.App;
+import com.example.clock.databinding.FragmentCalendarBinding;
+import com.example.clock.model.TaskAndTheme;
 import com.example.clock.model.Task;
 import com.example.clock.model.Theme;
 import com.example.clock.storageutils.Tuple2;
@@ -31,7 +35,6 @@ import com.example.clock.viewmodels.ViewModelFactoryBase;
 import com.github.clans.fab.FloatingActionButton;
 import com.google.android.material.appbar.MaterialToolbar;
 
-import java.util.GregorianCalendar;
 import java.util.List;
 
 /**
@@ -43,8 +46,10 @@ public class CalendarFragment extends Fragment {
     CalendarViewModel mViewModel;
     LinearLayoutManager mLayoutManager;
     ConstraintLayout mMainLayoutView;
+    FragmentCalendarBinding binding;
     Context mContext;
     MaterialToolbar toolbar;
+    boolean adapterCreated = false;
 
     final ActivityResultLauncher<Intent> activityLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
@@ -61,7 +66,8 @@ public class CalendarFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        return inflater.inflate(R.layout.fragment_calendar, container, false);
+        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_calendar, container, false);
+        return binding.getRoot();
     }
 
     @Override
@@ -70,11 +76,13 @@ public class CalendarFragment extends Fragment {
 
         ViewModelFactoryBase mFactory = new ViewModelFactoryBase(this
                 .getActivity()
-                .getApplication(), getViewLifecycleOwner(),App.getDatabase(), App.getSilentDatabase());
+                .getApplication(),App.getDatabase(), App.getSilentDatabase());
 
         mContext = getContext();
 
         mViewModel = new ViewModelProvider(getActivity(), mFactory).get(CalendarViewModel.class);
+
+        binding.setVm(mViewModel);
 
         mRecyclerView = getView().findViewById(R.id.calendar_list);
 
@@ -87,8 +95,6 @@ public class CalendarFragment extends Fragment {
         mLayoutManager = new LinearLayoutManager(mContext,
                 LinearLayoutManager.VERTICAL, false);
 
-        mViewModel.intermediate.observe(getViewLifecycleOwner(), hoardObserver);
-
         FloatingActionButton fabTask = getView().findViewById(R.id.fragment_calendar_fab_task);
 
 
@@ -97,19 +103,27 @@ public class CalendarFragment extends Fragment {
             public void onClick(View view) {
                 Intent taskIntent = new Intent(view.getContext(), ManageTaskActivity.class);
                 taskIntent.putExtra("mode", "Task");
+                taskIntent.putExtra("rangeStart", mViewModel.getSelectedDateStart().getTimeInMillis());
                 activityLauncher.launch(taskIntent);
             }
         });
+        mRecyclerViewAdapter = new CalendarFragmentAdapter(
+                activityLauncher, mViewModel, getViewLifecycleOwner());
+        mRecyclerView.setLayoutManager(mLayoutManager);
+        mRecyclerView.setAdapter(mRecyclerViewAdapter);
+        //mViewModel.requestMonthTasksPack().observe(getViewLifecycleOwner(), taskPackObserver);
     }
-
-    final Observer<Tuple2<List<Task>, List<Theme>>> hoardObserver = new Observer<Tuple2<List<Task>, List<Theme>>>() {
+    final Observer<List<TaskAndTheme>> taskPackObserver = new Observer<List<TaskAndTheme>>() {
         @Override
-        public void onChanged(@Nullable final Tuple2<List<Task>, List<Theme>> updatedHoard) {
-            mViewModel.init(mViewModel.getSelectedDateStart(), null);
-            mRecyclerViewAdapter = new CalendarFragmentAdapter(
-                    activityLauncher, mViewModel);
-            mRecyclerView.setLayoutManager(mLayoutManager);
-            mRecyclerView.setAdapter(mRecyclerViewAdapter);
+        public void onChanged(List<TaskAndTheme> data) {
+            if(adapterCreated == false) {
+                adapterCreated = true;
+                mViewModel.init();
+                mRecyclerViewAdapter = new CalendarFragmentAdapter(
+                        activityLauncher, mViewModel, getViewLifecycleOwner());
+                mRecyclerView.setLayoutManager(mLayoutManager);
+                mRecyclerView.setAdapter(mRecyclerViewAdapter);
+            }
         }
     };
 }

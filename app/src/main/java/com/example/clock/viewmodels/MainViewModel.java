@@ -251,7 +251,7 @@ public class MainViewModel extends MemtaskViewModelBase {
         Calendar endTime = GregorianCalendar.getInstance();
 
         if(mode == MainViewModel.MODE_INDEPENDENTLY){
-            startTime.setTimeInMillis(categoryActivities.get(position).getNotificationStartMillis());
+            startTime.setTimeInMillis(((Task) categoryActivities.get(position)).getNotificationStartMillis());
             endTime.setTimeInMillis(categoryActivities.get(position).getEndTime());
         }
         else if(mode == MainViewModel.MODE_PROJECT_ITEM){
@@ -269,5 +269,14 @@ public class MainViewModel extends MemtaskViewModelBase {
 
     public void removeCategoryWithItems(long id){
         mRepository.removeCategoryWithItems(id);
+    }
+
+    public Task getTaskByPos(int pos){
+        UserCaseBase ucb = getByPos(pos);
+
+        if(ucb.getClass() == Task.class){
+            return (Task) ucb;
+        }
+        return null;
     }
 }

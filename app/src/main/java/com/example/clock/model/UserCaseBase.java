@@ -2,6 +2,9 @@ package com.example.clock.model;
 
 import android.util.Log;
 
+import androidx.room.ColumnInfo;
+import androidx.room.ForeignKey;
+
 import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -15,7 +18,7 @@ public class UserCaseBase implements Serializable  {
 
     protected long mThemeID;
 
-    protected long mNotificationStartMillis;
+
 
     protected long startTime;
     protected long endTime;
@@ -36,10 +39,10 @@ public class UserCaseBase implements Serializable  {
     protected long timesExpired;
     protected long timesCancelled;
 
+
     protected boolean isImportant;
 
     public UserCaseBase(){
-        mNotificationStartMillis = -1;
         categoryId = -1;
         mThemeID = -1;
     }
@@ -47,14 +50,6 @@ public class UserCaseBase implements Serializable  {
     protected String generateUUID(){
         return UUID.randomUUID().toString();
     }
-
-    public long getNotificationStartMillis(){
-        return mNotificationStartMillis;
-    }
-    public void setNotificationStartMillis(long millis){
-        this.mNotificationStartMillis = millis;
-    }
-
 
     public String getDescription() {
         return mDescription;
@@ -66,15 +61,6 @@ public class UserCaseBase implements Serializable  {
 
     public long getCategoryId() {
         return categoryId;
-    }
-
-    public String getTime24() {
-        Calendar time = GregorianCalendar.getInstance();
-        time.setTimeInMillis(mNotificationStartMillis);
-
-        SimpleDateFormat myFormatObj = new SimpleDateFormat("HH:mm");
-
-        return myFormatObj.format(time.getTime());
     }
 
     public String getEndTime24(){
@@ -122,10 +108,6 @@ public class UserCaseBase implements Serializable  {
 
     public boolean isCompleted() {
         return completed;
-    }
-
-    public void setAlarmTime(long timeInMillis) {
-        this.mNotificationStartMillis = timeInMillis;
     }
 
     public void setDescription(String note) {

@@ -42,7 +42,10 @@ public class ViewModelFactoryBase extends ViewModelProvider.NewInstanceFactory {
             return (T) new MainViewModel(mApplication, (Database) mParams[0], (Database) mParams[1]);
         }
         else if(modelClass == CalendarViewModel.class){
-            return (T) new CalendarViewModel(mApplication, (LifecycleOwner) mParams[0], (Database) mParams[1], (Database) mParams[2]);
+            return (T) new CalendarViewModel(mApplication, (Database) mParams[0], (Database) mParams[1]);
+        }
+        else if(modelClass == StatisticViewModel.class){
+            return (T) new StatisticViewModel(mApplication, (Database) mParams[0], (Database) mParams[1]);
         }
         else {
             return super.create(modelClass);

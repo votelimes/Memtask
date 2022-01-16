@@ -12,8 +12,10 @@ import com.example.clock.model.Category;
 import com.example.clock.model.Project;
 import com.example.clock.model.Task;
 import com.example.clock.model.Theme;
+import com.example.clock.model.UserCaseStatistic;
 import com.example.clock.repositories.MemtaskRepositoryBase;
 import com.example.clock.storageutils.Database;
+import com.example.clock.storageutils.Tuple2;
 
 import java.util.List;
 
@@ -61,6 +63,10 @@ public abstract class MemtaskViewModelBase extends ViewModel {
 
     public void addTheme(Theme theme){
         mRepository.addTheme(theme);
+    }
+
+    public void addUserCaseStatisticSilently(UserCaseStatistic ucs){
+        mRepository.addUserCaseStatisticSilently(ucs);
     }
 
     //Removing existing data

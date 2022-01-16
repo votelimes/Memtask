@@ -43,6 +43,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 android:textColor="@color/text_grey"
+                android:visibility="@{vm.getTaskByPos(pos).getStartTime > 0 ? View.VISIBLE : View.GONE}"
                 />
             <androidx.constraintlayout.widget.Barrier
                 android:id="@+id/task_br1"
@@ -90,7 +91,7 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/task_category_layout"
                 android:src="@drawable/ic_outline_report_36"
-                android:visibility="@{vm.getByPos(pos).isImportant == true ? View.VISIBLE : View.GONE}"
+                android:visibility="@{vm.getTaskByPos(pos).isImportant == true ? View.VISIBLE : View.GONE}"
                 />
             <TextView
                 android:id="@+id/task_name"
@@ -143,7 +144,7 @@
                 app:layout_constraintStart_toEndOf="@id/task_alarm_image"
                 app:layout_constraintBottom_toBottomOf="@id/task_alarm_image"
                 android:textColor="@color/text_main"
-                android:text="11.01.2021 9:40"
+                android:text="@{vm.getTaskNotifyString(pos)}"
                 android:textSize="18sp"
 
             />
@@ -151,7 +152,7 @@
                 android:id="@+id/task_group1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-
+                android:visibility="@{vm.getTaskByPos(pos).isNotifyEnabled ? View.VISIBLE : View.GONE}"
                 app:constraint_referenced_ids="task_alarm_image,task_alarm_time" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </com.google.android.material.card.MaterialCardView>

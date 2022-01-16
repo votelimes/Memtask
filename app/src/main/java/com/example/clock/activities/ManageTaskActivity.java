@@ -29,6 +29,10 @@ import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 import com.wdullaer.materialdatetimepicker.time.TimePickerDialog;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -58,13 +62,27 @@ public class ManageTaskActivity extends AppCompatActivity {
 
         Project managingProject = (Project) getIntent().getSerializableExtra("ManagingProject");
 
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+
+        long rangeStartSeconds = (long) getIntent().getSerializableExtra("rangeStart");
+        long rangeEndSeconds = rangeStartSeconds + 60*60*24*14;
+
         if(managingTask == null && mode.equals("Task")){
             managingTask = new Task(GregorianCalendar.getInstance().getTimeInMillis(),
                     0, "",  "",
                     "", App.getSettings().getLastCategory().first);
+
+            if(rangeStartSeconds != 0){
+                managingTask.setRange(
+                        LocalDateTime.ofEpochSecond(rangeStartSeconds, 0, ZoneOffset.UTC).format(dtf),
+                        LocalDateTime.ofEpochSecond(rangeEndSeconds, 0, ZoneOffset.UTC).format(dtf));
+            }
         }
         else if(managingProject == null && mode.equals("Project")){
             managingProject = new Project("", "", App.getSettings().getLastCategory().first);
+            managingProject.setRange(
+                    LocalDateTime.ofEpochSecond(rangeStartSeconds, 0, ZoneOffset.UTC).format(dtf),
+                    LocalDateTime.ofEpochSecond(rangeEndSeconds, 0, ZoneOffset.UTC).format(dtf));
         }
 
         if(mode.equals("Task")) {
@@ -159,6 +177,7 @@ public class ManageTaskActivity extends AppCompatActivity {
                 }
             }
         });
+
     }
 
     private int isNameCorrect(String name){

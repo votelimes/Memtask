@@ -157,6 +157,7 @@ public class ManageTaskViewModel extends MemtaskViewModelBase {
             }
 
             notifyPropertyChanged(BR.taskRepeatModeString);
+            notifyPropertyChanged(BR.repeatState);
         }
 
         public boolean isTaskMode(){
@@ -219,6 +220,10 @@ public class ManageTaskViewModel extends MemtaskViewModelBase {
                 endDateLong = mManagingProject.getEndTime();
             }
 
+            if(firstDateLong == 0 && endDateLong == 0){
+                return "";
+            }
+
             Date firstDate=new Date(firstDateLong);
             Date endDate=new Date(endDateLong);
 
@@ -242,9 +247,20 @@ public class ManageTaskViewModel extends MemtaskViewModelBase {
 
         @Bindable
         public boolean getRepeatState(){
-            return mManagingTask != null && mManagingTask.getRepeatMode() != 0;
+            return mManagingTask != null && mManagingTask.getRepeatMode() == 3;
         }
 
+        @Bindable
+        public boolean getTaskNotification(){
+            if(isTaskMode() == false){
+                return false;
+            }
+            return mManagingTask.isNotifyEnabled();
+        }
 
+        public void setTaskNotification(boolean isEnabled){
+            mManagingTask.setNotifyEnabled(isEnabled);
+            notifyPropertyChanged(BR.taskNotification);
+        }
     }
 }

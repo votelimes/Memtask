@@ -14,7 +14,7 @@ public abstract class ProjectDao  extends BaseDao<Project> {
     @Query("SELECT * FROM project_table")
     public abstract List<Project> getAll();
 
-    @Query("SELECT * FROM project_table ORDER BY mNotificationStartMillis DESC")
+    @Query("SELECT * FROM project_table ORDER BY mName ASC")
     public abstract LiveData<List<Project>> getProjectsLiveData();
 
     @Query("DELETE FROM project_table")

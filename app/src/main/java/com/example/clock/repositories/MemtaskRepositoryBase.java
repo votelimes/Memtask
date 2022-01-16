@@ -6,7 +6,10 @@ import androidx.lifecycle.LiveData;
 
 import com.example.clock.dao.CategoryDao;
 import com.example.clock.dao.ThemeDao;
+import com.example.clock.dao.UserCaseStatisticDao;
+import com.example.clock.model.TaskAndTheme;
 import com.example.clock.model.Theme;
+import com.example.clock.model.UserCaseStatistic;
 import com.example.clock.storageutils.Database;
 import com.example.clock.dao.ProjectDao;
 import com.example.clock.model.Category;
@@ -26,6 +29,7 @@ public class MemtaskRepositoryBase {
     private final ProjectDao mSilentProjectDao;
     private final CategoryDao mCategoryDao;
     private final ThemeDao mThemeDao;
+    private final UserCaseStatisticDao mUserCaseStatisticDao;
 
     public MemtaskRepositoryBase(Application application, Database database, Database silentDatabase){
         this.mDatabase = database;
@@ -37,6 +41,7 @@ public class MemtaskRepositoryBase {
         mThemeDao = mDatabase.themeDao();
         mSilentTaskDao = mSilentDatabase.taskDao();
         mSilentProjectDao = mSilentDatabase.projectDao();
+        mUserCaseStatisticDao = mDatabase.userCaseStatisticDao();
     }
 
     //Getting existing data
@@ -57,8 +62,21 @@ public class MemtaskRepositoryBase {
         return this.mDatabase.themeDao().getThemesLiveData();
     }
 
+    public LiveData<List<TaskAndTheme>> getTasksLiveDataByNotification(long startMillis, long endMillis){
+        return this.mDatabase.taskDao() .getTasksLiveDataWithTheme(startMillis, endMillis);
+    }
+
+    public LiveData<List<UserCaseStatistic>> getUserCaseStatistic(long rangeStartMillis, long rangeEndMillis){
+        return this.mDatabase.userCaseStatisticDao().getUserCaseStatistic(rangeStartMillis, rangeEndMillis);
+    }
 
     // Adding new data
+    public void addUserCaseStatisticSilently(UserCaseStatistic ucs){
+        mSilentDatabase.databaseWriteExecutor.execute(() -> {
+            mUserCaseStatisticDao.insert(ucs);
+        });
+    }
+
     public void addTask (Task newTask) {
         Database.databaseWriteExecutor.execute(() -> {
             mTaskDao.insertWithReplace(newTask);

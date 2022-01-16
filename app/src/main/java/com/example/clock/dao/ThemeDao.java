@@ -30,9 +30,9 @@ public interface ThemeDao {
     @Delete
     void delete(Theme theme);
 
-    @Query("DELETE FROM theme_table where mID = :id")
+    @Query("DELETE FROM theme_table where theme_ID = :id")
     void deleteByID(long id);
 
-    @Query("SELECT * FROM theme_table ORDER BY mName ASC")
+    @Query("SELECT * FROM theme_table ORDER BY theme_name ASC")
     LiveData<List<Theme>> getThemesLiveData();
 }

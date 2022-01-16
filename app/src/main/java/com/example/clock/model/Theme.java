@@ -3,7 +3,7 @@ package com.example.clock.model;
 
 import android.graphics.Color;
 
-import androidx.annotation.NonNull;
+import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
@@ -11,10 +11,15 @@ import androidx.room.PrimaryKey;
 public class Theme {
 
     @PrimaryKey(autoGenerate = true)
-    private long mId;
+    @ColumnInfo(name = "theme_ID")
+    private long mID;
+    //@ColumnInfo(name = "theme_name")
+    @ColumnInfo(name = "theme_name")
     private String mName;
     private int mFirstColor;
     private int mSecondColor;
+
+    private int mColorThird;
 
     private int mIconColor;
 
@@ -22,28 +27,39 @@ public class Theme {
 
     private int mImage;
 
-    public Theme(long mId, String name, int mFirstColor, int mSecondColor, int mImage) {
-        this.mId = mId;
+    public Theme(long mID, String name, int mFirstColor, int mSecondColor, int mImage) {
+        this.mID = mID;
         this.mName = name;
         this.mFirstColor = mFirstColor;
         this.mSecondColor = mSecondColor;
         this.mImage = mImage;
+        this.mColorThird = 0;
     }
 
-    public Theme(long mId, String name, String mFirstColor, String mSecondColor, int mImage) {
-        this.mId = mId;
+    public Theme(long mID, String name, String mFirstColor, String mSecondColor, String mThirdColor, int mImage) {
+        this.mID = mID;
         this.mName = name;
         this.mFirstColor = Color.parseColor(mFirstColor);
         this.mSecondColor = Color.parseColor(mSecondColor);
+        this.mColorThird = Color.parseColor(mThirdColor);
         this.mImage = mImage;
     }
 
-    public long getId() {
-        return mId;
+    public Theme(long mID, String name, String mFirstColor, String mSecondColor, int mImage) {
+        this.mID = mID;
+        this.mName = name;
+        this.mFirstColor = Color.parseColor(mFirstColor);
+        this.mSecondColor = Color.parseColor(mSecondColor);
+        this.mColorThird = 0;
+        this.mImage = mImage;
     }
 
-    public void setId(long mId) {
-        this.mId = mId;
+    public long getID() {
+        return mID;
+    }
+
+    public void setID(long mId) {
+        this.mID = mId;
     }
 
     public String getName() {
@@ -70,6 +86,14 @@ public class Theme {
         this.mSecondColor = mSecondColor;
     }
 
+    public int getColorThird() {
+        return mColorThird;
+    }
+
+    public void setColorThird(int mColorThird) {
+        this.mColorThird = mColorThird;
+    }
+
     public int getImage() {
         return mImage;
     }
@@ -92,5 +116,9 @@ public class Theme {
 
     public void setIconColor(int mIconColor) {
         this.mIconColor = mIconColor;
+    }
+
+    public void setIconColor(String mIconColor) {
+        this.mIconColor = Color.parseColor(mIconColor);
     }
 }

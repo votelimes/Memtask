@@ -43,6 +43,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 android:textColor="@color/text_grey"
+                android:visibility="@{vm.getByPos(pos).getStartTime > 0 ? View.VISIBLE : View.GONE}"
                 />
             <androidx.constraintlayout.widget.Barrier
                 android:id="@+id/task_br1"
@@ -61,6 +62,7 @@
                 app:layout_constraintTop_toTopOf="parent"
                 android:layout_marginTop="12dp"
                 android:layout_marginEnd="4dp"
+                android:visibility="gone"
                 >
                 <TextView
                     android:id="@+id/task_category_name"
@@ -151,7 +153,7 @@
                 android:id="@+id/task_group1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-
+                android:visibility="@{vm.getTaskByPos(pos).isNotifyEnabled ? View.VISIBLE : View.GONE}"
                 app:constraint_referenced_ids="task_alarm_image,task_alarm_time" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </com.google.android.material.card.MaterialCardView>
