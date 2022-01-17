@@ -7,6 +7,12 @@ import android.icu.util.Calendar;
 import android.os.Build;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
+import androidx.lifecycle.Observer;
+
+import com.example.clock.app.App;
+import com.example.clock.model.Task;
+import com.example.clock.repositories.MemtaskRepositoryBase;
 import com.example.clock.services.AlarmService;
 import com.example.clock.services.RescheduleAlarmsService;
 
@@ -20,24 +26,30 @@ public class AlarmBroadcastReceiver extends BroadcastReceiver {
     public static final String SUNDAY = "SUNDAY";
     public static final String RECURRING = "RECURRING";
     public static final String TITLE = "TITLE";
+    MemtaskRepositoryBase mRepository;
+    Task task;
 
     @Override
     public void onReceive(Context context, Intent intent) {
         if (Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction())) {
-            String toastText = String.format("Alarm Reboot");
-            Toast.makeText(context, toastText, Toast.LENGTH_SHORT).show();
+            //String toastText = String.format("Alarm Reboot");
+            //Toast.makeText(context, toastText, Toast.LENGTH_SHORT).show();
             startRescheduleAlarmsService(context);
         }
         else {
-            String toastText = String.format("Alarm Received");
-            Toast.makeText(context, toastText, Toast.LENGTH_SHORT).show();
-            if (!intent.getBooleanExtra(RECURRING, false)) {
+            mRepository = new MemtaskRepositoryBase(App.getInstance(), App.getDatabase(), App.getSilentDatabase());
+            task = mRepository.getTask(intent.getStringExtra("taskID"));
+
+
+
+
+            /*if (!intent.getBooleanExtra(RECURRING, false)) {
                 startAlarmService(context, intent);
             } {
                 if (alarmIsToday(intent)) {
                     startAlarmService(context, intent);
                 }
-            }
+            }*/
         }
     }
 
@@ -81,20 +93,12 @@ public class AlarmBroadcastReceiver extends BroadcastReceiver {
 
     private void startAlarmService(Context context, Intent intent) {
         Intent intentService = new Intent(context, AlarmService.class);
-        intentService.putExtra(TITLE, intent.getStringExtra(TITLE));
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            context.startForegroundService(intentService);
-        } else {
-            context.startService(intentService);
-        }
+        intentService.putExtra("taskID", intent.getStringExtra("taskID"));
+        context.startForegroundService(intentService);
     }
 
     private void startRescheduleAlarmsService(Context context) {
         Intent intentService = new Intent(context, RescheduleAlarmsService.class);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            context.startForegroundService(intentService);
-        } else {
-            context.startService(intentService);
-        }
+        context.startForegroundService(intentService);
     }
 }

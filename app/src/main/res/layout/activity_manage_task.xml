@@ -108,8 +108,8 @@
                         android:id="@+id/manage_task_text_notify"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint='Уведомление'
-                        android:text="@={viewmodel.mManagingTaskRepository.TaskName}"
+                        android:hint='Выберите дату и время уведомления'
+                        android:text="@{viewmodel.mManagingTaskRepository.getTaskNotificationString}"
                         android:inputType="@{InputType.TYPE_NULL}"
                         />
 
@@ -129,7 +129,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Уведомление"
-                    android:checked="@={viewmodel.mManagingTaskRepository.taskNotification}"
+                    android:checked="@={viewmodel.mManagingTaskRepository.taskNotificationState}"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/manage_task_divider1"
                     />
@@ -177,6 +177,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Понедельник"
+                    android:checked="@={viewmodel.mManagingTaskRepository.Monday}"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/manage_task_repeat_input"
                     />
@@ -185,6 +186,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Вторник"
+                    android:checked="@={viewmodel.mManagingTaskRepository.Tuesday}"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/manage_task_pon"
                     />
@@ -193,6 +195,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Среда"
+                    android:checked="@={viewmodel.mManagingTaskRepository.Wednesday}"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/manage_task_vt"
                     />
@@ -201,6 +204,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Четверг"
+                    android:checked="@={viewmodel.mManagingTaskRepository.Thursday}"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/manage_task_sr"
                     />
@@ -209,6 +213,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Пятница"
+                    android:checked="@={viewmodel.mManagingTaskRepository.Friday}"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/manage_task_cht"
                     />
@@ -217,6 +222,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Суббота"
+                    android:checked="@={viewmodel.mManagingTaskRepository.Saturday}"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/manage_task_pt"
                     />
@@ -225,6 +231,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Воскресенье"
+                    android:checked="@={viewmodel.mManagingTaskRepository.Sunday}"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/manage_task_sub"
                     />
@@ -238,13 +245,13 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     app:constraint_referenced_ids="manage_task_layout_notify, manage_task_repeat_input, manage_task_pon, manage_task_vt, manage_task_sr, manage_task_cht, manage_task_pt, manage_task_sub, manage_task_vsk"
-                    android:visibility="@{viewmodel.mManagingTaskRepository.getTaskNotification ? View.VISIBLE : View.GONE}"
+                    android:visibility="@{viewmodel.mManagingTaskRepository.taskNotificationState ? View.VISIBLE : View.GONE}"
                     />
                 <androidx.constraintlayout.widget.Group
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     app:constraint_referenced_ids="manage_task_pon, manage_task_vt, manage_task_sr, manage_task_cht, manage_task_pt, manage_task_sub, manage_task_vsk"
-                    android:visibility="@{(viewmodel.mManagingTaskRepository.getRepeatState &amp;&amp; viewmodel.mManagingTaskRepository.getTaskNotification &amp;&amp; viewmodel.mManagingTaskRepository.getTaskNotification) ? View.VISIBLE : View.GONE}"
+                    android:visibility="@{(viewmodel.mManagingTaskRepository.getRepeatState &amp;&amp; viewmodel.mManagingTaskRepository.taskNotificationState &amp;&amp; viewmodel.mManagingTaskRepository.taskNotificationState) ? View.VISIBLE : View.GONE}"
                     />
 
             </androidx.constraintlayout.widget.ConstraintLayout>

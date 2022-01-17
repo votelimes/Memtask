@@ -403,7 +403,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 mViewModel.addTask(task);
             }
 
-            installRandomStats(1000);
+            //installRandomStats(1000);
 
             Log.d("MAIN_ACT: ", "INITIAL SETUP COMPLETED");
             App.getSettings().setSetupState(true);

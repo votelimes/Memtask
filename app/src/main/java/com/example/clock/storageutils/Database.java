@@ -39,7 +39,8 @@ public abstract class Database extends RoomDatabase {
                             context.getApplicationContext(),
                             Database.class,
                             "memtask_db"
-                    ).build();
+                    ).allowMainThreadQueries()
+                     .build();
                 }
             }
         }

@@ -33,4 +33,9 @@ public abstract class TaskDao extends BaseDao<Task> {
     @Query("SELECT task_table.*, theme_table.* FROM task_table LEFT JOIN theme_table ON task_table.mThemeID = theme_table.theme_ID"
             + " WHERE task_table.mNotificationStartMillis >= :startMillis AND task_table.mNotificationStartMillis < :endMillis")
     public abstract LiveData<List<TaskAndTheme>> getTasksLiveDataWithTheme(long startMillis, long endMillis);
+
+    @Query("SELECT * FROM task_table WHERE task_ID = :id")
+    public abstract LiveData<Task> getTaskLiveData(String id);
+    @Query("SELECT * FROM task_table WHERE task_ID = :id")
+    public abstract Task getTask(String id);
 }

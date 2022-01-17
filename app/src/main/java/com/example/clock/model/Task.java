@@ -1,5 +1,9 @@
 package com.example.clock.model;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -9,8 +13,14 @@ import androidx.room.ForeignKey;
 import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
+import com.example.clock.broadcastreceiver.AlarmBroadcastReceiver;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.DayOfWeek;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
@@ -43,7 +53,7 @@ public class Task extends UserCaseBase {
 
     protected boolean recurring;
     protected boolean enabled;
-    protected boolean started;
+    //protected boolean started;
 
     protected String mParentID;
 
@@ -58,155 +68,50 @@ public class Task extends UserCaseBase {
         timeChanged = GregorianCalendar.getInstance().getTimeInMillis();
     }
 
-    public Task(long notificationStartMillis, int repeatMode, String name, String description,
-                String categoryName, long categoryId){
-
-        this.taskId = generateUUID();
-        this.mNotificationStartMillis = notificationStartMillis;
-
-        this.repeatMode = repeatMode;
-        this.mName = name;
-        this.mDescription = description;
-        this.mCategoryName = categoryName;
-        this.vibrate = true;
-        this.categoryId = categoryId;
-        this.mParentID = "";
-        /*this.startTime = 0;
-        this.endTime = 0;*/
-
-        switch (repeatMode) {
-            case 0:
-                break;
-            case 1:
-                break;
-            case 2:
-                break;
-            case 3:
-                break;
-            default:
-        }
-    }
-
-    @Ignore
-    public Task(Calendar calendar, int repeatMode, long categoryId){
-
-        this.taskId = generateUUID();
-        this.mNotificationStartMillis = calendar.getTimeInMillis();
-        this.mDescription = "";
-        this.repeatMode = repeatMode;
-        this.vibrate = true;
-        this.categoryId = categoryId;
-        this.mParentID = "";
-
-        switch (repeatMode) {
-            case 0:
-                break;
-            case 1:
-                break;
-            case 2:
-                break;
-            case 3:
-                break;
-            default:
-        }
-    }
-
-    @Ignore
-    public Task(int repeatMode, long timeInMillis, String description, long categoryId){
+    public Task(){
+        super();
         this.taskId = generateUUID();
 
-        this.repeatMode = repeatMode;
-        this.mNotificationStartMillis = timeInMillis;
-        this.mDescription = description;
-        this.vibrate = true;
-        this.categoryId = categoryId;
-        this.mParentID = "";
-
-
-        switch (repeatMode) {
-            case 0:
-                break;
-            case 1:
-                break;
-            case 2:
-                break;
-            case 3:
-                break;
-            default:
-        }
     }
 
-    @Ignore
-    public Task(int repeatMode, boolean started, boolean recurring, long timeInMillis, String description,
-                boolean sunday, boolean monday, boolean tuesday, boolean wednesday,
-                boolean thursday, boolean friday, boolean saturday, long categoryId){
-        this.taskId = generateUUID();
-
-        this.repeatMode = repeatMode;
-        this.started = started;
-        this.recurring = recurring;
-        this.mNotificationStartMillis = timeInMillis;
-        this.mDescription = description;
-        this.vibrate = true;
-        this.monday = monday;
-        this.tuesday = tuesday;
-        this.wednesday = wednesday;
-        this.thursday = thursday;
-        this.friday = friday;
-        this.saturday = saturday;
-        this.categoryId = categoryId;
-
-        this.mParentID = "";
-
-        switch (repeatMode) {
-            case 0:
-                break;
-            case 1:
-                break;
-            case 2:
-                break;
-            case 3:
-                break;
-            default:
-        }
-    }
-
-    /*public void schedule(Context context) {
+    public void schedule(Context context) {
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 
         Intent intent = new Intent(context, AlarmBroadcastReceiver.class);
-        intent.putExtra("RECURRING", recurring);
-        intent.putExtra("MONDAY", monday);
-        intent.putExtra("TUESDAY", tuesday);
-        intent.putExtra("WEDNESDAY", wednesday);
-        intent.putExtra("THURSDAY", thursday);
-        intent.putExtra("FRIDAY", friday);
-        intent.putExtra("SATURDAY", saturday);
-        intent.putExtra("SUNDAY", sunday);
+        intent.putExtra("TASK_ID", taskId);
 
-        intent.putExtra("TITLE", description);
+        PendingIntent alarmPendingIntent = PendingIntent.getBroadcast(context, -1, intent, 0);
 
-        PendingIntent alarmPendingIntent = PendingIntent.getBroadcast(context, (int) taskId, intent, 0);
+        LocalDateTime ldt = LocalDateTime.ofEpochSecond((long) mNotificationStartMillis / 1000, 0, ZoneOffset.UTC);
 
         Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(this.getTimeInMillis());
+        calendar.setTimeInMillis(mNotificationStartMillis);
 
         // if alarm time has already passed, increment day by 1
         if (calendar.getTimeInMillis() <= System.currentTimeMillis()) {
             calendar.set(Calendar.DAY_OF_MONTH, calendar.get(Calendar.DAY_OF_MONTH) + 1);
         }
 
-        if (!recurring) {
-            String toastText = null;
-            try {
-                toastText = String.format("One Time Alarm %s scheduled for %s at %02d:%02d", description,
-                        toDay(calendar.get(Calendar.DAY_OF_WEEK)),
-                        calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), taskId);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            Toast.makeText(context, toastText, Toast.LENGTH_LONG).show();
+        switch (repeatMode){
+            case 0: // Один раз
+                alarmManager.setExact(
+                        AlarmManager.RTC_WAKEUP,
+                        ldt.toEpochSecond(ZoneOffset.UTC) * 1000,
+                        alarmPendingIntent
+                );
+            case 1: // Каждый день
+                final long RUN_DAILY = 24 * 60 * 60 * 1000;
+                alarmManager.setRepeating(
+                        AlarmManager.RTC_WAKEUP,
+                        calendar.getTimeInMillis(),
+                        RUN_DAILY,
+                        alarmPendingIntent
+                );
+            case 2: // По будням
 
+        }
+
+        /*if (repeatMode == 0) {
             alarmManager.setExact(
                     AlarmManager.RTC_WAKEUP,
                     calendar.getTimeInMillis(),
@@ -214,11 +119,6 @@ public class Task extends UserCaseBase {
             );
         }
         else {
-            String toastText = String.format("Recurring Alarm %s scheduled for %s at %02d:%02d", description, getRecurringDaysText(),
-                    calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), taskId);
-
-            Toast.makeText(context, toastText, Toast.LENGTH_LONG).show();
-
             final long RUN_DAILY = 24 * 60 * 60 * 1000;
             alarmManager.setRepeating(
                     AlarmManager.RTC_WAKEUP,
@@ -226,26 +126,20 @@ public class Task extends UserCaseBase {
                     RUN_DAILY,
                     alarmPendingIntent
             );
-        }
+        }*/
 
-        this.started = true;
-    }*/
+        this.notifyEnabled = true;
+    }
 
-    /*public void cancelAlarm(Context context) {
+    public void cancelAlarm(Context context) {
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(context, AlarmBroadcastReceiver.class);
-        PendingIntent alarmPendingIntent = PendingIntent.getBroadcast(context, (int) taskId, intent, 0);
+        intent.putExtra("taskID", taskId);
+
+        PendingIntent alarmPendingIntent = PendingIntent.getBroadcast(context, -1, intent, 0);
         alarmManager.cancel(alarmPendingIntent);
-        this.started = false;
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(this.timeInMillis);
-
-        String toastText = String.format("Alarm cancelled for %02d:%02d with id %d",
-                calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), taskId);
-
-        Toast.makeText(context, toastText, Toast.LENGTH_SHORT).show();
-        Log.i("cancel", toastText);
-    }*/
+        this.notifyEnabled = false;
+    }
     public long getNotificationStartMillis(){
         return mNotificationStartMillis;
     }
@@ -288,6 +182,19 @@ public class Task extends UserCaseBase {
         this.taskId = id;
     }
     public void setRepeatMode(int repeatMode){
+        switch (repeatMode){
+            case 0:
+                setDaysOfWeek(false);
+                break;
+            case 1:
+                setDaysOfWeek(true);
+                break;
+            case 2:
+                setDaysOfWeek(false);
+                setWeekdays(true);
+                break;
+        }
+
         this.repeatMode = repeatMode;
     }
 
@@ -310,13 +217,6 @@ public class Task extends UserCaseBase {
 
     }
 
-
-    public void setDayOfWeek(int dayOfWeek){
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(this.mNotificationStartMillis);
-        calendar.set(Calendar.DAY_OF_WEEK, dayOfWeek);
-        this.mNotificationStartMillis = calendar.getTimeInMillis();
-    }
     public void setActiveDayOfWeek(int dayOfWeek, boolean state){
         switch (dayOfWeek){
             case 1:
@@ -351,14 +251,14 @@ public class Task extends UserCaseBase {
             this.saturday = state;
         }
     }
-    private void setWeekdays(boolean state){
+    public void setWeekdays(boolean state){
         setMonday(state);
         setTuesday(state);
         setWednesday(state);
         setThursday(state);
         setFriday(state);
     }
-    private void setDaysOfWeek(boolean state){
+    public void setDaysOfWeek(boolean state){
         setMonday(state);
         setTuesday(state);
         setWednesday(state);
@@ -387,12 +287,27 @@ public class Task extends UserCaseBase {
 
         return calendar.get(Calendar.MONTH);
     }
-    public int getDayOfWeek(){
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(this.mNotificationStartMillis);
-
-        return calendar.get(Calendar.DAY_OF_WEEK);
+    public boolean isDayOfWeekActive(DayOfWeek dayOfWeek){
+        switch(dayOfWeek){
+            case MONDAY:
+                return monday;
+            case TUESDAY:
+                return tuesday;
+            case WEDNESDAY:
+                return wednesday;
+            case THURSDAY:
+                return thursday;
+            case FRIDAY:
+                return friday;
+            case SATURDAY:
+                return saturday;
+            case SUNDAY:
+                return sunday;
+            default:
+                return false;
+        }
     }
+
     public boolean getActiveDayOfWeek(int dayOfWeek){
         switch (dayOfWeek){
             case 1:
@@ -458,9 +373,6 @@ public class Task extends UserCaseBase {
     }
     public boolean isSunday() {
         return this.sunday;
-    }
-    public boolean isStarted() {
-        return this.started;
     }
 
     protected String toDay(int dayOfWeek){
@@ -543,10 +455,6 @@ public class Task extends UserCaseBase {
 
     public void setRecurring(boolean recurring) {
         this.recurring = recurring;
-    }
-
-    public void setStarted(boolean started) {
-        this.started = started;
     }
 
     public String getParentID() {

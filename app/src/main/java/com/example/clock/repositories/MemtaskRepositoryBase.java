@@ -69,6 +69,12 @@ public class MemtaskRepositoryBase {
     public LiveData<List<UserCaseStatistic>> getUserCaseStatistic(long rangeStartMillis, long rangeEndMillis){
         return this.mDatabase.userCaseStatisticDao().getUserCaseStatistic(rangeStartMillis, rangeEndMillis);
     }
+    public Task getTask(String taskID){
+        return this.mDatabase.taskDao().getTask(taskID);
+    }
+    public LiveData<Task> getTaskLiveData(String taskID){
+        return this.mDatabase.taskDao().getTaskLiveData(taskID);
+    }
 
     // Adding new data
     public void addUserCaseStatisticSilently(UserCaseStatistic ucs){

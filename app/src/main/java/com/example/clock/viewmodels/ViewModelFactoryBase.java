@@ -47,6 +47,9 @@ public class ViewModelFactoryBase extends ViewModelProvider.NewInstanceFactory {
         else if(modelClass == StatisticViewModel.class){
             return (T) new StatisticViewModel(mApplication, (Database) mParams[0], (Database) mParams[1]);
         }
+        else if(modelClass == RingViewModel.class){
+            return (T) new RingViewModel(mApplication, (Database) mParams[0], (Database) mParams[1], (String) mParams[2]);
+        }
         else {
             return super.create(modelClass);
         }

@@ -2,6 +2,8 @@ package com.example.clock.viewmodels;
 
 
 import android.app.Application;
+import android.content.Context;
+import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.databinding.BaseObservable;
@@ -18,6 +20,11 @@ import com.example.clock.model.Task;
 import com.example.clock.storageutils.Database;
 
 import java.text.SimpleDateFormat;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -65,6 +72,8 @@ public class ManageTaskViewModel extends MemtaskViewModelBase {
 
         private Task mManagingTask;
         private Project mManagingProject;
+        public long notificationPickerTimeMillis;
+        public long notificationPickerDateMillis;
 
         Observer(@NonNull Task managingTask){
             this.mManagingTask = managingTask;
@@ -156,6 +165,13 @@ public class ManageTaskViewModel extends MemtaskViewModelBase {
                 }
             }
 
+            notifyPropertyChanged(BR.monday);
+            notifyPropertyChanged(BR.tuesday);
+            notifyPropertyChanged(BR.wednesday);
+            notifyPropertyChanged(BR.thursday);
+            notifyPropertyChanged(BR.friday);
+            notifyPropertyChanged(BR.saturday);
+            notifyPropertyChanged(BR.sunday);
             notifyPropertyChanged(BR.taskRepeatModeString);
             notifyPropertyChanged(BR.repeatState);
         }
@@ -251,16 +267,179 @@ public class ManageTaskViewModel extends MemtaskViewModelBase {
         }
 
         @Bindable
-        public boolean getTaskNotification(){
+        public boolean getTaskNotificationState(){
             if(isTaskMode() == false){
                 return false;
             }
             return mManagingTask.isNotifyEnabled();
         }
 
-        public void setTaskNotification(boolean isEnabled){
+        @Bindable
+        public String getTaskNotificationString(){
+            long notificationSeconds = 0;
+
+            if(mManagingTask != null){
+                notificationSeconds = (long) mManagingTask.getNotificationStartMillis() / 1000;
+            }
+            if(mManagingProject != null){
+                return "";
+            }
+
+            if(notificationSeconds == 0 || notificationSeconds == -1){
+                return "";
+            }
+
+            DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
+
+
+            return LocalDateTime.ofEpochSecond(notificationSeconds, 0, ZoneOffset.UTC).format(dtf);
+        }
+
+        public void setTaskNotificationState(boolean isEnabled){
             mManagingTask.setNotifyEnabled(isEnabled);
-            notifyPropertyChanged(BR.taskNotification);
+            notifyPropertyChanged(BR.taskNotificationState);
+        }
+
+        public void setTaskNotificationMillis(long millis){
+
+            LocalDateTime selectedDate = LocalDateTime.ofEpochSecond((long) millis / 1000, 0, ZoneOffset.UTC);
+            if(mManagingTask.isNotifyEnabled() && millis > 0){
+                if(mManagingTask.getRepeatMode() == 0){
+                    mManagingTask.setNotificationStartMillis(millis);
+                }
+                else if(mManagingTask.getRepeatMode() == 1){
+                    if(selectedDate.isAfter(LocalDateTime.now(ZoneOffset.UTC))){
+                        selectedDate.plusDays(1);
+                        mManagingTask.setNotificationStartMillis(selectedDate.toEpochSecond(ZoneOffset.UTC) * 1000);
+                    }
+                }
+                else if(mManagingTask.getRepeatMode() == 2 || mManagingTask.getRepeatMode() == 3){
+                    LocalDateTime nearest = LocalDateTime.ofEpochSecond((long) millis / 1000, 0, ZoneOffset.UTC);
+                    if(mManagingTask.isDayOfWeekActive(selectedDate.getDayOfWeek())
+                    && selectedDate.toLocalDate().isEqual(LocalDate.now())
+                    && selectedDate.isAfter(LocalDateTime.now())){
+                        mManagingTask.setNotificationStartMillis(selectedDate.toEpochSecond(ZoneOffset.UTC) * 1000);
+                    }
+                    else {
+                        int exitDecision = 0;
+                        while ((!mManagingTask.isDayOfWeekActive(nearest.getDayOfWeek())
+                                || selectedDate.toLocalDate().isEqual(nearest.toLocalDate())
+                        ) && exitDecision < 7){
+                            nearest = nearest.plusDays(1);
+                            exitDecision++;
+                        }
+                        if(exitDecision > 6){
+                            notifyPropertyChanged(BR.taskNotificationString);
+                            mManagingTask.setNotificationStartMillis(0);
+                        }
+                        else {
+                            nearest.withHour(selectedDate.getHour());
+                            nearest.withMinute(selectedDate.getMinute());
+                            mManagingTask.setNotificationStartMillis(nearest.toEpochSecond(ZoneOffset.UTC) * 1000);
+                        }
+                    }
+                }
+            }
+            notifyPropertyChanged(BR.taskNotificationString);
+        }
+
+        public void scheduleOrCancel(Context context){
+            if(isTaskMode()){
+                if(mManagingTask.isNotifyEnabled()){
+                    mManagingTask.schedule(context);
+                }
+                else{
+                    mManagingTask.cancelAlarm(context);
+                }
+            }
+        }
+
+        public int getRepeatMode(){
+            return mManagingTask.getRepeatMode();
+        }
+
+        public void setDaysOfWeek(boolean state){
+            mManagingTask.setDaysOfWeek(state);
+        }
+
+
+        public boolean isAnyDaySelected(){
+            if(getMonday() || getTuesday() || getWednesday() || getThursday() || getFriday()
+            || getSaturday() || getSunday()){
+                return true;
+            }
+            else{
+                return false;
+            }
+        }
+
+        public void setWeekDays(boolean state){
+            mManagingTask.setWeekdays(state);
+        }
+
+        @Bindable
+        public boolean getMonday(){
+            return mManagingTask.isMonday();
+        }
+        @Bindable
+        public boolean getTuesday(){
+            return mManagingTask.isTuesday();
+        }
+        @Bindable
+        public boolean getWednesday(){
+            return mManagingTask.isWednesday();
+        }
+        @Bindable
+        public boolean getThursday(){
+            return mManagingTask.isThursday();
+        }
+        @Bindable
+        public boolean getFriday(){
+            return mManagingTask.isFriday();
+        }
+        @Bindable
+        public boolean getSaturday(){
+            return mManagingTask.isSaturday();
+        }
+        @Bindable
+        public boolean getSunday(){
+            return mManagingTask.isSunday();
+        }
+        // Setters
+        public void setMonday(boolean state){
+            mManagingTask.setMonday(state);
+            setTaskNotificationMillis(mManagingTask.getNotificationStartMillis());
+            notifyPropertyChanged(BR.monday);
+        }
+        public void setTuesday(boolean state){
+            mManagingTask.setTuesday(state);
+            setTaskNotificationMillis(mManagingTask.getNotificationStartMillis());
+            notifyPropertyChanged(BR.tuesday);
+        }
+        public void setWednesday(boolean state){
+            mManagingTask.setWednesday(state);
+            setTaskNotificationMillis(mManagingTask.getNotificationStartMillis());
+            notifyPropertyChanged(BR.wednesday);
+        }
+        public void setThursday(boolean state){
+            mManagingTask.setThursday(state);
+            setTaskNotificationMillis(mManagingTask.getNotificationStartMillis());
+            notifyPropertyChanged(BR.thursday);
+        }
+        public void setFriday(boolean state){
+            mManagingTask.setFriday(state);
+            setTaskNotificationMillis(mManagingTask.getNotificationStartMillis());
+            notifyPropertyChanged(BR.friday);
+        }
+        public void setSaturday(boolean state){
+            mManagingTask.setSaturday(state);
+            setTaskNotificationMillis(mManagingTask.getNotificationStartMillis());
+            notifyPropertyChanged(BR.saturday);
+        }
+        public void setSunday(boolean state){
+            mManagingTask.setSunday(state);
+            setTaskNotificationMillis(mManagingTask.getNotificationStartMillis());
+            notifyPropertyChanged(BR.sunday);
         }
     }
 }

@@ -9,6 +9,7 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.media.MediaPlayer;
 import android.os.IBinder;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
@@ -18,9 +19,12 @@ import androidx.core.app.NotificationCompat;
 
 import com.example.clock.R;
 import com.example.clock.activities.RingActivity;
+import com.example.clock.app.App;
+import com.example.clock.model.Task;
+import com.example.clock.repositories.MemtaskRepositoryBase;
 
 public class AlarmService extends Service {
-    //private MediaPlayer mediaPlayer;
+    private MediaPlayer mediaPlayer;
     private Vibrator vibrator;
 
     @Override
@@ -36,9 +40,13 @@ public class AlarmService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Intent notificationIntent = new Intent(this, RingActivity.class);
+        notificationIntent.putExtra("taskID", intent.getStringExtra("taskID"));
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
 
-        String alarmTitle = String.format("%s Alarm", intent.getStringExtra("TITLE"));
+        String taskID = intent.getStringExtra("taskID");
+        MemtaskRepositoryBase mRepository = new MemtaskRepositoryBase(App.getInstance(), App.getDatabase(), App.getSilentDatabase());
+        Task task = mRepository.getTask(taskID);
+
         String NOTIFICATION_CHANNEL_ID = "com.example.clock";
         String channelName = "AlarmService";
 
@@ -54,8 +62,8 @@ public class AlarmService extends Service {
 
         Notification notification = notificationBuilder.setOngoing(true)
                 .setSmallIcon(R.drawable.baseline_alarm_black_48dp)
-                .setContentTitle(alarmTitle)
-                .setContentText("Ring Ring .. Ring Ring")
+                .setContentTitle(task.getName())
+                .setContentText(task.getDescription())
                 .setContentIntent(pendingIntent)
                 .setPriority(NotificationManager.IMPORTANCE_MIN)
                 .setCategory(Notification.CATEGORY_SERVICE)
@@ -73,8 +81,7 @@ public class AlarmService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
-
-        //mediaPlayer.stop();
+        mediaPlayer.stop();
         vibrator.cancel();
     }
 

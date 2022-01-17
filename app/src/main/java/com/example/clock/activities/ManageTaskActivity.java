@@ -5,6 +5,7 @@ import androidx.core.util.Pair;
 import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.ViewModelProvider;
 
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -25,6 +26,8 @@ import com.google.android.material.datepicker.MaterialPickerOnPositiveButtonClic
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.android.material.timepicker.MaterialTimePicker;
+import com.google.android.material.timepicker.TimeFormat;
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 import com.wdullaer.materialdatetimepicker.time.TimePickerDialog;
 
@@ -46,6 +49,8 @@ public class ManageTaskActivity extends AppCompatActivity {
     ActivityManageTaskBinding mActivityBinding;
     TextInputEditText nameText;
     TextInputLayout mRepeatModesLayout;
+    LocalDateTime dateTime = LocalDateTime.now(ZoneOffset.UTC);
+
 
     int selectedField; // 1 startTime, 2 endTime, 3 NotifyTime
 
@@ -64,25 +69,11 @@ public class ManageTaskActivity extends AppCompatActivity {
 
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd.MM.yyyy");
 
-        long rangeStartSeconds = (long) getIntent().getSerializableExtra("rangeStart");
-        long rangeEndSeconds = rangeStartSeconds + 60*60*24*14;
-
         if(managingTask == null && mode.equals("Task")){
-            managingTask = new Task(GregorianCalendar.getInstance().getTimeInMillis(),
-                    0, "",  "",
-                    "", App.getSettings().getLastCategory().first);
-
-            if(rangeStartSeconds != 0){
-                managingTask.setRange(
-                        LocalDateTime.ofEpochSecond(rangeStartSeconds, 0, ZoneOffset.UTC).format(dtf),
-                        LocalDateTime.ofEpochSecond(rangeEndSeconds, 0, ZoneOffset.UTC).format(dtf));
-            }
+            managingTask = new Task("",  "", App.getSettings().getLastCategory().first);
         }
         else if(managingProject == null && mode.equals("Project")){
             managingProject = new Project("", "", App.getSettings().getLastCategory().first);
-            managingProject.setRange(
-                    LocalDateTime.ofEpochSecond(rangeStartSeconds, 0, ZoneOffset.UTC).format(dtf),
-                    LocalDateTime.ofEpochSecond(rangeEndSeconds, 0, ZoneOffset.UTC).format(dtf));
         }
 
         if(mode.equals("Task")) {
@@ -148,6 +139,7 @@ public class ManageTaskActivity extends AppCompatActivity {
         }
 
         TextInputEditText rangeLayout = findViewById(R.id.manage_task_text_range);
+        TextInputEditText notificationLayout = findViewById(R.id.manage_task_text_notify);
         rangeLayout.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View view, boolean b) {
@@ -177,7 +169,96 @@ public class ManageTaskActivity extends AppCompatActivity {
                 }
             }
         });
+        notificationLayout.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean b) {
+                if(b) {
+                    if(!mViewModel.mManagingTaskRepository.isAnyDaySelected()){
+                        if(mViewModel.mManagingTaskRepository.getRepeatMode() != 0) {
+                            new MaterialAlertDialogBuilder(ManageTaskActivity.this)
+                                    .setTitle("Внимание")
+                                    .setMessage("Для текущего режима повторения необходимо выбрать дни")
+                                    .setNeutralButton("Хорошо", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialogInterface, int i) {
 
+                                        }
+                                    })
+                                    .show();
+                            return;
+                        }
+                    }
+                    int repeatMode = mViewModel.mManagingTaskRepository.getRepeatMode();
+                    if (repeatMode == 0) {
+                        // DatePicker
+                        MaterialDatePicker datepicker = MaterialDatePicker
+                                .Builder
+                                .datePicker()
+                                .setTitleText("Дата уведомления")
+                                .setSelection(
+                                        MaterialDatePicker.todayInUtcMilliseconds()
+                                )
+                                .build();
+                        // TimePicker
+                        MaterialTimePicker timePicker = new MaterialTimePicker
+                                .Builder()
+                                .setTimeFormat(TimeFormat.CLOCK_24H)
+                                .setTitleText("Время уведомления")
+                                .build();
+
+                        timePicker.addOnPositiveButtonClickListener(dialog -> {
+                            dateTime = dateTime.withHour(timePicker.getHour());
+                            dateTime = dateTime.withMinute(timePicker.getMinute());
+                            dateTime = dateTime.withSecond(0);
+                            mViewModel.mManagingTaskRepository.setTaskNotificationMillis(dateTime.toEpochSecond(ZoneOffset.UTC)*1000);
+                            view.clearFocus();
+                        });
+
+                        datepicker.addOnPositiveButtonClickListener(new MaterialPickerOnPositiveButtonClickListener<Long>() {
+                            @Override
+                            public void onPositiveButtonClick(Long selection) {
+                                dateTime = LocalDateTime.ofEpochSecond((long) selection / 1000, 0, ZoneOffset.UTC);
+                                timePicker.show(getSupportFragmentManager(), timePicker.toString());
+                            }
+                        });
+                        datepicker.show(getSupportFragmentManager(), datepicker.toString());
+                    }
+                    else if(repeatMode == 1 || repeatMode == 2 || repeatMode == 3){
+                        // TimePicker
+                        MaterialTimePicker timePicker = new MaterialTimePicker
+                                .Builder()
+                                .setTimeFormat(TimeFormat.CLOCK_24H)
+                                .setTitleText("Время уведомления")
+                                .build();
+
+                        timePicker.addOnPositiveButtonClickListener(dialog -> {
+                            dateTime = LocalDateTime.now(ZoneOffset.UTC);
+                            dateTime = dateTime.withHour(timePicker.getHour());
+                            dateTime = dateTime.withMinute(timePicker.getMinute());
+                            dateTime = dateTime.withSecond(0);
+                            mViewModel.mManagingTaskRepository.setTaskNotificationMillis(dateTime.toEpochSecond(ZoneOffset.UTC)*1000);
+                            view.clearFocus();
+                        });
+                        timePicker.show(getSupportFragmentManager(), timePicker.toString());
+                    }
+                    /*MaterialDatePicker datepicker = MaterialDatePicker
+                            .Builder
+                            .datePicker()
+                            .setTitleText("Дата начала — дата окончания")
+                            .setSelection(
+                                    MaterialDatePicker.todayInUtcMilliseconds()
+                            )
+                            .build();
+
+                    datepicker.addOnPositiveButtonClickListener(new MaterialPickerOnPositiveButtonClickListener<Long>() {
+                        @Override public void onPositiveButtonClick(Long selection) {
+                            mViewModel.mManagingTaskRepository.setTaskNotificationMillis(selection);
+                        }
+                    });
+                    datepicker.show(getSupportFragmentManager(), datepicker.toString());*/
+                }
+            }
+        });
     }
 
     private int isNameCorrect(String name){
@@ -212,6 +293,7 @@ public class ManageTaskActivity extends AppCompatActivity {
         }
 
         mViewModel.saveChanges();
+        mViewModel.mManagingTaskRepository.scheduleOrCancel(this);
         if(mViewModel.mManagingTaskRepository.isTaskMode()) {
             setResult(20); // 20 Task created
         }

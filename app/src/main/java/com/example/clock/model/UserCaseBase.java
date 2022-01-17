@@ -8,6 +8,8 @@ import androidx.room.ForeignKey;
 import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.UUID;
@@ -17,8 +19,6 @@ public class UserCaseBase implements Serializable  {
     protected long categoryId;
 
     protected long mThemeID;
-
-
 
     protected long startTime;
     protected long endTime;
@@ -45,6 +45,10 @@ public class UserCaseBase implements Serializable  {
     public UserCaseBase(){
         categoryId = -1;
         mThemeID = -1;
+
+        long currentMillis = LocalDateTime.now().toEpochSecond(ZoneOffset.UTC) * 1000;
+        timeCreated = currentMillis;
+        timeChanged = currentMillis;
     }
 
     protected String generateUUID(){

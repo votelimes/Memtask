@@ -42,6 +42,8 @@ import com.prolificinteractive.materialcalendarview.OnRangeSelectedListener;
 import com.prolificinteractive.materialcalendarview.spans.DotSpan;
 
 import org.threeten.bp.LocalDate;
+import org.threeten.bp.LocalDateTime;
+import org.threeten.bp.ZoneOffset;
 
 import java.util.Date;
 import java.util.List;
@@ -253,7 +255,6 @@ public class CalendarFragmentAdapter extends RecyclerView.Adapter<RecyclerView.V
             }
         }
         public class HighLoadDayDecorator implements DayViewDecorator {
-
             private CalendarDay today;
             private final int[] intervals = App.getInstance()
                     .getResources().getIntArray(R.array.calendar_day_load_interval);
@@ -392,6 +393,15 @@ public class CalendarFragmentAdapter extends RecyclerView.Adapter<RecyclerView.V
                                             Intent intent = new Intent(view.getContext(), ManageTaskActivity.class);
                                             intent.putExtra("ManagingTask", currentTask);
                                             intent.putExtra("mode", "Task");
+
+                                            /*long rangeStart = calendar
+                                                    .getSelectedDate()
+                                                    .getDate()
+                                                    .toEpochDay() * 24 * 60 * 60;
+                                            if(rangeStart == -1 || rangeStart == 0){
+                                                rangeStart = LocalDateTime.now().toEpochSecond(ZoneOffset.UTC);
+                                            }
+                                            intent.putExtra("rangeStart", rangeStart);*/
 
                                             resultLauncher.launch(intent);
                                             break;
