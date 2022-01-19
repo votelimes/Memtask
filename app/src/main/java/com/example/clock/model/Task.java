@@ -35,6 +35,9 @@ public class Task extends UserCaseBase {
 
     protected boolean vibrate;
 
+    protected String ringtonePath;
+    protected boolean mediaEnabled;
+
     // 0: Однократно, 1: Каждый день, 2: По будням, 3: Выбрать дни 4: Ежемесячно
     protected int repeatMode;
 
@@ -60,6 +63,7 @@ public class Task extends UserCaseBase {
     public Task(String name, String description, long catID){
         super();
         mParentID = "";
+        ringtonePath = "";
         taskId = generateUUID();
         mName = name;
         mDescription = description;
@@ -71,7 +75,8 @@ public class Task extends UserCaseBase {
     public Task(){
         super();
         this.taskId = generateUUID();
-
+        ringtonePath = "";
+        mParentID = "";
     }
 
     public void schedule(Context context) {
@@ -274,7 +279,18 @@ public class Task extends UserCaseBase {
     public int getRepeatMode(){
         return this.repeatMode;
     }
-
+    public boolean isMediaEnabled() {
+        return mediaEnabled;
+    }
+    public void setMediaEnabled(boolean mediaEnabled) {
+        this.mediaEnabled = mediaEnabled;
+    }
+    public String getRingtonePath() {
+        return ringtonePath;
+    }
+    public void setRingtonePath(String path) {
+        this.ringtonePath = path;
+    }
     public int getYear(){
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(this.mNotificationStartMillis);

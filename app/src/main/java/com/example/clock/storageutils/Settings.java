@@ -50,14 +50,14 @@ public class Settings {
         //Settings fragment prefs
         String mUseRandomThemesTag = "use_random_themes";
         mUseRandomThemes = new Pair<Boolean, String>
-                (mSharedPref.getBoolean(mUseRandomThemesTag, false), mUseRandomThemesTag);
+                (mSharedPref.getBoolean(mUseRandomThemesTag, true), mUseRandomThemesTag);
 
         String mCalendarModeTag = "calendar_mode";
         mCalendarMode = new Pair<String, String>
                 (mSharedPref.getString(mCalendarModeTag, App.getInstance().getString(R.string.preference_calendar_mode_value_default)), mCalendarModeTag);
 
         String mUseDarkThemeTag = "dark_theme";
-        mUseRandomThemes = new Pair<Boolean, String>
+        mUseDarkTheme = new Pair<Boolean, String>
                 (mSharedPref.getBoolean(mUseDarkThemeTag, false), mUseDarkThemeTag);
     }
 

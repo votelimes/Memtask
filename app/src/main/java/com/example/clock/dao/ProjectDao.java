@@ -5,6 +5,7 @@ import androidx.room.Dao;
 import androidx.room.Query;
 
 import com.example.clock.model.Project;
+import com.example.clock.model.ProjectAndTheme;
 
 import java.util.List;
 
@@ -22,4 +23,7 @@ public abstract class ProjectDao  extends BaseDao<Project> {
 
     @Query("DELETE FROM project_table WHERE projectId = :id")
     public abstract void deleteById(String id);
+
+    @Query("SELECT project_table.*, theme_table.* FROM project_table LEFT JOIN theme_table ON (project_table.projectId = :projectID  AND project_table.mThemeID = theme_table.theme_ID)")
+    public abstract LiveData<ProjectAndTheme> getProjectThemeLiveData(String projectID);
 }

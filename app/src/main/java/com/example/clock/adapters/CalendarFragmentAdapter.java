@@ -391,8 +391,9 @@ public class CalendarFragmentAdapter extends RecyclerView.Adapter<RecyclerView.V
                                     switch (i) {
                                         case 0: // Изменить
                                             Intent intent = new Intent(view.getContext(), ManageTaskActivity.class);
+                                            intent.putExtra("ID", currentTask.getTaskId());
                                             intent.putExtra("ManagingTask", currentTask);
-                                            intent.putExtra("mode", "Task");
+                                            intent.putExtra("mode", "TaskEditing");
 
                                             /*long rangeStart = calendar
                                                     .getSelectedDate()

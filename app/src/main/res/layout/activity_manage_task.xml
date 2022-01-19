@@ -24,7 +24,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 tools:context=".manage_task"
-                android:padding="10dp"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                android:paddingTop="10dp"
+                android:paddingBottom="196dp"
                 >
 
                 <com.google.android.material.textfield.TextInputLayout
@@ -59,14 +62,32 @@
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     >
 
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/manage_task_edit_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint='@{viewmodel.mManagingTaskRepository.isTaskMode ? "Описание задачи" : "Описание проекта"}'
+                    android:text="@={viewmodel.mManagingTaskRepository.TaskDescription}"
+                    />
+                </com.google.android.material.textfield.TextInputLayout>
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/manage_task_category_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:startIconDrawable="@drawable/ic_baseline_list_alt_24"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/manage_task_text_input"
+                    android:layout_marginTop="10dp"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    >
                     <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/manage_task_edit_text"
+                        android:id="@+id/manage_task_category_text"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint='@{viewmodel.mManagingTaskRepository.isTaskMode ? "Описание задачи" : "Описание проекта"}'
-                        android:text="@={viewmodel.mManagingTaskRepository.TaskDescription}"
+                        android:hint='@{viewmodel.mManagingTaskRepository.isTaskMode ? "Категория задачи" : "Категория проекта"}'
+                        android:text="@{viewmodel.mManagingTaskRepository.getCategory}"
+                        android:inputType="@{InputType.TYPE_NULL}"
                         />
-
                 </com.google.android.material.textfield.TextInputLayout>
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/manage_task_layout_range"
@@ -75,7 +96,7 @@
                     app:startIconDrawable="@drawable/ic_baseline_date_range_36"
                     app:endIconMode="clear_text"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/manage_task_text_input"
+                    app:layout_constraintTop_toBottomOf="@id/manage_task_category_layout"
                     android:layout_marginTop="10dp"
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     >
@@ -88,29 +109,6 @@
                         android:text="@{viewmodel.mManagingTaskRepository.getRange}"
                         android:inputType="@{InputType.TYPE_NULL}"
 
-                        />
-
-                </com.google.android.material.textfield.TextInputLayout>
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/manage_task_layout_notify"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    app:startIconDrawable="@drawable/baseline_alarm_black_36"
-                    app:endIconDrawable="@drawable/baseline_alarm_black_36"
-                    app:endIconMode="clear_text"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/manage_task_notify_enabled"
-                    android:visibility="@{viewmodel.mManagingTaskRepository.isTaskMode ? View.VISIBLE : View.GONE}"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                    >
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/manage_task_text_notify"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:hint='Выберите дату и время уведомления'
-                        android:text="@{viewmodel.mManagingTaskRepository.getTaskNotificationString}"
-                        android:inputType="@{InputType.TYPE_NULL}"
                         />
 
                 </com.google.android.material.textfield.TextInputLayout>
@@ -133,15 +131,77 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/manage_task_divider1"
                     />
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/manage_task_layout_notify"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:startIconDrawable="@drawable/baseline_alarm_black_36"
+                    app:endIconDrawable="@drawable/baseline_alarm_black_36"
+                    app:endIconMode="clear_text"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/manage_task_notify_enabled"
+                    android:visibility="@{viewmodel.mManagingTaskRepository.isTaskMode ? View.VISIBLE : View.GONE}"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    >
 
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/manage_task_text_notify"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint='Выберите дату и время уведомления'
+                        android:text="@{viewmodel.mManagingTaskRepository.getTaskNotificationString}"
+                        android:inputType="@{InputType.TYPE_NULL}"
+                        android:focusable="true"
+                        android:focusableInTouchMode="true"
+                        />
+
+                </com.google.android.material.textfield.TextInputLayout>
+                <com.google.android.material.checkbox.MaterialCheckBox
+                    android:id="@+id/manage_task_vibrate"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Вибрация"
+                    android:checked="@={viewmodel.mManagingTaskRepository.Vibrate}"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/manage_task_layout_notify"
+                    />
+                <com.google.android.material.checkbox.MaterialCheckBox
+                    android:id="@+id/manage_task_sound_enabled"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Звук"
+                    android:checked="@={viewmodel.mManagingTaskRepository.taskSoundState}"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/manage_task_vibrate"
+                    />
                 <androidx.constraintlayout.widget.Barrier
-                    android:id="@+id/manage_task_barrier_1"
+                    android:id="@+id/manage_task_barrier_3"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     app:barrierDirection="bottom"
-                    app:constraint_referenced_ids="manage_task_layout_range"
-
+                    app:constraint_referenced_ids="manage_task_sound_enabled"
                     />
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/manage_task_media_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:startIconDrawable="@drawable/ic_baseline_volume_down_24"
+                    app:endIconMode="clear_text"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/manage_task_sound_enabled"
+                    android:layout_marginTop="10dp"
+                    android:visibility="@{viewmodel.mManagingTaskRepository.getTaskSoundState ? View.VISIBLE : View.GONE}"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    >
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/manage_task_media_text"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint='Мелодия при уведомлении'
+                        android:text="@{viewmodel.mManagingTaskRepository.ringtoneString}"
+                        android:inputType="@{InputType.TYPE_NULL}"
+                        />
+                </com.google.android.material.textfield.TextInputLayout>
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/manage_task_repeat_input"
                     android:layout_width="match_parent"
@@ -149,7 +209,7 @@
                     app:startIconDrawable="@drawable/ic_baseline_event_repeat_36"
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense.ExposedDropdownMenu"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/manage_task_layout_notify"
+                    app:layout_constraintTop_toBottomOf="@+id/manage_task_media_layout"
                     android:layout_marginTop="10dp"
                     android:visibility="@{viewmodel.mManagingTaskRepository.isTaskMode ? View.VISIBLE : View.GONE}"
 
@@ -164,6 +224,8 @@
                         />
 
                 </com.google.android.material.textfield.TextInputLayout>
+
+
                 <androidx.constraintlayout.widget.Barrier
                     android:id="@+id/manage_task_barrier_2"
                     android:layout_width="wrap_content"
@@ -244,7 +306,7 @@
                 <androidx.constraintlayout.widget.Group
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    app:constraint_referenced_ids="manage_task_layout_notify, manage_task_repeat_input, manage_task_pon, manage_task_vt, manage_task_sr, manage_task_cht, manage_task_pt, manage_task_sub, manage_task_vsk"
+                    app:constraint_referenced_ids="manage_task_sound_enabled, manage_task_vibrate, manage_task_layout_notify, manage_task_repeat_input, manage_task_pon, manage_task_vt, manage_task_sr, manage_task_cht, manage_task_pt, manage_task_sub, manage_task_vsk"
                     android:visibility="@{viewmodel.mManagingTaskRepository.taskNotificationState ? View.VISIBLE : View.GONE}"
                     />
                 <androidx.constraintlayout.widget.Group
@@ -254,7 +316,161 @@
                     android:visibility="@{(viewmodel.mManagingTaskRepository.getRepeatState &amp;&amp; viewmodel.mManagingTaskRepository.taskNotificationState &amp;&amp; viewmodel.mManagingTaskRepository.taskNotificationState) ? View.VISIBLE : View.GONE}"
                     />
 
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/manage_task_theme_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:startIconDrawable="@drawable/ic_baseline_palette_36"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/manage_task_vsk"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_marginTop="10dp"
+                    >
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/manage_task_theme_text"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text='@{viewmodel.mManagingTaskRepository.isTaskMode ? "Цветовая тема задачи" : "Цветовая тема проекта"}'
+                        android:inputType="@{InputType.TYPE_NULL}"
+                        />
+                </com.google.android.material.textfield.TextInputLayout>
+                <net.cachapa.expandablelayout.ExpandableLayout
+                    android:id="@+id/manage_task_color_expandable_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:el_duration="500"
+                    app:el_expanded="false"
+                    app:el_parallax="0.5"
+                    app:layout_constraintTop_toBottomOf="@id/manage_task_theme_layout"
+                    app:layout_constraintStart_toStartOf="parent"
+                    android:layout_marginTop="4dp"
+                    >
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        >
+                        <TextView
+                            android:id="@+id/manage_task_first_color_text"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            android:text="Основной цвет"
+                            android:textSize="@dimen/big_font"
+                            android:layout_marginTop="35dp"
+                            />
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/manage_task_first_color_button"
+                            android:layout_width="100dp"
+                            android:layout_height="50dp"
+                            app:layout_constraintRight_toRightOf="parent"
+                            app:layout_constraintTop_toTopOf="@id/manage_task_first_color_text"
+                            app:cornerRadius="10dp"
+                            app:backgroundColor="@{viewmodel.mManagingTaskRepository.getFirstColor}"
+
+                            app:strokeWidth="1dp"
+                            />
+                        <TextView
+                            android:id="@+id/manage_task_second_color_text"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            app:layout_constraintTop_toBottomOf="@+id/manage_task_first_color_text"
+                            app:layout_constraintStart_toStartOf="parent"
+                            android:text="Дополнительный цвет"
+                            android:textSize="@dimen/big_font"
+                            android:layout_marginTop="35dp"
+                            />
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/manage_task_second_color_button"
+                            android:layout_width="100dp"
+                            android:layout_height="50dp"
+                            app:layout_constraintRight_toRightOf="parent"
+                            app:layout_constraintTop_toTopOf="@id/manage_task_second_color_text"
+                            app:cornerRadius="10dp"
+                            app:backgroundColor="@{viewmodel.mManagingTaskRepository.getSecondColor}"
+                            app:strokeWidth="1dp"
+                            />
+                        <TextView
+                            android:id="@+id/manage_task_first_text_color_text"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            app:layout_constraintTop_toBottomOf="@+id/manage_task_second_color_text"
+                            app:layout_constraintStart_toStartOf="parent"
+                            android:text="Цвет основного текста"
+                            android:textSize="@dimen/big_font"
+                            android:layout_marginTop="35dp"
+                            />
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/manage_task_first_text_color_button"
+                            android:layout_width="100dp"
+                            android:layout_height="50dp"
+                            app:layout_constraintRight_toRightOf="parent"
+                            app:layout_constraintTop_toTopOf="@id/manage_task_first_text_color_text"
+                            app:cornerRadius="10dp"
+                            app:backgroundColor="@{viewmodel.mManagingTaskRepository.getFirstTextColor}"
+                            app:strokeWidth="1dp"
+                            />
+                        <TextView
+                            android:id="@+id/manage_task_second_text_color_text"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            app:layout_constraintTop_toBottomOf="@+id/manage_task_first_text_color_text"
+                            app:layout_constraintStart_toStartOf="parent"
+                            android:text="Цвет текста"
+                            android:textSize="@dimen/big_font"
+                            android:layout_marginTop="35dp"
+                            />
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/manage_task_second_text_color_button"
+                            android:layout_width="100dp"
+                            android:layout_height="50dp"
+                            app:layout_constraintRight_toRightOf="parent"
+                            app:layout_constraintTop_toTopOf="@id/manage_task_second_text_color_text"
+                            app:cornerRadius="10dp"
+                            app:backgroundColor="@{viewmodel.mManagingTaskRepository.getSecondTextColor}"
+                            app:strokeWidth="1dp"
+                            />
+                        <TextView
+                            android:id="@+id/manage_task_icon_color_text"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            app:layout_constraintTop_toBottomOf="@+id/manage_task_second_text_color_text"
+                            app:layout_constraintStart_toStartOf="parent"
+                            android:text="Цвет иконок"
+                            android:textSize="@dimen/big_font"
+                            android:layout_marginTop="35dp"
+                            />
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/manage_task_icon_color_button"
+                            android:layout_width="100dp"
+                            android:layout_height="50dp"
+                            app:layout_constraintRight_toRightOf="parent"
+                            app:layout_constraintTop_toTopOf="@id/manage_task_icon_color_text"
+                            app:cornerRadius="10dp"
+                            app:backgroundColor="@{viewmodel.mManagingTaskRepository.getIconColor}"
+                            app:strokeWidth="1dp"
+                            />
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/manage_task_random_theme_button"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/manage_task_icon_color_button"
+                            android:text="Случайная"
+                            android:layout_marginTop="10dp"
+                            app:cornerRadius="10dp"
+                            android:onClick="@{() -> viewmodel.mManagingTaskRepository.applyRandomTheme()}"
+                            app:backgroundColor="@color/main_4"
+                            app:strokeWidth="1dp"
+                            />
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                </net.cachapa.expandablelayout.ExpandableLayout>
+
+
             </androidx.constraintlayout.widget.ConstraintLayout>
+
         </ScrollView>
         <com.google.android.material.button.MaterialButton
             android:id="@+id/manage_task_button_save"

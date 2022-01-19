@@ -7,6 +7,7 @@ import androidx.lifecycle.LiveData;
 import com.example.clock.dao.CategoryDao;
 import com.example.clock.dao.ThemeDao;
 import com.example.clock.dao.UserCaseStatisticDao;
+import com.example.clock.model.ProjectAndTheme;
 import com.example.clock.model.TaskAndTheme;
 import com.example.clock.model.Theme;
 import com.example.clock.model.UserCaseStatistic;
@@ -66,6 +67,14 @@ public class MemtaskRepositoryBase {
         return this.mDatabase.taskDao() .getTasksLiveDataWithTheme(startMillis, endMillis);
     }
 
+    public LiveData<TaskAndTheme> getTaskAndTheme(String taskID){
+        return this.mDatabase.taskDao() .getTaskThemeLiveData(taskID);
+    }
+
+    public LiveData<ProjectAndTheme> getProjectAndTheme(String projectID){
+        return this.mDatabase.projectDao().getProjectThemeLiveData(projectID);
+    }
+
     public LiveData<List<UserCaseStatistic>> getUserCaseStatistic(long rangeStartMillis, long rangeEndMillis){
         return this.mDatabase.userCaseStatisticDao().getUserCaseStatistic(rangeStartMillis, rangeEndMillis);
     }
@@ -75,6 +84,8 @@ public class MemtaskRepositoryBase {
     public LiveData<Task> getTaskLiveData(String taskID){
         return this.mDatabase.taskDao().getTaskLiveData(taskID);
     }
+
+
 
     // Adding new data
     public void addUserCaseStatisticSilently(UserCaseStatistic ucs){

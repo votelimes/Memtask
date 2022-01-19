@@ -1,24 +1,36 @@
 package com.example.clock.activities;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.util.Pair;
 import androidx.databinding.DataBindingUtil;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
+import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
+import android.widget.Toast;
 
 import com.example.clock.R;
 import com.example.clock.app.App;
 import com.example.clock.databinding.ActivityManageTaskBinding;
 import com.example.clock.model.Category;
-import com.example.clock.model.Project;
-import com.example.clock.model.Task;
+import com.example.clock.model.ProjectAndTheme;
+import com.example.clock.model.TaskAndTheme;
+import com.example.clock.model.Theme;
+import com.example.clock.storageutils.Tuple3;
+import com.example.clock.storageutils.Tuple4;
 import com.example.clock.viewmodels.ManageTaskViewModel;
 import com.example.clock.viewmodels.ViewModelFactoryBase;
 import com.google.android.material.datepicker.MaterialDatePicker;
@@ -28,21 +40,16 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.android.material.timepicker.MaterialTimePicker;
 import com.google.android.material.timepicker.TimeFormat;
-import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
-import com.wdullaer.materialdatetimepicker.time.TimePickerDialog;
 
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
+import net.cachapa.expandablelayout.ExpandableLayout;
+
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.Locale;
+import java.util.List;
 import java.util.Objects;
 
-public class ManageTaskActivity extends AppCompatActivity {
+public class ManageTaskActivity extends AppCompatActivity implements View.OnFocusChangeListener {
 
     ManageTaskViewModel mViewModel;
     ViewModelFactoryBase mFactory;
@@ -50,6 +57,7 @@ public class ManageTaskActivity extends AppCompatActivity {
     TextInputEditText nameText;
     TextInputLayout mRepeatModesLayout;
     LocalDateTime dateTime = LocalDateTime.now(ZoneOffset.UTC);
+    ExpandableLayout expandableColorLayout;
 
 
     int selectedField; // 1 startTime, 2 endTime, 3 NotifyTime
@@ -57,44 +65,29 @@ public class ManageTaskActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         mActivityBinding = DataBindingUtil
                 .setContentView(this, R.layout.activity_manage_task);
 
         String mode =  getIntent()
                 .getStringExtra("mode");
+        String itemID = getIntent().getStringExtra("ID");
 
-        Task managingTask = (Task) getIntent().getSerializableExtra("ManagingTask");
+        long categoryID = getIntent().getLongExtra("category", -1);
 
-        Project managingProject = (Project) getIntent().getSerializableExtra("ManagingProject");
+        String parentID = getIntent().getStringExtra("parent");
 
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd.MM.yyyy");
 
-        if(managingTask == null && mode.equals("Task")){
-            managingTask = new Task("",  "", App.getSettings().getLastCategory().first);
-        }
-        else if(managingProject == null && mode.equals("Project")){
-            managingProject = new Project("", "", App.getSettings().getLastCategory().first);
-        }
+        mFactory = new ViewModelFactoryBase(
+                getApplication(),
+                App.getDatabase(),
+                App.getSilentDatabase(),
+                mode, itemID, categoryID, parentID
+        );
 
-        if(mode.equals("Task")) {
-            mFactory = new ViewModelFactoryBase(
-                    getApplication(),
-                    App.getDatabase(),
-                    App.getSilentDatabase(),
-                    managingTask
-            );
-        }
-        else if(mode.equals("Project")){
-            mFactory = new ViewModelFactoryBase(
-                    getApplication(),
-                    App.getDatabase(),
-                    App.getSilentDatabase(),
-                    managingProject
-            );
-        }
         mViewModel = new ViewModelProvider(this, mFactory).get(ManageTaskViewModel.class);
-
-        mActivityBinding.setViewmodel(mViewModel);
+        mViewModel.intermediate.observe(this, intermediateObs);
 
         nameText = findViewById(R.id.manage_task_text_name);
         nameText.addTextChangedListener(new TextWatcher() {
@@ -122,21 +115,18 @@ public class ManageTaskActivity extends AppCompatActivity {
             public void afterTextChanged(Editable editable) {
             }
         });
-
-        if(mViewModel.mManagingTaskRepository.isTaskMode()){
-            AutoCompleteTextView repeatModesView = findViewById(R.id.manage_task_repeat_text_view);
-            final String[] repeatModes = getResources().getStringArray(R.array.repeat_modes);
-            ArrayAdapter<String> repeatModesAdapter = new ArrayAdapter<>(
-                    ManageTaskActivity.this,
-                    R.layout.dropdown_repeatmodes_item,
-                    repeatModes
-            );
-            repeatModesView.setAdapter(repeatModesAdapter);
-            repeatModesView.setOnItemClickListener((parent, view, position, id) -> {
-                String selectedMode = repeatModesAdapter.getItem(position);
-                mViewModel.mManagingTaskRepository.setRepeatModeString(selectedMode);
-            });
-        }
+        AutoCompleteTextView repeatModesView = findViewById(R.id.manage_task_repeat_text_view);
+        final String[] repeatModes = getResources().getStringArray(R.array.repeat_modes);
+        ArrayAdapter<String> repeatModesAdapter = new ArrayAdapter<>(
+                ManageTaskActivity.this,
+                R.layout.dropdown_repeatmodes_item,
+                repeatModes
+        );
+        repeatModesView.setAdapter(repeatModesAdapter);
+        repeatModesView.setOnItemClickListener((parent, view, position, id) -> {
+            String selectedMode = repeatModesAdapter.getItem(position);
+            mViewModel.mManagingTaskRepository.setRepeatModeString(selectedMode);
+        });
 
         TextInputEditText rangeLayout = findViewById(R.id.manage_task_text_range);
         TextInputEditText notificationLayout = findViewById(R.id.manage_task_text_notify);
@@ -166,6 +156,7 @@ public class ManageTaskActivity extends AppCompatActivity {
                         }
                     });
                     datepicker.show(getSupportFragmentManager(), datepicker.toString());
+                view.clearFocus();
                 }
             }
         });
@@ -256,6 +247,70 @@ public class ManageTaskActivity extends AppCompatActivity {
                         }
                     });
                     datepicker.show(getSupportFragmentManager(), datepicker.toString());*/
+                    view.clearFocus();
+                }
+            }
+        });
+
+        expandableColorLayout = findViewById(R.id.manage_task_color_expandable_layout);
+        TextInputEditText themeText = findViewById(R.id.manage_task_theme_text);
+        themeText.setOnFocusChangeListener(this);
+
+        TextInputEditText ringtoneField = findViewById(R.id.manage_task_media_text);
+        ringtoneField.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean b) {
+                if(b){
+                    Intent intent = new Intent(RingtoneManager.ACTION_RINGTONE_PICKER);
+                    intent.putExtra(RingtoneManager.EXTRA_RINGTONE_TITLE, "Выберите рингтон для уведомления");
+                    intent.putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_SILENT, true);
+                    intent.putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_DEFAULT, true);
+                    intent.putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE,RingtoneManager.TYPE_NOTIFICATION);
+                    activityLauncher.launch(intent);
+                    view.clearFocus();
+                }
+            }
+        });
+
+        TextInputEditText categoryField = findViewById(R.id.manage_task_category_text);
+        categoryField.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean b) {
+                if(b){
+
+                    AlertDialog.Builder builderSingle = new AlertDialog.Builder(ManageTaskActivity.this);
+                    builderSingle.setTitle("Выберите категорию");
+
+                    final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(ManageTaskActivity.this, android.R.layout.select_dialog_singlechoice);
+                    mViewModel.intermediate.getValue().fourth.forEach(category -> {
+                        arrayAdapter.add(category.getName());
+                    });
+                    builderSingle.setNegativeButton("Отменить", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    });
+
+                    builderSingle.setAdapter(arrayAdapter, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            mViewModel.mManagingTaskRepository
+                                    .setCategory(mViewModel
+                                            .intermediate
+                                            .getValue()
+                                            .fourth.get(which));
+                            dialog.dismiss();
+                        }
+                    });
+                    builderSingle.show();
+
+
+
+
+
+
+                    view.clearFocus();
                 }
             }
         });
@@ -265,7 +320,7 @@ public class ManageTaskActivity extends AppCompatActivity {
         if(name == null || name.length() == 0){
             return 1;
         }
-        else if(name.length() > 20){
+        else if(name.length() > 50){
             return 2;
         }
         else{
@@ -293,7 +348,6 @@ public class ManageTaskActivity extends AppCompatActivity {
         }
 
         mViewModel.saveChanges();
-        mViewModel.mManagingTaskRepository.scheduleOrCancel(this);
         if(mViewModel.mManagingTaskRepository.isTaskMode()) {
             setResult(20); // 20 Task created
         }
@@ -301,5 +355,36 @@ public class ManageTaskActivity extends AppCompatActivity {
             setResult(30); // 30 Project created
         }
         finish();
+    }
+
+    final Observer<Tuple4<TaskAndTheme, ProjectAndTheme, List<Theme>, List<Category>>> intermediateObs = new Observer<Tuple4<TaskAndTheme, ProjectAndTheme, List<Theme>, List<Category>>>() {
+        @Override
+        public void onChanged(Tuple4<TaskAndTheme, ProjectAndTheme, List<Theme>, List<Category>> data) {
+            mViewModel.init();
+            mActivityBinding.setViewmodel(mViewModel);
+        }
+    };
+
+    final ActivityResultLauncher<Intent> activityLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == RESULT_OK) {
+                    Uri uri = result.getData().getParcelableExtra(RingtoneManager.EXTRA_RINGTONE_PICKED_URI);
+                    Ringtone r = RingtoneManager.getRingtone(this, uri);
+                    mViewModel.mManagingTaskRepository.setRingtonePath(uri.getPath());
+                }
+            });
+
+    @Override
+    public void onFocusChange(View view, boolean b) {
+        if(b){
+            if(expandableColorLayout.isExpanded()){
+                expandableColorLayout.collapse();
+            }
+            else{
+                expandableColorLayout.expand();
+            }
+            view.clearFocus();
+        }
     }
 }

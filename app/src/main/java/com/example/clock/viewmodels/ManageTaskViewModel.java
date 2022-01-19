@@ -3,9 +3,10 @@ package com.example.clock.viewmodels;
 
 import android.app.Application;
 import android.content.Context;
-import android.view.View;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
+import android.net.Uri;
 
-import androidx.annotation.NonNull;
 import androidx.databinding.BaseObservable;
 import androidx.databinding.Bindable;
 
@@ -15,27 +16,46 @@ import androidx.lifecycle.LiveData;
 import com.example.clock.BR;
 import com.example.clock.R;
 import com.example.clock.app.App;
+import com.example.clock.model.Category;
 import com.example.clock.model.Project;
+import com.example.clock.model.ProjectAndTheme;
 import com.example.clock.model.Task;
+import com.example.clock.model.TaskAndTheme;
+import com.example.clock.model.Theme;
+import com.example.clock.repositories.MemtaskRepositoryBase;
 import com.example.clock.storageutils.Database;
+import com.example.clock.storageutils.LiveDataTransformations;
+import com.example.clock.storageutils.Tuple3;
+import com.example.clock.storageutils.Tuple4;
 
+import java.io.File;
 import java.text.SimpleDateFormat;
-import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class ManageTaskViewModel extends MemtaskViewModelBase {
 
     public Observer mManagingTaskRepository;
 
-    public ManageTaskViewModel(Application application, Database database, Database silentDatabase, Task managingTask){
+    /*public LiveData<Tuple2<TaskAndTheme, List<Theme>>> taskIntermediate;
+    public LiveData<Tuple2<ProjectAndTheme, List<Theme>>> projectIntermediate;*/
+    public LiveData<Tuple4<TaskAndTheme, ProjectAndTheme, List<Theme>, List<Category>>> intermediate;
+    LiveData<TaskAndTheme> taskLiveData;
+    LiveData<ProjectAndTheme> projectLiveData;
+    String mMode;
+    String mTaskID;
+    String mParentID;
+    long mCategoryID;
+    /*public ManageTaskViewModel(Application application, Database database, Database silentDatabase, Task managingTask){
         mManagingTaskRepository = new Observer(managingTask);
         loadData(application, database, silentDatabase);
     }
@@ -43,20 +63,84 @@ public class ManageTaskViewModel extends MemtaskViewModelBase {
     public ManageTaskViewModel(Application application, Database database, Database silentDatabase, Project managingProject){
         mManagingTaskRepository = new Observer(managingProject);
         loadData(application, database, silentDatabase);
-    }
+    }*/
 
+    public ManageTaskViewModel(Application application, Database database, Database silentDatabase,
+                               String mode, String taskID, long categoryID, String parentID){
+        mManagingTaskRepository = new Observer();
+        mMode = mode;
+        mCategoryID = categoryID;
+        mParentID = parentID;
+        if(taskID != null && taskID.length() != 0) {
+            mTaskID = taskID;
+        }
+        else{
+            mTaskID = "";
+        }
+        loadData(application, database, silentDatabase);
+        intermediate = LiveDataTransformations.ifNotNull(taskLiveData, projectLiveData, themesLiveData, categoriesLiveData);
+    }
+    protected void loadData(Application application, Database database, Database silentDatabase){
+        mRepository = new MemtaskRepositoryBase(application, database, silentDatabase);
+        tasksLiveData = null;
+        projectsLiveData = null;
+        categoriesLiveData = mRepository.getAllCategoriesLive();
+        themesLiveData = mRepository.getAllThemesLive();
+        taskLiveData = mRepository.getTaskAndTheme(mTaskID);
+        projectLiveData = mRepository.getProjectAndTheme(mTaskID);
+    }
     public  LiveData<List<Task>> getTasksData(Application application, Database database, Database silentDatabase){
         if(mRepository == null){
             loadData(application, database, silentDatabase);
         }
         return this.tasksLiveData;
     }
-
     public  LiveData<List<Project>> getProjectsData(Application application, Database database, Database silentDatabase){
         if(mRepository == null){
             loadData(application, database, silentDatabase);
         }
         return this.projectsLiveData;
+    }
+    public void init(){
+        if (mMode.equals("TaskEditing")) {
+            mManagingTaskRepository.setManagingTask(taskLiveData.getValue().task);
+            mManagingTaskRepository.setTheme(taskLiveData.getValue().theme);
+        }
+        else if(mMode.equals("ProjectEditing")){
+            mManagingTaskRepository.setManagingProject(projectLiveData.getValue().project);
+            mManagingTaskRepository.setTheme(projectLiveData.getValue().theme);
+        }
+        else if(mMode.equals("TaskCreating") && mManagingTaskRepository.mManagingTask == null){
+            mManagingTaskRepository.mManagingTask = new Task("", "", mCategoryID);
+            if(mParentID != null && mParentID.length() != 0){
+                mManagingTaskRepository.mManagingTask.setParentID(mParentID);
+            }
+            if(App.getSettings().getGenerateRandomThemes()){
+                mManagingTaskRepository.setTheme(getRandomBaseTheme());
+            }
+            else{
+                intermediate.getValue().third.forEach(theme -> {
+                    if(theme.getName().equals("MainTaskTheme")){
+                        mManagingTaskRepository.setTheme(theme);
+                        return;
+                    }
+                });
+            }
+        }
+        else if(mMode.equals("ProjectCreating") && mManagingTaskRepository.mManagingProject == null){
+            mManagingTaskRepository.mManagingProject = new Project("", "", mCategoryID);
+            if(App.getSettings().getGenerateRandomThemes()){
+                mManagingTaskRepository.setTheme(getRandomBaseTheme());
+            }
+            else{
+                intermediate.getValue().third.forEach(theme -> {
+                    if(theme.getName() == "MainProjectTheme"){
+                        mManagingTaskRepository.setTheme(theme);
+                        return;
+                    }
+                });
+            }
+        }
     }
 
     public void saveChanges(){
@@ -66,23 +150,133 @@ public class ManageTaskViewModel extends MemtaskViewModelBase {
         else if(mManagingTaskRepository.isProjectMode()){
             this.mRepository.addProject(this.mManagingTaskRepository.mManagingProject);
         }
+        if(mManagingTaskRepository.themeChanged){
+            mManagingTaskRepository.mTheme.reGenerateUUID();
+            mManagingTaskRepository.mTheme.setBaseTheme(false);
+            mRepository.addTheme(mManagingTaskRepository.mTheme);
+        }
     }
 
-    public static class Observer extends BaseObservable{
+    private Theme getRandomBaseTheme(){
+        List<Integer> baseThemesIndexes = new ArrayList<>(intermediate.getValue().third.size());
 
+        for(int i = 0; i < intermediate.getValue().third.size(); i++){
+            if(intermediate.getValue().third.get(i).isBaseTheme()){
+                baseThemesIndexes.add(i);
+            }
+        }
+        return intermediate.getValue().third.get(baseThemesIndexes.get(ThreadLocalRandom.current().nextInt(0, baseThemesIndexes.size())));
+    }
+
+    public class Observer extends BaseObservable{
         private Task mManagingTask;
         private Project mManagingProject;
-        public long notificationPickerTimeMillis;
-        public long notificationPickerDateMillis;
 
-        Observer(@NonNull Task managingTask){
-            this.mManagingTask = managingTask;
+        private Theme mTheme;
+        public boolean themeChanged = false;
+
+        Observer(){
+            this.mManagingTask = null;
             this.mManagingProject = null;
         }
 
-        Observer(@NonNull Project managingProject){
-            this.mManagingProject = managingProject;
-            this.mManagingTask = null;
+        @Bindable
+        public String getCategory(){
+            if(intermediate.getValue().fourth == null){
+                return "Список категорий пуст";
+            }
+            long catID = 0;
+            if(isTaskMode()){
+                catID = mManagingTask.getCategoryId();
+            }
+            else if(isProjectMode()){
+                catID = mManagingProject.getCategoryId();
+            }
+            if(catID == -1){
+                return "";
+            }
+            else{
+                for(int i = 0; i < intermediate.getValue().fourth.size(); i++){
+                    Category category = intermediate.getValue().fourth.get(i);
+                    if(category.getCategoryId() == catID){
+                        return category.getName();
+                    }
+                }
+                return "";
+            }
+        }
+
+        public void setCategory(Category category){
+            if(isTaskMode()){
+                mManagingTask.setCategoryId(category.getCategoryId());
+            }
+            else if(isProjectMode()){
+                mManagingProject.setCategoryId(category.getCategoryId());
+            }
+            notifyPropertyChanged(BR.category);
+        }
+
+        public void setManagingTask(Task mManagingTask) {
+            this.mManagingTask = mManagingTask;
+        }
+
+        public void setManagingProject(Project mManagingProject) {
+            this.mManagingProject = mManagingProject;
+        }
+
+        @Bindable
+        public boolean isVibrate(){
+            if(isProjectMode()){
+                return false;
+            }
+            return mManagingTask.isVibrate();
+        }
+
+        public void setVibrate(boolean vibrate){
+            mManagingTask.setVibrate(vibrate);
+            notifyPropertyChanged(BR.vibrate);
+        }
+
+        public void setRingtonePath(String path){
+            mManagingTask.setRingtonePath(path);
+            notifyPropertyChanged(BR.ringtoneString);
+        }
+
+        @Bindable
+        public String getRingtoneString(){
+            if(isProjectMode()){
+                return "";
+            }
+            String ringtonePath = mManagingTask.getRingtonePath();
+            if(ringtonePath.length() != 0) {
+                Uri uri = Uri.fromFile(new File(ringtonePath));
+                Ringtone ring = RingtoneManager.getRingtone(App.getInstance(), uri);
+                return ring.getTitle(App.getInstance());
+            }
+            else{
+                return "";
+            }
+        }
+
+        @Bindable
+        public boolean getTaskSoundState(){
+            if(isProjectMode()){
+                return false;
+            }
+            return mManagingTask.isMediaEnabled();
+        }
+
+        public void setTaskSoundState(boolean state){
+            mManagingTask.setMediaEnabled(state);
+            notifyPropertyChanged(BR.taskSoundState);
+        }
+
+        public Theme getTheme() {
+            return mTheme;
+        }
+
+        public void setTheme(Theme theme) {
+            this.mTheme = theme;
         }
 
         @Bindable
@@ -263,6 +457,9 @@ public class ManageTaskViewModel extends MemtaskViewModelBase {
 
         @Bindable
         public boolean getRepeatState(){
+            if(isProjectMode()){
+                return false;
+            }
             return mManagingTask != null && mManagingTask.getRepeatMode() == 3;
         }
 
@@ -355,6 +552,9 @@ public class ManageTaskViewModel extends MemtaskViewModelBase {
         }
 
         public int getRepeatMode(){
+            if(isProjectMode()){
+                return -1;
+            }
             return mManagingTask.getRepeatMode();
         }
 
@@ -362,8 +562,105 @@ public class ManageTaskViewModel extends MemtaskViewModelBase {
             mManagingTask.setDaysOfWeek(state);
         }
 
+        @Bindable
+        public int getFirstColor(){
+            if(mTheme == null){
+                return 1;
+            }
+            return mTheme.getFirstColor();
+        }
+
+        public void setFirstColor(int color){
+            themeChanged = true;
+            mTheme.setFirstColor(color);
+            notifyPropertyChanged(BR.firstColor);
+        }
+
+        @Bindable
+        public int getSecondColor(){
+            if(mTheme == null){
+                return 1;
+            }
+            return mTheme.getSecondColor();
+        }
+
+        public void setSecondColor(int color){
+            themeChanged = true;
+            mTheme.setSecondColor(color);
+            notifyPropertyChanged(BR.firstColor);
+        }
+
+        @Bindable
+        public int getFirstTextColor(){
+            if(mTheme == null){
+                return 1;
+            }
+            return mTheme.getMainTextColor();
+        }
+
+        public void setFirstTextColor(int color){
+            themeChanged = true;
+            mTheme.setMainTextColor(color);
+            notifyPropertyChanged(BR.firstColor);
+        }
+
+        @Bindable
+        public int getSecondTextColor(){
+            if(mTheme == null){
+                return 1;
+            }
+            return mTheme.getAdditionalTextColor();
+        }
+
+        public void setSecondTextColor(int color){
+            themeChanged = true;
+            mTheme.setAdditionalTextColor(color);
+            notifyPropertyChanged(BR.firstColor);
+        }
+
+        @Bindable
+        public int getIconColor(){
+            if(mTheme == null){
+                return 1;
+            }
+            return mTheme.getIconColor();
+        }
+
+        public void setIconColor(int color){
+            themeChanged = true;
+            mTheme.setIconColor(color);
+            notifyPropertyChanged(BR.firstColor);
+        }
+
+        @Bindable
+        public int getTextColor(){
+            if(mTheme == null){
+                return 1;
+            }
+            return mTheme.getMainTextColor();
+        }
+
+        public void applyRandomTheme(){
+            themeChanged = false;
+            mTheme = ManageTaskViewModel.this.getRandomBaseTheme();
+            if(isTaskMode() && App.getSettings().getGenerateRandomThemes()){
+                mManagingTask.setThemeID(mTheme.getID());
+            }
+            else if(isProjectMode() && App.getSettings().getGenerateRandomThemes()){
+                mManagingProject.setThemeID(mTheme.getID());
+            }
+
+            notifyPropertyChanged(BR.firstColor);
+            notifyPropertyChanged(BR.secondColor);
+            notifyPropertyChanged(BR.firstTextColor);
+            notifyPropertyChanged(BR.secondTextColor);
+            notifyPropertyChanged(BR.iconColor);
+        }
 
         public boolean isAnyDaySelected(){
+            if(isProjectMode()){
+                return false;
+            }
             if(getMonday() || getTuesday() || getWednesday() || getThursday() || getFriday()
             || getSaturday() || getSunday()){
                 return true;
@@ -379,30 +676,51 @@ public class ManageTaskViewModel extends MemtaskViewModelBase {
 
         @Bindable
         public boolean getMonday(){
+            if(isProjectMode()){
+                return false;
+            }
             return mManagingTask.isMonday();
         }
         @Bindable
         public boolean getTuesday(){
+            if(isProjectMode()){
+                return false;
+            }
             return mManagingTask.isTuesday();
         }
         @Bindable
         public boolean getWednesday(){
+            if(isProjectMode()){
+                return false;
+            }
             return mManagingTask.isWednesday();
         }
         @Bindable
         public boolean getThursday(){
+            if(isProjectMode()){
+                return false;
+            }
             return mManagingTask.isThursday();
         }
         @Bindable
         public boolean getFriday(){
+            if(isProjectMode()){
+                return false;
+            }
             return mManagingTask.isFriday();
         }
         @Bindable
         public boolean getSaturday(){
+            if(isProjectMode()){
+                return false;
+            }
             return mManagingTask.isSaturday();
         }
         @Bindable
         public boolean getSunday(){
+            if(isProjectMode()){
+                return false;
+            }
             return mManagingTask.isSunday();
         }
         // Setters

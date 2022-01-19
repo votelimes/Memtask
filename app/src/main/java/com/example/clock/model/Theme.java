@@ -3,16 +3,19 @@ package com.example.clock.model;
 
 import android.graphics.Color;
 
+import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
+import java.util.UUID;
+
 @Entity(tableName = "theme_table")
 public class Theme {
-
-    @PrimaryKey(autoGenerate = true)
+    @PrimaryKey
+    @NonNull
     @ColumnInfo(name = "theme_ID")
-    private long mID;
+    private String mID;
     //@ColumnInfo(name = "theme_name")
     @ColumnInfo(name = "theme_name")
     private String mName;
@@ -23,42 +26,60 @@ public class Theme {
 
     private int mIconColor;
 
-    private int mTextColor;
+    private int mMainTextColor;
+
+    private int mAdditionalTextColor;
 
     private int mImage;
 
-    public Theme(long mID, String name, int mFirstColor, int mSecondColor, int mImage) {
-        this.mID = mID;
+    private boolean baseTheme;
+
+    public Theme(String name, int mFirstColor, int mSecondColor, int mImage) {
+        this.mID = generateUUID();
         this.mName = name;
         this.mFirstColor = mFirstColor;
         this.mSecondColor = mSecondColor;
         this.mImage = mImage;
         this.mColorThird = 0;
+        this.baseTheme = true;
+        this.mAdditionalTextColor = -1;
     }
 
-    public Theme(long mID, String name, String mFirstColor, String mSecondColor, String mThirdColor, int mImage) {
-        this.mID = mID;
+    public Theme(String name, String mFirstColor, String mSecondColor, String mThirdColor, int mImage) {
+        this.mID = generateUUID();
         this.mName = name;
         this.mFirstColor = Color.parseColor(mFirstColor);
         this.mSecondColor = Color.parseColor(mSecondColor);
         this.mColorThird = Color.parseColor(mThirdColor);
         this.mImage = mImage;
+        this.baseTheme = true;
+        this.mAdditionalTextColor = -1;
     }
 
-    public Theme(long mID, String name, String mFirstColor, String mSecondColor, int mImage) {
-        this.mID = mID;
+    public Theme(String name, String mFirstColor, String mSecondColor, int mImage) {
+        this.mID = generateUUID();
         this.mName = name;
         this.mFirstColor = Color.parseColor(mFirstColor);
         this.mSecondColor = Color.parseColor(mSecondColor);
         this.mColorThird = 0;
         this.mImage = mImage;
+        this.baseTheme = true;
+        this.mAdditionalTextColor = -1;
     }
 
-    public long getID() {
+    protected String generateUUID(){
+        return UUID.randomUUID().toString();
+    }
+
+    public void reGenerateUUID(){
+        this.mID = generateUUID();
+    }
+
+    public String getID() {
         return mID;
     }
 
-    public void setID(long mId) {
+    public void setID(String mId) {
         this.mID = mId;
     }
 
@@ -102,12 +123,12 @@ public class Theme {
         this.mImage = mImage;
     }
 
-    public int getTextColor() {
-        return mTextColor;
+    public int getMainTextColor() {
+        return mMainTextColor;
     }
 
-    public void setTextColor(int mTextColor) {
-        this.mTextColor = mTextColor;
+    public void setMainTextColor(int mTextColor) {
+        this.mMainTextColor = mTextColor;
     }
 
     public int getIconColor() {
@@ -120,5 +141,21 @@ public class Theme {
 
     public void setIconColor(String mIconColor) {
         this.mIconColor = Color.parseColor(mIconColor);
+    }
+
+    public int getAdditionalTextColor() {
+        return mAdditionalTextColor;
+    }
+
+    public void setAdditionalTextColor(int mAdditionalTextColor) {
+        this.mAdditionalTextColor = mAdditionalTextColor;
+    }
+
+    public boolean isBaseTheme() {
+        return baseTheme;
+    }
+
+    public void setBaseTheme(boolean baseTheme) {
+        this.baseTheme = baseTheme;
     }
 }

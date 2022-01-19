@@ -87,8 +87,8 @@ public class ManageCategoryActivity extends AppCompatActivity {
                     .getAsInt();
 
             Theme randomTheme = data.get(selectedThemeIndex);
-            if(mViewModel.mManagingCategoryRepository.getThemeID() == -2) {
-                mViewModel.mManagingCategoryRepository.installTheme(randomTheme);
+            if(mViewModel.mManagingCategoryRepository.getThemeID() == "") {
+                mViewModel.mManagingCategoryRepository.setThemeID(randomTheme.getID());
             }
         });
 

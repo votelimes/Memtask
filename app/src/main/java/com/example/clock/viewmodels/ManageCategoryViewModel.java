@@ -50,6 +50,7 @@ public class ManageCategoryViewModel extends MemtaskViewModelBase {
     public static class Observer extends BaseObservable {
 
         private Category mManagingCategory;
+        private Theme mTheme;
 
 
         Observer(@NonNull Category managingCategory){
@@ -68,8 +69,6 @@ public class ManageCategoryViewModel extends MemtaskViewModelBase {
 
         @Bindable
         public int getFirstColor(){
-            Log.d("MCVM: ", "GET_FIRST_COLOR_CALL");
-            Log.d("VALUE: ", String.valueOf(this.mManagingCategory.getFirstColor()));
             return this.mManagingCategory.getFirstColor();
         }
 
@@ -90,13 +89,13 @@ public class ManageCategoryViewModel extends MemtaskViewModelBase {
 
         public void setFirstColor(int color){
             this.mManagingCategory.setFirstColor(color);
-            this.mManagingCategory.setThemeID(-1);
+            this.mManagingCategory.setThemeID("");
             notifyPropertyChanged(BR.firstColor);
         }
 
         public void setSecondColor(int color){
             this.mManagingCategory.setSecondColor(color);
-            this.mManagingCategory.setThemeID(-1);
+            this.mManagingCategory.setThemeID("");
             notifyPropertyChanged(BR.secondColor);
         }
 
@@ -106,11 +105,11 @@ public class ManageCategoryViewModel extends MemtaskViewModelBase {
             notifyPropertyChanged(BR.secondColor);
         }
 
-        public long getThemeID(){
+        public String getThemeID(){
             return this.mManagingCategory.getThemeID();
         }
 
-        public void setThemeID(long id){
+        public void setThemeID(String id){
             this.mManagingCategory.setThemeID(id);
         }
     }

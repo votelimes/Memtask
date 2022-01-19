@@ -23,7 +23,7 @@ public class Category implements Serializable {
     private int mFirstColor;
     private int mSecondColor;
 
-    private long mThemeID;
+    private String mThemeID;
 
 
     public Category(){
@@ -33,6 +33,7 @@ public class Category implements Serializable {
         mType = "FIELD";
         mFirstColor = Integer.parseInt("FFFFFF", 16);
         mDescription = "";
+        mThemeID = "";
     }
 
     public Category(@NonNull String name, @NonNull String type){
@@ -41,6 +42,7 @@ public class Category implements Serializable {
         mType = type;
         mFirstColor = Integer.parseInt("FFFFFF", 16);
         mDescription = "";
+        mThemeID = "";
     }
 
     public Category(@NonNull String name,
@@ -53,7 +55,7 @@ public class Category implements Serializable {
 
         mFirstColor = 0;
         mSecondColor = 0;
-        mThemeID = -2;
+        mThemeID = "";
     }
 
     public long getCategoryId() {
@@ -104,11 +106,11 @@ public class Category implements Serializable {
         this.mSecondColor = color;
     }
 
-    public long getThemeID() {
+    public String getThemeID() {
         return mThemeID;
     }
 
-    public void setThemeID(long mThemeID) {
+    public void setThemeID(String mThemeID) {
         this.mThemeID = mThemeID;
     }
 

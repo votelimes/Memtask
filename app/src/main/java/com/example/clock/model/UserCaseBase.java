@@ -18,7 +18,7 @@ public class UserCaseBase implements Serializable  {
 
     protected long categoryId;
 
-    protected long mThemeID;
+    protected String mThemeID;
 
     protected long startTime;
     protected long endTime;
@@ -44,7 +44,7 @@ public class UserCaseBase implements Serializable  {
 
     public UserCaseBase(){
         categoryId = -1;
-        mThemeID = -1;
+        mThemeID = "";
 
         long currentMillis = LocalDateTime.now().toEpochSecond(ZoneOffset.UTC) * 1000;
         timeCreated = currentMillis;
@@ -257,11 +257,11 @@ public class UserCaseBase implements Serializable  {
         isImportant = important;
     }
 
-    public long getThemeID() {
+    public String getThemeID() {
         return mThemeID;
     }
 
-    public void setThemeID(long mThemeID) {
+    public void setThemeID(String mThemeID) {
         this.mThemeID = mThemeID;
     }
 }

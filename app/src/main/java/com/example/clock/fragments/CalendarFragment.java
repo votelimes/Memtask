@@ -102,7 +102,7 @@ public class CalendarFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 Intent taskIntent = new Intent(view.getContext(), ManageTaskActivity.class);
-                taskIntent.putExtra("mode", "Task");
+                taskIntent.putExtra("mode", "TaskCreating");
                 taskIntent.putExtra("rangeStart", mViewModel.getSelectedDateStart().getTimeInMillis());
                 activityLauncher.launch(taskIntent);
             }

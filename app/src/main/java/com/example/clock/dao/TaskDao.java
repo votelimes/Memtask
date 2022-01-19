@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Query;
 
+import com.example.clock.model.ProjectAndTheme;
 import com.example.clock.model.TaskAndTheme;
 import com.example.clock.model.Task;
 
@@ -33,6 +34,9 @@ public abstract class TaskDao extends BaseDao<Task> {
     @Query("SELECT task_table.*, theme_table.* FROM task_table LEFT JOIN theme_table ON task_table.mThemeID = theme_table.theme_ID"
             + " WHERE task_table.mNotificationStartMillis >= :startMillis AND task_table.mNotificationStartMillis < :endMillis")
     public abstract LiveData<List<TaskAndTheme>> getTasksLiveDataWithTheme(long startMillis, long endMillis);
+
+    @Query("SELECT task_table.*, theme_table.* FROM task_table LEFT JOIN theme_table ON task_table.mThemeID = theme_table.theme_ID WHERE task_table.task_ID = :taskID")
+    public abstract LiveData<TaskAndTheme> getTaskThemeLiveData(String taskID);
 
     @Query("SELECT * FROM task_table WHERE task_ID = :id")
     public abstract LiveData<Task> getTaskLiveData(String id);

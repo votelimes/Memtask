@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.clock.R;
 import com.example.clock.activities.ManageTaskActivity;
+import com.example.clock.app.App;
 import com.example.clock.databinding.CategoryTaskBinding;
 import com.example.clock.model.Project;
 import com.example.clock.model.Task;
@@ -276,8 +277,9 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
                                         switch (i) {
                                             case 0: // Изменить
                                                 Intent intent = new Intent(view.getContext(), ManageTaskActivity.class);
-                                                intent.putExtra("ManagingTask", currentTask);
-                                                intent.putExtra("mode", "Task");
+                                                intent.putExtra("mode", "TaskEditing");
+                                                intent.putExtra("ID", currentTask.getTaskId());
+                                                intent.putExtra("category", currentTask.getCategoryId());
 
                                                 resultLauncher.launch(intent);
                                                 break;
@@ -298,7 +300,6 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
             }
 
         }
-
         else if(getItemViewType(position) == VIEW_TYPE_PROJECT){
             Project currentProject = (Project) mViewModel.getByPos(position);
 
@@ -317,8 +318,9 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
                                     switch (i) {
                                         case 0: // Изменить
                                             Intent intent = new Intent(view.getContext(), ManageTaskActivity.class);
-                                            intent.putExtra("ManagingProject", currentProject);
-                                            intent.putExtra("mode", "Project");
+                                            intent.putExtra("mode", "ProjectEditing");
+                                            intent.putExtra("ID",  currentProject.getProjectId());
+                                            intent.putExtra("category", currentProject.getCategoryId());
 
                                             resultLauncher.launch(intent);
                                             break;
@@ -356,12 +358,50 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
                 taskBinding.setMode(MainViewModel.MODE_PROJECT_ITEM);
                 viewHolder.getItemsLayout().addView(taskBinding.getRoot(), 0);
                 taskBinding.executePendingBindings();
+                taskBinding.getRoot().setOnLongClickListener(new View.OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(View view) {
+                        MaterialAlertDialogBuilder taskOptionsDialog = new MaterialAlertDialogBuilder(view.getContext())
+                                .setTitle("Выберите действие")
+                                .setItems(R.array.task_dialog_long, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        switch (i) {
+                                            case 0: // Изменить
+                                                Intent intent = new Intent(view.getContext(), ManageTaskActivity.class);
+                                                intent.putExtra("mode", "TaskEditing");
+                                                intent.putExtra("parent", currentProject.getProjectId());
+                                                int pos = taskBinding.getPos();
+                                                Task task = taskBinding.getVm().getProjItem(pos);
+                                                String id = taskBinding.getVm().getProjItem(pos).getTaskId();
+                                                intent.putExtra("ID", taskBinding.getVm().getProjItem(pos).getTaskId());
+                                                intent.putExtra("category", App.getSettings().getLastCategory().first);
+                                                resultLauncher.launch(intent);
+                                                break;
+                                            case 1: // Удалить
+
+                                                AppCompatActivity act = (AppCompatActivity) view.getContext();
+                                                MainViewModel viewModel = new ViewModelProvider(act)
+                                                        .get(MainViewModel.class);
+                                                removeItem(MainViewModel.MODE_PROJECT_ITEM, taskBinding.getPos());
+                                                break;
+                                        }
+                                    }
+                                });
+                        taskOptionsDialog.show();
+                        return true;
+                    }
+                });
             }
             FloatingActionButton fab = viewHolder.getMainLayout().findViewById(R.id.project2_add);
             fab.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-
+                    Intent intent = new Intent(view.getContext(), ManageTaskActivity.class);
+                    intent.putExtra("mode", "TaskCreating");
+                    intent.putExtra("parent", currentProject.getProjectId());
+                    intent.putExtra("category", currentProject.getCategoryId());
+                    resultLauncher.launch(intent);
                 }
             });
         }
@@ -393,6 +433,4 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
             return VIEW_TYPE_UNDEFINED;
         }
     }
-
-
 }
