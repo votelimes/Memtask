@@ -30,10 +30,14 @@ import com.example.clock.adapters.CategoriesListFragmentAdapter;
 import com.example.clock.app.App;
 import com.example.clock.model.Category;
 import com.example.clock.model.Project;
+import com.example.clock.model.ProjectAndTheme;
 import com.example.clock.model.Task;
+import com.example.clock.model.TaskAndTheme;
 import com.example.clock.model.Theme;
 import com.example.clock.storageutils.LiveDataTransformations;
+import com.example.clock.storageutils.Tuple2;
 import com.example.clock.storageutils.Tuple3;
+import com.example.clock.viewmodels.CategoryActivitiesViewModel;
 import com.example.clock.viewmodels.MainViewModel;
 import com.example.clock.viewmodels.ViewModelFactoryBase;
 import com.github.clans.fab.FloatingActionButton;
@@ -49,7 +53,7 @@ public class CardsListFragment extends Fragment {
 
     RecyclerView mRecyclerView;
     CardsListFragmentAdapter mRecyclerViewAdapter;
-    MainViewModel mViewModel;
+    CategoryActivitiesViewModel mViewModel;
     LinearLayoutManager mLayoutManager;
     ConstraintLayout mMainLayoutView;
     Context mContext;
@@ -86,7 +90,9 @@ public class CardsListFragment extends Fragment {
 
         mContext = getContext();
 
-        mViewModel = new ViewModelProvider(getActivity(), mFactory).get(MainViewModel.class);
+        mViewModel = new ViewModelProvider(getActivity(), mFactory).get(CategoryActivitiesViewModel.class);
+
+        mViewModel.loadData();
 
         mRecyclerView = getView().findViewById(R.id.cards_list);
 
@@ -128,10 +134,11 @@ public class CardsListFragment extends Fragment {
         });
     }
 
-    final Observer<Tuple3<List<Task>, List<Project>, List<Theme>>> hoardObserver = new Observer<Tuple3<List<Task>, List<Project>, List<Theme>>>() {
+    final Observer<Tuple3<List<TaskAndTheme>, List<TaskAndTheme>, List<ProjectAndTheme>>> hoardObserver = new Observer<Tuple3<List<TaskAndTheme>, List<TaskAndTheme>, List<ProjectAndTheme>>>() {
         @Override
-        public void onChanged(@Nullable final Tuple3<List<Task>, List<Project>, List<Theme>> updatedHoard) {
-            mViewModel.mergeAndSortLists();
+        public void onChanged(@Nullable final Tuple3<List<TaskAndTheme>, List<TaskAndTheme>, List<ProjectAndTheme>> updatedHoard) {
+            long catID = App.getSettings().getLastCategory().first;
+            mViewModel.init();
             mRecyclerViewAdapter = new CardsListFragmentAdapter(
                     activityLauncher, mViewModel);
             mRecyclerView.setLayoutManager(mLayoutManager);

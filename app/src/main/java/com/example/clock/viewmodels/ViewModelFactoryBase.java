@@ -35,6 +35,9 @@ public class ViewModelFactoryBase extends ViewModelProvider.NewInstanceFactory {
         else if(modelClass == MainViewModel.class){
             return (T) new MainViewModel(mApplication, (Database) mParams[0], (Database) mParams[1]);
         }
+        else if(modelClass == CategoryActivitiesViewModel.class){
+            return (T) new CategoryActivitiesViewModel(mApplication, (Database) mParams[0], (Database) mParams[1]);
+        }
         else if(modelClass == CalendarViewModel.class){
             return (T) new CalendarViewModel(mApplication, (Database) mParams[0], (Database) mParams[1]);
         }

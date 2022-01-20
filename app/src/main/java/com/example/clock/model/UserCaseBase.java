@@ -18,6 +18,16 @@ public class UserCaseBase implements Serializable  {
 
     protected long categoryId;
 
+    public long getTestID() {
+        return testID;
+    }
+
+    public void setTestID(long testID) {
+        this.testID = testID;
+    }
+
+    protected long testID = 1;
+
     protected String mThemeID;
 
     protected long startTime;
@@ -186,6 +196,8 @@ public class UserCaseBase implements Serializable  {
         this.mName = mName;
         setTimeChanged(getCurrentTime());
     }
+
+
 
     public String getmCategoryName() {
         return mCategoryName;

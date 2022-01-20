@@ -3,6 +3,7 @@ package com.example.clock.adapters;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.ColorFilter;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.text.style.RelativeSizeSpan;
@@ -17,6 +18,8 @@ import android.widget.TextView;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
+import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
@@ -28,6 +31,7 @@ import com.example.clock.app.App;
 import com.example.clock.databinding.CalendarTaskBinding;
 import com.example.clock.model.Task;
 import com.example.clock.model.TaskAndTheme;
+import com.example.clock.model.Theme;
 import com.example.clock.viewmodels.CalendarViewModel;
 import com.example.clock.viewmodels.MainViewModel;
 import com.google.android.material.card.MaterialCardView;
@@ -67,7 +71,9 @@ public class CalendarFragmentAdapter extends RecyclerView.Adapter<RecyclerView.V
 
         private final TextView range;
         private final ImageView important;
+
         private final LinearLayout categoryLayout;
+        private final Drawable categoryLayoutDrawable;
         private final TextView categoryName;
         private final TextView name;
         private final TextView description;
@@ -83,6 +89,7 @@ public class CalendarFragmentAdapter extends RecyclerView.Adapter<RecyclerView.V
             range = (TextView) view.findViewById(R.id.task_range);
             important = (ImageView) view.findViewById(R.id.task_important);
             categoryLayout = (LinearLayout) view.findViewById(R.id.task_category_layout);
+            categoryLayoutDrawable = categoryLayout.getBackground();
             categoryName = (TextView) view.findViewById(R.id.task_category_name);
             name = (TextView) view.findViewById(R.id.task_name);
             description = (TextView) view.findViewById(R.id.task_description);
@@ -164,6 +171,8 @@ public class CalendarFragmentAdapter extends RecyclerView.Adapter<RecyclerView.V
             calendar.setOnRangeSelectedListener(this);
             calendar.setOnMonthChangedListener(this);
             mViewModel.updateMonthTasksPack().observe(lifecycleOwner, taskPackObserver);
+
+
         }
         public MaterialCalendarView getCalendar(){
             return calendar;
@@ -374,12 +383,13 @@ public class CalendarFragmentAdapter extends RecyclerView.Adapter<RecyclerView.V
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder currentViewHolder, final int position) {
         if(getItemViewType(position) == VIEW_TYPE_TASK) {
+            int currentPosition = position - 1;
 
-            Task currentTask = (Task) mViewModel.getTaskByPos(position - 1);
+            Task currentTask = (Task) mViewModel.getTaskByPos(currentPosition);
 
             TaskViewHolder viewHolder = (TaskViewHolder) currentViewHolder;
 
-            viewHolder.bind(mViewModel, position - 1);
+            viewHolder.bind(mViewModel, currentPosition);
             viewHolder.getMainLayout().setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View view) {
@@ -421,6 +431,21 @@ public class CalendarFragmentAdapter extends RecyclerView.Adapter<RecyclerView.V
                 }
             });
 
+            //Colors binding
+            Theme theme = mViewModel.getThemeByPos(currentPosition);
+            if(theme != null) {
+                viewHolder.getMainLayout().setCardBackgroundColor(theme.getFirstColor());
+                viewHolder.getCategoryLayout().getBackground().setTint(theme.getSecondColor());
+
+                viewHolder.getName().setTextColor(theme.getMainTextColor());
+                viewHolder.getDescription().setTextColor(theme.getMainTextColor());
+
+                viewHolder.getRange().setTextColor(theme.getAdditionalTextColor());
+                viewHolder.getAlarmTime().setTextColor(theme.getAdditionalTextColor());
+
+                viewHolder.getImportant().setColorFilter(theme.getIconColor());
+                viewHolder.getAlarmImage().setColorFilter(theme.getIconColor());
+            }
         }
         if(getItemViewType(position) == VIEW_TYPE_CALENDAR){
 
@@ -447,5 +472,9 @@ public class CalendarFragmentAdapter extends RecyclerView.Adapter<RecyclerView.V
         else {
             return VIEW_TYPE_TASK;
         }
+    }
+
+    public MaterialCalendarView getCalendar(){
+        return calendar;
     }
 }

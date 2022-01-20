@@ -336,7 +336,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             // Some projects installation
             List<Project> defaultProjectsList = new ArrayList<Project>(5);
-            defaultProjectsList.add(new Project("Вылечить зуб", "", 1));
+            defaultProjectsList.add(new Project("Вылечить зуб", "", 4));
             defaultProjectsList.get(0).setRange("24.01.2022", "29.01.2022");
             defaultProjectsList.get(0).setThemeID(defaultThemesList.get(21).getID());
             defaultProjectsList.add(new Project("Сделать презентацию", "Способы оптимизации алгоритмов", 2));
@@ -399,15 +399,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             defaultTasksList.get(5).setThemeID(defaultThemesList.get(1).getID());
 
             // Project tasks
-            defaultTasksList.add(new Task("Поискать номер регистратуры", "", 1 ));
+            defaultTasksList.add(new Task("Поискать номер регистратуры", "", 4 ));
             defaultTasksList.get(6).setParentID(defaultProjectsList.get(0).getProjectId());
             defaultTasksList.get(6).setThemeID(defaultThemesList.get(20).getID());
 
-            defaultTasksList.add(new Task("Позвонить по номеру", "", 1 ));
+            defaultTasksList.add(new Task("Позвонить по номеру", "", 4 ));
             defaultTasksList.get(7).setParentID(defaultProjectsList.get(0).getProjectId());
             defaultTasksList.get(7).setThemeID(defaultThemesList.get(20).getID());
 
-            defaultTasksList.add(new Task("Записать дату приема", "", 1 ));
+            defaultTasksList.add(new Task("Записать дату приема", "", 4));
             defaultTasksList.get(8).setParentID(defaultProjectsList.get(0).getProjectId());
             defaultTasksList.get(8).setThemeID(defaultThemesList.get(20).getID());
 
@@ -424,25 +424,27 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             defaultTasksList.get(10).setNotifyEnabled(true);
             defaultTasksList.get(10).setParentID(defaultProjectsList.get(1).getProjectId());
             defaultTasksList.get(10).setImportant(true);
-            defaultTasksList.get(10).setThemeID(defaultThemesList.get(20).getID());
+            defaultTasksList.get(10).setThemeID(defaultThemesList.get(12).getID());
 
             defaultTasksList.add(new Task("Написать текст", "8 страниц, 14пт", 2 ));
             defaultTasksList.get(11).setAlarmTime("27.01.2022 17:00");
             defaultTasksList.get(11).setNotifyEnabled(true);
             defaultTasksList.get(11).setParentID(defaultProjectsList.get(1).getProjectId());
-            defaultTasksList.get(11).setThemeID(defaultThemesList.get(20).getID());
+            defaultTasksList.get(11).setThemeID(defaultThemesList.get(11).getID());
 
             defaultTasksList.add(new Task("Проверить новую версию Room", "Последняя 2.4.1", 2 ));
             defaultTasksList.get(12).setAlarmTime("20.02.2022 17:00");
             defaultTasksList.get(12).setNotifyEnabled(true);
-            defaultTasksList.get(12).setParentID(defaultProjectsList.get(1).getProjectId());
-            defaultTasksList.get(12).setThemeID(defaultThemesList.get(20).getID());
+            defaultTasksList.get(12).setThemeID(defaultThemesList.get(10).getID());
+
+            defaultTasksList.add(new Task("Посмотреть видео про коптеры", "Любое", 3 ));
+            defaultTasksList.get(13).setThemeID(defaultThemesList.get(15).getID());
 
             for (Task task: defaultTasksList) {
                 mViewModel.addTask(task);
             }
 
-            //installRandomStats(1000);
+            installRandomStats(1000);
 
             Log.d("MAIN_ACT: ", "INITIAL SETUP COMPLETED");
             App.getSettings().setSetupState(true);
@@ -471,7 +473,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 ucs.setStateExpired(true);
             }
             ucsList.add(ucs);
-            Log.d("UCS: ", LocalDateTime.ofEpochSecond((long) ucs.getMillisRecordDateTime()/1000, 0, ZoneOffset.UTC).format(dtf));
+            //Log.d("UCS: ", LocalDateTime.ofEpochSecond((long) ucs.getMillisRecordDateTime()/1000, 0, ZoneOffset.UTC).format(dtf));
             mViewModel.addUserCaseStatisticSilently(ucs);
         }
         Log.d("MAIN_ACT: ", "USER STATS TABLE FILLED");

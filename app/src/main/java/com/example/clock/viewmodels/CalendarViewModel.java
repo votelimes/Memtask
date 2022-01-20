@@ -93,7 +93,7 @@ public class CalendarViewModel extends MemtaskViewModelBase{
         return selectedTasks.get(pos).task;
     }
     public Theme getThemeByPos(int pos){
-        return taskThemePack.getValue().get(pos).theme;
+        return selectedTasks.get(pos).theme;
     }
     public String getTaskNotifyString(int pos){
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd.MM.yy HH:mm");
@@ -113,6 +113,9 @@ public class CalendarViewModel extends MemtaskViewModelBase{
     public String getPoolItemDescr(int pos){
         return selectedTasks.get(pos).task.getDescription();
     }
+    public String getCategoryName(int pos){
+        return selectedTasks.get(pos).categoryName;
+    }
     public String getTimeRange(int pos){
         Calendar startTime = GregorianCalendar.getInstance();
         Calendar endTime = GregorianCalendar.getInstance();
@@ -127,6 +130,9 @@ public class CalendarViewModel extends MemtaskViewModelBase{
         SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy");
 
         return sdf.format(startDate) + " — " + sdf.format(endDate);
+    }
+    public boolean hasDescription(int pos){
+        return !selectedTasks.get(pos).task.getDescription().equals("");
     }
     public void setDateAndUpdate(CalendarDay startDate, CalendarDay endDate){
         selectedDateStart.setTimeInMillis(startDate.getDate().toEpochDay()*millisInDay);

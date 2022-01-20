@@ -37,5 +37,7 @@ public class Project extends UserCaseBase {
         this.projectId = projectId;
     }
 
-
+    public void reGenerateUUID(){
+        projectId = generateUUID();
+    }
 }

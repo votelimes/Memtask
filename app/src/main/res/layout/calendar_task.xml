@@ -32,7 +32,7 @@
         >
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="wrap_content">
             <TextView
                 android:id="@+id/task_range"
                 android:layout_width="wrap_content"
@@ -61,16 +61,18 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 android:layout_marginTop="12dp"
-                android:layout_marginEnd="4dp"
+                android:layout_marginEnd="8dp"
+                android:clipChildren="false"
+                android:clipToPadding="false"
                 >
                 <TextView
                     android:id="@+id/task_category_name"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:text="Дом"
+                    android:text="@{vm.getCategoryName(pos)}"
                     android:textAlignment="center"
                     android:fontFamily="sans-serif"
-                    android:textColor="@color/black"
+                    android:textColor="@color/text_light"
                     android:layout_marginStart="8dp"
                     android:layout_marginEnd="8dp"
                     />
@@ -123,6 +125,7 @@
                 android:text="@{vm.getPoolItemDescr(pos)}"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/task_name"
+                android:visibility="@{vm.hasDescription(pos) ? View.VISIBLE : View.GONE}"
                 android:textColor="@color/text_main"
                 />
             <ImageView
@@ -139,7 +142,7 @@
                 android:id="@+id/task_alarm_time"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="4dp"
+                android:layout_marginStart="8dp"
                 android:layout_marginBottom="4dp"
                 app:layout_constraintStart_toEndOf="@id/task_alarm_image"
                 app:layout_constraintBottom_toBottomOf="@id/task_alarm_image"

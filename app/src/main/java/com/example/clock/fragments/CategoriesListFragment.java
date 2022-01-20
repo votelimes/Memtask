@@ -73,19 +73,14 @@ public class CategoriesListFragment extends Fragment {
 
         mViewModel = new ViewModelProvider(requireActivity(), mFactory).get(MainViewModel.class);
 
+
+
         mRecyclerView = getView().findViewById(R.id.categories_list);
 
         mMainLayoutView = getView().findViewById(R.id.fragment_categories_constraint);
 
         mLayoutManager = new LinearLayoutManager(mContext,
                 LinearLayoutManager.VERTICAL, false);
-
-
-        mRecyclerViewAdapter = new CategoriesListFragmentAdapter(
-                getActivity(), activityLauncher,
-                mViewModel.requestCategoriesData().getValue());
-        mRecyclerView.setLayoutManager(mLayoutManager);
-        mRecyclerView.setAdapter(mRecyclerViewAdapter);
 
         mViewModel.requestCategoriesData().observe(getViewLifecycleOwner(), hoardObserver);
 

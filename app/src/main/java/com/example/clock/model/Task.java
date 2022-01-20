@@ -56,6 +56,9 @@ public class Task extends UserCaseBase {
 
     protected boolean recurring;
     protected boolean enabled;
+
+
+    //protected long testID = 1;
     //protected boolean started;
 
     protected String mParentID;
@@ -79,6 +82,9 @@ public class Task extends UserCaseBase {
         mParentID = "";
     }
 
+    public void reGenerateUUID(){
+        taskId = generateUUID();
+    }
     public void schedule(Context context) {
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 
@@ -135,7 +141,6 @@ public class Task extends UserCaseBase {
 
         this.notifyEnabled = true;
     }
-
     public void cancelAlarm(Context context) {
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(context, AlarmBroadcastReceiver.class);

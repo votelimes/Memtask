@@ -25,6 +25,7 @@ import com.example.clock.model.Theme;
 import com.example.clock.repositories.MemtaskRepositoryBase;
 import com.example.clock.storageutils.Database;
 import com.example.clock.storageutils.LiveDataTransformations;
+import com.example.clock.storageutils.Tuple2;
 import com.example.clock.storageutils.Tuple3;
 import com.example.clock.storageutils.Tuple4;
 
@@ -46,28 +47,19 @@ public class ManageTaskViewModel extends MemtaskViewModelBase {
 
     public Observer mManagingTaskRepository;
 
-    /*public LiveData<Tuple2<TaskAndTheme, List<Theme>>> taskIntermediate;
-    public LiveData<Tuple2<ProjectAndTheme, List<Theme>>> projectIntermediate;*/
-    public LiveData<Tuple4<TaskAndTheme, ProjectAndTheme, List<Theme>, List<Category>>> intermediate;
-    LiveData<TaskAndTheme> taskLiveData;
-    LiveData<ProjectAndTheme> projectLiveData;
+    public LiveData<Tuple2<List<Theme>, List<Category>>> intermediateThemeAndCategory;
+
+    public LiveData<TaskAndTheme> taskLiveData;
+    public LiveData<ProjectAndTheme> projectLiveData;
+
+
     String mMode;
     String mTaskID;
     String mParentID;
     long mCategoryID;
-    /*public ManageTaskViewModel(Application application, Database database, Database silentDatabase, Task managingTask){
-        mManagingTaskRepository = new Observer(managingTask);
-        loadData(application, database, silentDatabase);
-    }
-
-    public ManageTaskViewModel(Application application, Database database, Database silentDatabase, Project managingProject){
-        mManagingTaskRepository = new Observer(managingProject);
-        loadData(application, database, silentDatabase);
-    }*/
 
     public ManageTaskViewModel(Application application, Database database, Database silentDatabase,
                                String mode, String taskID, long categoryID, String parentID){
-        mManagingTaskRepository = new Observer();
         mMode = mode;
         mCategoryID = categoryID;
         mParentID = parentID;
@@ -78,7 +70,7 @@ public class ManageTaskViewModel extends MemtaskViewModelBase {
             mTaskID = "";
         }
         loadData(application, database, silentDatabase);
-        intermediate = LiveDataTransformations.ifNotNull(taskLiveData, projectLiveData, themesLiveData, categoriesLiveData);
+        intermediateThemeAndCategory = LiveDataTransformations.ifNotNull(themesLiveData, categoriesLiveData);
     }
     protected void loadData(Application application, Database database, Database silentDatabase){
         mRepository = new MemtaskRepositoryBase(application, database, silentDatabase);
@@ -101,40 +93,39 @@ public class ManageTaskViewModel extends MemtaskViewModelBase {
         }
         return this.projectsLiveData;
     }
-    public void init(){
-        if (mMode.equals("TaskEditing")) {
-            mManagingTaskRepository.setManagingTask(taskLiveData.getValue().task);
-            mManagingTaskRepository.setTheme(taskLiveData.getValue().theme);
-        }
-        else if(mMode.equals("ProjectEditing")){
-            mManagingTaskRepository.setManagingProject(projectLiveData.getValue().project);
-            mManagingTaskRepository.setTheme(projectLiveData.getValue().theme);
-        }
-        else if(mMode.equals("TaskCreating") && mManagingTaskRepository.mManagingTask == null){
-            mManagingTaskRepository.mManagingTask = new Task("", "", mCategoryID);
-            if(mParentID != null && mParentID.length() != 0){
+
+    public void initTaskEditing(){
+        mManagingTaskRepository = new Observer(taskLiveData.getValue().task);
+        mManagingTaskRepository.setTheme(taskLiveData.getValue().theme);
+    }
+    public void initProjectEditing(){
+        mManagingTaskRepository = new Observer(projectLiveData.getValue().project);
+        mManagingTaskRepository.setTheme(projectLiveData.getValue().theme);
+    }
+    public void initCreating(){
+        if (mMode.equals("TaskCreating")) {
+            mManagingTaskRepository = new Observer(new Task("", "", mCategoryID));
+            if (mParentID != null && mParentID.length() != 0) {
                 mManagingTaskRepository.mManagingTask.setParentID(mParentID);
             }
-            if(App.getSettings().getGenerateRandomThemes()){
+            if (App.getSettings().getGenerateRandomThemes()) {
                 mManagingTaskRepository.setTheme(getRandomBaseTheme());
-            }
-            else{
-                intermediate.getValue().third.forEach(theme -> {
-                    if(theme.getName().equals("MainTaskTheme")){
+            } else {
+                intermediateThemeAndCategory.getValue().first.forEach(theme -> {
+                    if (theme.getName().equals("MainTaskTheme")) {
                         mManagingTaskRepository.setTheme(theme);
                         return;
                     }
                 });
             }
         }
-        else if(mMode.equals("ProjectCreating") && mManagingTaskRepository.mManagingProject == null){
-            mManagingTaskRepository.mManagingProject = new Project("", "", mCategoryID);
-            if(App.getSettings().getGenerateRandomThemes()){
+        if (mMode.equals("ProjectCreating")) {
+            mManagingTaskRepository = new Observer(new Project("", "", mCategoryID));
+            if (App.getSettings().getGenerateRandomThemes()) {
                 mManagingTaskRepository.setTheme(getRandomBaseTheme());
-            }
-            else{
-                intermediate.getValue().third.forEach(theme -> {
-                    if(theme.getName() == "MainProjectTheme"){
+            } else {
+                intermediateThemeAndCategory.getValue().first.forEach(theme -> {
+                    if (theme.getName() == "MainProjectTheme") {
                         mManagingTaskRepository.setTheme(theme);
                         return;
                     }
@@ -144,28 +135,30 @@ public class ManageTaskViewModel extends MemtaskViewModelBase {
     }
 
     public void saveChanges(){
-        if(mManagingTaskRepository.isTaskMode()) {
-            this.mRepository.addTask(this.mManagingTaskRepository.mManagingTask);
-        }
-        else if(mManagingTaskRepository.isProjectMode()){
-            this.mRepository.addProject(this.mManagingTaskRepository.mManagingProject);
-        }
         if(mManagingTaskRepository.themeChanged){
             mManagingTaskRepository.mTheme.reGenerateUUID();
             mManagingTaskRepository.mTheme.setBaseTheme(false);
             mRepository.addTheme(mManagingTaskRepository.mTheme);
         }
+        if(mManagingTaskRepository.isTaskMode()) {
+            mManagingTaskRepository.mManagingTask.setThemeID(mManagingTaskRepository.mTheme.getID());
+            this.mRepository.addTask(this.mManagingTaskRepository.mManagingTask);
+        }
+        else if(mManagingTaskRepository.isProjectMode()){
+            mManagingTaskRepository.mManagingProject.setThemeID(mManagingTaskRepository.mTheme.getID());
+            this.mRepository.addProject(this.mManagingTaskRepository.mManagingProject);
+        }
     }
 
     private Theme getRandomBaseTheme(){
-        List<Integer> baseThemesIndexes = new ArrayList<>(intermediate.getValue().third.size());
+        List<Integer> baseThemesIndexes = new ArrayList<>(intermediateThemeAndCategory.getValue().first.size());
 
-        for(int i = 0; i < intermediate.getValue().third.size(); i++){
-            if(intermediate.getValue().third.get(i).isBaseTheme()){
+        for(int i = 0; i < intermediateThemeAndCategory.getValue().first.size(); i++){
+            if(intermediateThemeAndCategory.getValue().first.get(i).isBaseTheme()){
                 baseThemesIndexes.add(i);
             }
         }
-        return intermediate.getValue().third.get(baseThemesIndexes.get(ThreadLocalRandom.current().nextInt(0, baseThemesIndexes.size())));
+        return intermediateThemeAndCategory.getValue().first.get(baseThemesIndexes.get(ThreadLocalRandom.current().nextInt(0, baseThemesIndexes.size())));
     }
 
     public class Observer extends BaseObservable{
@@ -174,15 +167,19 @@ public class ManageTaskViewModel extends MemtaskViewModelBase {
 
         private Theme mTheme;
         public boolean themeChanged = false;
-
-        Observer(){
-            this.mManagingTask = null;
+        Observer(Task managingTask){
+            this.mManagingTask = managingTask;
             this.mManagingProject = null;
+        }
+
+        Observer(Project managingProject){
+            this.mManagingTask = null;
+            this.mManagingProject = managingProject;
         }
 
         @Bindable
         public String getCategory(){
-            if(intermediate.getValue().fourth == null){
+            if(intermediateThemeAndCategory.getValue().second == null){
                 return "Список категорий пуст";
             }
             long catID = 0;
@@ -196,8 +193,8 @@ public class ManageTaskViewModel extends MemtaskViewModelBase {
                 return "";
             }
             else{
-                for(int i = 0; i < intermediate.getValue().fourth.size(); i++){
-                    Category category = intermediate.getValue().fourth.get(i);
+                for(int i = 0; i < intermediateThemeAndCategory.getValue().second.size(); i++){
+                    Category category = intermediateThemeAndCategory.getValue().second.get(i);
                     if(category.getCategoryId() == catID){
                         return category.getName();
                     }
@@ -587,7 +584,7 @@ public class ManageTaskViewModel extends MemtaskViewModelBase {
         public void setSecondColor(int color){
             themeChanged = true;
             mTheme.setSecondColor(color);
-            notifyPropertyChanged(BR.firstColor);
+            notifyPropertyChanged(BR.secondColor);
         }
 
         @Bindable
@@ -601,7 +598,7 @@ public class ManageTaskViewModel extends MemtaskViewModelBase {
         public void setFirstTextColor(int color){
             themeChanged = true;
             mTheme.setMainTextColor(color);
-            notifyPropertyChanged(BR.firstColor);
+            notifyPropertyChanged(BR.firstTextColor);
         }
 
         @Bindable
@@ -615,7 +612,7 @@ public class ManageTaskViewModel extends MemtaskViewModelBase {
         public void setSecondTextColor(int color){
             themeChanged = true;
             mTheme.setAdditionalTextColor(color);
-            notifyPropertyChanged(BR.firstColor);
+            notifyPropertyChanged(BR.secondTextColor);
         }
 
         @Bindable
@@ -629,7 +626,7 @@ public class ManageTaskViewModel extends MemtaskViewModelBase {
         public void setIconColor(int color){
             themeChanged = true;
             mTheme.setIconColor(color);
-            notifyPropertyChanged(BR.firstColor);
+            notifyPropertyChanged(BR.iconColor);
         }
 
         @Bindable

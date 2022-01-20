@@ -1,5 +1,6 @@
 package com.example.clock.model;
 
+import androidx.room.ColumnInfo;
 import androidx.room.Embedded;
 import androidx.room.Relation;
 
@@ -10,4 +11,7 @@ public class TaskAndTheme {
     public Task task;
     @Embedded
     public Theme theme;
+
+    @ColumnInfo(name = "categoryName", defaultValue = "")
+    public String categoryName;
 }

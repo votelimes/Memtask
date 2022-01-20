@@ -9,6 +9,7 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.media.Ringtone;
@@ -29,10 +30,12 @@ import com.example.clock.model.Category;
 import com.example.clock.model.ProjectAndTheme;
 import com.example.clock.model.TaskAndTheme;
 import com.example.clock.model.Theme;
+import com.example.clock.storageutils.Tuple2;
 import com.example.clock.storageutils.Tuple3;
 import com.example.clock.storageutils.Tuple4;
 import com.example.clock.viewmodels.ManageTaskViewModel;
 import com.example.clock.viewmodels.ViewModelFactoryBase;
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.datepicker.MaterialPickerOnPositiveButtonClickListener;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -40,6 +43,9 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.android.material.timepicker.MaterialTimePicker;
 import com.google.android.material.timepicker.TimeFormat;
+import com.skydoves.colorpickerview.ColorEnvelope;
+import com.skydoves.colorpickerview.ColorPickerDialog;
+import com.skydoves.colorpickerview.listeners.ColorEnvelopeListener;
 
 import net.cachapa.expandablelayout.ExpandableLayout;
 
@@ -55,12 +61,11 @@ public class ManageTaskActivity extends AppCompatActivity implements View.OnFocu
     ViewModelFactoryBase mFactory;
     ActivityManageTaskBinding mActivityBinding;
     TextInputEditText nameText;
-    TextInputLayout mRepeatModesLayout;
+    TextInputEditText categoryText;
     LocalDateTime dateTime = LocalDateTime.now(ZoneOffset.UTC);
     ExpandableLayout expandableColorLayout;
-
-
-    int selectedField; // 1 startTime, 2 endTime, 3 NotifyTime
+    String mode;
+    Context mContext;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,8 +74,9 @@ public class ManageTaskActivity extends AppCompatActivity implements View.OnFocu
         mActivityBinding = DataBindingUtil
                 .setContentView(this, R.layout.activity_manage_task);
 
-        String mode =  getIntent()
+        mode =  getIntent()
                 .getStringExtra("mode");
+        mContext = this;
         String itemID = getIntent().getStringExtra("ID");
 
         long categoryID = getIntent().getLongExtra("category", -1);
@@ -87,9 +93,9 @@ public class ManageTaskActivity extends AppCompatActivity implements View.OnFocu
         );
 
         mViewModel = new ViewModelProvider(this, mFactory).get(ManageTaskViewModel.class);
-        mViewModel.intermediate.observe(this, intermediateObs);
 
         nameText = findViewById(R.id.manage_task_text_name);
+        categoryText = findViewById(R.id.manage_task_category_text);
         nameText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -282,7 +288,7 @@ public class ManageTaskActivity extends AppCompatActivity implements View.OnFocu
                     builderSingle.setTitle("Выберите категорию");
 
                     final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(ManageTaskActivity.this, android.R.layout.select_dialog_singlechoice);
-                    mViewModel.intermediate.getValue().fourth.forEach(category -> {
+                    mViewModel.intermediateThemeAndCategory.getValue().second.forEach(category -> {
                         arrayAdapter.add(category.getName());
                     });
                     builderSingle.setNegativeButton("Отменить", new DialogInterface.OnClickListener() {
@@ -297,9 +303,9 @@ public class ManageTaskActivity extends AppCompatActivity implements View.OnFocu
                         public void onClick(DialogInterface dialog, int which) {
                             mViewModel.mManagingTaskRepository
                                     .setCategory(mViewModel
-                                            .intermediate
+                                            .intermediateThemeAndCategory
                                             .getValue()
-                                            .fourth.get(which));
+                                            .second.get(which));
                             dialog.dismiss();
                         }
                     });
@@ -312,6 +318,165 @@ public class ManageTaskActivity extends AppCompatActivity implements View.OnFocu
 
                     view.clearFocus();
                 }
+            }
+        });
+        mViewModel.intermediateThemeAndCategory.observe(this, intermediateThemeCategoryObs);
+
+        if(mode.equals("TaskCreating")){
+            setTitle("Создание задачи");
+        }
+        else if(mode.equals("TaskEditing")){
+            setTitle("Изменение задачи");
+        }
+        else if(mode.equals("ProjectCreating")){
+            setTitle("Создание проекта");
+        }
+        else if(mode.equals("ProjectEditing")){
+            setTitle("Изменение проекта");
+        }
+
+        MaterialButton button1 = (MaterialButton) findViewById(R.id.manage_task_first_color_button);
+        button1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                new ColorPickerDialog.Builder(mContext)
+                        .setTitle("Выберите основной цвет")
+                        .setPreferenceName("Выберите основной цвет")
+                        .setPositiveButton("Выбрать",
+                                new ColorEnvelopeListener() {
+                                    @Override
+                                    public void onColorSelected(ColorEnvelope envelope, boolean fromUser) {
+                                        mViewModel.mManagingTaskRepository
+                                                .setFirstColor(envelope.getColor());
+                                    }
+                                })
+                        .setNegativeButton("Отменить",
+                                new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        dialogInterface.dismiss();
+                                    }
+                                })
+                        .attachAlphaSlideBar(false) // the default value is true.
+                        .attachBrightnessSlideBar(true)  // the default value is true.
+                        .setBottomSpace(12) // set a bottom space between the last slidebar and buttons.
+                        .show();
+            }
+        });
+
+        MaterialButton button2 = (MaterialButton) findViewById(R.id.manage_task_second_color_button);
+        button2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                new ColorPickerDialog.Builder(mContext)
+                        .setTitle("Выберите дополнительный цвет")
+                        .setPreferenceName("Выберите дополнительный цвет")
+                        .setPositiveButton("Выбрать",
+                                new ColorEnvelopeListener() {
+                                    @Override
+                                    public void onColorSelected(ColorEnvelope envelope, boolean fromUser) {
+                                        mViewModel.mManagingTaskRepository
+                                                .setSecondColor(envelope.getColor());
+                                    }
+                                })
+                        .setNegativeButton("Отменить",
+                                new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        dialogInterface.dismiss();
+                                    }
+                                })
+                        .attachAlphaSlideBar(false) // the default value is true.
+                        .attachBrightnessSlideBar(true)  // the default value is true.
+                        .setBottomSpace(12) // set a bottom space between the last slidebar and buttons.
+                        .show();
+            }
+        });
+
+        MaterialButton button3 = (MaterialButton) findViewById(R.id.manage_task_first_text_color_button);
+        button3.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                new ColorPickerDialog.Builder(mContext)
+                        .setTitle("Выберите цвет основного текста")
+                        .setPreferenceName("Выберите цвет основного текста")
+                        .setPositiveButton("Выбрать",
+                                new ColorEnvelopeListener() {
+                                    @Override
+                                    public void onColorSelected(ColorEnvelope envelope, boolean fromUser) {
+                                        mViewModel.mManagingTaskRepository
+                                                .setFirstTextColor(envelope.getColor());
+                                    }
+                                })
+                        .setNegativeButton("Отменить",
+                                new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        dialogInterface.dismiss();
+                                    }
+                                })
+                        .attachAlphaSlideBar(false) // the default value is true.
+                        .attachBrightnessSlideBar(true)  // the default value is true.
+                        .setBottomSpace(12) // set a bottom space between the last slidebar and buttons.
+                        .show();
+            }
+        });
+
+        MaterialButton button4 = (MaterialButton) findViewById(R.id.manage_task_second_text_color_button);
+        button4.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                new ColorPickerDialog.Builder(mContext)
+                        .setTitle("Выберите цвет основного текста")
+                        .setPreferenceName("Выберите цвет основного текста")
+                        .setPositiveButton("Выбрать",
+                                new ColorEnvelopeListener() {
+                                    @Override
+                                    public void onColorSelected(ColorEnvelope envelope, boolean fromUser) {
+                                        mViewModel.mManagingTaskRepository
+                                                .setSecondTextColor(envelope.getColor());
+                                    }
+                                })
+                        .setNegativeButton("Отменить",
+                                new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        dialogInterface.dismiss();
+                                    }
+                                })
+                        .attachAlphaSlideBar(false) // the default value is true.
+                        .attachBrightnessSlideBar(true)  // the default value is true.
+                        .setBottomSpace(12) // set a bottom space between the last slidebar and buttons.
+                        .show();
+            }
+        });
+
+        MaterialButton button5 = (MaterialButton) findViewById(R.id.manage_task_icon_color_button);
+        button5.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                new ColorPickerDialog.Builder(mContext)
+                        .setTitle("Выберите цвет иконок")
+                        .setPreferenceName("Выберите цвет иконок")
+                        .setPositiveButton("Выбрать",
+                                new ColorEnvelopeListener() {
+                                    @Override
+                                    public void onColorSelected(ColorEnvelope envelope, boolean fromUser) {
+                                        mViewModel.mManagingTaskRepository
+                                                .setIconColor(envelope.getColor());
+                                    }
+                                })
+                        .setNegativeButton("Отменить",
+                                new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        dialogInterface.dismiss();
+                                    }
+                                })
+                        .attachAlphaSlideBar(false) // the default value is true.
+                        .attachBrightnessSlideBar(true)  // the default value is true.
+                        .setBottomSpace(12) // set a bottom space between the last slidebar and buttons.
+                        .show();
             }
         });
     }
@@ -330,6 +495,7 @@ public class ManageTaskActivity extends AppCompatActivity implements View.OnFocu
 
     public void onExit(View view){
         String nameTextString = Objects.requireNonNull(nameText.getText()).toString();
+        String categoryTextString = Objects.requireNonNull(categoryText.getText()).toString();
         int isCorrect = isNameCorrect(nameTextString);
         MaterialAlertDialogBuilder errorDialog = new MaterialAlertDialogBuilder(this)
                 .setPositiveButton("Хорошо", null);
@@ -347,6 +513,14 @@ public class ManageTaskActivity extends AppCompatActivity implements View.OnFocu
             return;
         }
 
+        if(categoryTextString.equals("")){
+            MaterialAlertDialogBuilder errorDialog2 = new MaterialAlertDialogBuilder(this)
+                    .setMessage("Необходимо выбрать категорию")
+                    .setPositiveButton("Хорошо", null);
+            errorDialog2.show();
+            return;
+        }
+
         mViewModel.saveChanges();
         if(mViewModel.mManagingTaskRepository.isTaskMode()) {
             setResult(20); // 20 Task created
@@ -355,15 +529,16 @@ public class ManageTaskActivity extends AppCompatActivity implements View.OnFocu
             setResult(30); // 30 Project created
         }
         finish();
-    }
-
-    final Observer<Tuple4<TaskAndTheme, ProjectAndTheme, List<Theme>, List<Category>>> intermediateObs = new Observer<Tuple4<TaskAndTheme, ProjectAndTheme, List<Theme>, List<Category>>>() {
-        @Override
-        public void onChanged(Tuple4<TaskAndTheme, ProjectAndTheme, List<Theme>, List<Category>> data) {
-            mViewModel.init();
-            mActivityBinding.setViewmodel(mViewModel);
-        }
     };
+
+    public boolean isCategoryCorrect(int categoryID){
+        if(categoryID == -1){
+            return false;
+        }
+        else{
+            return true;
+        }
+    }
 
     final ActivityResultLauncher<Intent> activityLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
@@ -387,4 +562,35 @@ public class ManageTaskActivity extends AppCompatActivity implements View.OnFocu
             view.clearFocus();
         }
     }
+
+    final Observer<Tuple2<List<Theme>, List<Category>>> intermediateThemeCategoryObs = new Observer<Tuple2<List<Theme>, List<Category>>>() {
+        @Override
+        public void onChanged(Tuple2<List<Theme>, List<Category>> data) {
+            if(mode.equals("TaskCreating") || mode.equals("ProjectCreating")){
+                mViewModel.initCreating();
+                mActivityBinding.setViewmodel(mViewModel);
+            }
+            else if(mode.equals("TaskEditing")){
+                mViewModel.taskLiveData.observe(ManageTaskActivity.this, taskObs);
+            }
+            else if(mode.equals("ProjectEditing")){
+                mViewModel.projectLiveData.observe(ManageTaskActivity.this, projectObs);
+            }
+        }
+    };
+    final Observer<TaskAndTheme> taskObs = new Observer<TaskAndTheme>() {
+        @Override
+        public void onChanged(TaskAndTheme data) {
+            mViewModel.initTaskEditing();
+            mActivityBinding.setViewmodel(mViewModel);
+        }
+    };
+    final Observer<ProjectAndTheme> projectObs = new Observer<ProjectAndTheme>() {
+        @Override
+        public void onChanged(ProjectAndTheme data) {
+            mViewModel.initProjectEditing();
+            mActivityBinding.setViewmodel(mViewModel);
+        }
+    };
+
 }

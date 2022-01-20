@@ -15,6 +15,7 @@ public class Category implements Serializable {
     @ColumnInfo(name = "categoryId")
     private long mCategoryId;
 
+    @ColumnInfo(name = "categoryName")
     private String mName;
 
     private String mDescription;

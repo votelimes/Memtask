@@ -4,10 +4,10 @@
     >
     <data>
         <import type="android.view.View"/>
-        <import type="com.example.clock.viewmodels.MainViewModel"/>
+        <import type="com.example.clock.viewmodels.CategoryActivitiesViewModel"/>
         <variable
             name="vm"
-            type="com.example.clock.viewmodels.MainViewModel" />
+            type="com.example.clock.viewmodels.CategoryActivitiesViewModel" />
         <variable
             name="mode"
             type="Integer" />
@@ -32,7 +32,7 @@
         >
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="wrap_content">
             <TextView
                 android:id="@+id/task_range"
                 android:layout_width="wrap_content"
@@ -43,7 +43,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 android:textColor="@color/text_grey"
-                android:visibility="@{vm.getByPos(pos).getStartTime > 0 ? View.VISIBLE : View.GONE}"
+                android:visibility="@{vm.getItem(mode, pos).getStartTime > 0 ? View.VISIBLE : View.GONE}"
                 />
             <androidx.constraintlayout.widget.Barrier
                 android:id="@+id/task_br1"
@@ -92,7 +92,7 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/task_category_layout"
                 android:src="@drawable/ic_outline_report_36"
-                android:visibility="@{mode == MainViewModel.MODE_INDEPENDENTLY ? (vm.getByPos(pos).isImportant == true ? View.VISIBLE : View.GONE) : (vm.getProjItem(pos).isImportant == true ? View.VISIBLE : View.GONE)}"
+                android:visibility="@{mode == CategoryActivitiesViewModel.MODE_INDEPENDENTLY ? (vm.getItem(mode, pos).isImportant == true ? View.VISIBLE : View.GONE) : (vm.getProjItem(pos).isImportant == true ? View.VISIBLE : View.GONE)}"
                 />
             <TextView
                 android:id="@+id/task_name"
@@ -133,6 +133,7 @@
                 android:src="@drawable/ic_baseline_alarm_36"
                 android:contentDescription="Установлено уведомление"
                 android:layout_marginStart="12dp"
+                android:paddingBottom="4dp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/task_description"
                 />
@@ -145,7 +146,7 @@
                 app:layout_constraintStart_toEndOf="@id/task_alarm_image"
                 app:layout_constraintBottom_toBottomOf="@id/task_alarm_image"
                 android:textColor="@color/text_main"
-                android:text="11.01.2021 9:40"
+                android:text="@{vm.getTaskNotifyTime(mode, pos)}"
                 android:textSize="18sp"
 
             />
@@ -153,7 +154,7 @@
                 android:id="@+id/task_group1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:visibility="@{vm.getTaskByPos(pos).isNotifyEnabled ? View.VISIBLE : View.GONE}"
+                android:visibility="@{vm.getTaskByPos(mode, pos).isNotifyEnabled ? View.VISIBLE : View.GONE}"
                 app:constraint_referenced_ids="task_alarm_image,task_alarm_time" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </com.google.android.material.card.MaterialCardView>

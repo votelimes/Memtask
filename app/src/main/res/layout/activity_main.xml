@@ -56,6 +56,9 @@
             android:layout_height="match_parent"
             android:layout_gravity="start"
             app:menu="@menu/left_fragments_menu"
+            app:itemTextAppearance="@style/menu_text_style"
+            app:subheaderTextAppearance="@style/menu_text_style"
+
             />
     </androidx.drawerlayout.widget.DrawerLayout>
 </layout>

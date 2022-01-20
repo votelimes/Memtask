@@ -64,11 +64,19 @@ public class MemtaskRepositoryBase {
     }
 
     public LiveData<List<TaskAndTheme>> getTasksLiveDataByNotification(long startMillis, long endMillis){
-        return this.mDatabase.taskDao() .getTasksLiveDataWithTheme(startMillis, endMillis);
+        return this.mDatabase.taskDao() .getTasksWithThemeLiveData(startMillis, endMillis);
     }
 
     public LiveData<TaskAndTheme> getTaskAndTheme(String taskID){
-        return this.mDatabase.taskDao() .getTaskThemeLiveData(taskID);
+        return this.mDatabase.taskDao().getTaskThemeLiveData(taskID);
+    }
+
+    public LiveData<List<TaskAndTheme>> getTaskAndThemeByCategory(long ID){
+        return this.mDatabase.taskDao().getTasksWithThemeLiveData(ID);
+    }
+
+    public LiveData<List<ProjectAndTheme>> getProjectAndThemeByCategory(long ID){
+        return this.mDatabase.projectDao().getProjectsWithThemeLiveData(ID);
     }
 
     public LiveData<ProjectAndTheme> getProjectAndTheme(String projectID){
@@ -78,9 +86,23 @@ public class MemtaskRepositoryBase {
     public LiveData<List<UserCaseStatistic>> getUserCaseStatistic(long rangeStartMillis, long rangeEndMillis){
         return this.mDatabase.userCaseStatisticDao().getUserCaseStatistic(rangeStartMillis, rangeEndMillis);
     }
+
+    public LiveData<List<TaskAndTheme>> getSingleTasksByCategoryLiveData(long categoryID){
+        return this.mDatabase.taskDao().getSingleTasksWithThemeLiveData(categoryID);
+    }
+
+    public LiveData<List<TaskAndTheme>> getProjectTasksByCategoryLiveData(long categoryID){
+        return this.mDatabase.taskDao().getProjectTasksWithThemeLiveData(categoryID);
+    }
+
+    public LiveData<List<ProjectAndTheme>> getProjectsByCategoryLiveData(long categoryID){
+        return this.mDatabase.projectDao().getProjectsWithThemeLiveData(categoryID);
+    }
+
     public Task getTask(String taskID){
         return this.mDatabase.taskDao().getTask(taskID);
     }
+
     public LiveData<Task> getTaskLiveData(String taskID){
         return this.mDatabase.taskDao().getTaskLiveData(taskID);
     }

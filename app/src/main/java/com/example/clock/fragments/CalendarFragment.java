@@ -56,6 +56,10 @@ public class CalendarFragment extends Fragment {
             result -> {
                 if (result.getResultCode() == 20) {
                     Toast.makeText(getActivity(), "Задача добавлена", Toast.LENGTH_SHORT).show();
+                    mViewModel.init();
+                    //mRecyclerViewAdapter.getCalendar().invalidateDecorators();
+                    mRecyclerViewAdapter.notifyDataSetChanged();
+
                 }
                 else{
                     Toast.makeText(getActivity(), "Изменения отменены", Toast.LENGTH_SHORT).show();
@@ -111,19 +115,5 @@ public class CalendarFragment extends Fragment {
                 activityLauncher, mViewModel, getViewLifecycleOwner());
         mRecyclerView.setLayoutManager(mLayoutManager);
         mRecyclerView.setAdapter(mRecyclerViewAdapter);
-        //mViewModel.requestMonthTasksPack().observe(getViewLifecycleOwner(), taskPackObserver);
     }
-    final Observer<List<TaskAndTheme>> taskPackObserver = new Observer<List<TaskAndTheme>>() {
-        @Override
-        public void onChanged(List<TaskAndTheme> data) {
-            if(adapterCreated == false) {
-                adapterCreated = true;
-                mViewModel.init();
-                mRecyclerViewAdapter = new CalendarFragmentAdapter(
-                        activityLauncher, mViewModel, getViewLifecycleOwner());
-                mRecyclerView.setLayoutManager(mLayoutManager);
-                mRecyclerView.setAdapter(mRecyclerViewAdapter);
-            }
-        }
-    };
 }
