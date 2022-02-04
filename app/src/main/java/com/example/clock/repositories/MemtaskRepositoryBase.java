@@ -17,13 +17,14 @@ import com.example.clock.model.Category;
 import com.example.clock.model.Project;
 import com.example.clock.model.Task;
 import com.example.clock.dao.TaskDao;
+import com.example.clock.storageutils.SilentDatabase;
 
 import java.util.List;
 
 public class MemtaskRepositoryBase {
 
     private final Database mDatabase;
-    private final Database mSilentDatabase;
+    private final SilentDatabase mSilentDatabase;
     private final TaskDao mTaskDao;
     private final TaskDao mSilentTaskDao;
     private final ProjectDao mProjectDao;
@@ -32,7 +33,7 @@ public class MemtaskRepositoryBase {
     private final ThemeDao mThemeDao;
     private final UserCaseStatisticDao mUserCaseStatisticDao;
 
-    public MemtaskRepositoryBase(Application application, Database database, Database silentDatabase){
+    public MemtaskRepositoryBase(Application application, Database database, SilentDatabase silentDatabase){
         this.mDatabase = database;
         this.mSilentDatabase = silentDatabase;
 
@@ -101,6 +102,10 @@ public class MemtaskRepositoryBase {
 
     public Task getTask(String taskID){
         return this.mDatabase.taskDao().getTask(taskID);
+    }
+
+    public Task getTaskSilently(String taskID){
+        return this.mSilentDatabase.taskDao().getTask(taskID);
     }
 
     public LiveData<Task> getTaskLiveData(String taskID){

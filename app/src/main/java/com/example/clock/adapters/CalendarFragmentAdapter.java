@@ -417,11 +417,7 @@ public class CalendarFragmentAdapter extends RecyclerView.Adapter<RecyclerView.V
                                             resultLauncher.launch(intent);
                                             break;
                                         case 1: // Удалить
-
-                                            AppCompatActivity act = (AppCompatActivity) view.getContext();
-                                            MainViewModel viewModel = new ViewModelProvider(act)
-                                                    .get(MainViewModel.class);
-                                            removeItem(currentViewHolder.getAdapterPosition());
+                                            removeItem(currentViewHolder.getAbsoluteAdapterPosition());
                                             break;
                                     }
                                 }
@@ -453,7 +449,7 @@ public class CalendarFragmentAdapter extends RecyclerView.Adapter<RecyclerView.V
     }
 
     private void removeItem(int position){
-        mViewModel.removeSilently(position);
+        mViewModel.removeSilently(position - 1);
         notifyItemRemoved(position);
         notifyItemRangeChanged(position, mViewModel.getPoolSize());
     }

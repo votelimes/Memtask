@@ -25,6 +25,7 @@ import com.example.clock.model.Theme;
 import com.example.clock.repositories.MemtaskRepositoryBase;
 import com.example.clock.storageutils.Database;
 import com.example.clock.storageutils.LiveDataTransformations;
+import com.example.clock.storageutils.SilentDatabase;
 import com.example.clock.storageutils.Tuple2;
 import com.example.clock.storageutils.Tuple3;
 import com.example.clock.storageutils.Tuple4;
@@ -41,6 +42,7 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
+import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class ManageTaskViewModel extends MemtaskViewModelBase {
@@ -58,7 +60,7 @@ public class ManageTaskViewModel extends MemtaskViewModelBase {
     String mParentID;
     long mCategoryID;
 
-    public ManageTaskViewModel(Application application, Database database, Database silentDatabase,
+    public ManageTaskViewModel(Application application, Database database, SilentDatabase silentDatabase,
                                String mode, String taskID, long categoryID, String parentID){
         mMode = mode;
         mCategoryID = categoryID;
@@ -72,7 +74,7 @@ public class ManageTaskViewModel extends MemtaskViewModelBase {
         loadData(application, database, silentDatabase);
         intermediateThemeAndCategory = LiveDataTransformations.ifNotNull(themesLiveData, categoriesLiveData);
     }
-    protected void loadData(Application application, Database database, Database silentDatabase){
+    protected void loadData(Application application, Database database, SilentDatabase silentDatabase){
         mRepository = new MemtaskRepositoryBase(application, database, silentDatabase);
         tasksLiveData = null;
         projectsLiveData = null;
@@ -81,13 +83,13 @@ public class ManageTaskViewModel extends MemtaskViewModelBase {
         taskLiveData = mRepository.getTaskAndTheme(mTaskID);
         projectLiveData = mRepository.getProjectAndTheme(mTaskID);
     }
-    public  LiveData<List<Task>> getTasksData(Application application, Database database, Database silentDatabase){
+    public  LiveData<List<Task>> getTasksData(Application application, Database database, SilentDatabase silentDatabase){
         if(mRepository == null){
             loadData(application, database, silentDatabase);
         }
         return this.tasksLiveData;
     }
-    public  LiveData<List<Project>> getProjectsData(Application application, Database database, Database silentDatabase){
+    public  LiveData<List<Project>> getProjectsData(Application application, Database database, SilentDatabase silentDatabase){
         if(mRepository == null){
             loadData(application, database, silentDatabase);
         }
@@ -134,7 +136,7 @@ public class ManageTaskViewModel extends MemtaskViewModelBase {
         }
     }
 
-    public void saveChanges(){
+    public void saveChanges(Context context){
         if(mManagingTaskRepository.themeChanged){
             mManagingTaskRepository.mTheme.reGenerateUUID();
             mManagingTaskRepository.mTheme.setBaseTheme(false);
@@ -142,6 +144,12 @@ public class ManageTaskViewModel extends MemtaskViewModelBase {
         }
         if(mManagingTaskRepository.isTaskMode()) {
             mManagingTaskRepository.mManagingTask.setThemeID(mManagingTaskRepository.mTheme.getID());
+            if(mManagingTaskRepository.mManagingTask.isNotifyEnabled()){
+                mManagingTaskRepository.mManagingTask.schedule(context);
+            }
+            else{
+                mManagingTaskRepository.mManagingTask.cancelAlarm(context);
+            }
             this.mRepository.addTask(this.mManagingTaskRepository.mManagingTask);
         }
         else if(mManagingTaskRepository.isProjectMode()){
@@ -158,7 +166,10 @@ public class ManageTaskViewModel extends MemtaskViewModelBase {
                 baseThemesIndexes.add(i);
             }
         }
-        return intermediateThemeAndCategory.getValue().first.get(baseThemesIndexes.get(ThreadLocalRandom.current().nextInt(0, baseThemesIndexes.size())));
+        Random random = new Random();
+        int randomIndex = random.nextInt(baseThemesIndexes.size());
+
+        return intermediateThemeAndCategory.getValue().first.get(baseThemesIndexes.get(randomIndex));
     }
 
     public class Observer extends BaseObservable{

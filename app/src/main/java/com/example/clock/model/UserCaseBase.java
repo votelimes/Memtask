@@ -8,6 +8,7 @@ import androidx.room.ForeignKey;
 import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Calendar;
@@ -33,6 +34,10 @@ public class UserCaseBase implements Serializable  {
     protected long startTime;
     protected long endTime;
 
+    protected int mNotificationID;
+
+    protected long nextGeneralNotificationMillis;
+
     protected String mDescription;
 
     protected String mName;
@@ -55,6 +60,7 @@ public class UserCaseBase implements Serializable  {
     public UserCaseBase(){
         categoryId = -1;
         mThemeID = "";
+        mNotificationID = (int) Instant.now().toEpochMilli() / 1000;
 
         long currentMillis = LocalDateTime.now().toEpochSecond(ZoneOffset.UTC) * 1000;
         timeCreated = currentMillis;
@@ -152,7 +158,9 @@ public class UserCaseBase implements Serializable  {
     }
 
     public void setCompleted(boolean completed) {
-
+        if(completed){
+            this.expired = false;
+        }
         if(!this.completed && completed){
             timesCompleted ++;
         }
@@ -275,5 +283,40 @@ public class UserCaseBase implements Serializable  {
 
     public void setThemeID(String mThemeID) {
         this.mThemeID = mThemeID;
+    }
+
+    public long getNextGeneralNotificationMillis() {
+        return nextGeneralNotificationMillis;
+    }
+
+    public void setNextGeneralNotificationMillis(long nextGeneralNotificationMillis) {
+        this.nextGeneralNotificationMillis = nextGeneralNotificationMillis;
+    }
+
+    // Returns true if something has changed (obj got Expired or Completed)
+    public boolean markIfExpired(){
+        if(completed || expired){
+            return false;
+        }
+        if(endTime != -1) {
+            LocalDateTime now = LocalDateTime
+                    .ofEpochSecond(LocalDateTime.now()
+                            .toEpochSecond(ZoneOffset.UTC), 0, ZoneOffset.UTC);
+            LocalDateTime activityEndTime = LocalDateTime
+                    .ofEpochSecond(endTime / 1000, 0, ZoneOffset.UTC);
+            if(now.isAfter(activityEndTime)){
+                expired = true;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public int getNotificationID() {
+        return mNotificationID;
+    }
+
+    public void setNotificationID(int mNotificationID) {
+        this.mNotificationID = mNotificationID;
     }
 }

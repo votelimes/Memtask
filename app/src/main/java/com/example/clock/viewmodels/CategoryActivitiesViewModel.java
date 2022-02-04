@@ -14,6 +14,7 @@ import com.example.clock.model.UserCaseBase;
 import com.example.clock.repositories.MemtaskRepositoryBase;
 import com.example.clock.storageutils.Database;
 import com.example.clock.storageutils.LiveDataTransformations;
+import com.example.clock.storageutils.SilentDatabase;
 import com.example.clock.storageutils.Tuple2;
 import com.example.clock.storageutils.Tuple3;
 
@@ -43,7 +44,7 @@ public class CategoryActivitiesViewModel extends MemtaskViewModelBase{
     private int sortType;
     private boolean shouldUpdate;
 
-    CategoryActivitiesViewModel(Application application, Database database, Database silentDatabase){
+    CategoryActivitiesViewModel(Application application, Database database, SilentDatabase silentDatabase){
         mRepository = new MemtaskRepositoryBase(application, database, silentDatabase);
     }
 

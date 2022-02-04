@@ -17,23 +17,24 @@
     <color name="red">#C30C0C</color>
 
 
-    <color name="mainTheme1">#3062DA</color> <!--1st background color-->
+    <color name="mainTheme1">#c0fdff</color> <!--1st background color-->
     <color name="mainTheme2">#7CA1F9</color> <!--2nd background color-->
     <color name="mainTheme3">#FFFFFF</color> <!--Task and task space background color-->
     <color name="mainTheme4">#1D489C</color> <!--Active task stroke color-->
     <color name="mainTheme5">#B2B2B2</color> <!--Inactive task stroke color-->
 
-    <color name="text_main">#4B4F5B</color>
-    <color name="text_grey">#9699A9</color>
-    <color name="text_light">#F2FDFF</color>
+    <color name="act_text_main">#4B4F5B</color>
+    <color name="act_text_grey">#9699A9</color>
+    <color name="act_text_light">#F2FDFF</color>
 
-    <color name="main_1">#073B4C</color>
+    <color name="main_1">#c0fdff</color>
     <color name="main_2">#118AB2</color>
     <color name="main_3">#EF476F</color>
     <color name="main_4">#FFD166</color>
     <color name="main_5">#06D6A0</color>
     <color name="main_6">#118AB2</color>
-    <color name="main_7">#FFEAEC</color>
+    <color name="main_7">#FFEBFA</color>
+    <color name="main_8">#7EF1BB</color>
 
     <color name="calendar_select_light1">#9CFCE2</color>
     <color name="calendar_select_light2">#0B5C77</color>
@@ -44,5 +45,16 @@
     <color name="mediumDayLoad">#FFC73B</color>
     <color name="highDayLoad">#FF5722</color>
     <color name="maxDayLoad">#970000</color>
+
+
+    <color name="backgroundLight">#F2FDFF</color>
+    <color name="backgroundDark">#4B4F5B</color>
+
+    <color name="toolbarMain">#c0fdff</color>
+    <color name="toolbarText">#4B4F5B</color>
+
+    <color name="textPrimary">#4B4F5B</color>
+    <color name="textSecondary">#F2FDFF</color>
+    <color name="textTertiary">#9699A9</color>
 
 </resources>

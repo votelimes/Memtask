@@ -16,7 +16,6 @@ public class Theme {
     @NonNull
     @ColumnInfo(name = "theme_ID")
     private String mID;
-    //@ColumnInfo(name = "theme_name")
     @ColumnInfo(name = "theme_name")
     private String mName;
     private int mFirstColor;

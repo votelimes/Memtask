@@ -14,6 +14,7 @@ import com.example.clock.model.UserCaseBase;
 import com.example.clock.repositories.MemtaskRepositoryBase;
 import com.example.clock.storageutils.Database;
 import com.example.clock.storageutils.LiveDataTransformations;
+import com.example.clock.storageutils.SilentDatabase;
 import com.example.clock.storageutils.Tuple2;
 import com.example.clock.storageutils.Tuple3;
 
@@ -32,13 +33,13 @@ public class MainViewModel extends MemtaskViewModelBase {
     private int sortType;
     private boolean shouldUpdate;
 
-    MainViewModel(Application application, Database database, Database silentDatabase){
+    MainViewModel(Application application, Database database, SilentDatabase silentDatabase){
         loadData(application, database, silentDatabase);
 
         shouldUpdate = true;
     }
 
-    protected void loadData(Application application, Database database, Database silentDatabase){
+    protected void loadData(Application application, Database database, SilentDatabase silentDatabase){
         mRepository = new MemtaskRepositoryBase(application, database, silentDatabase);
         categoriesLiveData = mRepository.getAllCategoriesLive();
     }

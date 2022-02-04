@@ -46,7 +46,7 @@
                 android:layout_marginTop="16dp"
                 android:layout_marginStart="16dp"
                 android:text="10.01.2022 — 21.01.2022"
-                android:textColor="@color/text_grey"
+                android:textColor="@color/act_text_grey"
                 android:textSize="18sp"
                 />
             <TextView
@@ -58,7 +58,7 @@
                 app:layout_constraintTop_toBottomOf="@id/project2_range"
                 app:layout_constraintStart_toStartOf="parent"
                 android:text="Вылечить наконец этот зуб"
-                android:textColor="@color/text_main"
+                android:textColor="@color/act_text_main"
                 android:textSize="18sp"
                 android:textStyle="bold"
                 />
@@ -84,7 +84,7 @@
                 app:layout_constraintTop_toTopOf="@id/project2_progress"
                 app:layout_constraintBottom_toBottomOf="@id/project2_progress"
                 android:text="65%"
-                android:textColor="@color/text_main"
+                android:textColor="@color/act_text_main"
                 android:textStyle="bold"
                 android:textAlignment="center"
                 />

@@ -78,7 +78,20 @@
         <item>week</item>
     </string-array>
     <string name="preference_calendar_mode_value_default">month</string>
-
+    <string name="preference_theme_key">memtask_preference_theme</string>
+    <string name="preference_theme_auto">Автоматически</string>
+    <string name="preference_theme_light">Светлая</string>
+    <string name="preference_theme_dark">Темная</string>
+    <string-array name="preference_light_theme">
+        <item>@string/preference_theme_auto</item>
+        <item>@string/preference_theme_light</item>
+        <item>@string/preference_theme_dark</item>
+    </string-array>
+    <string-array name="preference_light_theme_value">
+        <item>@string/preference_theme_auto</item>
+        <item>@string/preference_theme_light</item>
+        <item>@string/preference_theme_dark</item>
+    </string-array>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>

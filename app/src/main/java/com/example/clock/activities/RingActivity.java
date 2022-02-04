@@ -2,11 +2,13 @@ package com.example.clock.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatButton;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -15,58 +17,83 @@ import com.example.clock.adapters.CardsListFragmentAdapter;
 import com.example.clock.app.App;
 import com.example.clock.model.Project;
 import com.example.clock.model.Task;
+import com.example.clock.model.TaskNotificationManager;
 import com.example.clock.model.Theme;
+import com.example.clock.model.UserCaseStatistic;
+import com.example.clock.repositories.MemtaskRepositoryBase;
 import com.example.clock.services.AlarmService;
 import com.example.clock.storageutils.Tuple3;
 import com.example.clock.viewmodels.ManageTaskViewModel;
 import com.example.clock.viewmodels.RingViewModel;
 import com.example.clock.viewmodels.ViewModelFactoryBase;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Calendar;
 import java.util.List;
 
 public class RingActivity extends AppCompatActivity {
-
-    ViewModelFactoryBase mFactory;
-    RingViewModel mViewModel;
+    MemtaskRepositoryBase mRepository;
+    Task task;
     String taskID;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        taskID = getIntent().getStringExtra(TaskNotificationManager.ID_KEY);
+        mRepository = new MemtaskRepositoryBase(App.getInstance(), App.getDatabase(), App.getSilentDatabase());
+        task = mRepository.getTaskSilently(taskID);
+
+        if (task == null) {
+            Log.d("ERROR: ", "Unable to get task in RING ACTIVITY");
+            finish();
+            return;
+        }
         setContentView(R.layout.activity_ring);
-        taskID = getIntent().getStringExtra("taskID");
-        mFactory = new ViewModelFactoryBase(
-                getApplication(),
-                App.getDatabase(),
-                App.getSilentDatabase(),
-                taskID
-        );
-        mViewModel = new ViewModelProvider(this, mFactory).get(RingViewModel.class);
-        mViewModel.setTaskID(taskID);
+
+        task.setNotificationInProgress(true);
+
+        ((TextView) findViewById(R.id.ring_name_text)).setText(task.getName());
+        AppCompatButton snoozeButton = (AppCompatButton) findViewById(R.id.snooze10_button_ring);
+        snoozeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onSnooze10(view);
+            }
+        });
     }
 
     public void onStop(View view) {
         Intent intentService = new Intent(getApplicationContext(), AlarmService.class);
         getApplicationContext().stopService(intentService);
-
+        if(task.markIfExpired()){
+            mRepository.addUserCaseStatisticSilently(
+                    new UserCaseStatistic(task.getTaskId(), task.isCompleted(), task.isExpired()));
+            mRepository.addTask(task);
+        }
         finish();
     }
 
-    public void onSnooze10(View view) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.MINUTE, 10);
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if(task.markIfExpired()){
+            mRepository.addUserCaseStatisticSilently(
+                    new UserCaseStatistic(task.getTaskId(), task.isCompleted(), task.isExpired()));
+            mRepository.addTask(task);
+        }
+    }
 
-        mViewModel.getCurrentTask().getValue().schedule(getApplicationContext());
+    public void onSnooze10(View view) {
+        LocalDateTime now = LocalDateTime.now();
+        long millisBackUp = task.getNotificationStartMillis();
+        task.setNotificationStartMillis((now.toEpochSecond(ZoneOffset.UTC)) * 1000 + TaskNotificationManager.SNOOZE_TIME);
+        task.schedule(view.getContext());
+        task.setNotificationStartMillis(millisBackUp);
+        mRepository.addTask(task);
 
         Intent intentService = new Intent(getApplicationContext(), AlarmService.class);
         getApplicationContext().stopService(intentService);
         finish();
     }
-    final Observer<Task> hoardObserver = new Observer<Task>() {
-        @Override
-        public void onChanged(@Nullable final Task currentTask) {
-            TextView name = (TextView) findViewById(R.id.ring_name_text);
-            name.setText(currentTask.getName());
-        }
-    };
 }

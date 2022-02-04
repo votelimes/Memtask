@@ -15,6 +15,7 @@ import com.example.clock.model.Theme;
 import com.example.clock.model.UserCaseStatistic;
 import com.example.clock.repositories.MemtaskRepositoryBase;
 import com.example.clock.storageutils.Database;
+import com.example.clock.storageutils.SilentDatabase;
 import com.example.clock.storageutils.Tuple2;
 
 import java.util.List;
@@ -32,7 +33,7 @@ public abstract class MemtaskViewModelBase extends ViewModel {
     }
 
     //Load data
-    protected void loadData(Application application, Database database, Database silentDatabase){
+    protected void loadData(Application application, Database database, SilentDatabase silentDatabase){
         mRepository = new MemtaskRepositoryBase(application, database, silentDatabase);
         tasksLiveData = mRepository.getAllTasksLive();
         projectsLiveData = mRepository.getAllProjectsLive();

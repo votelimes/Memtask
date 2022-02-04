@@ -42,13 +42,13 @@
                 android:text="@{vm.getTimeRange(pos)}"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                android:textColor="@color/text_grey"
+                android:textColor="@color/act_text_grey"
                 android:visibility="@{vm.getTaskByPos(pos).getStartTime > 0 ? View.VISIBLE : View.GONE}"
                 />
             <androidx.constraintlayout.widget.Barrier
                 android:id="@+id/task_br1"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
                 app:barrierDirection="top"
                 app:constraint_referenced_ids="task_range"
                 />
@@ -67,12 +67,12 @@
                 >
                 <TextView
                     android:id="@+id/task_category_name"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:text="@{vm.getCategoryName(pos)}"
                     android:textAlignment="center"
                     android:fontFamily="sans-serif"
-                    android:textColor="@color/text_light"
+                    android:textColor="@color/act_text_light"
                     android:layout_marginStart="8dp"
                     android:layout_marginEnd="8dp"
                     />
@@ -104,7 +104,7 @@
                 android:text="@{vm.getPoolItemName(pos)}"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/task_range"
-                android:textColor="@color/text_main"
+                android:textColor="@color/act_text_main"
                 android:textStyle="bold"
                 />
             <androidx.constraintlayout.widget.Barrier
@@ -126,7 +126,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/task_name"
                 android:visibility="@{vm.hasDescription(pos) ? View.VISIBLE : View.GONE}"
-                android:textColor="@color/text_main"
+                android:textColor="@color/act_text_main"
                 />
             <ImageView
                 android:id="@+id/task_alarm_image"
@@ -135,6 +135,7 @@
                 android:src="@drawable/ic_baseline_alarm_36"
                 android:contentDescription="Установлено уведомление"
                 android:layout_marginStart="12dp"
+                android:paddingBottom="4dp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/task_description"
                 />
@@ -146,7 +147,7 @@
                 android:layout_marginBottom="4dp"
                 app:layout_constraintStart_toEndOf="@id/task_alarm_image"
                 app:layout_constraintBottom_toBottomOf="@id/task_alarm_image"
-                android:textColor="@color/text_main"
+                android:textColor="@color/act_text_main"
                 android:text="@{vm.getTaskNotifyString(pos)}"
                 android:textSize="18sp"
 

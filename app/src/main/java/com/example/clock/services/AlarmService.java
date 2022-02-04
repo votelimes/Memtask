@@ -1,90 +1,180 @@
 package com.example.clock.services;
 
-import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.media.MediaPlayer;
+import android.net.Uri;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
+import androidx.core.app.TaskStackBuilder;
 
 import com.example.clock.R;
 import com.example.clock.activities.RingActivity;
 import com.example.clock.app.App;
+import com.example.clock.broadcastreceiver.AlarmBroadcastReceiver;
 import com.example.clock.model.Task;
+import com.example.clock.model.TaskNotificationManager;
+import com.example.clock.model.UserCaseStatistic;
 import com.example.clock.repositories.MemtaskRepositoryBase;
 
 public class AlarmService extends Service {
+    public static final String STOP_KEY = "Alarm_Service_stop_key";
+    public static final int STOP_BY_USER = 401;
+    private boolean stopByUser = false;
+
     private MediaPlayer mediaPlayer;
+    private boolean mediaEnabled;
+    private boolean vibrateEnabled;
     private Vibrator vibrator;
+    private MemtaskRepositoryBase mRepository;
+    private Task task;
+    private static final long TWO_MINUTES = 1000 * 60 * 2;
 
     @Override
     public void onCreate() {
         super.onCreate();
 
-        //mediaPlayer = MediaPlayer.create(this, RingtoneManager.);
-        //mediaPlayer.setLooping(true);
 
         vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Intent notificationIntent = new Intent(this, RingActivity.class);
-        notificationIntent.putExtra("taskID", intent.getStringExtra("taskID"));
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
+        String taskID = intent.getStringExtra(TaskNotificationManager.ID_KEY);
 
-        String taskID = intent.getStringExtra("taskID");
-        MemtaskRepositoryBase mRepository = new MemtaskRepositoryBase(App.getInstance(), App.getDatabase(), App.getSilentDatabase());
-        Task task = mRepository.getTask(taskID);
+        if(intent.getIntExtra(STOP_KEY, -1) == STOP_BY_USER){
+            stopByUser = true;
+            stopSelf();
+            return START_STICKY;
+        }
 
-        String NOTIFICATION_CHANNEL_ID = "com.example.clock";
-        String channelName = "AlarmService";
+        // User click
+        Intent notificationOpenIntent = new Intent(this, RingActivity.class);
+        notificationOpenIntent.putExtra(TaskNotificationManager.ID_KEY, intent.getStringExtra(TaskNotificationManager.ID_KEY));
 
-        NotificationChannel chan = new NotificationChannel(NOTIFICATION_CHANNEL_ID, channelName, NotificationManager.IMPORTANCE_NONE);
-        chan.setLightColor(Color.BLUE);
-        chan.setLockscreenVisibility(Notification.VISIBILITY_PRIVATE);
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+        stackBuilder.addNextIntentWithParentStack(notificationOpenIntent);
+
+        PendingIntent pendingClickIntent = stackBuilder.getPendingIntent(TaskNotificationManager.NOTIFICATION_ALARM_CLICK, PendingIntent.FLAG_UPDATE_CURRENT);
+
+
+        // Notification complete button
+        Intent notificationCompleteIntent = new Intent(this, AlarmBroadcastReceiver.class);
+        notificationCompleteIntent.putExtra(TaskNotificationManager.ID_KEY, taskID);
+        notificationCompleteIntent.putExtra(TaskNotificationManager.ID_KEY, intent.getStringExtra(TaskNotificationManager.ID_KEY));
+        notificationCompleteIntent.putExtra(TaskNotificationManager.NOTIFICATION_ALARM_REQUEST_CODE, TaskNotificationManager.NOTIFICATION_ALARM_COMPLETE);
+        notificationCompleteIntent.putExtra(TaskNotificationManager.MODE_KEY, TaskNotificationManager.MODE_INLINE);
+
+        PendingIntent pendingCompleteIntent = PendingIntent.getBroadcast(this, 0, notificationCompleteIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        NotificationCompat.Action complete = new NotificationCompat.Action.Builder(R.mipmap.ic_launcher, "Выполнено", pendingCompleteIntent).build();
+
+        // Notification skip button
+        Intent notificationSkipIntent = new Intent(this, AlarmBroadcastReceiver.class);
+        notificationSkipIntent.putExtra(TaskNotificationManager.ID_KEY, taskID);
+        notificationSkipIntent.putExtra(TaskNotificationManager.ID_KEY, intent.getStringExtra(TaskNotificationManager.ID_KEY));
+        notificationSkipIntent.putExtra(TaskNotificationManager.NOTIFICATION_ALARM_REQUEST_CODE, TaskNotificationManager.NOTIFICATION_ALARM_SKIP);
+        notificationSkipIntent.putExtra(TaskNotificationManager.MODE_KEY, TaskNotificationManager.MODE_INLINE);
+
+        PendingIntent pendingSkipIntent = PendingIntent.getBroadcast(this, 0, notificationSkipIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        NotificationCompat.Action skip = new NotificationCompat.Action.Builder(R.mipmap.ic_launcher, "Пропустить", pendingSkipIntent).build();
+
+        mRepository = new MemtaskRepositoryBase(App.getInstance(), App.getDatabase(), App.getSilentDatabase());
+        task = mRepository.getTaskSilently(taskID);
+        mediaEnabled = task.isMediaEnabled();
+        vibrateEnabled = task.isVibrate();
+        if(mediaEnabled){
+            mediaPlayer = MediaPlayer.create(this, Uri.parse(task.getRingtonePath()));
+        }
 
         NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         assert manager != null;
-        manager.createNotificationChannel(chan);
 
-        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID);
+        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, TaskNotificationManager.NOTIFICATION_ALARM_CHANNEL_ID);
 
-        Notification notification = notificationBuilder.setOngoing(true)
-                .setSmallIcon(R.drawable.baseline_alarm_black_48dp)
+        Notification notification;
+        notificationBuilder = notificationBuilder
+                .setSmallIcon(R.drawable.ic_launcher_foreground)
                 .setContentTitle(task.getName())
-                .setContentText(task.getDescription())
-                .setContentIntent(pendingIntent)
-                .setPriority(NotificationManager.IMPORTANCE_MIN)
+                .setPriority(NotificationManager.IMPORTANCE_HIGH)
+                .setContentIntent(pendingClickIntent)
                 .setCategory(Notification.CATEGORY_SERVICE)
-                .build();
+                .addAction(complete)
+                .addAction(skip)
+                .setColor(getColor(R.color.main_8))
+        ;
+        if(task.getDescription().length() != 0){
+            notificationBuilder = notificationBuilder.setContentText(task.getDescription());
+        }
+        notification = notificationBuilder.build();
 
-        //mediaPlayer.start();
-        vibrator.vibrate(VibrationEffect.createOneShot(200,
-                VibrationEffect.DEFAULT_AMPLITUDE));
+        if(mediaEnabled || vibrateEnabled){
+            mediaPlayer.start();
+            new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    updateTaskData(task);
+                    if(mediaPlayer != null){
+                        mediaPlayer.stop();
+                    }
+                    if(vibrator != null){
+                        vibrator.cancel();
+                    }
+                }
+            }, TWO_MINUTES);
+        }
 
-        startForeground(1, notification);
+        task.setNotificationInProgress(true);
+        mRepository.addTaskSilently(task);
+
+        startForeground(task.getNotificationID(), notification);
 
         return START_STICKY;
     }
 
+    Runnable stopPlayerTask = new Runnable(){
+        @Override
+        public void run() {
+            mediaPlayer.stop();
+        }};
+
     @Override
     public void onDestroy() {
         super.onDestroy();
-        mediaPlayer.stop();
-        vibrator.cancel();
-    }
+        if(stopByUser){
+            return;
+        }
 
+        if(mediaEnabled){
+            mediaPlayer.stop();
+        }
+        if(vibrateEnabled){
+            vibrator.cancel();
+        }
+        updateTaskData(task);
+    }
+    private void updateTaskData(Task task){
+        if(task.isNotificationInProgress()){
+            if(task.markIfExpired()){
+                mRepository.addUserCaseStatisticSilently(
+                        new UserCaseStatistic(task.getTaskId(), task.isCompleted(), task.isExpired()));
+                mRepository.addTask(task);
+            }
+            task.setNotificationInProgress(false);
+        }
+    }
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {

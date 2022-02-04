@@ -1,6 +1,7 @@
 package com.example.clock.viewmodels;
 
 import android.app.Application;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.databinding.BaseObservable;
@@ -10,22 +11,29 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.example.clock.BR;
+import com.example.clock.R;
+import com.example.clock.app.App;
 import com.example.clock.model.TaskAndTheme;
 import com.example.clock.model.Task;
 import com.example.clock.model.Theme;
 import com.example.clock.repositories.MemtaskRepositoryBase;
 import com.example.clock.storageutils.Database;
+import com.example.clock.storageutils.SilentDatabase;
 import com.prolificinteractive.materialcalendarview.CalendarDay;
 
 import java.text.SimpleDateFormat;
+import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalAdjusters;
+import java.time.temporal.TemporalField;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -34,9 +42,10 @@ public class CalendarViewModel extends MemtaskViewModelBase{
     public static final int MODE_PROJECT_ITEM = 1;
 
     private final long millisInDay = 24*60*60*1000;
+    private final long secondsInDay = 24*60*60;
 
-    private Calendar selectedDateStart;
-    private Calendar selectedDateEnd;
+    private LocalDateTime selectedDateStart;
+    private LocalDateTime selectedDateEnd;
     //public LiveData<Tuple2<List<Task>,  List<Theme>>> intermediate;
     private List<TaskAndTheme> selectedTasks;
     private List<Integer> daysLoad;
@@ -46,39 +55,42 @@ public class CalendarViewModel extends MemtaskViewModelBase{
     // Modes:
     private MutableLiveData<Integer> updatePending;
 
-    public CalendarViewModel(Application application, Database database, Database silentDatabase){
-        selectedDateStart = GregorianCalendar.getInstance();
-        selectedDateStart.set(Calendar.HOUR_OF_DAY, 0);
-        selectedDateEnd = (Calendar) selectedDateStart.clone();
-        selectedDateEnd.add(Calendar.DAY_OF_YEAR, 1);
+    public CalendarViewModel(Application application, Database database, SilentDatabase silentDatabase){
+        selectedDateStart = LocalDateTime.now(ZoneOffset.UTC);
+        selectedDateStart = selectedDateStart.truncatedTo(ChronoUnit.DAYS);
+        selectedDateEnd = selectedDateStart;
+        selectedDateEnd = selectedDateEnd.plusDays(1);
 
         loadData(application, database, silentDatabase);
         selectedTasks = new ArrayList<TaskAndTheme>();
-        daysLoad = new ArrayList<Integer>(selectedDateStart.getActualMaximum(Calendar.DAY_OF_MONTH));
+        daysLoad = new ArrayList<Integer>(selectedDateStart.with(TemporalAdjusters.lastDayOfMonth()).getDayOfMonth());
         updatePending = new MutableLiveData<>();
         updatePending.setValue(new Integer(0));
         mTaskPoolCountHolder = new Observer();
     }
 
     @Override
-    protected void loadData(Application application, Database database, Database silentDatabase){
+    protected void loadData(Application application, Database database, SilentDatabase silentDatabase){
         mRepository = new MemtaskRepositoryBase(application, database, silentDatabase);
         tasksLiveData = null;
         projectsLiveData = null;
         categoriesLiveData = null;
         themesLiveData = mRepository.getAllThemesLive();
 
-        Calendar monthStart = GregorianCalendar.getInstance();
-        monthStart.setTimeInMillis(selectedDateStart.getTimeInMillis());
-        monthStart.set(Calendar.DAY_OF_MONTH, 1);
 
-        Calendar monthEnd = GregorianCalendar.getInstance();
-        monthEnd.setTimeInMillis(selectedDateStart.getTimeInMillis());
-        monthEnd.set(Calendar.DAY_OF_MONTH, selectedDateStart.getActualMaximum(Calendar.DAY_OF_MONTH));
+        long startMillis = 0;
+        long endMillis = 0;
+
+        /*if(App.getSettings()
+                .getCalendarMode()
+                .equals(application.getResources().getStringArray(R.array.preference_calendar_mode_names)[0]))
+        {*/
+        startMillis = selectedDateStart.toEpochSecond(ZoneOffset.UTC) * 1000;
+        endMillis = selectedDateEnd.toEpochSecond(ZoneOffset.UTC) * 1000;
 
         taskThemePack = mRepository.getTasksLiveDataByNotification(
-                monthStart.getTimeInMillis(),
-                monthEnd.getTimeInMillis());
+                startMillis,
+                endMillis);
     }
 
     public void sortDayTasks(int sortType){
@@ -117,46 +129,61 @@ public class CalendarViewModel extends MemtaskViewModelBase{
         return selectedTasks.get(pos).categoryName;
     }
     public String getTimeRange(int pos){
-        Calendar startTime = GregorianCalendar.getInstance();
-        Calendar endTime = GregorianCalendar.getInstance();
-
-        startTime.setTimeInMillis(selectedTasks.get(pos).task.getNotificationStartMillis());
-        endTime.setTimeInMillis(selectedTasks.get(pos).task.getEndTime());
+        LocalDateTime startTime;
+        LocalDateTime endTime;
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd.MM.yyyy");
 
 
-        Date startDate = startTime.getTime();
-        Date endDate = endTime.getTime();
+        startTime = LocalDateTime.ofEpochSecond(selectedTasks
+                        .get(pos)
+                        .task
+                        .getStartTime() / 1000,
+                0, ZoneOffset.UTC
+                );
+        endTime = LocalDateTime.ofEpochSecond(selectedTasks
+                        .get(pos)
+                        .task
+                        .getEndTime() / 1000,
+                0, ZoneOffset.UTC
+        );
 
-        SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy");
-
-        return sdf.format(startDate) + " — " + sdf.format(endDate);
+        return startTime.format(dtf) + " — " + endTime.format(dtf);
     }
     public boolean hasDescription(int pos){
         return !selectedTasks.get(pos).task.getDescription().equals("");
     }
     public void setDateAndUpdate(CalendarDay startDate, CalendarDay endDate){
-        selectedDateStart.setTimeInMillis(startDate.getDate().toEpochDay()*millisInDay);
+
+        LocalDateTime selectedDateStart = LocalDateTime
+                .ofEpochSecond(startDate.getDate()
+                        .toEpochDay() * secondsInDay, 0, ZoneOffset.UTC);
+
         if(endDate != null){
-            Calendar forcedEndDate = GregorianCalendar.getInstance();
-            forcedEndDate.setTimeInMillis(endDate.getDate().toEpochDay()*millisInDay + millisInDay);
+            LocalDateTime forcedEndDate = LocalDateTime
+                    .ofEpochSecond(endDate.getDate()
+                            .toEpochDay() * secondsInDay + secondsInDay, 0, ZoneOffset.UTC);
             selectedDateEnd = forcedEndDate;
-            init(selectedDateStart, forcedEndDate);
+            filterSelectedTasks(selectedDateStart, forcedEndDate);
         }
         else{
-            selectedDateEnd = GregorianCalendar.getInstance();
-            selectedDateEnd.setTimeInMillis(selectedDateStart.getTimeInMillis());
-            selectedDateEnd.add(Calendar.DAY_OF_YEAR, 1);
-            init(selectedDateStart, selectedDateEnd);
+            selectedDateEnd = selectedDateStart;
+            selectedDateEnd = selectedDateEnd.plusDays(1);
+            filterSelectedTasks(selectedDateStart, selectedDateEnd);
         }
     }
     public void setDate(CalendarDay startDate, CalendarDay endDate){
-        selectedDateStart.setTimeInMillis(startDate.getDate().toEpochDay()*millisInDay);
+
+        selectedDateStart = LocalDateTime
+                .ofEpochSecond(startDate
+                        .getDate().toEpochDay() * secondsInDay, 0, ZoneOffset.UTC);
+
         if(endDate != null) {
-            selectedDateEnd.setTimeInMillis(endDate.getDate().toEpochDay() * millisInDay);
+            selectedDateEnd = LocalDateTime
+                    .ofEpochSecond(endDate
+                            .getDate().toEpochDay() * secondsInDay, 0, ZoneOffset.UTC);
         }
         else{
-            selectedDateEnd.setTimeInMillis(selectedDateStart.getTimeInMillis());
-            selectedDateEnd.add(Calendar.DAY_OF_YEAR, 1);
+            selectedDateEnd = selectedDateStart.plusDays(1);
         }
     }
     public void removeSilently(int pos){
@@ -172,7 +199,7 @@ public class CalendarViewModel extends MemtaskViewModelBase{
         }
         return daysLoad.get(position);
     }
-    public Calendar getSelectedDateStart(){
+    public LocalDateTime getSelectedDateStart(){
         return selectedDateStart;
     }
 
@@ -188,17 +215,13 @@ public class CalendarViewModel extends MemtaskViewModelBase{
     }
 
     public LiveData<List<TaskAndTheme>> updateMonthTasksPack(){
-        Calendar monthStart = GregorianCalendar.getInstance();
-        Calendar monthEnd = GregorianCalendar.getInstance();
-
-
-        monthStart.setTimeInMillis(selectedDateStart.getTimeInMillis());
-        monthEnd.setTimeInMillis(selectedDateStart.getTimeInMillis());
-        monthStart.set(Calendar.DAY_OF_MONTH, 1);
-        monthEnd.set(Calendar.DAY_OF_MONTH, monthStart.getActualMaximum(Calendar.DAY_OF_MONTH));
+        LocalDateTime monthStart = selectedDateStart.withDayOfMonth(1);
+        LocalDateTime monthEnd = selectedDateStart.with(TemporalAdjusters.lastDayOfMonth());
+        monthEnd = monthEnd.plusDays(1);
 
         taskThemePack = mRepository.getTasksLiveDataByNotification(
-                monthStart.getTimeInMillis(), monthEnd.getTimeInMillis());
+                monthStart.toEpochSecond(ZoneOffset.UTC)*1000, monthEnd.toEpochSecond(ZoneOffset.UTC)*1000);
+
         return taskThemePack;
     }
     public LiveData<List<TaskAndTheme>> requestMonthTasksPack(){
@@ -207,24 +230,25 @@ public class CalendarViewModel extends MemtaskViewModelBase{
 
 
     //Util
-    public void init(@NonNull Calendar selectedDateStart, Calendar selectedDateEnd){
+    public void init(@NonNull LocalDateTime selectedDateStart, LocalDateTime selectedDateEnd){
         if(taskThemePack.getValue() != null) {
-            Calendar localEndCalendar;
+            LocalDateTime localEndDateTime;
             if(selectedDateEnd == null){
-                localEndCalendar = GregorianCalendar.getInstance();
-                localEndCalendar.setTimeInMillis(selectedDateStart.getTimeInMillis());
-                localEndCalendar.add(Calendar.DAY_OF_YEAR, 1);
+                localEndDateTime = selectedDateStart.plusDays(1);
             }
             else{
-                localEndCalendar = GregorianCalendar.getInstance();
-                localEndCalendar.setTimeInMillis(selectedDateEnd.getTimeInMillis());
+                localEndDateTime = selectedDateEnd;
             }
-            if(selectedDateStart.getTimeInMillis() == localEndCalendar.getTimeInMillis()){
-                localEndCalendar.add(Calendar.DAY_OF_YEAR, 1);
+            if(selectedDateStart.isEqual(localEndDateTime)){
+                localEndDateTime = localEndDateTime.plusDays(1);
             }
-            filterSelectedTasks(selectedDateStart, localEndCalendar);
-            daysLoad = new ArrayList<Integer>(selectedDateStart.getActualMaximum(Calendar.DAY_OF_MONTH));
-            for(int i = 0; i < selectedDateStart.getActualMaximum(Calendar.DAY_OF_MONTH); i++){
+            filterSelectedTasks(selectedDateStart, localEndDateTime);
+
+            int daysRangeCount = selectedDateStart.with(TemporalAdjusters.lastDayOfMonth()).getDayOfMonth();
+
+            daysLoad = new ArrayList<Integer>(daysRangeCount);
+
+            for(int i = 0; i < daysRangeCount; i++){
                 daysLoad.add(new Integer(0));
             }
             calcDaysLoad();
@@ -233,36 +257,40 @@ public class CalendarViewModel extends MemtaskViewModelBase{
     }
     public void init(){
         if(taskThemePack.getValue() != null) {
-            Calendar localEndCalendar;
+            LocalDateTime localEndCalendar;
             if(selectedDateEnd == null){
-                localEndCalendar = GregorianCalendar.getInstance();
-                localEndCalendar.setTimeInMillis(selectedDateStart.getTimeInMillis());
-                localEndCalendar.add(Calendar.DAY_OF_YEAR, 1);
+                localEndCalendar = selectedDateStart;
+                localEndCalendar = localEndCalendar.plusDays(1);
             }
             else{
-                localEndCalendar = GregorianCalendar.getInstance();
-                localEndCalendar.setTimeInMillis(selectedDateEnd.getTimeInMillis());
+                localEndCalendar = selectedDateEnd;
             }
-            if(selectedDateStart.getTimeInMillis() == localEndCalendar.getTimeInMillis()){
-                localEndCalendar.add(Calendar.DAY_OF_YEAR, 1);
+            if(selectedDateStart.isEqual(localEndCalendar)){
+                localEndCalendar = localEndCalendar.plusDays(1);
             }
+
             filterSelectedTasks(selectedDateStart, localEndCalendar);
-            daysLoad = new ArrayList<Integer>(selectedDateStart.getActualMaximum(Calendar.DAY_OF_MONTH));
-            for(int i = 0; i < selectedDateStart.getActualMaximum(Calendar.DAY_OF_MONTH); i++){
+
+            int daysRangeCount = selectedDateStart.with(TemporalAdjusters.lastDayOfMonth()).getDayOfMonth();
+
+            daysLoad = new ArrayList<Integer>(daysRangeCount);
+
+            for(int i = 0; i < daysRangeCount; i++){
                 daysLoad.add(new Integer(0));
             }
             calcDaysLoad();
             //sort
         }
     }
-    private void filterSelectedTasks(Calendar startDate, Calendar endDate){
+
+    private void filterSelectedTasks(LocalDateTime startDate, LocalDateTime endDate){
         if(taskThemePack.getValue() != null) {
             selectedTasks = taskThemePack.getValue()
                             .parallelStream()
                             .filter(item ->
-                                    item.task.getNotificationStartMillis() >= startDate.getTimeInMillis()
+                                    item.task.getNotificationStartMillis() >= startDate.toEpochSecond(ZoneOffset.UTC) * 1000
                                             &&
-                                            item.task.getNotificationStartMillis() < endDate.getTimeInMillis()
+                                            item.task.getNotificationStartMillis() < endDate.toEpochSecond(ZoneOffset.UTC) * 1000
                             )
                             .collect(Collectors.toList());
             mTaskPoolCountHolder.setSelectedDayTasksCount(selectedTasks.size());
@@ -281,6 +309,7 @@ public class CalendarViewModel extends MemtaskViewModelBase{
             AtomicInteger friday = new AtomicInteger(0);
             AtomicInteger saturday = new AtomicInteger(0);
             AtomicInteger sunday = new AtomicInteger(0);
+
             taskThemePack.getValue().forEach(item -> {
                 boolean repeatFlag = false;
                 switch (item.task.getRepeatMode()) {
@@ -327,32 +356,46 @@ public class CalendarViewModel extends MemtaskViewModelBase{
                         repeatFlag = true;
                 }
                 if (repeatFlag == false) {
-                    Calendar cal = GregorianCalendar.getInstance();
-                    cal.setTimeInMillis(item.task.getNotificationStartMillis());
-                    int dayIndex = cal.get(Calendar.DAY_OF_MONTH) - 1;
+                    LocalDateTime taskDateTime = LocalDateTime
+                            .ofEpochSecond(item.task.getNotificationStartMillis() / 1000, 0, ZoneOffset.UTC);
+
+                    int dayIndex = taskDateTime.getDayOfMonth() - 1;
                     daysLoad.set(dayIndex, daysLoad.get(dayIndex) + 3);
                 }
             });
-            Calendar day = GregorianCalendar.getInstance();
+            LocalDateTime current = selectedDateStart;
+            //Calendar day = GregorianCalendar.getInstance();
+
             for (int i = 0; i < daysLoad.size(); i++) {
-                day.set(Calendar.DAY_OF_MONTH, i + 1);
-                if (day.get(Calendar.DAY_OF_WEEK) == Calendar.MONDAY) {
+                current = current.withDayOfMonth(i + 1);
+                if (current.getDayOfWeek() == DayOfWeek.MONDAY) {
                     daysLoad.set(i, daysLoad.get(i) + monday.get());
-                } else if (day.get(Calendar.DAY_OF_WEEK) == Calendar.TUESDAY) {
+                }
+                else if (current.getDayOfWeek() == DayOfWeek.TUESDAY) {
                     daysLoad.set(i, daysLoad.get(i) + tuesday.get());
-                } else if (day.get(Calendar.DAY_OF_WEEK) == Calendar.WEDNESDAY) {
+                }
+                else if (current.getDayOfWeek() == DayOfWeek.WEDNESDAY) {
                     daysLoad.set(i, daysLoad.get(i) + wednesday.get());
-                } else if (day.get(Calendar.DAY_OF_WEEK) == Calendar.THURSDAY) {
+                }
+                else if (current.getDayOfWeek() == DayOfWeek.THURSDAY) {
                     daysLoad.set(i, daysLoad.get(i) + thursday.get());
-                } else if (day.get(Calendar.DAY_OF_WEEK) == Calendar.FRIDAY) {
+                }
+                else if (current.getDayOfWeek() == DayOfWeek.FRIDAY) {
                     daysLoad.set(i, daysLoad.get(i) + friday.get());
-                } else if (day.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY) {
+                }
+                else if (current.getDayOfWeek() == DayOfWeek.SATURDAY) {
                     daysLoad.set(i, daysLoad.get(i) + saturday.get());
-                } else if (day.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) {
+                }
+                else if (current.getDayOfWeek() == DayOfWeek.SUNDAY) {
                     daysLoad.set(i, daysLoad.get(i) + sunday.get());
                 }
             }
+            //Log.d("Completed", "Completed");
         }
+    }
+
+    public void removeTask(int position){
+        removeTaskByID(selectedTasks.get(position).task.getTaskId());
     }
 
     //

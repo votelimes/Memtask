@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="main_1">#9C27B0</color>
+    <color name="main_5">#9C27B0</color>
+    <color name="main_7">#CAD2D8</color>
+
+    <color name="toolbarMain">#4B4F5B</color>
+    <color name="toolbarText">#F2FDFF</color>
+
+
+    <color name="textPrimary">#F2FDFF</color>
+    <color name="textSecondary">#4B4F5B</color>
+    <color name="textTertiary">#9699A9</color>
+</resources>

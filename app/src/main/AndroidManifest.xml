@@ -6,6 +6,7 @@
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
 
     <application
         android:name=".app.App"
@@ -14,7 +15,7 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Clock"
+        android:theme="@style/Theme.Clock.Main"
         tools:replace="android:theme"
         >
         <activity
@@ -34,9 +35,9 @@
         <activity
             android:name=".activities.ManageCategoryActivity"
             android:exported="true" />
-
         <activity
             android:name=".activities.RingActivity"
+            android:parentActivityName=".activities.MainActivity"
             android:exported="true" />
 
         <service

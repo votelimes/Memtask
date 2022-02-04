@@ -25,19 +25,17 @@
                     android:layout_height="wrap_content"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    style="@style/Widget.MaterialComponents.ActionBar.Solid"
+
                     android:fitsSystemWindows="true"
                     app:liftOnScroll="true"
-                    android:background="@color/main_1"
                     >
                     <com.google.android.material.appbar.MaterialToolbar
                         android:id="@+id/topAppBar"
                         android:layout_width="match_parent"
                         android:layout_height="?attr/actionBarSize"
-                        app:title="@string/top_app_bar"
                         app:navigationIcon="@drawable/outline_menu_24"
-                        style="@style/Widget.MaterialComponents.Toolbar.PrimarySurface"
-                        android:background="@color/transparent"
+                        android:background="@color/toolbarMain"
+                        app:titleTextColor="@color/toolbarText"
                         android:elevation="0dp"
                         />
                 </com.google.android.material.appbar.AppBarLayout>

@@ -1,0 +1,22 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <style name="Theme.Clock.Main" parent="Theme.MaterialComponents.DayNight">
+
+        <item name="colorPrimary">@color/toolbarMain</item>
+
+
+        <item name="colorSecondary">@color/main_3</item>
+
+        // Text
+        <item name="android:textColor">@color/act_text_light</item>
+        <item name="android:textColorPrimary">@color/act_text_light</item>
+        <item name="android:textColorSecondary">@color/act_text_main</item>
+
+
+        <item name="android:colorBackground">@color/backgroundDark</item>
+
+        <item name="colorError">@color/main_5</item>
+        <item name="colorSurface">@color/main_6</item>
+
+    </style>
+</resources>

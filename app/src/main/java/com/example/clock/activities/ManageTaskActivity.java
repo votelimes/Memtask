@@ -49,9 +49,15 @@ import com.skydoves.colorpickerview.listeners.ColorEnvelopeListener;
 
 import net.cachapa.expandablelayout.ExpandableLayout;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoField;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
 import java.util.List;
 import java.util.Objects;
 
@@ -62,10 +68,10 @@ public class ManageTaskActivity extends AppCompatActivity implements View.OnFocu
     ActivityManageTaskBinding mActivityBinding;
     TextInputEditText nameText;
     TextInputEditText categoryText;
-    LocalDateTime dateTime = LocalDateTime.now(ZoneOffset.UTC);
     ExpandableLayout expandableColorLayout;
     String mode;
     Context mContext;
+    long millis;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -204,17 +210,17 @@ public class ManageTaskActivity extends AppCompatActivity implements View.OnFocu
                                 .build();
 
                         timePicker.addOnPositiveButtonClickListener(dialog -> {
-                            dateTime = dateTime.withHour(timePicker.getHour());
-                            dateTime = dateTime.withMinute(timePicker.getMinute());
-                            dateTime = dateTime.withSecond(0);
-                            mViewModel.mManagingTaskRepository.setTaskNotificationMillis(dateTime.toEpochSecond(ZoneOffset.UTC)*1000);
+                            millis = millis + (1000L * 60 * 60 * timePicker.getHour());
+                            millis = millis + (1000L * 60 * timePicker.getMinute());
+
+                            mViewModel.mManagingTaskRepository.setTaskNotificationMillis(millis);
                             view.clearFocus();
                         });
 
                         datepicker.addOnPositiveButtonClickListener(new MaterialPickerOnPositiveButtonClickListener<Long>() {
                             @Override
                             public void onPositiveButtonClick(Long selection) {
-                                dateTime = LocalDateTime.ofEpochSecond((long) selection / 1000, 0, ZoneOffset.UTC);
+                                millis = selection;
                                 timePicker.show(getSupportFragmentManager(), timePicker.toString());
                             }
                         });
@@ -229,11 +235,14 @@ public class ManageTaskActivity extends AppCompatActivity implements View.OnFocu
                                 .build();
 
                         timePicker.addOnPositiveButtonClickListener(dialog -> {
-                            dateTime = LocalDateTime.now(ZoneOffset.UTC);
-                            dateTime = dateTime.withHour(timePicker.getHour());
-                            dateTime = dateTime.withMinute(timePicker.getMinute());
-                            dateTime = dateTime.withSecond(0);
-                            mViewModel.mManagingTaskRepository.setTaskNotificationMillis(dateTime.toEpochSecond(ZoneOffset.UTC)*1000);
+                            Instant instant = Instant.now().truncatedTo(ChronoUnit.DAYS);
+
+                            long instTest = instant.toEpochMilli();
+
+                            millis = instant.toEpochMilli() + (1000L * 60 * 60 * timePicker.getHour());
+                            millis = millis + (1000L * 60 * timePicker.getMinute());
+
+                            mViewModel.mManagingTaskRepository.setTaskNotificationMillis(millis);
                             view.clearFocus();
                         });
                         timePicker.show(getSupportFragmentManager(), timePicker.toString());
@@ -521,12 +530,18 @@ public class ManageTaskActivity extends AppCompatActivity implements View.OnFocu
             return;
         }
 
-        mViewModel.saveChanges();
-        if(mViewModel.mManagingTaskRepository.isTaskMode()) {
+        mViewModel.saveChanges(this);
+        if(mode.equals("TaskCreating")){
             setResult(20); // 20 Task created
         }
-        else if(mViewModel.mManagingTaskRepository.isProjectMode()){
+        else if(mode.equals("TaskEditing")){
+            setResult(21); // 30
+        }
+        else if(mode.equals("ProjectCreating")){
             setResult(30); // 30 Project created
+        }
+        else if(mode.equals("ProjectEditing")){
+            setResult(31); // 30 Project created
         }
         finish();
     };

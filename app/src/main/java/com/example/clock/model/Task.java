@@ -9,8 +9,6 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
-import androidx.room.ForeignKey;
-import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
 import com.example.clock.broadcastreceiver.AlarmBroadcastReceiver;
@@ -18,7 +16,9 @@ import com.example.clock.broadcastreceiver.AlarmBroadcastReceiver;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.DayOfWeek;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.Calendar;
@@ -57,6 +57,8 @@ public class Task extends UserCaseBase {
     protected boolean recurring;
     protected boolean enabled;
 
+    protected boolean notificationInProgress;
+
 
     //protected long testID = 1;
     //protected boolean started;
@@ -85,39 +87,52 @@ public class Task extends UserCaseBase {
     public void reGenerateUUID(){
         taskId = generateUUID();
     }
-    public void schedule(Context context) {
+
+    // 1 if notification in the Past
+    public int schedule(Context context) {
+        if(notifyEnabled){
+            cancelAlarm(context);
+        }
+
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 
         Intent intent = new Intent(context, AlarmBroadcastReceiver.class);
-        intent.putExtra("TASK_ID", taskId);
+        intent.setAction(taskId);
+        intent.putExtra(TaskNotificationManager.ID_KEY, taskId);
+        intent.putExtra(TaskNotificationManager.MODE_KEY, TaskNotificationManager.MODE_INLINE);
 
-        PendingIntent alarmPendingIntent = PendingIntent.getBroadcast(context, -1, intent, 0);
+        PendingIntent alarmPendingIntent = PendingIntent
+                .getBroadcast(context, TaskNotificationManager.REQUEST_CODE_BASE, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         LocalDateTime ldt = LocalDateTime.ofEpochSecond((long) mNotificationStartMillis / 1000, 0, ZoneOffset.UTC);
-
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(mNotificationStartMillis);
+        LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
 
         // if alarm time has already passed, increment day by 1
-        if (calendar.getTimeInMillis() <= System.currentTimeMillis()) {
-            calendar.set(Calendar.DAY_OF_MONTH, calendar.get(Calendar.DAY_OF_MONTH) + 1);
+        if (ldt.isBefore(LocalDateTime.now()) && repeatMode != 0) {
+            ldt.plusDays(1);
+        }
+        else if(ldt.isBefore(now)){
+            return 1;
         }
 
         switch (repeatMode){
             case 0: // Один раз
                 alarmManager.setExact(
                         AlarmManager.RTC_WAKEUP,
-                        ldt.toEpochSecond(ZoneOffset.UTC) * 1000,
+                        getConvertedNotifyMillis(),
                         alarmPendingIntent
                 );
+                break;
             case 1: // Каждый день
                 final long RUN_DAILY = 24 * 60 * 60 * 1000;
+                final long RUN_TEST = 1000 * 60 * 2;
                 alarmManager.setRepeating(
                         AlarmManager.RTC_WAKEUP,
-                        calendar.getTimeInMillis(),
-                        RUN_DAILY,
+                        getConvertedNotifyMillis(),
+                        RUN_TEST,
                         alarmPendingIntent
                 );
+                break;
             case 2: // По будням
 
         }
@@ -138,17 +153,23 @@ public class Task extends UserCaseBase {
                     alarmPendingIntent
             );
         }*/
-
         this.notifyEnabled = true;
+        return 0;
     }
     public void cancelAlarm(Context context) {
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(context, AlarmBroadcastReceiver.class);
+        intent.setAction(taskId);
         intent.putExtra("taskID", taskId);
 
         PendingIntent alarmPendingIntent = PendingIntent.getBroadcast(context, -1, intent, 0);
         alarmManager.cancel(alarmPendingIntent);
         this.notifyEnabled = false;
+    }
+    public void onAlarmRingFinish(){
+        if(repeatMode == 0){
+            notifyEnabled = false;
+        }
     }
     public long getNotificationStartMillis(){
         return mNotificationStartMillis;
@@ -492,5 +513,75 @@ public class Task extends UserCaseBase {
 
     public void setNotifyEnabled(boolean notifyEnabled) {
         this.notifyEnabled = notifyEnabled;
+    }
+
+    public static long getLocalMillis(long UTCMillis){
+        LocalDateTime ldt = LocalDateTime.ofEpochSecond(UTCMillis / 1000L, 0, ZoneOffset.UTC);
+        ZonedDateTime zdt = ZonedDateTime.of(ldt, ZoneId.systemDefault());
+        return zdt.toEpochSecond() * 1000L;
+    }
+
+    public long getConvertedNotifyMillis(){
+        return getLocalMillis(mNotificationStartMillis);
+    }
+
+    public boolean isNotificationInProgress() {
+        return notificationInProgress;
+    }
+
+    public void setNotificationInProgress(boolean notificationInProgress) {
+        this.notificationInProgress = notificationInProgress;
+    }
+
+    // Returns true if something has changed (obj got Expired or Completed)
+    public boolean markIfExpired(long deltaMillis){
+        LocalDateTime now = LocalDateTime
+                .ofEpochSecond(LocalDateTime.now().toEpochSecond(ZoneOffset.UTC) - (deltaMillis / 1000), 0, ZoneOffset.UTC);
+        if(completed || expired){
+            return false;
+        }
+
+        if(endTime != -1) {
+            LocalDateTime activityEndTime = LocalDateTime.ofEpochSecond(endTime / 1000, 0, ZoneOffset.UTC);
+            if(now.isAfter(activityEndTime)){
+                expired = true;
+                return true;
+            }
+        }
+        else if(notifyEnabled){
+            LocalDateTime notificationTime = LocalDateTime.ofEpochSecond(mNotificationStartMillis / 1000, 0, ZoneOffset.UTC);
+            if(now.isAfter(notificationTime)){
+                expired = true;
+                return true;
+            }
+        }
+        return false;
+    }
+    public boolean markIfExpired(){
+        LocalDateTime now = LocalDateTime
+                .ofEpochSecond(LocalDateTime.now()
+                        .toEpochSecond(ZoneOffset.UTC), 0, ZoneOffset.UTC);
+
+        if(completed || expired){
+            return false;
+        }
+
+        if(endTime != -1) {
+            LocalDateTime activityEndTime = LocalDateTime
+                    .ofEpochSecond(endTime / 1000, 0, ZoneOffset.UTC);
+            if(now.isAfter(activityEndTime)){
+                expired = true;
+                return true;
+            }
+        }
+        else if(notifyEnabled){
+            LocalDateTime notificationTime = LocalDateTime
+                    .ofEpochSecond(mNotificationStartMillis / 1000, 0, ZoneOffset.UTC);
+            if(now.isAfter(notificationTime)){
+                expired = true;
+                return true;
+            }
+        }
+        return false;
     }
 }

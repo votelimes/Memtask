@@ -1,5 +1,8 @@
 package com.example.clock.activities;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
@@ -23,6 +26,7 @@ import com.example.clock.fragments.StatisticFragment;
 import com.example.clock.model.Category;
 import com.example.clock.model.Project;
 import com.example.clock.model.Task;
+import com.example.clock.model.TaskNotificationManager;
 import com.example.clock.model.Theme;
 import com.example.clock.model.UserCaseStatistic;
 import com.example.clock.viewmodels.MainViewModel;
@@ -175,137 +179,156 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         if(App.getSettings().getSetupState() == false){
 
+            // NotificationChannels installation
+            NotificationManager notificationManager =
+                    (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+
+            NotificationChannel alarmChannel = new NotificationChannel(TaskNotificationManager.NOTIFICATION_ALARM_CHANNEL_ID, TaskNotificationManager.NOTIFICATION_ALARM_CHANNEL_NAME,
+                    NotificationManager.IMPORTANCE_HIGH);
+            alarmChannel.setDescription(TaskNotificationManager.NOTIFICATION_ALARM_CHANNEL_DESCRIPTION);
+            alarmChannel.enableLights(true);
+            alarmChannel.enableVibration(true);
+            notificationManager.createNotificationChannel(alarmChannel);
+
+            NotificationChannel generalChannel = new NotificationChannel(TaskNotificationManager.NOTIFICATION_GENERAL_CHANNEL_ID, TaskNotificationManager.NOTIFICATION_GENERAL_CHANNEL_NAME,
+                    NotificationManager.IMPORTANCE_DEFAULT);
+            generalChannel.setDescription(TaskNotificationManager.NOTIFICATION_GENERAL_CHANNEL_DESCRIPTION);
+            generalChannel.enableLights(false);
+            generalChannel.enableVibration(false);
+            notificationManager.createNotificationChannel(generalChannel);
+
             // Themes installation
 
             List<Theme> defaultThemesList = new ArrayList<Theme>(20);
 
             defaultThemesList.add(new Theme("Rajah",
                     "#FFB563", "#68B0AB", 0));
-            defaultThemesList.get(0).setMainTextColor(getColor(R.color.text_main));
-            defaultThemesList.get(0).setIconColor(getColor(R.color.text_main));
+            defaultThemesList.get(0).setMainTextColor(getColor(R.color.act_text_main));
+            defaultThemesList.get(0).setIconColor(getColor(R.color.act_text_main));
 
             defaultThemesList.add(new Theme("Celadon",
                     "#BAF2BB", "#F47B93", 0));
-            defaultThemesList.get(1).setMainTextColor(getColor(R.color.text_main));
-            defaultThemesList.get(1).setIconColor(getColor(R.color.text_main));
+            defaultThemesList.get(1).setMainTextColor(getColor(R.color.act_text_main));
+            defaultThemesList.get(1).setIconColor(getColor(R.color.act_text_main));
 
             defaultThemesList.add(new Theme("Fiery Rose",
                     "#EF626C", "#607196", 0));
-            defaultThemesList.get(2).setMainTextColor(getColor(R.color.text_light));
-            defaultThemesList.get(2).setIconColor(getColor(R.color.text_main));
-            defaultThemesList.get(2).setAdditionalTextColor(getColor(R.color.text_light));
+            defaultThemesList.get(2).setMainTextColor(getColor(R.color.act_text_light));
+            defaultThemesList.get(2).setIconColor(getColor(R.color.act_text_main));
+            defaultThemesList.get(2).setAdditionalTextColor(getColor(R.color.act_text_light));
 
             defaultThemesList.add(new Theme("Orange Red Crayola",
                     "#FF5E5B", "#50B2C0", 0));
-            defaultThemesList.get(3).setMainTextColor(getColor(R.color.text_light));
-            defaultThemesList.get(3).setIconColor(getColor(R.color.text_main));
-            defaultThemesList.get(3).setAdditionalTextColor(getColor(R.color.text_light));
+            defaultThemesList.get(3).setMainTextColor(getColor(R.color.act_text_light));
+            defaultThemesList.get(3).setIconColor(getColor(R.color.act_text_main));
+            defaultThemesList.get(3).setAdditionalTextColor(getColor(R.color.act_text_light));
 
             defaultThemesList.add(new Theme("Middle Green",
                     "#5B8C5A", "#311E10", 0));
-            defaultThemesList.get(4).setMainTextColor(getColor(R.color.text_light));
-            defaultThemesList.get(4).setIconColor(getColor(R.color.text_main));
-            defaultThemesList.get(4).setAdditionalTextColor(getColor(R.color.text_light));
+            defaultThemesList.get(4).setMainTextColor(getColor(R.color.act_text_light));
+            defaultThemesList.get(4).setIconColor(getColor(R.color.act_text_main));
+            defaultThemesList.get(4).setAdditionalTextColor(getColor(R.color.act_text_light));
 
             defaultThemesList.add(new Theme("Sky Blue Crayola",
                     "#90E0F3", "#311E10", 0));
-            defaultThemesList.get(5).setMainTextColor(getColor(R.color.text_main));
-            defaultThemesList.get(5).setIconColor(getColor(R.color.text_main));
+            defaultThemesList.get(5).setMainTextColor(getColor(R.color.act_text_main));
+            defaultThemesList.get(5).setIconColor(getColor(R.color.act_text_main));
 
             defaultThemesList.add(new Theme("Orange Yellow",
                     "#FABC2A", "#662C91", 0));
-            defaultThemesList.get(6).setMainTextColor(getColor(R.color.text_main));
-            defaultThemesList.get(6).setIconColor(getColor(R.color.text_main));
+            defaultThemesList.get(6).setMainTextColor(getColor(R.color.act_text_main));
+            defaultThemesList.get(6).setIconColor(getColor(R.color.act_text_main));
 
             defaultThemesList.add(new Theme("Mauve Taupe",
                     "#925E78", "#F15152", 0));
-            defaultThemesList.get(7).setMainTextColor(getColor(R.color.text_light));
-            defaultThemesList.get(4).setAdditionalTextColor(getColor(R.color.text_light));
-            defaultThemesList.get(7).setIconColor(getColor(R.color.text_light));
+            defaultThemesList.get(7).setMainTextColor(getColor(R.color.act_text_light));
+            defaultThemesList.get(4).setAdditionalTextColor(getColor(R.color.act_text_light));
+            defaultThemesList.get(7).setIconColor(getColor(R.color.act_text_light));
 
             defaultThemesList.add(new Theme("Cyan Process",
                     "#00A5E0", "#464D77", 0));
-            defaultThemesList.get(8).setMainTextColor(getColor(R.color.text_light));
-            defaultThemesList.get(8).setIconColor(getColor(R.color.text_main));
-            defaultThemesList.get(8).setAdditionalTextColor(getColor(R.color.text_light));
+            defaultThemesList.get(8).setMainTextColor(getColor(R.color.act_text_light));
+            defaultThemesList.get(8).setIconColor(getColor(R.color.act_text_main));
+            defaultThemesList.get(8).setAdditionalTextColor(getColor(R.color.act_text_light));
 
             defaultThemesList.add(new Theme("Orchid Crayola",
                     "#EF9CDA", "#568259", 0));
-            defaultThemesList.get(9).setMainTextColor(getColor(R.color.text_main));
-            defaultThemesList.get(9).setIconColor(getColor(R.color.text_main));
+            defaultThemesList.get(9).setMainTextColor(getColor(R.color.act_text_main));
+            defaultThemesList.get(9).setIconColor(getColor(R.color.act_text_main));
 
             defaultThemesList.add(new Theme("Black Coffee",
                     "#32292F", "#FF715B", 0));
-            defaultThemesList.get(10).setMainTextColor(getColor(R.color.text_light));
-            defaultThemesList.get(10).setIconColor(getColor(R.color.text_light));
-            defaultThemesList.get(10).setAdditionalTextColor(getColor(R.color.text_light));
+            defaultThemesList.get(10).setMainTextColor(getColor(R.color.act_text_light));
+            defaultThemesList.get(10).setIconColor(getColor(R.color.act_text_light));
+            defaultThemesList.get(10).setAdditionalTextColor(getColor(R.color.act_text_light));
 
             defaultThemesList.add(new Theme("Umber",
                     "#705D56", "#58BC82", 0));
-            defaultThemesList.get(11).setMainTextColor(getColor(R.color.text_light));
-            defaultThemesList.get(11).setIconColor(getColor(R.color.text_light));
+            defaultThemesList.get(11).setMainTextColor(getColor(R.color.act_text_light));
+            defaultThemesList.get(11).setIconColor(getColor(R.color.act_text_light));
 
             defaultThemesList.add(new Theme("Ocean Green",
                     "#65B891", "#FF674D", 0));
-            defaultThemesList.get(12).setMainTextColor(getColor(R.color.text_light));
-            defaultThemesList.get(12).setIconColor(getColor(R.color.text_main));
-            defaultThemesList.get(12).setAdditionalTextColor(getColor(R.color.text_light));
+            defaultThemesList.get(12).setMainTextColor(getColor(R.color.act_text_light));
+            defaultThemesList.get(12).setIconColor(getColor(R.color.act_text_main));
+            defaultThemesList.get(12).setAdditionalTextColor(getColor(R.color.act_text_light));
 
             defaultThemesList.add(new Theme("Pastel Pink",
                     "#DAA89B", "#F15152", 0));
-            defaultThemesList.get(13).setMainTextColor(getColor(R.color.text_main));
-            defaultThemesList.get(13).setIconColor(getColor(R.color.text_main));
+            defaultThemesList.get(13).setMainTextColor(getColor(R.color.act_text_main));
+            defaultThemesList.get(13).setIconColor(getColor(R.color.act_text_main));
 
             defaultThemesList.add(new Theme("Blue Bell",
                     "#998FC7", "#F15152", 0));
-            defaultThemesList.get(14).setMainTextColor(getColor(R.color.text_light));
-            defaultThemesList.get(14).setIconColor(getColor(R.color.text_main));
-            defaultThemesList.get(14).setAdditionalTextColor(getColor(R.color.text_light));
+            defaultThemesList.get(14).setMainTextColor(getColor(R.color.act_text_light));
+            defaultThemesList.get(14).setIconColor(getColor(R.color.act_text_main));
+            defaultThemesList.get(14).setAdditionalTextColor(getColor(R.color.act_text_light));
 
             defaultThemesList.add(new Theme("Steel Teal",
                     "#6E8387", "#F15152", 0));
-            defaultThemesList.get(15).setMainTextColor(getColor(R.color.text_light));
-            defaultThemesList.get(15).setIconColor(getColor(R.color.text_main));
-            defaultThemesList.get(15).setAdditionalTextColor(getColor(R.color.text_light));
+            defaultThemesList.get(15).setMainTextColor(getColor(R.color.act_text_light));
+            defaultThemesList.get(15).setIconColor(getColor(R.color.act_text_main));
+            defaultThemesList.get(15).setAdditionalTextColor(getColor(R.color.act_text_light));
 
             defaultThemesList.add(new Theme("Caput Mortuum",
                     "#522A27", "#B96D40", 0));
-            defaultThemesList.get(16).setMainTextColor(getColor(R.color.text_main));
-            defaultThemesList.get(16).setIconColor(getColor(R.color.text_main));
-            defaultThemesList.get(16).setAdditionalTextColor(getColor(R.color.text_light));
+            defaultThemesList.get(16).setMainTextColor(getColor(R.color.act_text_main));
+            defaultThemesList.get(16).setIconColor(getColor(R.color.act_text_main));
+            defaultThemesList.get(16).setAdditionalTextColor(getColor(R.color.act_text_light));
 
             defaultThemesList.add(new Theme("Satin Sheen Gold",
                     "#C59849", "#549F93", 0));
-            defaultThemesList.get(17).setMainTextColor(getColor(R.color.text_light));
-            defaultThemesList.get(17).setIconColor(getColor(R.color.text_grey));
-            defaultThemesList.get(17).setAdditionalTextColor(getColor(R.color.text_light));
+            defaultThemesList.get(17).setMainTextColor(getColor(R.color.act_text_light));
+            defaultThemesList.get(17).setIconColor(getColor(R.color.act_text_grey));
+            defaultThemesList.get(17).setAdditionalTextColor(getColor(R.color.act_text_light));
 
 
             defaultThemesList.add(new Theme("United Nations Blue",
                     "#6290C3", "#549F93", 0));
-            defaultThemesList.get(18).setMainTextColor(getColor(R.color.text_light));
-            defaultThemesList.get(18).setIconColor(getColor(R.color.text_main));
-            defaultThemesList.get(18).setAdditionalTextColor(getColor(R.color.text_light));
+            defaultThemesList.get(18).setMainTextColor(getColor(R.color.act_text_light));
+            defaultThemesList.get(18).setIconColor(getColor(R.color.act_text_main));
+            defaultThemesList.get(18).setAdditionalTextColor(getColor(R.color.act_text_light));
 
             defaultThemesList.add(new Theme("Mandarin",
                     "#F37748", "#549F93", 0));
-            defaultThemesList.get(19).setMainTextColor(getColor(R.color.text_light));
-            defaultThemesList.get(19).setIconColor(getColor(R.color.text_main));
-            defaultThemesList.get(19).setAdditionalTextColor(getColor(R.color.text_light));
+            defaultThemesList.get(19).setMainTextColor(getColor(R.color.act_text_light));
+            defaultThemesList.get(19).setIconColor(getColor(R.color.act_text_main));
+            defaultThemesList.get(19).setAdditionalTextColor(getColor(R.color.act_text_light));
 
             defaultThemesList.add(new Theme("MainTaskTheme",
                     "#F7EDE2", "#F15152", 0));
-            defaultThemesList.get(20).setMainTextColor(getColor(R.color.text_main));
-            defaultThemesList.get(20).setIconColor(getColor(R.color.text_main));
+            defaultThemesList.get(20).setMainTextColor(getColor(R.color.act_text_main));
+            defaultThemesList.get(20).setIconColor(getColor(R.color.act_text_main));
 
             defaultThemesList.add(new Theme("MainProjectTheme",
                     "#F7EDE2", "#F15152", 0));
-            defaultThemesList.get(21).setMainTextColor(getColor(R.color.text_main));
-            defaultThemesList.get(21).setIconColor(getColor(R.color.text_main));
+            defaultThemesList.get(21).setMainTextColor(getColor(R.color.act_text_main));
+            defaultThemesList.get(21).setIconColor(getColor(R.color.act_text_main));
 
             for (Theme theme: defaultThemesList) {
                 if(theme.getAdditionalTextColor() == -1){
-                    theme.setAdditionalTextColor(getColor(R.color.text_grey));
+                    theme.setAdditionalTextColor(getColor(R.color.act_text_grey));
                 }
 
                 theme.setBaseTheme(true);
@@ -337,7 +360,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             // Some projects installation
             List<Project> defaultProjectsList = new ArrayList<Project>(5);
             defaultProjectsList.add(new Project("Вылечить зуб", "", 4));
-            defaultProjectsList.get(0).setRange("24.01.2022", "29.01.2022");
+            defaultProjectsList.get(0).setRange("24.02.2022", "28.02.2022");
             defaultProjectsList.get(0).setThemeID(defaultThemesList.get(21).getID());
             defaultProjectsList.add(new Project("Сделать презентацию", "Способы оптимизации алгоритмов", 2));
             defaultProjectsList.get(1).setRange("1.02.2022", "15.02.2022");
@@ -353,33 +376,33 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
 
             try {
-                calendar.setTime(sdf.parse("25.01.2022 00:00:00"));
+                calendar.setTime(sdf.parse("25.02.2022 00:00:00"));
             } catch (ParseException e){
                 Log.e("INITIAL SETUP ERROR: ", e.getMessage());
             }
 
             defaultTasksList.add(new Task("Оплатить счета", "Оплатить счета за дом", 1 ));
-            defaultTasksList.get(0).setAlarmTime("25.01.2022 11:20");
+            defaultTasksList.get(0).setAlarmTime("25.02.2022 11:20");
             defaultTasksList.get(0).setNotifyEnabled(true);
             defaultTasksList.get(0).setRepeatMode(4);
             defaultTasksList.get(0).setImportant(true);
             defaultTasksList.get(0).setThemeID(defaultThemesList.get(20).getID());
 
             defaultTasksList.add(new Task("Полить цветы", "Полить все цветы кроме, замиокулькаса", 1 ));
-            defaultTasksList.get(1).setAlarmTime("25.01.2022 17:40");
+            defaultTasksList.get(1).setAlarmTime("25.02.2022 17:40");
             defaultTasksList.get(1).setNotifyEnabled(true);
             defaultTasksList.get(1).setRepeatMode(3);
             defaultTasksList.get(1).setTuesday(true);
             defaultTasksList.get(1).setThemeID(defaultThemesList.get(0).getID());
 
             defaultTasksList.add(new Task("Забрать посылку", "", 1 ));
-            defaultTasksList.get(2).setAlarmTime("26.01.2022 16:00");
+            defaultTasksList.get(2).setAlarmTime("26.02.2022 16:00");
             defaultTasksList.get(2).setNotifyEnabled(true);
             defaultTasksList.get(2).setThemeID(defaultThemesList.get(1).getID());
             defaultTasksList.get(2).setImportant(true);
 
             defaultTasksList.add(new Task("Утренняя разминка", "", 4 ));
-            defaultTasksList.get(3).setAlarmTime("26.01.2022 10:00");
+            defaultTasksList.get(3).setAlarmTime("26.02.2022 10:00");
             defaultTasksList.get(3).setNotifyEnabled(true);
             defaultTasksList.get(3).setRepeatMode(3);
             defaultTasksList.get(3).setMonday(true);
@@ -388,12 +411,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             defaultTasksList.get(3).setThemeID(defaultThemesList.get(2).getID());
 
             defaultTasksList.add(new Task("Забрать ключи", "Ключи от офиса 303", 2 ));
-            defaultTasksList.get(4).setAlarmTime("26.01.2022 15:00");
+            defaultTasksList.get(4).setAlarmTime("26.02.2022 15:00");
             defaultTasksList.get(4).setNotifyEnabled(true);
             defaultTasksList.get(4).setThemeID(defaultThemesList.get(0).getID());
 
             defaultTasksList.add(new Task("Отправиться на прием к врачу", "Кабинет 6", 4 ));
-            defaultTasksList.get(5).setAlarmTime("11.01.2022 7:40");
+            defaultTasksList.get(5).setAlarmTime("11.02.2022 7:40");
             defaultTasksList.get(5).setNotifyEnabled(true);
             defaultTasksList.get(5).setRepeatMode(1);
             defaultTasksList.get(5).setThemeID(defaultThemesList.get(1).getID());
@@ -414,20 +437,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             // Project tasks
             defaultTasksList.add(new Task("Подготовить литературу", "Поискать на programmer-lib", 2 ));
-            defaultTasksList.get(9).setAlarmTime("24.01.2022 11:00");
+            defaultTasksList.get(9).setAlarmTime("24.02.2022 11:00");
             defaultTasksList.get(9).setNotifyEnabled(true);
             defaultTasksList.get(9).setParentID(defaultProjectsList.get(1).getProjectId());
             defaultTasksList.get(9).setThemeID(defaultThemesList.get(20).getID());
 
             defaultTasksList.add(new Task("Определить структуру", "3 раздела, 12 слайдов", 2 ));
-            defaultTasksList.get(10).setAlarmTime("25.01.2022 11:00");
+            defaultTasksList.get(10).setAlarmTime("25.02.2022 11:00");
             defaultTasksList.get(10).setNotifyEnabled(true);
             defaultTasksList.get(10).setParentID(defaultProjectsList.get(1).getProjectId());
             defaultTasksList.get(10).setImportant(true);
             defaultTasksList.get(10).setThemeID(defaultThemesList.get(12).getID());
 
             defaultTasksList.add(new Task("Написать текст", "8 страниц, 14пт", 2 ));
-            defaultTasksList.get(11).setAlarmTime("27.01.2022 17:00");
+            defaultTasksList.get(11).setAlarmTime("27.02.2022 17:00");
             defaultTasksList.get(11).setNotifyEnabled(true);
             defaultTasksList.get(11).setParentID(defaultProjectsList.get(1).getProjectId());
             defaultTasksList.get(11).setThemeID(defaultThemesList.get(11).getID());

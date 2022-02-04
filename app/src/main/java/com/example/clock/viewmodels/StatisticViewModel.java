@@ -10,6 +10,7 @@ import com.example.clock.BR;
 import com.example.clock.model.UserCaseStatistic;
 import com.example.clock.repositories.MemtaskRepositoryBase;
 import com.example.clock.storageutils.Database;
+import com.example.clock.storageutils.SilentDatabase;
 import com.github.mikephil.charting.data.BarEntry;
 
 import java.time.LocalDateTime;
@@ -29,14 +30,14 @@ public class StatisticViewModel extends MemtaskViewModelBase {
     public Observer mDataHolder;
 
 
-    public StatisticViewModel(Application application, Database database, Database silentDatabase){
+    public StatisticViewModel(Application application, Database database, SilentDatabase silentDatabase){
         mDataHolder = new Observer();
         loadData(application, database, silentDatabase);
         chart1Entries = new ArrayList<>();
     }
 
     @Override
-    protected void loadData(Application application, Database database, Database silentDatabase){
+    protected void loadData(Application application, Database database, SilentDatabase silentDatabase){
         mRepository = new MemtaskRepositoryBase(application, database, silentDatabase);
         tasksLiveData = null;
         projectsLiveData = null;

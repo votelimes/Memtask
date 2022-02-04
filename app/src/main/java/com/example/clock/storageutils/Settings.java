@@ -17,7 +17,7 @@ public class Settings {
     private Pair<Boolean, String> mSetupState;
     private Pair<Long, String> mLastCategoryID;
     private Pair<String, String> mLastCategoryName;
-    private Pair<Boolean, String> mUseDarkTheme;
+    private Pair<String, String> mUseDarkTheme;
     private Pair<Boolean, String> mUseRandomThemes;
     private Pair<String, String> mCalendarMode;
 
@@ -26,10 +26,10 @@ public class Settings {
     public Settings(@NonNull Context context) {
 
         mSharedPref = PreferenceManager.getDefaultSharedPreferences(context);
-        updateData();
+        updateData(context);
     }
 
-    public void updateData(){
+    public void updateData(Context context){
 
         String mCurrentWindowPrefTag = "current_window";
         mCurrentWindow = new Pair<Long, String>
@@ -56,9 +56,14 @@ public class Settings {
         mCalendarMode = new Pair<String, String>
                 (mSharedPref.getString(mCalendarModeTag, App.getInstance().getString(R.string.preference_calendar_mode_value_default)), mCalendarModeTag);
 
-        String mUseDarkThemeTag = "dark_theme";
-        mUseDarkTheme = new Pair<Boolean, String>
-                (mSharedPref.getBoolean(mUseDarkThemeTag, false), mUseDarkThemeTag);
+        String mUseDarkThemeTag = context.getResources().getString(R.string.preference_theme_key);
+        mUseDarkTheme = new Pair<String, String>
+                (mSharedPref.getString(mUseDarkThemeTag,
+                        context
+                        .getResources()
+                        .getStringArray(R.array.preference_light_theme_value)[0]), mUseDarkThemeTag);
+
+
     }
 
     public SharedPreferences getSharedPref(){
@@ -113,7 +118,7 @@ public class Settings {
         editor.commit();
     }
 
-    public boolean getUseDarkTheme(){
+    public String getUseDarkTheme(){
         return this.mUseDarkTheme.first;
     }
 

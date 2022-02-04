@@ -35,6 +35,7 @@ import com.example.clock.viewmodels.ViewModelFactoryBase;
 import com.github.clans.fab.FloatingActionButton;
 import com.google.android.material.appbar.MaterialToolbar;
 
+import java.time.ZoneOffset;
 import java.util.List;
 
 /**
@@ -57,9 +58,23 @@ public class CalendarFragment extends Fragment {
                 if (result.getResultCode() == 20) {
                     Toast.makeText(getActivity(), "Задача добавлена", Toast.LENGTH_SHORT).show();
                     mViewModel.init();
-                    //mRecyclerViewAdapter.getCalendar().invalidateDecorators();
                     mRecyclerViewAdapter.notifyDataSetChanged();
 
+                }
+                else if (result.getResultCode() == 21){
+                    mViewModel.init();
+                    mRecyclerViewAdapter.notifyDataSetChanged();
+                    Toast.makeText(getActivity(), "Изменения задачи применены", Toast.LENGTH_SHORT).show();
+                }
+                else if (result.getResultCode() == 30){
+                    mViewModel.init();
+                    mRecyclerViewAdapter.notifyDataSetChanged();
+                    Toast.makeText(getActivity(), "Проект добавлен", Toast.LENGTH_SHORT).show();
+                }
+                else if (result.getResultCode() == 31){
+                    mViewModel.init();
+                    mRecyclerViewAdapter.notifyDataSetChanged();
+                    Toast.makeText(getActivity(), "Изменения проекта применены", Toast.LENGTH_SHORT).show();
                 }
                 else{
                     Toast.makeText(getActivity(), "Изменения отменены", Toast.LENGTH_SHORT).show();
@@ -107,7 +122,7 @@ public class CalendarFragment extends Fragment {
             public void onClick(View view) {
                 Intent taskIntent = new Intent(view.getContext(), ManageTaskActivity.class);
                 taskIntent.putExtra("mode", "TaskCreating");
-                taskIntent.putExtra("rangeStart", mViewModel.getSelectedDateStart().getTimeInMillis());
+                taskIntent.putExtra("rangeStart", mViewModel.getSelectedDateStart().toEpochSecond(ZoneOffset.UTC) * 1000);
                 activityLauncher.launch(taskIntent);
             }
         });

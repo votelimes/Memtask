@@ -42,7 +42,7 @@
                 android:text="@{vm.getTimeRangeCT(mode, pos)}"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                android:textColor="@color/text_grey"
+                android:textColor="@color/act_text_grey"
                 android:visibility="@{vm.getItem(mode, pos).getStartTime > 0 ? View.VISIBLE : View.GONE}"
                 />
             <androidx.constraintlayout.widget.Barrier
@@ -103,7 +103,7 @@
                 android:text="@{vm.getPoolItemName(mode, pos)}"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/task_range"
-                android:textColor="@color/text_main"
+                android:textColor="@color/act_text_main"
                 android:textStyle="bold"
                 />
             <androidx.constraintlayout.widget.Barrier
@@ -124,7 +124,7 @@
                 android:text="@{vm.getPoolItemDescrCT(mode, pos)}"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/task_name"
-                android:textColor="@color/text_main"
+                android:textColor="@color/act_text_main"
                 />
             <ImageView
                 android:id="@+id/task_alarm_image"
@@ -145,7 +145,7 @@
                 android:layout_marginBottom="4dp"
                 app:layout_constraintStart_toEndOf="@id/task_alarm_image"
                 app:layout_constraintBottom_toBottomOf="@id/task_alarm_image"
-                android:textColor="@color/text_main"
+                android:textColor="@color/act_text_main"
                 android:text="@{vm.getTaskNotifyTime(mode, pos)}"
                 android:textSize="18sp"
 

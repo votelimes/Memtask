@@ -2,15 +2,19 @@
 <androidx.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     >
-    <androidx.preference.SwitchPreferenceCompat
-        app:key="dark_theme"
-        app:title="Использовать темную тему"
-        android:defaultValue="false"
+    <androidx.preference.ListPreference
+        app:key="@string/preference_theme_key"
+        app:title="Тема"
+        android:entries="@array/preference_light_theme"
+        android:entryValues="@array/preference_light_theme_value"
+        android:summary="Выбор темы главной приложения"
+        android:defaultValue="Автоматически"
         />
 
     <androidx.preference.SwitchPreferenceCompat
         app:key="use_random_themes"
         app:title="Генерировать случайные цвета при создании активностей"
+        android:summary="Случайная тема для новой задачи"
         android:defaultValue="true"
         />
     <androidx.preference.ListPreference
@@ -18,6 +22,7 @@
         app:title="Режим календаря"
         android:entries="@array/preference_calendar_mode_names"
         android:entryValues="@array/preference_calendar_mode_values"
+        android:summary="Режим отображения календаря (месяц, неделя)"
         android:defaultValue="@string/preference_calendar_mode_value_default"
         />
 
