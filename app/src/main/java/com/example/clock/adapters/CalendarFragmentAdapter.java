@@ -4,10 +4,12 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.ColorFilter;
+import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.text.style.RelativeSizeSpan;
 import android.text.style.StyleSpan;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -97,10 +99,9 @@ public class CalendarFragmentAdapter extends RecyclerView.Adapter<RecyclerView.V
             alarmTime = (TextView) view.findViewById(R.id.task_alarm_time);
         }
 
-        public void bind(CalendarViewModel vm, int pos){
+        public void bind(CalendarViewModel vm, CalendarViewModel.TaskObserver data){
             binding.setVm(vm);
-            binding.setMode(CalendarViewModel.MODE_INDEPENDENTLY);
-            binding.setPos(pos);
+            binding.setData(data);
             binding.executePendingBindings();
         }
 
@@ -171,8 +172,6 @@ public class CalendarFragmentAdapter extends RecyclerView.Adapter<RecyclerView.V
             calendar.setOnRangeSelectedListener(this);
             calendar.setOnMonthChangedListener(this);
             mViewModel.updateMonthTasksPack().observe(lifecycleOwner, taskPackObserver);
-
-
         }
         public MaterialCalendarView getCalendar(){
             return calendar;
@@ -340,10 +339,8 @@ public class CalendarFragmentAdapter extends RecyclerView.Adapter<RecyclerView.V
             @Override
             public void onChanged(List<TaskAndTheme> data) {
                 mViewModel.init();
+                notifyDataSetChanged();
                 calendar.invalidateDecorators();
-                //notifyDataSetChanged();
-
-                //calendar.setCurrentDate(currentDate);
             }
         };
     }
@@ -372,7 +369,6 @@ public class CalendarFragmentAdapter extends RecyclerView.Adapter<RecyclerView.V
         else if(viewType == VIEW_TYPE_CALENDAR){
             View view = LayoutInflater.from(viewGroup.getContext())
                     .inflate(R.layout.calendar, viewGroup, false);
-
             return new CalendarViewHolder(view);
         }
 
@@ -383,13 +379,12 @@ public class CalendarFragmentAdapter extends RecyclerView.Adapter<RecyclerView.V
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder currentViewHolder, final int position) {
         if(getItemViewType(position) == VIEW_TYPE_TASK) {
-            int currentPosition = position - 1;
-
-            Task currentTask = (Task) mViewModel.getTaskByPos(currentPosition);
+            Log.d("TASKBIND: ", "0_0");
+            CalendarViewModel.TaskObserver taskData = mViewModel.getTaskObserver(position - 1);
 
             TaskViewHolder viewHolder = (TaskViewHolder) currentViewHolder;
 
-            viewHolder.bind(mViewModel, currentPosition);
+            viewHolder.bind(mViewModel, taskData);
             viewHolder.getMainLayout().setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View view) {
@@ -401,8 +396,7 @@ public class CalendarFragmentAdapter extends RecyclerView.Adapter<RecyclerView.V
                                     switch (i) {
                                         case 0: // Изменить
                                             Intent intent = new Intent(view.getContext(), ManageTaskActivity.class);
-                                            intent.putExtra("ID", currentTask.getTaskId());
-                                            intent.putExtra("ManagingTask", currentTask);
+                                            intent.putExtra("ID", taskData.getTask().getTaskId());
                                             intent.putExtra("mode", "TaskEditing");
 
                                             /*long rangeStart = calendar
@@ -426,9 +420,24 @@ public class CalendarFragmentAdapter extends RecyclerView.Adapter<RecyclerView.V
                     return true;
                 }
             });
+            viewHolder.getMainLayout().setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    MaterialCardView card = (MaterialCardView) view;
+                    card.toggle();
+                    viewHolder.getBinding().getData().setCompleted(card.isChecked());
+
+                    TextView textView = viewHolder.getName();
+                    if (card.isChecked()) {
+                        textView.setPaintFlags(textView.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+                    } else {
+                        textView.setPaintFlags(textView.getPaintFlags() & ~Paint.STRIKE_THRU_TEXT_FLAG);
+                    }
+                }
+            });
 
             //Colors binding
-            Theme theme = mViewModel.getThemeByPos(currentPosition);
+            Theme theme = taskData.getTheme();
             if(theme != null) {
                 viewHolder.getMainLayout().setCardBackgroundColor(theme.getFirstColor());
                 viewHolder.getCategoryLayout().getBackground().setTint(theme.getSecondColor());
@@ -444,7 +453,8 @@ public class CalendarFragmentAdapter extends RecyclerView.Adapter<RecyclerView.V
             }
         }
         if(getItemViewType(position) == VIEW_TYPE_CALENDAR){
-
+            CalendarViewHolder viewHolder = (CalendarViewHolder) currentViewHolder;
+            calendar = viewHolder.getCalendar();
         }
     }
 

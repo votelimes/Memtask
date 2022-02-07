@@ -9,11 +9,8 @@
             name="vm"
             type="com.example.clock.viewmodels.CalendarViewModel" />
         <variable
-            name="mode"
-            type="Integer" />
-        <variable
-            name="pos"
-            type="Integer" />
+            name="data"
+            type="com.example.clock.viewmodels.CalendarViewModel.TaskObserver" />
 
     </data>
     <com.google.android.material.card.MaterialCardView
@@ -29,6 +26,8 @@
         android:layout_gravity="center_horizontal"
         app:cardCornerRadius="15dp"
         app:cardBackgroundColor="#EFFAFB"
+        android:checkable="true"
+        android:checked="@{data.getCompletedOrExpired()}"
         >
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -39,11 +38,11 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="12dp"
-                android:text="@{vm.getTimeRange(pos)}"
+                android:text="@{data.getRange()}"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 android:textColor="@color/act_text_grey"
-                android:visibility="@{vm.getTaskByPos(pos).getStartTime > 0 ? View.VISIBLE : View.GONE}"
+                android:visibility="@{data.getTask().getStartTime > 0 ? View.VISIBLE : View.GONE}"
                 />
             <androidx.constraintlayout.widget.Barrier
                 android:id="@+id/task_br1"
@@ -69,7 +68,7 @@
                     android:id="@+id/task_category_name"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@{vm.getCategoryName(pos)}"
+                    android:text="@{data.getCategoryName()}"
                     android:textAlignment="center"
                     android:fontFamily="sans-serif"
                     android:textColor="@color/act_text_light"
@@ -93,7 +92,7 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/task_category_layout"
                 android:src="@drawable/ic_outline_report_36"
-                android:visibility="@{vm.getTaskByPos(pos).isImportant == true ? View.VISIBLE : View.GONE}"
+                android:visibility="@{data.isImportant() == true ? View.VISIBLE : View.GONE}"
                 />
             <TextView
                 android:id="@+id/task_name"
@@ -101,7 +100,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="12dp"
-                android:text="@{vm.getPoolItemName(pos)}"
+                android:text="@{data.getName()}"
+                app:strikeThrough="@{data.getCompletedOrExpired()}"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/task_range"
                 android:textColor="@color/act_text_main"
@@ -114,20 +114,19 @@
                 app:barrierDirection="bottom"
                 app:constraint_referenced_ids="task_name"
                 />
+
             <TextView
                 android:id="@+id/task_description"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="4dp"
-                android:layout_marginEnd="16dp"
                 android:paddingBottom="8dp"
-                android:text="@{vm.getPoolItemDescr(pos)}"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/task_name"
-                android:visibility="@{vm.hasDescription(pos) ? View.VISIBLE : View.GONE}"
+                android:text="@{data.getDescription()}"
                 android:textColor="@color/act_text_main"
-                />
+                android:visibility="@{data.getDescriptionState() ? View.VISIBLE : View.GONE}"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/task_name" />
             <ImageView
                 android:id="@+id/task_alarm_image"
                 android:layout_width="wrap_content"
@@ -148,7 +147,7 @@
                 app:layout_constraintStart_toEndOf="@id/task_alarm_image"
                 app:layout_constraintBottom_toBottomOf="@id/task_alarm_image"
                 android:textColor="@color/act_text_main"
-                android:text="@{vm.getTaskNotifyString(pos)}"
+                android:text="@{data.getNotify()}"
                 android:textSize="18sp"
 
             />
@@ -156,7 +155,7 @@
                 android:id="@+id/task_group1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:visibility="@{vm.getTaskByPos(pos).isNotifyEnabled ? View.VISIBLE : View.GONE}"
+                android:visibility="@{data.isNotifyEnabled() ? View.VISIBLE : View.GONE}"
                 app:constraint_referenced_ids="task_alarm_image,task_alarm_time" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </com.google.android.material.card.MaterialCardView>

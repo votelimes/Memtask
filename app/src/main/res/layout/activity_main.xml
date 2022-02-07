@@ -37,7 +37,9 @@
                         android:background="@color/toolbarMain"
                         app:titleTextColor="@color/toolbarText"
                         android:elevation="0dp"
+                        app:menu="@menu/menu_main"
                         />
+
                 </com.google.android.material.appbar.AppBarLayout>
                 <androidx.fragment.app.FragmentContainerView
                     android:id="@+id/main_fragment_container_view"

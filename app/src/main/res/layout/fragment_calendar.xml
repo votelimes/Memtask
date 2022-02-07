@@ -38,7 +38,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             android:layout_marginTop="550dp"
-            android:visibility="@{vm.mTaskPoolCountHolder.getSelectedDayTasksCount > 0 ? View.GONE : View.VISIBLE}"
+            android:visibility="@{vm.getPoolSize() == 0  ? View.GONE : View.VISIBLE}"
             />
         <com.github.clans.fab.FloatingActionButton
             android:id="@+id/fragment_calendar_fab_task"

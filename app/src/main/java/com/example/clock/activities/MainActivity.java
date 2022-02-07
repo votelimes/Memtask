@@ -5,12 +5,15 @@ import android.app.NotificationManager;
 import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
 import androidx.core.view.GravityCompat;
+import androidx.core.view.MenuItemCompat;
 import androidx.databinding.DataBindingUtil;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
@@ -58,6 +61,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     MaterialToolbar toolbar;
     DrawerLayout drawerLayout;
     NavigationView navigationView;
+    SearchView searchView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,6 +74,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         //AppBarLayout appTopLayout = ()findViewById(R.id.main_app_bar);
         toolbar = (MaterialToolbar) findViewById(R.id.topAppBar);
+        toolbar.setBackgroundColor(getColor(R.color.background));
         drawerLayout = (DrawerLayout) findViewById(R.id.drawerLayout);
         navigationView = findViewById(R.id.nav_view);
 
@@ -131,6 +136,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 .replace(R.id.main_fragment_container_view, nextFragment)
                 .commit();
         toolbar.setTitle(title);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu){
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        MenuItem searchItem = menu.findItem(R.id.action_search);
+
+        //Get SearchView through MenuItem
+        searchView = (SearchView) searchItem.getActionView();
+
+        return super.onCreateOptionsMenu(menu);
     }
 
     @Override

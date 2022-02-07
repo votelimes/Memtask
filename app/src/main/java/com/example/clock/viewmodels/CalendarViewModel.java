@@ -1,18 +1,15 @@
 package com.example.clock.viewmodels;
 
 import android.app.Application;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.databinding.BaseObservable;
 import androidx.databinding.Bindable;
-import androidx.lifecycle.LifecycleOwner;
+import androidx.databinding.ObservableBoolean;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.example.clock.BR;
-import com.example.clock.R;
-import com.example.clock.app.App;
 import com.example.clock.model.TaskAndTheme;
 import com.example.clock.model.Task;
 import com.example.clock.model.Theme;
@@ -21,21 +18,16 @@ import com.example.clock.storageutils.Database;
 import com.example.clock.storageutils.SilentDatabase;
 import com.prolificinteractive.materialcalendarview.CalendarDay;
 
-import java.text.SimpleDateFormat;
 import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAdjusters;
-import java.time.temporal.TemporalField;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
+import java.util.Locale;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
 public class CalendarViewModel extends MemtaskViewModelBase{
     public static final int MODE_INDEPENDENTLY = 0;
@@ -46,11 +38,16 @@ public class CalendarViewModel extends MemtaskViewModelBase{
 
     private LocalDateTime selectedDateStart;
     private LocalDateTime selectedDateEnd;
-    //public LiveData<Tuple2<List<Task>,  List<Theme>>> intermediate;
-    private List<TaskAndTheme> selectedTasks;
     private List<Integer> daysLoad;
     private LiveData<List<TaskAndTheme>> taskThemePack;
-    public Observer mTaskPoolCountHolder;
+
+    private String searchFilter;
+
+    private ObservableBoolean currentDayUnloaded = new ObservableBoolean(true);
+
+    private int nextSelectedTask;
+    private List<TaskObserver> selectedTasks;
+
 
     // Modes:
     private MutableLiveData<Integer> updatePending;
@@ -62,11 +59,10 @@ public class CalendarViewModel extends MemtaskViewModelBase{
         selectedDateEnd = selectedDateEnd.plusDays(1);
 
         loadData(application, database, silentDatabase);
-        selectedTasks = new ArrayList<TaskAndTheme>();
+        selectedTasks = new ArrayList<TaskObserver>();
         daysLoad = new ArrayList<Integer>(selectedDateStart.with(TemporalAdjusters.lastDayOfMonth()).getDayOfMonth());
         updatePending = new MutableLiveData<>();
         updatePending.setValue(new Integer(0));
-        mTaskPoolCountHolder = new Observer();
     }
 
     @Override
@@ -101,60 +97,31 @@ public class CalendarViewModel extends MemtaskViewModelBase{
                     .collect(Collectors.toList());*/
         }
     }
-    public Task getTaskByPos(int pos){
-        return selectedTasks.get(pos).task;
-    }
-    public Theme getThemeByPos(int pos){
-        return selectedTasks.get(pos).theme;
-    }
-    public String getTaskNotifyString(int pos){
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd.MM.yy HH:mm");
-
-        return LocalDateTime.ofEpochSecond(
-                (long) getTaskByPos(pos).getNotificationStartMillis() / 1000,
-                0, ZoneOffset.UTC).format(dtf);
-    }
-
 
     public int getPoolSize(){
         return selectedTasks.size();
     }
-    public String getPoolItemName(int pos){
-        return selectedTasks.get(pos).task.getName();
+    public int getDayLoad(int position){
+        if(daysLoad.size() == 0){
+            return 0;
+        }
+        if(position >= daysLoad.size()){
+            return 0;
+        }
+        return daysLoad.get(position);
     }
-    public String getPoolItemDescr(int pos){
-        return selectedTasks.get(pos).task.getDescription();
+    public TaskObserver getTaskObserver(int pos){
+        return selectedTasks.get(pos);
     }
-    public String getCategoryName(int pos){
-        return selectedTasks.get(pos).categoryName;
+    public String getSearchFilter() {
+        return searchFilter;
     }
-    public String getTimeRange(int pos){
-        LocalDateTime startTime;
-        LocalDateTime endTime;
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd.MM.yyyy");
 
-
-        startTime = LocalDateTime.ofEpochSecond(selectedTasks
-                        .get(pos)
-                        .task
-                        .getStartTime() / 1000,
-                0, ZoneOffset.UTC
-                );
-        endTime = LocalDateTime.ofEpochSecond(selectedTasks
-                        .get(pos)
-                        .task
-                        .getEndTime() / 1000,
-                0, ZoneOffset.UTC
-        );
-
-        return startTime.format(dtf) + " — " + endTime.format(dtf);
-    }
-    public boolean hasDescription(int pos){
-        return !selectedTasks.get(pos).task.getDescription().equals("");
+    public boolean isDayUnloaded(){
+        return currentDayUnloaded.get();
     }
     public void setDateAndUpdate(CalendarDay startDate, CalendarDay endDate){
-
-        LocalDateTime selectedDateStart = LocalDateTime
+        selectedDateStart = LocalDateTime
                 .ofEpochSecond(startDate.getDate()
                         .toEpochDay() * secondsInDay, 0, ZoneOffset.UTC);
 
@@ -186,18 +153,14 @@ public class CalendarViewModel extends MemtaskViewModelBase{
             selectedDateEnd = selectedDateStart.plusDays(1);
         }
     }
-    public void removeSilently(int pos){
-        removeTaskByIDSilently(selectedTasks.get(pos).task.getTaskId());
-        selectedTasks.remove(pos);
+    public void setSearchFilter(String searchFilter) {
+        this.searchFilter = searchFilter;
     }
-    public int getDayLoad(int position){
-        if(daysLoad.size() == 0){
-            return 0;
-        }
-        if(position >= daysLoad.size()){
-            return 0;
-        }
-        return daysLoad.get(position);
+    public void removeSilently(int pos){
+        removeTaskByIDSilently(selectedTasks.get(pos).data.task.getTaskId());
+        taskThemePack.getValue().remove(selectedTasks.get(pos).getData());
+        selectedTasks.remove(pos);
+        currentDayUnloaded.set(selectedTasks.size() == 0);
     }
     public LocalDateTime getSelectedDateStart(){
         return selectedDateStart;
@@ -228,6 +191,11 @@ public class CalendarViewModel extends MemtaskViewModelBase{
         return taskThemePack;
     }
 
+    public TaskObserver getNextTO(){
+        TaskObserver data = selectedTasks.get(nextSelectedTask);
+        nextSelectedTask++;
+        return data;
+    }
 
     //Util
     public void init(@NonNull LocalDateTime selectedDateStart, LocalDateTime selectedDateEnd){
@@ -285,21 +253,57 @@ public class CalendarViewModel extends MemtaskViewModelBase{
 
     private void filterSelectedTasks(LocalDateTime startDate, LocalDateTime endDate){
         if(taskThemePack.getValue() != null) {
-            selectedTasks = taskThemePack.getValue()
-                            .parallelStream()
-                            .filter(item ->
-                                    item.task.getNotificationStartMillis() >= startDate.toEpochSecond(ZoneOffset.UTC) * 1000
-                                            &&
-                                            item.task.getNotificationStartMillis() < endDate.toEpochSecond(ZoneOffset.UTC) * 1000
-                            )
-                            .collect(Collectors.toList());
-            mTaskPoolCountHolder.setSelectedDayTasksCount(selectedTasks.size());
-        }
-        else{
-            mTaskPoolCountHolder.setSelectedDayTasksCount(0);
+            selectedTasks = new ArrayList<>();
+            if(searchFilter == null || searchFilter.length() == 0) {
+                taskThemePack.getValue().parallelStream().forEach(item -> {
+                    if (item.task.getNotificationStartMillis() >= startDate.toEpochSecond(ZoneOffset.UTC) * 1000
+                            &&
+                            item.task.getNotificationStartMillis() < endDate.toEpochSecond(ZoneOffset.UTC) * 1000) {
+                        selectedTasks.add(new TaskObserver(item));
+                    }
+                });
+            }
+            else{
+                taskThemePack.getValue().parallelStream().forEach(item -> {
+                    if (item.task.getNotificationStartMillis() >= startDate.toEpochSecond(ZoneOffset.UTC) * 1000
+                            &&
+                        item.task.getNotificationStartMillis() < endDate.toEpochSecond(ZoneOffset.UTC) * 1000
+                            &&
+                        item.task.getName().toLowerCase(Locale.ROOT).contains(searchFilter)) {
+                        selectedTasks.add(new TaskObserver(item));
+                    }
+                });
+            }
+            currentDayUnloaded.set(selectedTasks.size() == 0);
         }
     }
-    private void calcDaysLoad(){
+    public void filter(){
+        if(taskThemePack.getValue() != null) {
+            selectedTasks = new ArrayList<>();
+            if(searchFilter == null || searchFilter.length() == 0) {
+                taskThemePack.getValue().parallelStream().forEach(item -> {
+                    if (item.task.getNotificationStartMillis() >= selectedDateStart.toEpochSecond(ZoneOffset.UTC) * 1000
+                            &&
+                            item.task.getNotificationStartMillis() < selectedDateEnd.toEpochSecond(ZoneOffset.UTC) * 1000) {
+                        selectedTasks.add(new TaskObserver(item));
+                    }
+                });
+            }
+            else{
+                taskThemePack.getValue().parallelStream().forEach(item -> {
+                    if (item.task.getNotificationStartMillis() >= selectedDateStart.toEpochSecond(ZoneOffset.UTC) * 1000
+                            &&
+                            item.task.getNotificationStartMillis() < selectedDateEnd.toEpochSecond(ZoneOffset.UTC) * 1000
+                            &&
+                            item.task.getName().toLowerCase(Locale.ROOT).contains(searchFilter)) {
+                        selectedTasks.add(new TaskObserver(item));
+                    }
+                });
+            }
+            currentDayUnloaded.set(selectedTasks.size() == 0);
+        }
+    }
+    public void calcDaysLoad(){
         // Вычислять в зависимости от продолжительности задачи
         if(taskThemePack.getValue() != null) {
             AtomicInteger monday = new AtomicInteger(0);
@@ -394,24 +398,113 @@ public class CalendarViewModel extends MemtaskViewModelBase{
         }
     }
 
-    public void removeTask(int position){
-        removeTaskByID(selectedTasks.get(position).task.getTaskId());
-    }
+    public class TaskObserver extends BaseObservable {
+        private TaskAndTheme data;
 
-    //
-    public static class Observer extends BaseObservable {
-        private int selectedDayTasksCount = 0;
-        Observer(){
-
+        TaskObserver(TaskAndTheme data){
+            this.data = data;
         }
 
-        public void setSelectedDayTasksCount(int value){
-            this.selectedDayTasksCount = value;
-            notifyPropertyChanged(BR.selectedDayTasksCount);
-        }
         @Bindable
-        public int getSelectedDayTasksCount(){
-            return this.selectedDayTasksCount;
+        public boolean getCompletedOrExpired(){
+            return data.task.isCompleted() || data.task.isExpired();
         }
-    }      
+
+        public TaskAndTheme getData(){
+            return data;
+        }
+
+        public Task getTask(){
+            return this.data.task;
+        }
+
+        public Theme getTheme(){
+            return this.data.theme;
+        }
+
+        public String getRange(){
+            LocalDateTime startTime;
+            LocalDateTime endTime;
+            DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+
+
+            startTime = LocalDateTime.ofEpochSecond(
+                    data
+                            .task
+                            .getStartTime() / 1000,
+                    0, ZoneOffset.UTC
+            );
+            endTime = LocalDateTime.ofEpochSecond(
+                    data
+                            .task
+                            .getEndTime() / 1000,
+                    0, ZoneOffset.UTC
+            );
+
+            return startTime.format(dtf) + " — " + endTime.format(dtf);
+        }
+
+        @Bindable
+        public String getCategoryName(){
+            return data.categoryName;
+        }
+
+        @Bindable
+        public boolean getDescriptionState(){
+            return data.task.getDescription().length() != 0;
+        }
+
+        public boolean isImportant(){
+            return data.task.isImportant();
+        }
+
+        @Bindable
+        public boolean isNotifyEnabled(){
+            return data.task.isNotifyEnabled();
+        }
+
+        public String getNotify(){
+            DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd.MM.yy HH:mm");
+
+            return LocalDateTime.ofEpochSecond(
+                    (long) data.task.getNotificationStartMillis() / 1000,
+                    0, ZoneOffset.UTC).format(dtf);
+        }
+
+        @Bindable
+        public String getName(){
+            return data.task.getName();
+        }
+
+        @Bindable
+        public String getDescription(){
+            return data.task.getDescription();
+        }
+
+
+        public void setName(String name){
+            data.task.setName(name);
+            CalendarViewModel.this.addTaskSilently(data.task);
+            notifyPropertyChanged(BR.name);
+        }
+
+        public void setDescription(String description){
+            data.task.setDescription(description);
+            CalendarViewModel.this.addTaskSilently(data.task);
+            notifyPropertyChanged(BR.description);
+        }
+
+        public void setCompleted(boolean state){
+            if(state){
+                data.task.setExpired(false);
+                data.task.setCompleted(true);
+            }
+            else{
+                data.task.setExpired(false);
+                data.task.setCompleted(false);
+            }
+            addTaskSilently(data.task);
+            notifyPropertyChanged(BR.completedOrExpired);
+        }
+    }
 }

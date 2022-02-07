@@ -3,10 +3,12 @@ package com.example.clock.adapters;
 import static com.example.clock.app.App.*;
 
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.drawable.ColorDrawable;
 import android.util.Log;
 import android.view.View;
 import android.widget.AutoCompleteTextView;
+import android.widget.TextView;
 
 import androidx.databinding.BindingAdapter;
 import androidx.databinding.BindingConversion;
@@ -40,6 +42,15 @@ public class BindingAdapters {
 
 
         view.setBackgroundColor(color);
+    }
+
+    @BindingAdapter("app:strikeThrough")
+    public static void strikeThrough(TextView textView, Boolean strikeThrough) {
+        if (strikeThrough) {
+            textView.setPaintFlags(textView.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+        } else {
+            textView.setPaintFlags(textView.getPaintFlags() & ~Paint.STRIKE_THRU_TEXT_FLAG);
+        }
     }
 
     @BindingAdapter({"app:completeness"})

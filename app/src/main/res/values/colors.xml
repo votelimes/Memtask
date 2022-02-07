@@ -16,18 +16,11 @@
     <color name="dark_grey">#373839</color>
     <color name="red">#C30C0C</color>
 
-
-    <color name="mainTheme1">#c0fdff</color> <!--1st background color-->
-    <color name="mainTheme2">#7CA1F9</color> <!--2nd background color-->
-    <color name="mainTheme3">#FFFFFF</color> <!--Task and task space background color-->
-    <color name="mainTheme4">#1D489C</color> <!--Active task stroke color-->
-    <color name="mainTheme5">#B2B2B2</color> <!--Inactive task stroke color-->
-
     <color name="act_text_main">#4B4F5B</color>
     <color name="act_text_grey">#9699A9</color>
     <color name="act_text_light">#F2FDFF</color>
 
-    <color name="main_1">#c0fdff</color>
+    <color name="main_1">#493843</color>
     <color name="main_2">#118AB2</color>
     <color name="main_3">#EF476F</color>
     <color name="main_4">#FFD166</color>
@@ -47,10 +40,11 @@
     <color name="maxDayLoad">#970000</color>
 
 
-    <color name="backgroundLight">#F2FDFF</color>
+    <color name="background">#f9fbf8</color>
+    <color name="backgroundLight">#f9fbf8</color>
     <color name="backgroundDark">#4B4F5B</color>
 
-    <color name="toolbarMain">#c0fdff</color>
+    <color name="toolbarMain">#493843</color>
     <color name="toolbarText">#4B4F5B</color>
 
     <color name="textPrimary">#4B4F5B</color>

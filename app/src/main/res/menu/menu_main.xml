@@ -3,8 +3,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.example.clock.activities.MainActivity">
     <item
-        android:id="@+id/action_settings"
-        android:orderInCategory="100"
+        android:id="@+id/action_search"
+        android:orderInCategory="1"
+        android:icon="@drawable/ic_baseline_search_24"
         android:title="@string/action_settings"
-        app:showAsAction="never" />
+        app:showAsAction="always"
+        app:actionViewClass="androidx.appcompat.widget.SearchView"
+
+        />
 </menu>
