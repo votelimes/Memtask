@@ -34,6 +34,8 @@ android {
 }
 
 dependencies {
+    implementation 'com.jakewharton:butterknife:10.2.3'
+    annotationProcessor 'com.jakewharton:butterknife-compiler:10.2.3'
     implementation 'com.github.cachapa:ExpandableLayout:2.9.2'
     implementation "com.github.skydoves:expandablelayout:1.0.7"
     implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'

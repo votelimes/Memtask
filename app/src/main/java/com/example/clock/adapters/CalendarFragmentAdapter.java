@@ -66,6 +66,7 @@ public class CalendarFragmentAdapter extends RecyclerView.Adapter<RecyclerView.V
     private MaterialCalendarView calendar;
     private LifecycleOwner lifecycleOwner;
     private CalendarDay currentDate;
+    private TextView noTasksInformer;
 
     public static class TaskViewHolder extends RecyclerView.ViewHolder {
         private final CalendarTaskBinding binding;
@@ -148,6 +149,7 @@ public class CalendarFragmentAdapter extends RecyclerView.Adapter<RecyclerView.V
 
     public class CalendarViewHolder extends RecyclerView.ViewHolder implements OnDateSelectedListener, OnRangeSelectedListener, OnMonthChangedListener {
         MaterialCalendarView calendar;
+        TextView noTasksInformer;
         MinLoadDayDecorator minLoadDecorator;
         MedLoadDayDecorator medLoadDecorator;
         HighLoadDayDecorator highLoadDecorator;
@@ -157,6 +159,7 @@ public class CalendarFragmentAdapter extends RecyclerView.Adapter<RecyclerView.V
         public CalendarViewHolder(View view) {
             super(view);
             calendar = view.findViewById(R.id.calendar);
+            noTasksInformer = view.findViewById(R.id.no_tasks_message);
             minLoadDecorator = new MinLoadDayDecorator();
             medLoadDecorator = new MedLoadDayDecorator();
             highLoadDecorator = new HighLoadDayDecorator();
@@ -176,10 +179,14 @@ public class CalendarFragmentAdapter extends RecyclerView.Adapter<RecyclerView.V
         public MaterialCalendarView getCalendar(){
             return calendar;
         }
+        public TextView getNoTasksInformer() {
+            return noTasksInformer;
+        }
 
         @Override
         public void onDateSelected(@NonNull MaterialCalendarView widget, @NonNull CalendarDay date, boolean selected) {
             mViewModel.setDateAndUpdate(date, null);
+            getNoTasksInformer().setVisibility(mViewModel.getPoolSize() == 0 ? View.VISIBLE : View.GONE);
             notifyDataSetChanged();
         }
 
@@ -196,6 +203,7 @@ public class CalendarFragmentAdapter extends RecyclerView.Adapter<RecyclerView.V
             else{
                 mViewModel.setDateAndUpdate(firstSelected, null);
             }
+            getNoTasksInformer().setVisibility(mViewModel.getPoolSize() == 0 ? View.VISIBLE : View.GONE);
             notifyDataSetChanged();
         }
 
@@ -339,6 +347,7 @@ public class CalendarFragmentAdapter extends RecyclerView.Adapter<RecyclerView.V
             @Override
             public void onChanged(List<TaskAndTheme> data) {
                 mViewModel.init();
+                getNoTasksInformer().setVisibility(mViewModel.getPoolSize() == 0 ? View.VISIBLE : View.GONE);
                 notifyDataSetChanged();
                 calendar.invalidateDecorators();
             }
@@ -454,6 +463,7 @@ public class CalendarFragmentAdapter extends RecyclerView.Adapter<RecyclerView.V
         if(getItemViewType(position) == VIEW_TYPE_CALENDAR){
             CalendarViewHolder viewHolder = (CalendarViewHolder) currentViewHolder;
             calendar = viewHolder.getCalendar();
+            noTasksInformer = viewHolder.getNoTasksInformer();
         }
     }
 
@@ -481,5 +491,9 @@ public class CalendarFragmentAdapter extends RecyclerView.Adapter<RecyclerView.V
 
     public MaterialCalendarView getCalendar(){
         return calendar;
+    }
+
+    public TextView getNoTasksInformer(){
+        return noTasksInformer;
     }
 }

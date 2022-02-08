@@ -3,21 +3,21 @@ package com.example.clock.activities;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.SpannableString;
 import android.text.style.AbsoluteSizeSpan;
 import android.text.style.ForegroundColorSpan;
 import android.util.Log;
-import android.view.Menu;
 import android.view.MenuItem;
-import android.view.Window;
+import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.view.GravityCompat;
-import androidx.core.view.MenuItemCompat;
 import androidx.databinding.DataBindingUtil;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
@@ -25,6 +25,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.example.clock.R;
 import com.example.clock.app.App;
+import com.example.clock.fragments.AboutFragment;
 import com.example.clock.fragments.CalendarFragment;
 import com.example.clock.fragments.CardsListFragment;
 import com.example.clock.fragments.CategoriesListFragment;
@@ -53,7 +54,7 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener{
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
 
     //ViewModel and binding
     MainViewModel mViewModel;
@@ -63,7 +64,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     //Menu
     MaterialToolbar toolbar;
-    DrawerLayout drawerLayout;
+    public DrawerLayout drawerLayout;
     NavigationView navigationView;
     SearchView searchView;
 
@@ -77,7 +78,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         mActivityBinding.setViewmodel(mViewModel);
 
         //AppBarLayout appTopLayout = ()findViewById(R.id.main_app_bar);
-        toolbar = (MaterialToolbar) findViewById(R.id.topAppBar);
+        toolbar = (MaterialToolbar) findViewById(R.id.toolbar);
         toolbar.setBackgroundColor(getColor(R.color.backgroundPrimary));
         toolbar.setTitleTextColor(getColor(R.color.toolbarTitle));
         toolbar.setSubtitleTextColor(getColor(R.color.toolbarIcons));
@@ -163,10 +164,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             //nextFragment = new StatisticFragment();
         }
         getSupportFragmentManager().beginTransaction()
+                .setCustomAnimations(R.anim.fragment_exit, R.anim.fragment_enter)
                 .setReorderingAllowed(true)
                 .replace(R.id.main_fragment_container_view, nextFragment)
                 .commit();
         toolbar.setTitle(title);
+
+        ConstraintLayout mh = (ConstraintLayout) navigationView.getHeaderView(0);
+        mh.setOnClickListener(this);
     }
 
     @Override
@@ -176,6 +181,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         switch (item.getItemId()){
             case R.id.categories_item:
+                item.setChecked(true);
                 nextFragment = new CategoriesListFragment();
                 title = "Категории";
                 App.getSettings().setCurrentWindow(1);
@@ -199,6 +205,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         if(nextFragment != null){
             getSupportFragmentManager().beginTransaction()
+                    .setCustomAnimations(R.anim.fragment_enter, R.anim.fragment_exit,
+                            R.anim.fragment_pop_enter, R.anim.fragment_pop_exit)
                     .setReorderingAllowed(true)
                     .replace(R.id.main_fragment_container_view, nextFragment)
                     .addToBackStack(null)
@@ -209,6 +217,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         toolbar.setTitle(title);
 
         return false;
+    }
+
+
+    public void setupNav(){
+        Drawable navIcon = getDrawable(R.drawable.ic_round_menu_24);
+        navIcon.setTint(getColor(R.color.primary));
+
+        toolbar.setNavigationIcon(navIcon);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                drawerLayout.open();
+            }
+        });
     }
 
     private void setupApplication(){
@@ -549,5 +571,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             getSupportFragmentManager().popBackStack();
         }
         mViewModel.clean();
+    }
+
+    @Override
+    public void onClick(View view) {
+        getSupportFragmentManager().beginTransaction()
+                .setCustomAnimations(R.anim.fragment_enter, R.anim.fragment_exit,
+                        R.anim.fragment_pop_enter, R.anim.fragment_pop_exit)
+                .setReorderingAllowed(true)
+                .replace(R.id.main_fragment_container_view, new AboutFragment())
+                .addToBackStack(null)
+                .commit();
     }
 }

@@ -1,11 +1,13 @@
 package com.example.clock.viewmodels;
 
 import android.app.Application;
+import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.databinding.BaseObservable;
 import androidx.databinding.Bindable;
 import androidx.databinding.ObservableBoolean;
+import androidx.databinding.ObservableInt;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
@@ -42,8 +44,6 @@ public class CalendarViewModel extends MemtaskViewModelBase{
     private LiveData<List<TaskAndTheme>> taskThemePack;
 
     private String searchFilter;
-
-    private ObservableBoolean currentDayUnloaded = new ObservableBoolean(true);
 
     private int nextSelectedTask;
     private List<TaskObserver> selectedTasks;
@@ -101,6 +101,11 @@ public class CalendarViewModel extends MemtaskViewModelBase{
     public int getPoolSize(){
         return selectedTasks.size();
     }
+
+    public int isDayUnloaded(){
+        return selectedTasks.size() == 0 ? View.VISIBLE : View.GONE;
+    }
+
     public int getDayLoad(int position){
         if(daysLoad.size() == 0){
             return 0;
@@ -117,9 +122,6 @@ public class CalendarViewModel extends MemtaskViewModelBase{
         return searchFilter;
     }
 
-    public boolean isDayUnloaded(){
-        return currentDayUnloaded.get();
-    }
     public void setDateAndUpdate(CalendarDay startDate, CalendarDay endDate){
         selectedDateStart = LocalDateTime
                 .ofEpochSecond(startDate.getDate()
@@ -160,7 +162,6 @@ public class CalendarViewModel extends MemtaskViewModelBase{
         removeTaskByIDSilently(selectedTasks.get(pos).data.task.getTaskId());
         taskThemePack.getValue().remove(selectedTasks.get(pos).getData());
         selectedTasks.remove(pos);
-        currentDayUnloaded.set(selectedTasks.size() == 0);
     }
     public LocalDateTime getSelectedDateStart(){
         return selectedDateStart;
@@ -274,7 +275,6 @@ public class CalendarViewModel extends MemtaskViewModelBase{
                     }
                 });
             }
-            currentDayUnloaded.set(selectedTasks.size() == 0);
         }
     }
     public void filter(){
@@ -300,7 +300,6 @@ public class CalendarViewModel extends MemtaskViewModelBase{
                     }
                 });
             }
-            currentDayUnloaded.set(selectedTasks.size() == 0);
         }
     }
     public void calcDaysLoad(){

@@ -14,6 +14,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
@@ -335,6 +336,9 @@ public class ManageTaskActivity extends AppCompatActivity implements View.OnFocu
         mViewModel.intermediateThemeAndCategory.observe(this, intermediateThemeCategoryObs);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.manage_task_toolbar);
+        Drawable drawable = getDrawable(R.drawable.ic_round_arrow_back_24);
+        drawable.setTint(getColor(R.color.secondary));
+        toolbar.setNavigationIcon(drawable);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);

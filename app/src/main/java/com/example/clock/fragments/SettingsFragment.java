@@ -2,15 +2,12 @@ package com.example.clock.fragments;
 
 import android.os.Bundle;
 
-import androidx.fragment.app.Fragment;
-import androidx.preference.PreferenceFragment;
 import androidx.preference.PreferenceFragmentCompat;
 
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 
 import com.example.clock.R;
+import com.google.android.material.appbar.MaterialToolbar;
 
 public class SettingsFragment extends PreferenceFragmentCompat {
 
@@ -18,6 +15,10 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        MaterialToolbar toolbar = getActivity().findViewById(R.id.toolbar);
+        toolbar.findViewById(R.id.action_search).setVisibility(View.GONE);
+
+        toolbar.setTitle("Настройки");
     }
 
     @Override

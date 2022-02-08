@@ -39,5 +39,6 @@
     <color name="toolbarIcons">#4B4F5B</color>
 
     <color name="textPrimary">#4B4F5B</color>
+    <color name="textSecondary">#9699A9</color>
 
 </resources>

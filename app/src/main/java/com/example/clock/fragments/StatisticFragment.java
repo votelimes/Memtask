@@ -5,45 +5,34 @@ import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
-import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.clock.R;
-import com.example.clock.activities.ManageTaskActivity;
-import com.example.clock.adapters.CalendarFragmentAdapter;
 import com.example.clock.app.App;
 import com.example.clock.databinding.StatisticFragmentBinding;
-import com.example.clock.model.TaskAndTheme;
 import com.example.clock.model.UserCaseStatistic;
-import com.example.clock.viewmodels.CalendarViewModel;
 import com.example.clock.viewmodels.StatisticViewModel;
 import com.example.clock.viewmodels.ViewModelFactoryBase;
-import com.github.clans.fab.FloatingActionButton;
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.components.AxisBase;
-import com.github.mikephil.charting.components.Description;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.formatter.ValueFormatter;
-import com.github.mikephil.charting.utils.ColorTemplate;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.datepicker.MaterialPickerOnPositiveButtonClickListener;
 import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -78,8 +67,8 @@ public class StatisticFragment extends Fragment {
         mViewModel = new ViewModelProvider(getActivity(), mFactory).get(StatisticViewModel.class);
         binding.setVm(mViewModel);
 
-        MaterialToolbar toolbar = getActivity().findViewById(R.id.topAppBar);
-
+        MaterialToolbar toolbar = getActivity().findViewById(R.id.toolbar);
+        toolbar.findViewById(R.id.action_search).setVisibility(View.GONE);
         toolbar.setTitle("Статистика");
 
         mViewModel.getStatPoolLiveData().observe(getViewLifecycleOwner(), statPoolObserver);

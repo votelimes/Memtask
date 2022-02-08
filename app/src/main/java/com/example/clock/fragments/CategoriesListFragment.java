@@ -1,6 +1,5 @@
 package com.example.clock.fragments;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -15,7 +14,6 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -75,6 +73,7 @@ public class CategoriesListFragment extends Fragment {
 
 
 
+
         mRecyclerView = getView().findViewById(R.id.categories_list);
 
         mMainLayoutView = getView().findViewById(R.id.fragment_categories_constraint);
@@ -94,7 +93,8 @@ public class CategoriesListFragment extends Fragment {
             }
         });
 
-        MaterialToolbar toolbar = getActivity().findViewById(R.id.topAppBar);
+        MaterialToolbar toolbar = getActivity().findViewById(R.id.toolbar);
+        toolbar.findViewById(R.id.action_search).setVisibility(View.VISIBLE);
         toolbar.setTitle("Категории");
     }
 
