@@ -120,51 +120,6 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
         }
     }
 
-    public static class ProjectViewHolder extends RecyclerView.ViewHolder {
-
-        private final MaterialCardView mainLayout;
-        private final LinearLayout itemsLayout;
-
-        private final TextView name;
-        private final TextView progress;
-        private final TextView dateTime;
-
-        public ProjectViewHolder(View view) {
-            super(view);
-
-            mainLayout = (MaterialCardView) view.findViewById(R.id.project_top_layout);
-
-            itemsLayout = (LinearLayout) view.findViewById(R.id.project_tasks_linear);
-
-            name = (TextView) view.findViewById(R.id.project_name);
-
-            progress = (TextView) view.findViewById(R.id.project_progress);
-
-            dateTime = (TextView) view.findViewById(R.id.project_date_time);
-        }
-
-        public MaterialCardView getMainLayout() {
-            return mainLayout;
-        }
-
-        public LinearLayout getItemsLayout() {
-            return itemsLayout;
-        }
-
-        public TextView getName() {
-            return name;
-        }
-
-        public TextView getProgress() {
-            return progress;
-        }
-
-        public TextView getDateTime() {
-            return dateTime;
-        }
-
-    }
-
     public static class Project2ViewHolder extends RecyclerView.ViewHolder{
 
         private final MaterialCardView mainLayout;
@@ -229,7 +184,6 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
         // Create a new view, which defines the UI of the list item
-
         if (viewType == VIEW_TYPE_TASK) {
             LayoutInflater layoutInflater =
                     LayoutInflater.from(viewGroup.getContext());
@@ -238,12 +192,6 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
 
             return new TaskViewHolder(taskBinding);
         }
-        // DEF PROJECT
-        else if(viewType == VIEW_TYPE_PROJECT && false){
-            return new ProjectViewHolder(LayoutInflater.from(viewGroup.getContext())
-                    .inflate(R.layout.card_project, viewGroup, false));
-        }
-        // NEW PROJECT2
         else if(viewType == VIEW_TYPE_PROJECT){
             return new Project2ViewHolder(LayoutInflater.from(viewGroup.getContext())
                     .inflate(R.layout.project2, viewGroup, false));

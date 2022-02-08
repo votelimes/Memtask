@@ -2,22 +2,6 @@
     <string name="app_name">Memtask</string>
     <string name="action_settings">Введите часть названия...</string>
     <!-- Strings used for fragments for navigation -->
-    <string name="first_fragment_label">First Fragment</string>
-    <string name="second_fragment_label">Second Fragment</string>
-    <string name="next">Next</string>
-    <string name="previous">Previous</string>
-
-    <string name="hello_first_fragment">Hello first fragment</string>
-    <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
-
-    <string name="note_text_plug">This should be a short text that brings greate value
-    to the presentation</string>
-
-    <string name="repeat_mode">Repeat mode</string>
-    <string name="vibrate_mode">Vibrate when task sounds</string>
-    <string name="ringtone">Ringtone</string>
-    <string name="vibrate">Vibrate when task sounds</string>
-    <string name="delete_after_off">Delete after goes off</string>
 
     <string-array name="repeat_modes">
         <item>Однократно</item>
@@ -26,20 +10,9 @@
         <item>Выбрать дни</item>
     </string-array>
 
-    <string-array name="ring_types">
-
-        <item>Choose system ring</item>
-        <item>Choose custom ring</item>
-    </string-array>
-
     <string-array name="task_dialog_long">
         <item>Изменить</item>
         <item>Удалить</item>
-    </string-array>
-
-    <string-array name="user_case_choice">
-        <item>Задача</item>
-        <item>Проект</item>
     </string-array>
 
     <string-array name="category_choice">
@@ -94,16 +67,10 @@
     </string-array>
 
     <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="top_app_bar">TopAppBar</string>
     <string name="open_nav_drawer">Navigation drawer open</string>
     <string name="close_nav_drawer">Navigation drawer close</string>
 
     <!-- Task card-->
-    <string name="task_description">Описание задачи</string>
-
-    <string name="mtrl_picker_save" description="Button text to indicate that the widget will save the user's selection [CHAR_LIMIT=16]">Сохранить</string>
-    <string name="mtrl_picker_cancel" description="Button text to indicate that the widget will ignore the user's selection [CHAR_LIMIT=16]" translatable="false">...</string>
 
 
 </resources>

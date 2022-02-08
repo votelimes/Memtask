@@ -30,7 +30,6 @@
             app:layout_constraintTop_toTopOf="parent"
             >
             <androidx.constraintlayout.widget.Barrier
-                android:id="@+id/project_br1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:barrierDirection="top"

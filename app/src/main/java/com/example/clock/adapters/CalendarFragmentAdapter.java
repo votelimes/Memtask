@@ -379,7 +379,6 @@ public class CalendarFragmentAdapter extends RecyclerView.Adapter<RecyclerView.V
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder currentViewHolder, final int position) {
         if(getItemViewType(position) == VIEW_TYPE_TASK) {
-            Log.d("TASKBIND: ", "0_0");
             CalendarViewModel.TaskObserver taskData = mViewModel.getTaskObserver(position - 1);
 
             TaskViewHolder viewHolder = (TaskViewHolder) currentViewHolder;
