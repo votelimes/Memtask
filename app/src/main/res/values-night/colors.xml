@@ -4,8 +4,8 @@
 
     <color name="main_7">#CAD2D8</color>
 
-    <color name="toolbarMain">#4B4F5B</color>
-    <color name="toolbarText">#F2FDFF</color>
+    <color name="toolbarTitle">#4B4F5B</color>
+    <color name="toolbarIcons">#F2FDFF</color>
 
 
     <color name="textPrimary">#F2FDFF</color>

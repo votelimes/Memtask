@@ -40,12 +40,17 @@
     <color name="maxDayLoad">#970000</color>
 
 
-    <color name="background">#f9fbf8</color>
-    <color name="backgroundLight">#f9fbf8</color>
-    <color name="backgroundDark">#4B4F5B</color>
+    <color name="primary">#329F5B</color>
+    <color name="secondary">#FC6C5F</color>
 
-    <color name="toolbarMain">#493843</color>
-    <color name="toolbarText">#4B4F5B</color>
+    Дальний фон (кроме элементов)
+    <color name="backgroundPrimary">#dcf1f9</color>
+
+    Ближний фон элементов
+    <color name="backgroundSecondary">#f9fbf8</color>
+
+    <color name="toolbarTitle">#329F5B</color>
+    <color name="toolbarIcons">#4B4F5B</color>
 
     <color name="textPrimary">#4B4F5B</color>
     <color name="textSecondary">#F2FDFF</color>

@@ -33,9 +33,12 @@
                         android:id="@+id/topAppBar"
                         android:layout_width="match_parent"
                         android:layout_height="?attr/actionBarSize"
-                        app:navigationIcon="@drawable/outline_menu_24"
-                        android:background="@color/toolbarMain"
-                        app:titleTextColor="@color/toolbarText"
+                        app:navigationIcon="@drawable/ic_round_menu_24"
+                        android:background="@color/backgroundSecondary"
+                        app:navigationIconTint="@color/primary"
+                        app:titleTextColor="@color/toolbarTitle"
+                        app:titleCentered="true"
+                        app:subtitleTextColor="@color/toolbarIcons"
                         android:elevation="0dp"
                         app:menu="@menu/menu_main"
                         />
@@ -56,9 +59,7 @@
             android:layout_height="match_parent"
             android:layout_gravity="start"
             app:menu="@menu/left_fragments_menu"
-            app:itemTextAppearance="@style/menu_text_style"
-            app:subheaderTextAppearance="@style/menu_text_style"
-
+            app:headerLayout="@layout/menu_header"
             />
     </androidx.drawerlayout.widget.DrawerLayout>
 </layout>

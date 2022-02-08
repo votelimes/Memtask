@@ -4,7 +4,7 @@
 
     >
     <solid
-        android:color="@color/main_7"
+        android:color="@color/backgroundSecondary"
         />
     <padding
         android:bottom="28dp">

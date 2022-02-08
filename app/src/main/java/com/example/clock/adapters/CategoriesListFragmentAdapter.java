@@ -74,7 +74,7 @@ public class CategoriesListFragmentAdapter extends RecyclerView.Adapter<Categori
         this.mResultLauncher = resultLauncher;
 
         if(categoriesDataSet != null && categoriesDataSet.size() != 0) {
-            this.mToolbar = (MaterialToolbar) ((AppCompatActivity) context).findViewById(R.id.topAppBar);
+            //this.mToolbar = (MaterialToolbar) ((AppCompatActivity) context).findViewById(R.id.topAppBar);
         }
     }
 

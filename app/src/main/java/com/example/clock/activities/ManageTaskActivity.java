@@ -3,6 +3,8 @@ package com.example.clock.activities;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.util.Pair;
 import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.Observer;
@@ -21,6 +23,7 @@ import android.text.TextWatcher;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.example.clock.R;
@@ -331,17 +334,22 @@ public class ManageTaskActivity extends AppCompatActivity implements View.OnFocu
         });
         mViewModel.intermediateThemeAndCategory.observe(this, intermediateThemeCategoryObs);
 
+        Toolbar toolbar = (Toolbar) findViewById(R.id.manage_task_toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+
         if(mode.equals("TaskCreating")){
-            setTitle("Создание задачи");
+            toolbar.setTitle("Создание задачи");
         }
         else if(mode.equals("TaskEditing")){
-            setTitle("Изменение задачи");
+            toolbar.setTitle("Изменение задачи");
         }
         else if(mode.equals("ProjectCreating")){
-            setTitle("Создание проекта");
+            toolbar.setTitle("Создание проекта");
         }
         else if(mode.equals("ProjectEditing")){
-            setTitle("Изменение проекта");
+            toolbar.setTitle("Изменение проекта");
         }
 
         MaterialButton button1 = (MaterialButton) findViewById(R.id.manage_task_first_color_button);
@@ -608,4 +616,21 @@ public class ManageTaskActivity extends AppCompatActivity implements View.OnFocu
         }
     };
 
+    @Override
+    public boolean onSupportNavigateUp() {
+        if(mode.equals("TaskCreating")){
+            setResult(20); // 20 Task created
+        }
+        else if(mode.equals("TaskEditing")){
+            setResult(21); // 30
+        }
+        else if(mode.equals("ProjectCreating")){
+            setResult(30); // 30 Project created
+        }
+        else if(mode.equals("ProjectEditing")){
+            setResult(31); // 30 Project created
+        }
+        onBackPressed();
+        return true;
+    }
 }

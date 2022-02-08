@@ -1,24 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
-    <style name="Theme.Clock.Main" parent="Theme.MaterialComponents.DayNight">
-        <item name="colorPrimary">@color/main_1</item>
-        <item name="colorPrimaryDark">@color/main_2</item>
-        <item name="colorSecondary">@color/main_3</item>
-
-        // Text
-        <item name="android:textColorPrimary">@color/textPrimary</item>
-        <item name="android:textColor">@color/textPrimary</item>
-        <item name="android:textColorSecondary">@color/act_text_main</item>
-        <item name="colorOnPrimary">@color/textPrimary</item>
-
-        <item name="android:colorBackground">@color/white</item>
-
-        <item name="colorError">@color/main_5</item>
-        <item name="colorSurface">@color/main_6</item>
-
-    </style>
-
     <style name="CustomButtonTheme" parent="Theme.AppCompat.Light.Dialog.Alert">
         <item name="android:windowBackground">@drawable/custom_button1</item>
     </style>

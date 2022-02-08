@@ -4,9 +4,13 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.os.Bundle;
+import android.text.SpannableString;
+import android.text.style.AbsoluteSizeSpan;
+import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.Window;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -74,7 +78,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         //AppBarLayout appTopLayout = ()findViewById(R.id.main_app_bar);
         toolbar = (MaterialToolbar) findViewById(R.id.topAppBar);
-        toolbar.setBackgroundColor(getColor(R.color.background));
+        toolbar.setBackgroundColor(getColor(R.color.backgroundPrimary));
+        toolbar.setTitleTextColor(getColor(R.color.toolbarTitle));
+        toolbar.setSubtitleTextColor(getColor(R.color.toolbarIcons));
+
         drawerLayout = (DrawerLayout) findViewById(R.id.drawerLayout);
         navigationView = findViewById(R.id.nav_view);
 
@@ -88,6 +95,30 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         drawerLayout.addDrawerListener(actionBarDrawerToggle);
         actionBarDrawerToggle.syncState();
         navigationView.setNavigationItemSelectedListener(this);
+
+        MenuItem menuItem = navigationView.getMenu().findItem(R.id.categories_item);
+        SpannableString s = new SpannableString(menuItem.getTitle());
+        s.setSpan(new ForegroundColorSpan(getColor(R.color.textPrimary)), 0, s.length(), 0);
+        s.setSpan(new AbsoluteSizeSpan(14, true), 0, s.length(), 0);
+        menuItem.setTitle(s);
+
+        menuItem = navigationView.getMenu().findItem(R.id.calendar_item);
+        s = new SpannableString(menuItem.getTitle());
+        s.setSpan(new ForegroundColorSpan(getColor(R.color.textPrimary)), 0, s.length(), 0);
+        s.setSpan(new AbsoluteSizeSpan(14, true), 0, s.length(), 0);
+        menuItem.setTitle(s);
+
+        menuItem = navigationView.getMenu().findItem(R.id.statistic_item);
+        s = new SpannableString(menuItem.getTitle());
+        s.setSpan(new ForegroundColorSpan(getColor(R.color.textPrimary)), 0, s.length(), 0);
+        s.setSpan(new AbsoluteSizeSpan(14, true), 0, s.length(), 0);
+        menuItem.setTitle(s);
+
+        menuItem = navigationView.getMenu().findItem(R.id.settings_item);
+        s = new SpannableString(menuItem.getTitle());
+        s.setSpan(new ForegroundColorSpan(getColor(R.color.textPrimary)), 0, s.length(), 0);
+        s.setSpan(new AbsoluteSizeSpan(14, true), 0, s.length(), 0);
+        menuItem.setTitle(s);
 
         toolbar.setNavigationOnClickListener(v -> {
             drawerLayout.open();
@@ -136,17 +167,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 .replace(R.id.main_fragment_container_view, nextFragment)
                 .commit();
         toolbar.setTitle(title);
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu){
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        MenuItem searchItem = menu.findItem(R.id.action_search);
-
-        //Get SearchView through MenuItem
-        searchView = (SearchView) searchItem.getActionView();
-
-        return super.onCreateOptionsMenu(menu);
     }
 
     @Override

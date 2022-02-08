@@ -1,22 +1,36 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
 
     <style name="Theme.Clock.Main" parent="Theme.MaterialComponents.DayNight">
-
-        <item name="colorPrimary">@color/toolbarMain</item>
-
-
+        <item name="colorPrimary">@color/main_1</item>
+        <item name="colorPrimaryDark">@color/main_2</item>
         <item name="colorSecondary">@color/main_3</item>
 
         // Text
-        <item name="android:textColor">@color/act_text_light</item>
-        <item name="android:textColorPrimary">@color/act_text_light</item>
+        <item name="android:textColorPrimary">@color/textPrimary</item>
+        <item name="android:textColor">@color/textPrimary</item>
         <item name="android:textColorSecondary">@color/act_text_main</item>
+        <item name="colorOnPrimary">@color/textPrimary</item>
 
-
-        <item name="android:colorBackground">@color/backgroundDark</item>
+        <item name="android:colorBackground">@color/white</item>
 
         <item name="colorError">@color/main_5</item>
         <item name="colorSurface">@color/main_6</item>
 
+    </style>
+
+    <style name="CustomButtonTheme" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="android:windowBackground">@drawable/custom_button1</item>
+    </style>
+
+    <style name="calendar_header" parent="TextAppearance.AppCompat.Medium">
+        <item name="android:textSize">20sp</item>
+        <item name="android:textColor">@color/act_text_main</item>
+    </style>
+
+    <style name="menu_text_style" parent="@android:style/TextAppearance.DeviceDefault.Widget.ActionBar.Menu">
+        <item name="android:textSize">18sp</item>
+        <item name="android:textColor">@color/act_text_main</item>
+        <item name="android:textAllCaps">false</item>
     </style>
 </resources>
