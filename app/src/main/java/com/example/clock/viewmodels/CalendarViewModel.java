@@ -6,13 +6,11 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.databinding.BaseObservable;
 import androidx.databinding.Bindable;
-import androidx.databinding.ObservableBoolean;
-import androidx.databinding.ObservableInt;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.example.clock.BR;
-import com.example.clock.model.TaskAndTheme;
+import com.example.clock.model.TaskData;
 import com.example.clock.model.Task;
 import com.example.clock.model.Theme;
 import com.example.clock.repositories.MemtaskRepositoryBase;
@@ -41,7 +39,7 @@ public class CalendarViewModel extends MemtaskViewModelBase{
     private LocalDateTime selectedDateStart;
     private LocalDateTime selectedDateEnd;
     private List<Integer> daysLoad;
-    private LiveData<List<TaskAndTheme>> taskThemePack;
+    private LiveData<List<TaskData>> taskThemePack;
 
     private String searchFilter;
 
@@ -178,7 +176,7 @@ public class CalendarViewModel extends MemtaskViewModelBase{
         this.updatePending.setValue(updatePending);
     }
 
-    public LiveData<List<TaskAndTheme>> updateMonthTasksPack(){
+    public LiveData<List<TaskData>> updateMonthTasksPack(){
         LocalDateTime monthStart = selectedDateStart.withDayOfMonth(1);
         LocalDateTime monthEnd = selectedDateStart.with(TemporalAdjusters.lastDayOfMonth());
         monthEnd = monthEnd.plusDays(1);
@@ -188,7 +186,7 @@ public class CalendarViewModel extends MemtaskViewModelBase{
 
         return taskThemePack;
     }
-    public LiveData<List<TaskAndTheme>> requestMonthTasksPack(){
+    public LiveData<List<TaskData>> requestMonthTasksPack(){
         return taskThemePack;
     }
 
@@ -398,9 +396,9 @@ public class CalendarViewModel extends MemtaskViewModelBase{
     }
 
     public class TaskObserver extends BaseObservable {
-        private TaskAndTheme data;
+        private TaskData data;
 
-        TaskObserver(TaskAndTheme data){
+        TaskObserver(TaskData data){
             this.data = data;
         }
 
@@ -409,7 +407,7 @@ public class CalendarViewModel extends MemtaskViewModelBase{
             return data.task.isCompleted() || data.task.isExpired();
         }
 
-        public TaskAndTheme getData(){
+        public TaskData getData(){
             return data;
         }
 

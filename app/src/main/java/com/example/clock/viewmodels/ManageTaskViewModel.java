@@ -20,15 +20,13 @@ import com.example.clock.model.Category;
 import com.example.clock.model.Project;
 import com.example.clock.model.ProjectAndTheme;
 import com.example.clock.model.Task;
-import com.example.clock.model.TaskAndTheme;
+import com.example.clock.model.TaskData;
 import com.example.clock.model.Theme;
 import com.example.clock.repositories.MemtaskRepositoryBase;
 import com.example.clock.storageutils.Database;
 import com.example.clock.storageutils.LiveDataTransformations;
 import com.example.clock.storageutils.SilentDatabase;
 import com.example.clock.storageutils.Tuple2;
-import com.example.clock.storageutils.Tuple3;
-import com.example.clock.storageutils.Tuple4;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -43,7 +41,6 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
 import java.util.Random;
-import java.util.concurrent.ThreadLocalRandom;
 
 public class ManageTaskViewModel extends MemtaskViewModelBase {
 
@@ -51,7 +48,7 @@ public class ManageTaskViewModel extends MemtaskViewModelBase {
 
     public LiveData<Tuple2<List<Theme>, List<Category>>> intermediateThemeAndCategory;
 
-    public LiveData<TaskAndTheme> taskLiveData;
+    public LiveData<TaskData> taskLiveData;
     public LiveData<ProjectAndTheme> projectLiveData;
 
 
@@ -158,7 +155,8 @@ public class ManageTaskViewModel extends MemtaskViewModelBase {
         }
     }
 
-    private Theme getRandomBaseTheme(){
+    @Override
+    public Theme getRandomBaseTheme(){
         List<Integer> baseThemesIndexes = new ArrayList<>(intermediateThemeAndCategory.getValue().first.size());
 
         for(int i = 0; i < intermediateThemeAndCategory.getValue().first.size(); i++){

@@ -11,7 +11,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.example.clock.dao.TaskDao;
 import com.example.clock.model.Task;
-import com.example.clock.model.TaskAndTheme;
+import com.example.clock.model.TaskData;
 import com.example.clock.storageutils.Database;
 
 import org.junit.After;
@@ -46,7 +46,7 @@ public class TaskDaoMainWriteReadTest {
 
         populateDB(5, task);
 
-        List<TaskAndTheme> byName = taskDao.getTasksLiveDataWithThemeTEST(0, 501);
+        List<TaskData> byName = taskDao.getTasksLiveDataWithThemeTEST(0, 501);
         assertThat(byName.get(0).task.getTaskId(), equalTo(task.getTaskId()));
 
     }
@@ -60,7 +60,7 @@ public class TaskDaoMainWriteReadTest {
         task.setNotificationStartMillis(901);
         populateDBNotEqual(10, task);
 
-        List<TaskAndTheme> byName = taskDao.getTasksLiveDataWithThemeTEST(0, 901);
+        List<TaskData> byName = taskDao.getTasksLiveDataWithThemeTEST(0, 901);
         assertThat(byName.size(), equalTo(totalElements));
     }
 
@@ -74,7 +74,7 @@ public class TaskDaoMainWriteReadTest {
     public void estimateReadTasksTime() throws Exception {
         Task task = new Task("TaskName", "", -1);
         task.setNotificationStartMillis(500);
-        List<TaskAndTheme> byName = taskDao.getTasksLiveDataWithThemeTEST(0, 901);
+        List<TaskData> byName = taskDao.getTasksLiveDataWithThemeTEST(0, 901);
     }
 
     private void populateDB(int count, Task task){

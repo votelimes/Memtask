@@ -14,7 +14,7 @@ import com.example.clock.dao.TaskDao;
 import com.example.clock.dao.ThemeDao;
 import com.example.clock.model.Category;
 import com.example.clock.model.Task;
-import com.example.clock.model.TaskAndTheme;
+import com.example.clock.model.TaskData;
 import com.example.clock.model.Theme;
 import com.example.clock.storageutils.Database;
 
@@ -27,7 +27,7 @@ import java.io.IOException;
 import java.util.List;
 
 @RunWith(AndroidJUnit4.class)
-public class TaskDaoTaskAndThemeQueryTest {
+public class TaskDaoTaskDataQueryTest {
     private TaskDao taskDao;
     private ThemeDao themeDao;
     private CategoryDao categoryDao;
@@ -56,7 +56,7 @@ public class TaskDaoTaskAndThemeQueryTest {
 
     @Test
     public void queryCorrectnessTesting() throws Exception {
-        List<TaskAndTheme> byCategory = taskDao.getTasksLiveDataWithThemeTEST(categoryID);
+        List<TaskData> byCategory = taskDao.getTasksLiveDataWithThemeTEST(categoryID);
         List<Category> categories = categoryDao.getCategories();
 
         assertThat(byCategory.size(), equalTo(tasksCount));
@@ -65,7 +65,7 @@ public class TaskDaoTaskAndThemeQueryTest {
 
     @Test(timeout = 200)
     public void estimateReadTasksTime() throws Exception {
-        List<TaskAndTheme> byCategory = taskDao.getTasksLiveDataWithThemeTEST(categoryID);
+        List<TaskData> byCategory = taskDao.getTasksLiveDataWithThemeTEST(categoryID);
     }
 
     private void populateDBWithTasks(int count, Task task){

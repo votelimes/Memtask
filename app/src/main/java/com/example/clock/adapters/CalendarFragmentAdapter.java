@@ -3,39 +3,32 @@ package com.example.clock.adapters;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.ColorFilter;
 import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.text.style.RelativeSizeSpan;
 import android.text.style.StyleSpan;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
-import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.clock.R;
 import com.example.clock.activities.ManageTaskActivity;
 import com.example.clock.app.App;
 import com.example.clock.databinding.CalendarTaskBinding;
-import com.example.clock.model.Task;
-import com.example.clock.model.TaskAndTheme;
+import com.example.clock.model.TaskData;
 import com.example.clock.model.Theme;
 import com.example.clock.viewmodels.CalendarViewModel;
-import com.example.clock.viewmodels.MainViewModel;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.prolificinteractive.materialcalendarview.CalendarDay;
@@ -48,8 +41,6 @@ import com.prolificinteractive.materialcalendarview.OnRangeSelectedListener;
 import com.prolificinteractive.materialcalendarview.spans.DotSpan;
 
 import org.threeten.bp.LocalDate;
-import org.threeten.bp.LocalDateTime;
-import org.threeten.bp.ZoneOffset;
 
 import java.util.Date;
 import java.util.List;
@@ -78,7 +69,7 @@ public class CalendarFragmentAdapter extends RecyclerView.Adapter<RecyclerView.V
         private final LinearLayout categoryLayout;
         private final Drawable categoryLayoutDrawable;
         private final TextView categoryName;
-        private final TextView name;
+        private final EditText name;
         private final TextView description;
         private final ImageView alarmImage;
         private final TextView alarmTime;
@@ -94,7 +85,7 @@ public class CalendarFragmentAdapter extends RecyclerView.Adapter<RecyclerView.V
             categoryLayout = (LinearLayout) view.findViewById(R.id.task_category_layout);
             categoryLayoutDrawable = categoryLayout.getBackground();
             categoryName = (TextView) view.findViewById(R.id.task_category_name);
-            name = (TextView) view.findViewById(R.id.task_name);
+            name = (EditText) view.findViewById(R.id.task_name);
             description = (TextView) view.findViewById(R.id.task_description);
             alarmImage = (ImageView) view.findViewById(R.id.task_alarm_image);
             alarmTime = (TextView) view.findViewById(R.id.task_alarm_time);
@@ -130,7 +121,7 @@ public class CalendarFragmentAdapter extends RecyclerView.Adapter<RecyclerView.V
             return categoryName;
         }
 
-        public TextView getName() {
+        public EditText getName() {
             return name;
         }
 
@@ -343,9 +334,9 @@ public class CalendarFragmentAdapter extends RecyclerView.Adapter<RecyclerView.V
         }
 
 
-        final Observer<List<TaskAndTheme>> taskPackObserver = new Observer<List<TaskAndTheme>>() {
+        final Observer<List<TaskData>> taskPackObserver = new Observer<List<TaskData>>() {
             @Override
-            public void onChanged(List<TaskAndTheme> data) {
+            public void onChanged(List<TaskData> data) {
                 mViewModel.init();
                 getNoTasksInformer().setVisibility(mViewModel.getPoolSize() == 0 ? View.VISIBLE : View.GONE);
                 notifyDataSetChanged();
@@ -434,13 +425,6 @@ public class CalendarFragmentAdapter extends RecyclerView.Adapter<RecyclerView.V
                     MaterialCardView card = (MaterialCardView) view;
                     card.toggle();
                     viewHolder.getBinding().getData().setCompleted(card.isChecked());
-
-                    TextView textView = viewHolder.getName();
-                    if (card.isChecked()) {
-                        textView.setPaintFlags(textView.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
-                    } else {
-                        textView.setPaintFlags(textView.getPaintFlags() & ~Paint.STRIKE_THRU_TEXT_FLAG);
-                    }
                 }
             });
 
@@ -451,6 +435,7 @@ public class CalendarFragmentAdapter extends RecyclerView.Adapter<RecyclerView.V
                 viewHolder.getCategoryLayout().getBackground().setTint(theme.getSecondColor());
 
                 viewHolder.getName().setTextColor(theme.getMainTextColor());
+                viewHolder.getName().setHintTextColor(theme.getIconColor());
                 viewHolder.getDescription().setTextColor(theme.getMainTextColor());
 
                 viewHolder.getRange().setTextColor(theme.getAdditionalTextColor());
@@ -458,6 +443,7 @@ public class CalendarFragmentAdapter extends RecyclerView.Adapter<RecyclerView.V
 
                 viewHolder.getImportant().setColorFilter(theme.getIconColor());
                 viewHolder.getAlarmImage().setColorFilter(theme.getIconColor());
+
             }
         }
         if(getItemViewType(position) == VIEW_TYPE_CALENDAR){

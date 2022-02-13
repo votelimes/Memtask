@@ -4,7 +4,6 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.util.Pair;
 import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.Observer;
@@ -24,19 +23,15 @@ import android.text.TextWatcher;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
-import android.widget.LinearLayout;
-import android.widget.Toast;
 
 import com.example.clock.R;
 import com.example.clock.app.App;
 import com.example.clock.databinding.ActivityManageTaskBinding;
 import com.example.clock.model.Category;
 import com.example.clock.model.ProjectAndTheme;
-import com.example.clock.model.TaskAndTheme;
+import com.example.clock.model.TaskData;
 import com.example.clock.model.Theme;
 import com.example.clock.storageutils.Tuple2;
-import com.example.clock.storageutils.Tuple3;
-import com.example.clock.storageutils.Tuple4;
 import com.example.clock.viewmodels.ManageTaskViewModel;
 import com.example.clock.viewmodels.ViewModelFactoryBase;
 import com.google.android.material.button.MaterialButton;
@@ -44,7 +39,6 @@ import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.datepicker.MaterialPickerOnPositiveButtonClickListener;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
 import com.google.android.material.timepicker.MaterialTimePicker;
 import com.google.android.material.timepicker.TimeFormat;
 import com.skydoves.colorpickerview.ColorEnvelope;
@@ -54,14 +48,8 @@ import com.skydoves.colorpickerview.listeners.ColorEnvelopeListener;
 import net.cachapa.expandablelayout.ExpandableLayout;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalUnit;
 import java.util.List;
 import java.util.Objects;
 
@@ -503,10 +491,10 @@ public class ManageTaskActivity extends AppCompatActivity implements View.OnFocu
     }
 
     private int isNameCorrect(String name){
-        if(name == null || name.length() == 0){
+        if(name == null || name.length() == 0 && false){
             return 1;
         }
-        else if(name.length() > 50){
+        else if(name.length() > 180){
             return 2;
         }
         else{
@@ -605,9 +593,9 @@ public class ManageTaskActivity extends AppCompatActivity implements View.OnFocu
             }
         }
     };
-    final Observer<TaskAndTheme> taskObs = new Observer<TaskAndTheme>() {
+    final Observer<TaskData> taskObs = new Observer<TaskData>() {
         @Override
-        public void onChanged(TaskAndTheme data) {
+        public void onChanged(TaskData data) {
             mViewModel.initTaskEditing();
             mActivityBinding.setViewmodel(mViewModel);
         }

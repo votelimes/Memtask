@@ -8,7 +8,9 @@ import com.example.clock.dao.CategoryDao;
 import com.example.clock.dao.ThemeDao;
 import com.example.clock.dao.UserCaseStatisticDao;
 import com.example.clock.model.ProjectAndTheme;
+import com.example.clock.model.ProjectData;
 import com.example.clock.model.TaskAndTheme;
+import com.example.clock.model.TaskData;
 import com.example.clock.model.Theme;
 import com.example.clock.model.UserCaseStatistic;
 import com.example.clock.storageutils.Database;
@@ -64,40 +66,36 @@ public class MemtaskRepositoryBase {
         return this.mDatabase.themeDao().getThemesLiveData();
     }
 
-    public LiveData<List<TaskAndTheme>> getTasksLiveDataByNotification(long startMillis, long endMillis){
+    public LiveData<List<TaskData>> getTasksLiveDataByNotification(long startMillis, long endMillis){
         return this.mDatabase.taskDao() .getTasksWithThemeLiveData(startMillis, endMillis);
     }
 
-    public LiveData<TaskAndTheme> getTaskAndTheme(String taskID){
+    public LiveData<TaskData> getTaskAndTheme(String taskID){
         return this.mDatabase.taskDao().getTaskThemeLiveData(taskID);
-    }
-
-    public LiveData<List<TaskAndTheme>> getTaskAndThemeByCategory(long ID){
-        return this.mDatabase.taskDao().getTasksWithThemeLiveData(ID);
-    }
-
-    public LiveData<List<ProjectAndTheme>> getProjectAndThemeByCategory(long ID){
-        return this.mDatabase.projectDao().getProjectsWithThemeLiveData(ID);
     }
 
     public LiveData<ProjectAndTheme> getProjectAndTheme(String projectID){
         return this.mDatabase.projectDao().getProjectThemeLiveData(projectID);
     }
 
+    public LiveData<List<TaskData>> getTaskDataByCategory(long ID){
+        return this.mDatabase.taskDao().getTasksWithThemeLiveData(ID);
+    }
+
+    public LiveData<List<ProjectData>> getProjectDataByCategory(long ID){
+        return this.mDatabase.projectDao().getProjectsDataByCat(ID);
+    }
+
     public LiveData<List<UserCaseStatistic>> getUserCaseStatistic(long rangeStartMillis, long rangeEndMillis){
         return this.mDatabase.userCaseStatisticDao().getUserCaseStatistic(rangeStartMillis, rangeEndMillis);
     }
 
-    public LiveData<List<TaskAndTheme>> getSingleTasksByCategoryLiveData(long categoryID){
+    public LiveData<List<TaskData>> getSingleTasksByCategoryLiveData(long categoryID){
         return this.mDatabase.taskDao().getSingleTasksWithThemeLiveData(categoryID);
     }
 
-    public LiveData<List<TaskAndTheme>> getProjectTasksByCategoryLiveData(long categoryID){
+    public LiveData<List<TaskData>> getProjectTasksByCategoryLiveData(long categoryID){
         return this.mDatabase.taskDao().getProjectTasksWithThemeLiveData(categoryID);
-    }
-
-    public LiveData<List<ProjectAndTheme>> getProjectsByCategoryLiveData(long categoryID){
-        return this.mDatabase.projectDao().getProjectsWithThemeLiveData(categoryID);
     }
 
     public Task getTask(String taskID){
@@ -110,6 +108,10 @@ public class MemtaskRepositoryBase {
 
     public LiveData<Task> getTaskLiveData(String taskID){
         return this.mDatabase.taskDao().getTaskLiveData(taskID);
+    }
+
+    public LiveData<List<TaskAndTheme>> getTaskAndThemeByCategory(long categoryID){
+        return mTaskDao.getSingleTaskAndThemeByCategory(categoryID);
     }
 
 
@@ -159,7 +161,9 @@ public class MemtaskRepositoryBase {
 
     //Removing existing data
     public void removeTask (Task removableTask) {
-        mTaskDao.delete(removableTask);
+        Database.databaseWriteExecutor.execute(() -> {
+            mTaskDao.delete(removableTask);
+        });
     }
 
     public void removeTaskByID (String id){
@@ -175,7 +179,9 @@ public class MemtaskRepositoryBase {
     }
 
     public void removeProject (Project removableProject) {
-        mProjectDao.delete(removableProject);
+        Database.databaseWriteExecutor.execute(() -> {
+            mProjectDao.delete(removableProject);
+        });
     }
 
     public void removeProjectByID (String id){
@@ -191,7 +197,9 @@ public class MemtaskRepositoryBase {
     }
 
     public void removeCategory (Category removableCategory) {
-        mCategoryDao.delete(removableCategory);
+        Database.databaseWriteExecutor.execute(() -> {
+            mCategoryDao.delete(removableCategory);
+        });
     }
 
     public void removeCategoryByID (long id){
@@ -237,4 +245,7 @@ public class MemtaskRepositoryBase {
         });
     }
 
+    public LiveData<List<TaskAndTheme>> getSingleTaskAndThemeByCategory(long categoryID) {
+        return mTaskDao.getSingleTaskAndThemeByCategory(categoryID);
+    }
 }

@@ -22,8 +22,10 @@ import com.example.clock.R;
 import com.example.clock.activities.ManageTaskActivity;
 import com.example.clock.adapters.CardsListFragmentAdapter;
 import com.example.clock.app.App;
-import com.example.clock.model.ProjectAndTheme;
+import com.example.clock.model.ProjectData;
 import com.example.clock.model.TaskAndTheme;
+import com.example.clock.model.TaskData;
+import com.example.clock.model.Theme;
 import com.example.clock.storageutils.Tuple3;
 import com.example.clock.viewmodels.CategoryActivitiesViewModel;
 import com.example.clock.viewmodels.ViewModelFactoryBase;
@@ -120,10 +122,10 @@ public class CardsListFragment extends Fragment {
         });
     }
 
-    final Observer<Tuple3<List<TaskAndTheme>, List<TaskAndTheme>, List<ProjectAndTheme>>> hoardObserver = new Observer<Tuple3<List<TaskAndTheme>, List<TaskAndTheme>, List<ProjectAndTheme>>>() {
+    final Observer<Tuple3<List<TaskAndTheme>, List<ProjectData>, List<Theme>>> hoardObserver = new Observer<Tuple3<List<TaskAndTheme>, List<ProjectData>, List<Theme>>>() {
         @Override
-        public void onChanged(@Nullable final Tuple3<List<TaskAndTheme>, List<TaskAndTheme>, List<ProjectAndTheme>> updatedHoard) {
-            long catID = App.getSettings().getLastCategory().first;
+        public void onChanged(@Nullable final Tuple3<List<TaskAndTheme>, List<ProjectData>, List<Theme>> updatedHoard) {
+
             mViewModel.init();
             mRecyclerViewAdapter = new CardsListFragmentAdapter(
                     activityLauncher, mViewModel);

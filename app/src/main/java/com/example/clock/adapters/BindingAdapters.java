@@ -18,6 +18,7 @@ import androidx.databinding.BindingMethods;
 import com.example.clock.R;
 import com.example.clock.app.App;
 import com.google.android.material.button.MaterialButton;
+import com.mikhaellopez.circularprogressbar.CircularProgressBar;
 
 public class BindingAdapters {
 
@@ -43,5 +44,10 @@ public class BindingAdapters {
         } else {
             textView.setPaintFlags(textView.getPaintFlags() & ~Paint.STRIKE_THRU_TEXT_FLAG);
         }
+    }
+
+    @BindingAdapter("app:cpb_progress_binding")
+    public static void cpbProgressBinding(CircularProgressBar progressBar, float progress) {
+        progressBar.setProgress(progress);
     }
 }

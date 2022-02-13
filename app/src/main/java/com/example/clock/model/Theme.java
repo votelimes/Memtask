@@ -43,6 +43,9 @@ public class Theme {
         this.baseTheme = true;
         this.mAdditionalTextColor = -1;
     }
+    public Theme(){
+
+    }
 
     public Theme(String name, String mFirstColor, String mSecondColor, String mThirdColor, int mImage) {
         this.mID = generateUUID();

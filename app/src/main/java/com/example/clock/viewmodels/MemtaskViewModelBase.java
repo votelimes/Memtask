@@ -7,6 +7,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.example.clock.R;
 import com.example.clock.app.App;
 import com.example.clock.model.Category;
 import com.example.clock.model.Project;
@@ -18,7 +19,9 @@ import com.example.clock.storageutils.Database;
 import com.example.clock.storageutils.SilentDatabase;
 import com.example.clock.storageutils.Tuple2;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public abstract class MemtaskViewModelBase extends ViewModel {
 
@@ -55,7 +58,7 @@ public abstract class MemtaskViewModelBase extends ViewModel {
     }
 
     public void addProjectSilently(Project project){
-        addProjectSilently(project);
+        mRepository.addProjectSilently(project);
     }
 
     public void addCategory(Category newCategory){
@@ -119,5 +122,32 @@ public abstract class MemtaskViewModelBase extends ViewModel {
 
     public LiveData<List<Theme>> requestThemesData() {
         return this.themesLiveData;
+    }
+
+    //Unils
+    public Theme getRandomBaseTheme(){
+        Theme theme;
+
+        if(themesLiveData != null){
+            List<Integer> baseThemesIndexes = new ArrayList<>(themesLiveData.getValue().size());
+
+            for(int i = 0; i < themesLiveData.getValue().size(); i++){
+                if(themesLiveData.getValue().get(i).isBaseTheme()){
+                    baseThemesIndexes.add(i);
+                }
+            }
+            Random random = new Random();
+            int randomIndex = random.nextInt(baseThemesIndexes.size());
+
+            theme = themesLiveData.getValue().get(baseThemesIndexes.get(randomIndex));
+        }
+        else{
+            theme = new Theme("MainTaskTheme",
+                    "#F7EDE2", "#F15152", 0);
+
+            theme.setMainTextColor(App.getInstance().getColor(R.color.act_text_main));
+            theme.setIconColor(App.getInstance().getColor(R.color.act_text_main));
+        }
+        return theme;
     }
 }

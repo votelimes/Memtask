@@ -3,10 +3,13 @@ package com.example.clock.dao;
 import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Query;
+import androidx.room.Transaction;
 
 import com.example.clock.model.Project;
 import com.example.clock.model.ProjectAndTheme;
-import com.example.clock.model.TaskAndTheme;
+import com.example.clock.model.ProjectData;
+
+import org.jetbrains.annotations.TestOnly;
 
 import java.util.List;
 
@@ -30,4 +33,29 @@ public abstract class ProjectDao  extends BaseDao<Project> {
 
     @Query("SELECT project_table.*, theme_table.* FROM project_table LEFT JOIN theme_table ON project_table.mThemeID = theme_table.theme_ID WHERE project_table.categoryId = :categoryID")
     public abstract LiveData<List<ProjectAndTheme>> getProjectsWithThemeLiveData(long categoryID);
+
+    @Transaction
+    @Query("SELECT project_table.*, theme_table.* FROM project_table LEFT JOIN theme_table ON project_table.mThemeID = theme_table.theme_ID WHERE project_table.categoryId = :categoryID")
+    public abstract LiveData<List<ProjectData>> getProjectsDataByCat(long categoryID);
+
+    @TestOnly
+    @Transaction
+    @Query("SELECT project_table.*, theme_table.* FROM project_table LEFT JOIN theme_table ON project_table.mThemeID = theme_table.theme_ID")
+    public abstract List<ProjectData> getProjectsDataTEST();
+
+    @TestOnly
+    @Transaction
+    @Query("SELECT project_table.*, theme_table.* FROM project_table LEFT JOIN theme_table ON project_table.mThemeID = theme_table.theme_ID WHERE project_table.categoryId = :categoryID")
+    public abstract List<ProjectData> getProjectsDataByCatTEST(int categoryID);
+
+
+    @TestOnly
+    @Transaction
+    @Query("SELECT * from project_table")
+    public abstract List<ProjectData> getProjectsDataTEST2();
+
+    @TestOnly
+    @Transaction
+    @Query("SELECT * FROM project_table WHERE project_table.categoryId = :categoryID")
+    public abstract List<ProjectData> getProjectsDataByCatTEST(long categoryID);
 }

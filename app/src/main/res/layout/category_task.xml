@@ -4,16 +4,14 @@
     >
     <data>
         <import type="android.view.View"/>
+        <import type="android.text.InputType"/>
         <import type="com.example.clock.viewmodels.CategoryActivitiesViewModel"/>
         <variable
             name="vm"
             type="com.example.clock.viewmodels.CategoryActivitiesViewModel" />
         <variable
-            name="mode"
-            type="Integer" />
-        <variable
-            name="pos"
-            type="Integer" />
+            name="data"
+            type="com.example.clock.viewmodels.CategoryActivitiesViewModel.TaskObserver" />
 
     </data>
     <com.google.android.material.card.MaterialCardView
@@ -29,6 +27,12 @@
         android:layout_gravity="center_horizontal"
         app:cardCornerRadius="15dp"
         app:cardBackgroundColor="#EFFAFB"
+        app:cardElevation="8dp"
+        android:checkable="true"
+        android:checked="@{data.CompletedOrExpired}"
+        app:checkedIconTint="@{data.theme.secondColor}"
+        app:checkedIconSize="@{data.projectItem ? 70 : 100}"
+        app:checkedIconMargin="4dp"
         >
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -39,11 +43,11 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="12dp"
-                android:text="@{vm.getTimeRangeCT(mode, pos)}"
+                android:text="@{data.getRange()}"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 android:textColor="@color/act_text_grey"
-                android:visibility="@{vm.getItem(mode, pos).getStartTime > 0 ? View.VISIBLE : View.GONE}"
+                android:visibility="@{data.getTask().getStartTime > 0 ? View.VISIBLE : View.GONE}"
                 />
             <androidx.constraintlayout.widget.Barrier
                 android:id="@+id/task_br1"
@@ -92,7 +96,7 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/task_category_layout"
                 android:src="@drawable/ic_outline_report_36"
-                android:visibility="@{mode == CategoryActivitiesViewModel.MODE_INDEPENDENTLY ? (vm.getItem(mode, pos).isImportant == true ? View.VISIBLE : View.GONE) : (vm.getProjItem(pos).isImportant == true ? View.VISIBLE : View.GONE)}"
+                android:visibility="@{data.isProjectItem() ? View.GONE : (data.isImportant ? View.VISIBLE : View.GONE)}"
                 />
             <TextView
                 android:id="@+id/task_name"
@@ -100,11 +104,13 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="12dp"
-                android:text="@{vm.getPoolItemName(mode, pos)}"
+                android:text="@={data.Name}"
+                app:strikeThrough="@{data.getCompletedOrExpired}"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/task_range"
                 android:textColor="@color/act_text_main"
                 android:textStyle="bold"
+                android:inputType="@{!data.getCompletedOrExpired ? InputType.TYPE_CLASS_TEXT : InputType.TYPE_NULL}"
                 />
             <androidx.constraintlayout.widget.Barrier
                 android:id="@+id/task_br3"
@@ -121,7 +127,7 @@
                 android:layout_marginTop="4dp"
                 android:layout_marginEnd="16dp"
                 android:paddingBottom="8dp"
-                android:text="@{vm.getPoolItemDescrCT(mode, pos)}"
+                android:text="@={data.Description}"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/task_name"
                 android:textColor="@color/act_text_main"
@@ -134,6 +140,7 @@
                 android:contentDescription="Установлено уведомление"
                 android:layout_marginStart="12dp"
                 android:paddingBottom="4dp"
+
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/task_description"
                 />
@@ -146,7 +153,7 @@
                 app:layout_constraintStart_toEndOf="@id/task_alarm_image"
                 app:layout_constraintBottom_toBottomOf="@id/task_alarm_image"
                 android:textColor="@color/act_text_main"
-                android:text="@{vm.getTaskNotifyTime(mode, pos)}"
+                android:text="@{data.getNotify()}"
                 android:textSize="18sp"
 
             />
@@ -154,7 +161,7 @@
                 android:id="@+id/task_group1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:visibility="@{vm.getTaskByPos(mode, pos).isNotifyEnabled ? View.VISIBLE : View.GONE}"
+                android:visibility="@{data.isNotifyEnabled ? View.VISIBLE : View.GONE}"
                 app:constraint_referenced_ids="task_alarm_image,task_alarm_time" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </com.google.android.material.card.MaterialCardView>
