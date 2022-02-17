@@ -178,9 +178,9 @@ public class MemtaskRepositoryBase {
         });
     }
 
-    public void removeProject (Project removableProject) {
+    public void removeProject (String id) {
         Database.databaseWriteExecutor.execute(() -> {
-            mProjectDao.delete(removableProject);
+            mProjectDao.deleteWithItemsTransaction(id);
         });
     }
 

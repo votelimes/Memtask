@@ -58,4 +58,13 @@ public abstract class ProjectDao  extends BaseDao<Project> {
     @Transaction
     @Query("SELECT * FROM project_table WHERE project_table.categoryId = :categoryID")
     public abstract List<ProjectData> getProjectsDataByCatTEST(long categoryID);
+
+    @Query("DELETE FROM task_table WHERE task_table.mParentID = :parentID")
+    public abstract void deleteSubItems(String parentID);
+
+    @Transaction
+    public void deleteWithItemsTransaction(String id){
+        deleteById(id);
+        deleteSubItems(id);
+    }
 }

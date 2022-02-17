@@ -70,7 +70,7 @@ public class CalendarFragmentAdapter extends RecyclerView.Adapter<RecyclerView.V
         private final Drawable categoryLayoutDrawable;
         private final TextView categoryName;
         private final EditText name;
-        private final TextView description;
+        private final EditText description;
         private final ImageView alarmImage;
         private final TextView alarmTime;
 
@@ -86,7 +86,7 @@ public class CalendarFragmentAdapter extends RecyclerView.Adapter<RecyclerView.V
             categoryLayoutDrawable = categoryLayout.getBackground();
             categoryName = (TextView) view.findViewById(R.id.task_category_name);
             name = (EditText) view.findViewById(R.id.task_name);
-            description = (TextView) view.findViewById(R.id.task_description);
+            description = (EditText) view.findViewById(R.id.task_description);
             alarmImage = (ImageView) view.findViewById(R.id.task_alarm_image);
             alarmTime = (TextView) view.findViewById(R.id.task_alarm_time);
         }
@@ -125,7 +125,7 @@ public class CalendarFragmentAdapter extends RecyclerView.Adapter<RecyclerView.V
             return name;
         }
 
-        public TextView getDescription() {
+        public EditText getDescription() {
             return description;
         }
 

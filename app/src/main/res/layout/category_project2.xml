@@ -78,7 +78,6 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:strikeThrough="@{data.CompletedOrExpired}"
                     android:text="@{data.getName()}"
-                    android:hint="Название проекта"
                     android:textColor="@color/act_text_main"
                     android:background="@color/transparent"
                     android:textSize="18sp"
@@ -112,11 +111,32 @@
                     android:textAlignment="center"
                     />
             </androidx.constraintlayout.widget.ConstraintLayout>
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/child_holder"
+            <HorizontalScrollView
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                />
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@id/project2_info_constraint"
+                app:layout_constraintStart_toStartOf="parent"
+                android:orientation="horizontal"
+                android:fillViewport="true"
+                >
+                <LinearLayout
+                    android:id="@+id/project2_children"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    >
+                    <com.github.clans.fab.FloatingActionButton
+                        android:id="@+id/project2_add"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/ic_baseline_add_task_24"
+                        app:fab_colorNormal="@color/main_3"
+                        android:layout_gravity="bottom|end"
+                        android:layout_marginEnd="16dp"
+                        android:layout_marginBottom="12dp"
+                        />
+                </LinearLayout>
+            </HorizontalScrollView>
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 </layout>

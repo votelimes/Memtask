@@ -2,17 +2,18 @@ package com.example.clock.adapters;
 
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Paint;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.LinearSmoothScroller;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.clock.R;
@@ -20,13 +21,11 @@ import com.example.clock.activities.ManageTaskActivity;
 import com.example.clock.app.App;
 import com.example.clock.databinding.CategoryTaskBinding;
 import com.example.clock.databinding.CategoryProjectBinding;
-import com.example.clock.model.Task;
 import com.example.clock.model.Theme;
 import com.example.clock.viewmodels.CategoryActivitiesViewModel;
-import com.example.clock.viewmodels.MainViewModel;
-import com.github.clans.fab.FloatingActionButton;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.snackbar.Snackbar;
 import com.mikhaellopez.circularprogressbar.CircularProgressBar;
 
 import java.util.Date;
@@ -41,6 +40,11 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
     private Date selectedDay;
     private final ActivityResultLauncher<Intent> resultLauncher;
     private final CategoryActivitiesViewModel mViewModel;
+    private final View rootView;
+    private final RecyclerView.LayoutManager mLayoutManager;
+    private boolean mAddedOutside = false;
+
+    RecyclerView.SmoothScroller smoothScroller;
 
     public static class TaskViewHolder extends RecyclerView.ViewHolder {
         private final CategoryTaskBinding binding;
@@ -50,8 +54,8 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
         private final ImageView important;
         private final LinearLayout categoryLayout;
         private final TextView categoryName;
-        private final TextView name;
-        private final TextView description;
+        private final EditText name;
+        private final EditText description;
         private final ImageView alarmImage;
         private final TextView alarmTime;
 
@@ -65,8 +69,8 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
             important = (ImageView) view.findViewById(R.id.task_important);
             categoryLayout = (LinearLayout) view.findViewById(R.id.task_category_layout);
             categoryName = (TextView) view.findViewById(R.id.task_category_name);
-            name = (TextView) view.findViewById(R.id.task_name);
-            description = (TextView) view.findViewById(R.id.task_description);
+            name = (EditText) view.findViewById(R.id.task_name);
+            description = (EditText) view.findViewById(R.id.task_description);
             alarmImage = (ImageView) view.findViewById(R.id.task_alarm_image);
             alarmTime = (TextView) view.findViewById(R.id.task_alarm_time);
         }
@@ -101,11 +105,11 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
             return categoryName;
         }
 
-        public TextView getName() {
+        public EditText getName() {
             return name;
         }
 
-        public TextView getDescription() {
+        public EditText getDescription() {
             return description;
         }
 
@@ -124,10 +128,15 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
         private final LinearLayout itemsLayout;
 
         private final TextView range;
-        private final TextView name;
+        private final EditText name;
         private final TextView progressText;
         private final CircularProgressBar progressBar;
         private final CategoryProjectBinding binding;
+        private final RecyclerView.LayoutManager mLayoutManager;
+
+        private final RecyclerView recyclerView;
+
+        private ProjectAdapter mAdapter;
 
         public ProjectViewHolder(CategoryProjectBinding binding) {
             super(binding.getRoot());
@@ -139,13 +148,20 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
 
             itemsLayout = (LinearLayout) view.findViewById(R.id.project2_children);
 
-            name = (TextView) view.findViewById(R.id.project2_name);
+            name = (EditText) view.findViewById(R.id.project2_name);
 
             progressBar = (CircularProgressBar) view.findViewById(R.id.project2_progress);
 
             progressText = (TextView) view.findViewById(R.id.project2_progress_text);
 
             range = (TextView) view.findViewById(R.id.project2_range);
+
+            recyclerView = (RecyclerView) view.findViewById(R.id.child_holder);
+
+            mLayoutManager = new LinearLayoutManager(view.getContext(),
+                    LinearLayoutManager.HORIZONTAL, false);
+
+            recyclerView.setLayoutManager(mLayoutManager);
         }
 
         public void bind(CategoryActivitiesViewModel vm, CategoryActivitiesViewModel.ProjectObserver projObs){
@@ -166,7 +182,7 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
             return range;
         }
 
-        public TextView getName() {
+        public EditText getName() {
             return name;
         }
 
@@ -177,14 +193,34 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
         public CircularProgressBar getProgressBar() {
             return progressBar;
         }
+
+        public ProjectAdapter getAdapter() {
+            return mAdapter;
+        }
+
+        public void setAdapter(ProjectAdapter adapter) {
+            this.mAdapter = adapter;
+            recyclerView.setAdapter(mAdapter);
+        }
+
+        public RecyclerView.LayoutManager getLayoutManager(){
+            return mLayoutManager;
+        }
     }
 
     public CardsListFragmentAdapter(ActivityResultLauncher<Intent> resultLauncher,
-                                    CategoryActivitiesViewModel viewModel) {
+                                    CategoryActivitiesViewModel viewModel, View rootView, RecyclerView.LayoutManager layoutManager) {
         mViewModel = viewModel;
         this.currentCategoryID = currentCategoryID;
         this.selectedDay = selectedDay;
         this.resultLauncher = resultLauncher;
+        this.rootView = rootView;
+        mLayoutManager = layoutManager;
+        smoothScroller = new LinearSmoothScroller(rootView.getContext()) {
+            @Override protected int getVerticalSnapPreference() {
+                return LinearSmoothScroller.SNAP_TO_START;
+            }
+        };
     }
 
     // Create new views (invoked by the layout manager)
@@ -229,7 +265,9 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
                                 @Override
                                 public void onClick(DialogInterface dialogInterface, int i) {
                                     switch (i) {
-                                        case 0: // Изменить
+                                        case 0: // Декомпозировать
+                                            break;
+                                        case 1: // Изменить
                                             Intent intent = new Intent(view.getContext(), ManageTaskActivity.class);
                                             intent.putExtra("mode", "TaskEditing");
                                             intent.putExtra("ID", taskObs.getTask().getTaskId());
@@ -237,11 +275,7 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
 
                                             resultLauncher.launch(intent);
                                             break;
-                                        case 1: // Удалить
-
-                                            AppCompatActivity act = (AppCompatActivity) view.getContext();
-                                            MainViewModel viewModel = new ViewModelProvider(act)
-                                                    .get(MainViewModel.class);
+                                        case 2: // Удалить
                                             removeItem(currentViewHolder.getAbsoluteAdapterPosition());
                                             break;
                                     }
@@ -267,6 +301,7 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
                 viewHolder.getCategoryLayout().getBackground().setTint(theme.getSecondColor());
 
                 viewHolder.getName().setTextColor(theme.getMainTextColor());
+                viewHolder.getName().setHintTextColor(theme.getIconColor());
                 viewHolder.getDescription().setTextColor(theme.getMainTextColor());
 
                 viewHolder.getRange().setTextColor(theme.getAdditionalTextColor());
@@ -274,6 +309,11 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
 
                 viewHolder.getImportant().setColorFilter(theme.getIconColor());
                 viewHolder.getAlarmImage().setColorFilter(theme.getIconColor());
+
+            }
+            if(mAddedOutside) {
+                viewHolder.getName().requestFocus();
+                mAddedOutside = false;
             }
         }
         else if(getItemViewType(position) == VIEW_TYPE_PROJECT){
@@ -281,7 +321,6 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
 
             ProjectViewHolder viewHolder = (ProjectViewHolder) currentViewHolder;
 
-            //viewHolder.getName().setText(projectObs.getName());
             viewHolder.bind(mViewModel,projectObs);
 
             viewHolder.getMainLayout().setOnLongClickListener(new View.OnLongClickListener() {
@@ -289,11 +328,16 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
                 public boolean onLongClick(View view) {
                     MaterialAlertDialogBuilder taskOptionsDialog = new MaterialAlertDialogBuilder(view.getContext())
                             .setTitle("Выберите действие")
-                            .setItems(R.array.task_dialog_long, new DialogInterface.OnClickListener() {
+                            .setItems(R.array.project_dialog_long, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialogInterface, int i) {
                                     switch (i) {
-                                        case 0: // Изменить
+                                        case 0:
+                                            mViewModel.addProjectChild(viewHolder.getAbsoluteAdapterPosition());
+                                            viewHolder.getAdapter().scrollTo(viewHolder.mAdapter.getItemCount());
+                                            break;
+
+                                        case 1: // Изменить
                                             Intent intent = new Intent(view.getContext(), ManageTaskActivity.class);
                                             intent.putExtra("mode", "ProjectEditing");
                                             intent.putExtra("ID",  projectObs.getProject().getProjectId());
@@ -301,13 +345,8 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
 
                                             resultLauncher.launch(intent);
                                             break;
-                                        case 1: // Удалить
-
-                                            AppCompatActivity act = (AppCompatActivity) view.getContext();
-                                            MainViewModel viewModel = new ViewModelProvider(act)
-                                                    .get(MainViewModel.class);
-
-                                            viewModel.removeProjectByID(projectObs.getProject().getProjectId());
+                                        case 2: // Удалить
+                                            removeItem(viewHolder.getAbsoluteAdapterPosition());
                                             break;
                                     }
                                 }
@@ -316,11 +355,18 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
                     return true;
                 }
             });
-            viewHolder.getMainLayout().setOnClickListener(new View.OnClickListener() {
+            viewHolder.getMainLayout().setOnClickListener(new DoubleClickListener() {
                 @Override
-                public void onClick(View view) {
-                    /*MaterialCardView card = (MaterialCardView) view;
-                    card.toggle();*/
+                public void onSingleClick(View v) {
+
+                }
+
+                @Override
+                public void onDoubleClick(View v) {
+                    mViewModel.addProjectChild(viewHolder.getAbsoluteAdapterPosition());
+                    Toast.makeText(v.getContext(), "Подзадача добавлена", Toast.LENGTH_SHORT).show();
+                    projectObs.recalcProgress();
+                    viewHolder.getAdapter().notifyDataSetChanged();
                 }
             });
 
@@ -328,95 +374,18 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
             if(theme != null) {
                 viewHolder.getMainLayout().setCardBackgroundColor(theme.getFirstColor());
                 viewHolder.getProgressBar().setProgressBarColor(theme.getSecondColor());
+                viewHolder.getProgressBar().setBackgroundColor(theme.getIconColor());
 
                 viewHolder.getName().setTextColor(theme.getMainTextColor());
+                viewHolder.getName().setHintTextColor(theme.getIconColor());
                 viewHolder.getRange().setTextColor(theme.getAdditionalTextColor());
             }
 
-            // ---Children installation---
-            LayoutInflater layoutInflater =
-                    LayoutInflater.from(viewHolder.itemView.getContext());
+            ProjectAdapter adapter = new ProjectAdapter(resultLauncher, mViewModel, position, rootView, viewHolder.getLayoutManager());
+            viewHolder.setAdapter(adapter);
 
-            for(int i = 0; i < projectObs.getChildsCount(); i++){
-                theme = projectObs.getChild(i).getTheme();
-                CategoryTaskBinding taskBinding = CategoryTaskBinding.inflate(layoutInflater, (ViewGroup) viewHolder.itemView, false);
-                taskBinding.setVm(mViewModel);
-                taskBinding.setData(mViewModel.getProjectObs(position).getChild(i));
 
-                viewHolder.getItemsLayout().addView(taskBinding.getRoot(), 0);
-                taskBinding.executePendingBindings();
-                taskBinding.getRoot().setOnLongClickListener(new View.OnLongClickListener() {
-                    @Override
-                    public boolean onLongClick(View view) {
-                        MaterialAlertDialogBuilder taskOptionsDialog = new MaterialAlertDialogBuilder(view.getContext())
-                                .setTitle("Выберите действие")
-                                .setItems(R.array.task_dialog_long, new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialogInterface, int i) {
-                                        switch (i) {
-                                            case 0: // Изменить
-                                                Intent intent = new Intent(view.getContext(), ManageTaskActivity.class);
-                                                intent.putExtra("mode", "TaskEditing");
-                                                intent.putExtra("parent", projectObs.getProject().getProjectId());
-
-                                                Task task = taskBinding.getData().getTask();
-                                                intent.putExtra("ID", task.getTaskId());
-                                                intent.putExtra("category", App.getSettings().getLastCategory().first);
-                                                resultLauncher.launch(intent);
-                                                break;
-                                            case 1: // Удалить
-
-                                                AppCompatActivity act = (AppCompatActivity) view.getContext();
-                                                MainViewModel viewModel = new ViewModelProvider(act)
-                                                        .get(MainViewModel.class);
-                                                projectObs.removeChild(i);
-                                                break;
-                                        }
-                                    }
-                                });
-                        taskOptionsDialog.show();
-                        return true;
-                    }
-                });
-                taskBinding.getRoot().setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        MaterialCardView card = (MaterialCardView) view;
-
-                        card.toggle();
-                        taskBinding.getData().setCompletedOrExpired(card.isChecked());
-
-                        projectObs.recalcProgress();
-
-                        /*if (projectObs.getCompletedOrExpired()) {
-                            viewHolder.getName().setPaintFlags(viewHolder.getName().getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
-                        }
-                        else {
-                            viewHolder.getName().setPaintFlags(viewHolder.getName().getPaintFlags() & ~Paint.STRIKE_THRU_TEXT_FLAG);
-                        }*/
-                    }
-                });
-
-                View view = taskBinding.getRoot();
-                ((MaterialCardView) view
-                        .findViewById(R.id.task_top_layout))
-                        .setCardBackgroundColor(theme.getFirstColor());
-                ((TextView) view
-                        .findViewById(R.id.task_name)).setTextColor(theme.getMainTextColor());
-                ((TextView) view
-                        .findViewById(R.id.task_description)).setTextColor(theme.getMainTextColor());
-                ((TextView) view
-                        .findViewById(R.id.task_alarm_time)).setTextColor(theme.getMainTextColor());
-                ((TextView) view
-                        .findViewById(R.id.task_range)).setTextColor(theme.getAdditionalTextColor());
-                ((ImageView) view
-                        .findViewById(R.id.task_important)).setColorFilter(theme.getAdditionalTextColor());
-                ((ImageView) view
-                        .findViewById(R.id.task_alarm_image)).setColorFilter(theme.getAdditionalTextColor());
-
-            }
-
-            FloatingActionButton fab = viewHolder.getMainLayout().findViewById(R.id.project2_add);
+            /*FloatingActionButton fab = viewHolder.getMainLayout().findViewById(R.id.project2_add);
             fab.setColorNormal(projectObs.getTheme().getSecondColor());
             fab.setColorPressed(projectObs.getTheme().getAdditionalTextColor());
             fab.setOnClickListener(new View.OnClickListener() {
@@ -428,18 +397,72 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
                     intent.putExtra("category", projectObs.getProject().getCategoryId());
                     resultLauncher.launch(intent);
                 }
-            });
+            });*/
 
         }
 
     }
 
     private void removeItem(int position){
-        mViewModel.removeSilently(position);
-        notifyItemRemoved(position);
-        notifyItemRangeChanged(position, mViewModel.getPoolSize());
+        if(getItemViewType(position) == VIEW_TYPE_TASK){
+            new MaterialAlertDialogBuilder(rootView.getContext())
+                    .setTitle("Удаление задачи")
+                    .setMessage("Вы действительно хотите удалить эту задачу?")
+                    .setPositiveButton("Удалить", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            mViewModel.removeSilently(position);
+                            Snackbar.make(rootView, "Задача была удалена", mViewModel.RESTORE_ITEM_SNACKBAR_TIME)
+                                    .setAction(App.getInstance().getString(R.string.restore_item_dialog_item_back), view -> {
+                                        int itemPos = mViewModel.returnItemBack();
+                                        notifyItemInserted(itemPos);
+                                        scrollTo(itemPos);
+                                    }).show();
+                            notifyItemRemoved(position);
+                        }
+                    })
+                    .setNegativeButton("Отменить", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            dialogInterface.dismiss();
+                        }
+                    })
+                    .show();
+        }
+        else{
+            new MaterialAlertDialogBuilder(rootView.getContext())
+                    .setTitle("Удаление проекта")
+                    .setMessage("Вы дейстсительно хотите удалить этот проект?")
+                    .setPositiveButton("Удалить", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            mViewModel.removeSilently(position);
+                            Snackbar.make(rootView, "Проект был удален", mViewModel.RESTORE_ITEM_SNACKBAR_TIME)
+                                    .setAction(App.getInstance().getString(R.string.restore_item_dialog_item_back), view -> {
+                                        int itemPos = mViewModel.returnItemBack();
+                                        notifyItemInserted(itemPos);
+                                        smoothScroller.setTargetPosition(itemPos);
+                                        mLayoutManager.startSmoothScroll(smoothScroller);
+                                    }).show();
+                            notifyItemRemoved(position);
+                        }
+                    })
+                    .setNegativeButton("Отменить", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            dialogInterface.dismiss();
+                        }
+                    })
+                    .show();
+        }
+        /*notifyItemRemoved(position);
+        notifyItemRangeChanged(position, mViewModel.getPoolSize());*/
     }
 
+    public void scrollTo(int position){
+        smoothScroller.setTargetPosition(position);
+        mLayoutManager.startSmoothScroll(smoothScroller);
+    }
     // Return the size of your dataset (invoked by the layout manager)
     @Override
     public int getItemCount() {
@@ -459,5 +482,9 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
         else {
             return VIEW_TYPE_UNDEFINED;
         }
+    }
+
+    public void setAddedOutside(boolean state){
+        mAddedOutside = state;
     }
 }

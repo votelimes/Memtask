@@ -65,6 +65,9 @@ public class UserCaseBase implements Serializable  {
         long currentMillis = LocalDateTime.now().toEpochSecond(ZoneOffset.UTC) * 1000;
         timeCreated = currentMillis;
         timeChanged = currentMillis;
+
+        mName = "";
+        mDescription = "";
     }
 
     protected String generateUUID(){

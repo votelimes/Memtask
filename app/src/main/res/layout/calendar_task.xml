@@ -5,6 +5,7 @@
     <data>
         <import type="android.view.View"/>
         <import type="android.text.InputType"/>
+        <import type="android.graphics.Typeface"/>
         <import type="com.example.clock.viewmodels.CalendarViewModel"/>
         <variable
             name="vm"
@@ -18,6 +19,7 @@
         android:id="@+id/task_top_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:minHeight="80dp"
         android:orientation="horizontal"
         android:paddingEnd="12dp"
         android:layout_marginTop="8dp"
@@ -36,7 +38,9 @@
         >
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:layout_gravity="left"
+            >
             <TextView
                 android:id="@+id/task_range"
                 android:layout_width="wrap_content"
@@ -99,23 +103,41 @@
                 android:src="@drawable/ic_outline_report_36"
                 android:visibility="@{data.isImportant() == true ? View.VISIBLE : View.GONE}"
                 />
+            <androidx.constraintlayout.widget.Barrier
+                android:id="@+id/task_br4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:barrierDirection="left"
+                app:constraint_referenced_ids="task_category_layout"
+                />
+            <androidx.constraintlayout.widget.Barrier
+                android:id="@+id/task_br5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:barrierDirection="bottom"
+                app:constraint_referenced_ids="task_category_layout"
+                />
             <EditText
                 android:id="@+id/task_name"
-                android:layout_width="260dp"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
-                android:layout_marginTop="12dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginTop="14dp"
                 android:text="@={data.name}"
+                android:hint="Название задачи"
+                android:textSize="16sp"
                 app:strikeThrough="@{data.getCompletedOrExpired}"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/task_range"
+                app:layout_constraintEnd_toStartOf="@id/task_important"
                 android:textColor="@color/act_text_main"
-                android:textStyle="bold"
                 android:fontFamily="@font/encode_sans_regular"
                 android:background="@color/transparent"
-                android:hint="Название задачи"
                 android:textColorHint="@color/act_text_main"
-                android:inputType="@{!data.getCompletedOrExpired ? InputType.TYPE_CLASS_TEXT : InputType.TYPE_NULL}"
+                android:typeface='@{data.Description.length() == 0 ? "regular" : "bold"}'
+                android:inputType="@{!data.CompletedOrExpired ? InputType.TYPE_CLASS_TEXT : InputType.TYPE_NULL}"
+                android:multiline="@{!data.CompletedOrExpired}"
                 />
             <androidx.constraintlayout.widget.Barrier
                 android:id="@+id/task_br3"
@@ -125,19 +147,24 @@
                 app:constraint_referenced_ids="task_name"
                 />
 
-            <TextView
+            <EditText
                 android:id="@+id/task_description"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="4dp"
                 android:paddingBottom="8dp"
-                android:text="@{data.getDescription()}"
+                android:text="@={data.Description}"
+                android:textSize="16sp"
                 android:textColor="@color/act_text_main"
-                android:visibility="@{data.getDescriptionState() ? View.VISIBLE : View.GONE}"
-                android:inputType="@{!data.getCompletedOrExpired ? InputType.TYPE_CLASS_TEXT : InputType.TYPE_NULL}"
+                android:visibility="@{data.DescriptionState ? View.VISIBLE : View.GONE}"
+                android:inputType="@{!data.CompletedOrExpired ? InputType.TYPE_CLASS_TEXT : InputType.TYPE_NULL}"
+                android:background="@color/transparent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/task_name" />
+                app:layout_constraintTop_toBottomOf="@id/task_name"
+                android:multiline="@{!data.CompletedOrExpired}"
+                app:layout_constraintEnd_toStartOf="@id/task_important"
+                />
             <ImageView
                 android:id="@+id/task_alarm_image"
                 android:layout_width="wrap_content"

@@ -11,6 +11,18 @@
     </string-array>
 
     <string-array name="task_dialog_long">
+        <item>Декомпозировать</item>
+        <item>Изменить</item>
+        <item>Удалить</item>
+    </string-array>
+
+    <string-array name="task_dialog_short">
+        <item>Изменить</item>
+        <item>Удалить</item>
+    </string-array>
+
+    <string-array name="project_dialog_long">
+        <item>Добавить подзадачу</item>
         <item>Изменить</item>
         <item>Удалить</item>
     </string-array>
@@ -19,6 +31,8 @@
         <item>Изменить</item>
         <item>Удалить</item>
     </string-array>
+
+    <string name="restore_item_dialog_item_back">Вернуть</string>
 
     <integer-array name="calendar_day_load_interval">
         <item>2</item>

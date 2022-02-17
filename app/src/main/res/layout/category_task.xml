@@ -4,7 +4,9 @@
     >
     <data>
         <import type="android.view.View"/>
+        <import type="android.view.ViewGroup.LayoutParams"/>
         <import type="android.text.InputType"/>
+        <import type="android.graphics.Typeface"/>
         <import type="com.example.clock.viewmodels.CategoryActivitiesViewModel"/>
         <variable
             name="vm"
@@ -18,6 +20,8 @@
         android:id="@+id/task_top_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:minHeight="80dp"
+        android:minWidth="340dp"
         android:orientation="horizontal"
         android:paddingEnd="12dp"
         android:layout_marginTop="8dp"
@@ -36,7 +40,8 @@
         >
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            >
             <TextView
                 android:id="@+id/task_range"
                 android:layout_width="wrap_content"
@@ -98,19 +103,39 @@
                 android:src="@drawable/ic_outline_report_36"
                 android:visibility="@{data.isProjectItem() ? View.GONE : (data.isImportant ? View.VISIBLE : View.GONE)}"
                 />
-            <TextView
+            <androidx.constraintlayout.widget.Barrier
+                android:id="@+id/task_br4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:barrierDirection="left"
+                app:constraint_referenced_ids="task_important"
+                />
+            <androidx.constraintlayout.widget.Barrier
+                android:id="@+id/task_br5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:barrierDirection="bottom"
+                app:constraint_referenced_ids="task_important"
+                />
+            <EditText
                 android:id="@+id/task_name"
-                android:layout_width="260dp"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
-                android:layout_marginTop="12dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginTop="14dp"
                 android:text="@={data.Name}"
-                app:strikeThrough="@{data.getCompletedOrExpired}"
+                android:hint="Название задачи"
+                android:fontFamily="@font/encode_sans_regular"
+                android:background="@color/transparent"
+                android:textSize="16sp"
+                app:strikeThrough="@{data.CompletedOrExpired}"
                 app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/task_important"
                 app:layout_constraintTop_toBottomOf="@id/task_range"
                 android:textColor="@color/act_text_main"
-                android:textStyle="bold"
-                android:inputType="@{!data.getCompletedOrExpired ? InputType.TYPE_CLASS_TEXT : InputType.TYPE_NULL}"
+                android:typeface='@{data.Description.length() == 0 ? "regular" : "bold"}'
+                android:multiline="@{!data.CompletedOrExpired}"
                 />
             <androidx.constraintlayout.widget.Barrier
                 android:id="@+id/task_br3"
@@ -119,18 +144,24 @@
                 app:barrierDirection="bottom"
                 app:constraint_referenced_ids="task_name"
                 />
-            <TextView
+            <EditText
                 android:id="@+id/task_description"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="4dp"
                 android:layout_marginEnd="16dp"
                 android:paddingBottom="8dp"
                 android:text="@={data.Description}"
+                android:textSize="16sp"
+                android:background="@color/transparent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/task_name"
+                app:layout_constraintEnd_toStartOf="@id/task_important"
                 android:textColor="@color/act_text_main"
+                android:visibility="@{data.DescriptionState ? View.VISIBLE : View.GONE}"
+                android:inputType="@{!data.CompletedOrExpired ? InputType.TYPE_CLASS_TEXT : InputType.TYPE_NULL}"
+                android:multiline="@{!data.CompletedOrExpired}"
                 />
             <ImageView
                 android:id="@+id/task_alarm_image"

@@ -24,7 +24,6 @@ import com.example.clock.adapters.CardsListFragmentAdapter;
 import com.example.clock.app.App;
 import com.example.clock.model.ProjectData;
 import com.example.clock.model.TaskAndTheme;
-import com.example.clock.model.TaskData;
 import com.example.clock.model.Theme;
 import com.example.clock.storageutils.Tuple3;
 import com.example.clock.viewmodels.CategoryActivitiesViewModel;
@@ -44,6 +43,7 @@ public class CardsListFragment extends Fragment {
     ConstraintLayout mMainLayoutView;
     Context mContext;
     MaterialToolbar toolbar;
+
 
     final ActivityResultLauncher<Intent> activityLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
@@ -103,11 +103,17 @@ public class CardsListFragment extends Fragment {
         fabTask.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent taskIntent = new Intent(view.getContext(), ManageTaskActivity.class);
+                /*Intent taskIntent = new Intent(view.getContext(), ManageTaskActivity.class);
                 taskIntent.putExtra("mode", "TaskCreating");
-                taskIntent.putExtra("category", App.getSettings().getLastCategory().first);
+                taskIntent.putExtra("category", App.getSettings().getLastCategory().first);*/
                 fabMenu.close(true);
-                activityLauncher.launch(taskIntent);
+                mViewModel.addTaskChild();
+                mRecyclerViewAdapter.notifyItemInserted(0);
+                mRecyclerViewAdapter.scrollTo(0);
+                mRecyclerViewAdapter.setAddedOutside(true);
+
+
+                //activityLauncher.launch(taskIntent);
             }
         });
         fabProject.setOnClickListener(new View.OnClickListener() {
@@ -120,7 +126,8 @@ public class CardsListFragment extends Fragment {
                 activityLauncher.launch(projectIntent);
             }
         });
-    }
+
+            }
 
     final Observer<Tuple3<List<TaskAndTheme>, List<ProjectData>, List<Theme>>> hoardObserver = new Observer<Tuple3<List<TaskAndTheme>, List<ProjectData>, List<Theme>>>() {
         @Override
@@ -128,7 +135,7 @@ public class CardsListFragment extends Fragment {
 
             mViewModel.init();
             mRecyclerViewAdapter = new CardsListFragmentAdapter(
-                    activityLauncher, mViewModel);
+                    activityLauncher, mViewModel, mMainLayoutView, mLayoutManager);
             mRecyclerView.setLayoutManager(mLayoutManager);
             mRecyclerView.setAdapter(mRecyclerViewAdapter);
         }

@@ -10,6 +10,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.example.clock.BR;
+import com.example.clock.app.App;
 import com.example.clock.model.TaskData;
 import com.example.clock.model.Task;
 import com.example.clock.model.Theme;
@@ -63,47 +64,9 @@ public class CalendarViewModel extends MemtaskViewModelBase{
         updatePending.setValue(new Integer(0));
     }
 
-    @Override
-    protected void loadData(Application application, Database database, SilentDatabase silentDatabase){
-        mRepository = new MemtaskRepositoryBase(application, database, silentDatabase);
-        tasksLiveData = null;
-        projectsLiveData = null;
-        categoriesLiveData = null;
-        themesLiveData = mRepository.getAllThemesLive();
-
-
-        long startMillis = 0;
-        long endMillis = 0;
-
-        /*if(App.getSettings()
-                .getCalendarMode()
-                .equals(application.getResources().getStringArray(R.array.preference_calendar_mode_names)[0]))
-        {*/
-        startMillis = selectedDateStart.toEpochSecond(ZoneOffset.UTC) * 1000;
-        endMillis = selectedDateEnd.toEpochSecond(ZoneOffset.UTC) * 1000;
-
-        taskThemePack = mRepository.getTasksLiveDataByNotification(
-                startMillis,
-                endMillis);
-    }
-
-    public void sortDayTasks(int sortType){
-        if(sortType == 0){
-            /*selectedTasks = selectedTasks
-                    .parallelStream()
-                    .sorted(Comparator.comparingLong(Task::getNotificationStartMillis))
-                    .collect(Collectors.toList());*/
-        }
-    }
-
     public int getPoolSize(){
         return selectedTasks.size();
     }
-
-    public int isDayUnloaded(){
-        return selectedTasks.size() == 0 ? View.VISIBLE : View.GONE;
-    }
-
     public int getDayLoad(int position){
         if(daysLoad.size() == 0){
             return 0;
@@ -113,11 +76,20 @@ public class CalendarViewModel extends MemtaskViewModelBase{
         }
         return daysLoad.get(position);
     }
+    public LocalDateTime getSelectedDateStart(){
+        return selectedDateStart;
+    }
     public TaskObserver getTaskObserver(int pos){
         return selectedTasks.get(pos);
     }
     public String getSearchFilter() {
         return searchFilter;
+    }
+    public int isUpdatePending() {
+        return updatePending.getValue();
+    }
+    public LiveData<Integer> requestUpdatePendingLD(){
+        return updatePending;
     }
 
     public void setDateAndUpdate(CalendarDay startDate, CalendarDay endDate){
@@ -156,47 +128,43 @@ public class CalendarViewModel extends MemtaskViewModelBase{
     public void setSearchFilter(String searchFilter) {
         this.searchFilter = searchFilter;
     }
-    public void removeSilently(int pos){
-        removeTaskByIDSilently(selectedTasks.get(pos).data.task.getTaskId());
-        taskThemePack.getValue().remove(selectedTasks.get(pos).getData());
-        selectedTasks.remove(pos);
-    }
-    public LocalDateTime getSelectedDateStart(){
-        return selectedDateStart;
-    }
-
-
-    public LiveData<Integer> requestUpdatePendingLD(){
-        return updatePending;
-    }
-    public int isUpdatePending() {
-        return updatePending.getValue();
-    }
     public void setUpdatePending(int updatePending) {
         this.updatePending.setValue(updatePending);
     }
 
-    public LiveData<List<TaskData>> updateMonthTasksPack(){
-        LocalDateTime monthStart = selectedDateStart.withDayOfMonth(1);
-        LocalDateTime monthEnd = selectedDateStart.with(TemporalAdjusters.lastDayOfMonth());
-        monthEnd = monthEnd.plusDays(1);
-
-        taskThemePack = mRepository.getTasksLiveDataByNotification(
-                monthStart.toEpochSecond(ZoneOffset.UTC)*1000, monthEnd.toEpochSecond(ZoneOffset.UTC)*1000);
-
-        return taskThemePack;
-    }
-    public LiveData<List<TaskData>> requestMonthTasksPack(){
-        return taskThemePack;
-    }
-
-    public TaskObserver getNextTO(){
-        TaskObserver data = selectedTasks.get(nextSelectedTask);
-        nextSelectedTask++;
-        return data;
-    }
 
     //Util
+    @Override
+    protected void loadData(Application application, Database database, SilentDatabase silentDatabase){
+        mRepository = new MemtaskRepositoryBase(application, database, silentDatabase);
+        tasksLiveData = null;
+        projectsLiveData = null;
+        categoriesLiveData = null;
+        themesLiveData = mRepository.getAllThemesLive();
+
+
+        long startMillis = 0;
+        long endMillis = 0;
+
+        /*if(App.getSettings()
+                .getCalendarMode()
+                .equals(application.getResources().getStringArray(R.array.preference_calendar_mode_names)[0]))
+        {*/
+        startMillis = selectedDateStart.toEpochSecond(ZoneOffset.UTC) * 1000;
+        endMillis = selectedDateEnd.toEpochSecond(ZoneOffset.UTC) * 1000;
+
+        taskThemePack = mRepository.getTasksLiveDataByNotification(
+                startMillis,
+                endMillis);
+    }
+    public void sortDayTasks(int sortType){
+        if(sortType == 0){
+            /*selectedTasks = selectedTasks
+                    .parallelStream()
+                    .sorted(Comparator.comparingLong(Task::getNotificationStartMillis))
+                    .collect(Collectors.toList());*/
+        }
+    }
     public void init(@NonNull LocalDateTime selectedDateStart, LocalDateTime selectedDateEnd){
         if(taskThemePack.getValue() != null) {
             LocalDateTime localEndDateTime;
@@ -248,6 +216,24 @@ public class CalendarViewModel extends MemtaskViewModelBase{
             calcDaysLoad();
             //sort
         }
+    }
+    public LiveData<List<TaskData>> updateMonthTasksPack(){
+        LocalDateTime monthStart = selectedDateStart.withDayOfMonth(1);
+        LocalDateTime monthEnd = selectedDateStart.with(TemporalAdjusters.lastDayOfMonth());
+        monthEnd = monthEnd.plusDays(1);
+
+        taskThemePack = mRepository.getTasksLiveDataByNotification(
+                monthStart.toEpochSecond(ZoneOffset.UTC)*1000, monthEnd.toEpochSecond(ZoneOffset.UTC)*1000);
+
+        return taskThemePack;
+    }
+    public LiveData<List<TaskData>> requestMonthTasksPack(){
+        return taskThemePack;
+    }
+    public void removeSilently(int pos){
+        removeTaskByIDSilently(selectedTasks.get(pos).data.task.getTaskId());
+        taskThemePack.getValue().remove(selectedTasks.get(pos).getData());
+        selectedTasks.remove(pos);
     }
 
     private void filterSelectedTasks(LocalDateTime startDate, LocalDateTime endDate){

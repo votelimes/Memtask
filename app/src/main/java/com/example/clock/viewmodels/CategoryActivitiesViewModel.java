@@ -28,6 +28,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class CategoryActivitiesViewModel extends MemtaskViewModelBase{
+    public final int RESTORE_ITEM_SNACKBAR_TIME = 1750;
     public long currentCategoryID;
 
     public LiveData<Tuple3<List<TaskAndTheme>, List<ProjectData>, List<Theme>>> intermediate;
@@ -35,7 +36,12 @@ public class CategoryActivitiesViewModel extends MemtaskViewModelBase{
     public LiveData<List<TaskAndTheme>> singleTaskThemeLiveData;
     public LiveData<List<ProjectData>> projectLiveData;
 
+    // remove back mechanism
     private List<ParentObserver> itemObservers;
+    private ParentObserver removableObs;
+    private int removableItemObserversIntermediatePos;
+    private int removableItemObserversListPos;
+    private int removableItemObserverChildPos;
 
     private int sortType;
     private boolean shouldUpdate;
@@ -86,12 +92,126 @@ public class CategoryActivitiesViewModel extends MemtaskViewModelBase{
     }
 
     public void removeSilently(int pos){
-        if(itemObservers.get(pos) instanceof TaskObserver){
+        if(itemObservers.get(pos) instanceof TaskObserver && !(((TaskObserver) itemObservers.get(pos)).projectItem)){
+            removableObs = itemObservers.get(pos);
+            Thread thread = new Thread() {
+                public void run() {
+                    try {
+                        removableItemObserversIntermediatePos = intermediate.getValue().first.indexOf(((TaskObserver) removableObs).getData());
+                    } catch(Exception e) {
+                        System.out.println(e);
+                    }
+                }
+            };
+            thread.run();
+            removableItemObserversListPos = pos;
+
             mRepository.removeTaskByIDSilently((((TaskObserver) itemObservers.get(pos)).getTask().getTaskId()));
+            intermediate.getValue().first.remove(((TaskObserver) itemObservers.get(pos)).getData());
+            itemObservers.remove(pos);
         }
         else if(itemObservers.get(pos) instanceof ProjectObserver){
+            removableObs = itemObservers.get(pos);
             mRepository.removeProjectByIDSilently((((ProjectObserver) itemObservers.get(pos)).getProject().getProjectId()));
+            intermediate.getValue().second.remove(((ProjectObserver) itemObservers.get(pos)).getData());
+            itemObservers.remove(pos);
         }
+    }
+
+    public void removeSilentlyProjItem(int projectPos, int itemPos){
+        ProjectObserver projObs = getProjectObs(projectPos);
+
+        removableObs = (ParentObserver) projObs.getChild(itemPos);
+        removableItemObserversListPos = projectPos;
+        removableItemObserverChildPos = itemPos;
+
+        projObs.removeChild(itemPos);
+    }
+
+    public int returnItemBack(){
+        if(removableObs != null && removableObs instanceof TaskObserver && !((TaskObserver) removableObs).projectItem){
+            intermediate.getValue().first.add(removableItemObserversIntermediatePos, ((TaskObserver) removableObs).getData());
+            itemObservers.add(removableItemObserversListPos, removableObs);
+            addTaskSilently(((TaskObserver) removableObs).getTask());
+            // TODO: add task theme back to DB, do theme ID to be a String
+            removableObs = null;
+        }
+        else if(removableObs != null && removableObs instanceof ProjectObserver){
+            intermediate.getValue().second.add(removableItemObserversIntermediatePos, ((ProjectObserver) removableObs).getData());
+            itemObservers.add(removableItemObserversListPos, removableObs);
+            addProjectSilently(((ProjectObserver) removableObs).getData().project);
+            // TODO: add project theme back to DB, do theme ID to be a String
+            int childCount = ((ProjectObserver) removableObs).getChildsCount();
+            for(int i = 0; i < childCount; i++){
+                Task task = ((ProjectObserver) removableObs).getChild(i).getTask();
+                addTaskSilently(task);
+                // TODO: add child tasks theme back to DB, do theme ID to be a String
+            }
+        }
+        else if(removableObs != null && removableObs instanceof TaskObserver && ((TaskObserver) removableObs).projectItem){
+            ProjectObserver projObs = getProjectObs(removableItemObserversListPos);
+            TaskObserver taskObs = (TaskObserver) removableObs;
+
+            mRepository.addTaskSilently(taskObs.getTask());
+            projObs.addChild(removableItemObserverChildPos, taskObs);
+            // TODO: provide child task return back mechanism
+            // TODO: add single child task theme back to DB, do theme ID to be a String
+
+            return removableItemObserverChildPos;
+        }
+        return removableItemObserversListPos;
+    }
+
+    public TaskObserver addTaskChild(){
+        Task task = new Task();
+        task.setCategoryId(App.getSettings().getLastCategory().first);
+
+        Theme currentTheme = intermediate
+                .getValue()
+                .third
+                .stream()
+                .filter(theme -> theme.getName().equals("MainTaskTheme")).findFirst().get();
+
+        task.setThemeID(currentTheme.getID());
+
+        TaskAndTheme taskAndTheme = new TaskAndTheme();
+        taskAndTheme.task = task;
+        taskAndTheme.theme = currentTheme;
+
+        singleTaskThemeLiveData.getValue().add(0, taskAndTheme);
+
+        TaskObserver taskObs = new TaskObserver(taskAndTheme, false);
+        itemObservers.add(0, (ParentObserver) taskObs);
+
+        mRepository.addTaskSilently(task);
+
+        return taskObs;
+    }
+
+    public TaskObserver addProjectChild(int projPos){
+
+        ProjectObserver projObs = getProjectObs(projPos);
+        Task task = new Task();
+
+        Theme currentTheme = intermediate
+                .getValue()
+                .third
+                .stream()
+                .filter(theme -> theme.getName().equals("MainTaskTheme")).findFirst().get();
+
+        task.setThemeID(currentTheme.getID());
+        task.setParentID(projObs.getData().project.getProjectId());
+        TaskAndTheme taskAndTheme = new TaskAndTheme();
+        taskAndTheme.task = task;
+        taskAndTheme.theme = currentTheme;
+
+        TaskObserver taskObs = new TaskObserver(taskAndTheme, true);
+
+        projObs.addChild(taskObs);
+
+        mRepository.addTaskSilently(task);
+
+        return taskObs;
     }
 
     // Getters
@@ -106,8 +226,8 @@ public class CategoryActivitiesViewModel extends MemtaskViewModelBase{
         return null;
     }
 
-    public Task getProjItem(int position){
-        return new Task();
+    public TaskObserver getProjItemObs(int projPos, int itemPos){
+        return ((ProjectObserver) itemObservers.get(projPos)).getChild(itemPos);
     }
 
     public int getPoolSize(){
@@ -133,6 +253,7 @@ public class CategoryActivitiesViewModel extends MemtaskViewModelBase{
     public ParentObserver getObs(int pos){
         return itemObservers.get(pos);
     }
+
 
     //Sub classes
 
@@ -266,6 +387,7 @@ public class CategoryActivitiesViewModel extends MemtaskViewModelBase{
                 data.task.setCompleted(false);
             }
             addTaskSilently(data.task);
+            notifyPropertyChanged(BR.completedOrExpired);
         }
     }
 
@@ -419,11 +541,22 @@ public class CategoryActivitiesViewModel extends MemtaskViewModelBase{
         }
 
         // Utils
+        public void addChild(TaskObserver child){
+            childObservers.add(child);
+            recalcProgress();
+        }
+        public void addChild(int pos, TaskObserver child){
+            childObservers.add(pos, child);
+            recalcProgress();
+        }
+
         public void removeChild(int pos){
             CategoryActivitiesViewModel
                     .this
                     .mRepository
                     .removeTaskByIDSilently(childObservers.get(pos).getTask().getTaskId());
+            childObservers.remove(childObservers.get(pos));
+            recalcProgress();
         }
 
         public void recalcProgress(){

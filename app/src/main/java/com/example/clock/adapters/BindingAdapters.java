@@ -4,10 +4,15 @@ import static com.example.clock.app.App.*;
 
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
+import android.text.InputType;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.AutoCompleteTextView;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import androidx.databinding.BindingAdapter;
@@ -50,4 +55,34 @@ public class BindingAdapters {
     public static void cpbProgressBinding(CircularProgressBar progressBar, float progress) {
         progressBar.setProgress(progress);
     }
+
+    @BindingAdapter("android:typeface")
+    public static void setTypeface(EditText v, String style) {
+        switch (style) {
+            case "bold":
+                v.setTypeface(null, Typeface.BOLD);
+                break;
+            default:
+                v.setTypeface(null, Typeface.NORMAL);
+                break;
+        }
+    }
+
+    @BindingAdapter("android:multiline")
+    public static void setMultiline(EditText v, boolean state) {
+        if(state){
+            v.setSingleLine(false);
+            v.setImeOptions(EditorInfo.IME_FLAG_NO_ENTER_ACTION);
+            v.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE);
+            v.setLines(0);
+            v.setMaxLines(7);
+            v.setVerticalScrollBarEnabled(true);
+            v.setMovementMethod(ScrollingMovementMethod.getInstance());
+            v.setScrollBarStyle(View.SCROLLBARS_OUTSIDE_OVERLAY);
+        }
+        else{
+            v.setInputType(InputType.TYPE_NULL);
+        }
+    }
+
 }

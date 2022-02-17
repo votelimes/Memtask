@@ -14,10 +14,8 @@ public class Project extends UserCaseBase {
     public String projectId;
 
     public Project(){
+        super();
         this.projectId = generateUUID();
-
-        this.mName = "";
-        this.mDescription = "";
         this.categoryId = -1;
     }
 
