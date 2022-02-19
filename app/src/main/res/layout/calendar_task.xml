@@ -35,6 +35,7 @@
         app:checkedIconSize="40dp"
         app:checkedIconMargin="4dp"
         app:cardElevation="8dp"
+        android:completedExpiredCheckedIcon="@{data.getCompletedExpired}"
         >
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -193,7 +194,7 @@
                 android:id="@+id/task_group1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:visibility="@{data.isNotifyEnabled() ? View.VISIBLE : View.GONE}"
+                android:visibility="@{data.notificationEnabled ? View.VISIBLE : View.GONE}"
                 app:constraint_referenced_ids="task_alarm_image,task_alarm_time" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </com.google.android.material.card.MaterialCardView>

@@ -35,8 +35,9 @@
         android:checkable="true"
         android:checked="@{data.CompletedOrExpired}"
         app:checkedIconTint="@{data.theme.secondColor}"
-        app:checkedIconSize="@{data.projectItem ? 70 : 100}"
+        app:checkedIconSize="@{data.projectItem ? 80 : 100}"
         app:checkedIconMargin="4dp"
+        android:completedExpiredCheckedIcon="@{data.getCompletedExpired}"
         >
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -121,6 +122,7 @@
                 android:id="@+id/task_name"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:minWidth="100dp"
                 android:layout_marginStart="16dp"
                 android:layout_marginEnd="16dp"
                 android:layout_marginTop="14dp"
@@ -181,6 +183,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="4dp"
                 android:layout_marginBottom="4dp"
+                app:strikeThrough="@{data.CompletedOrExpired}"
                 app:layout_constraintStart_toEndOf="@id/task_alarm_image"
                 app:layout_constraintBottom_toBottomOf="@id/task_alarm_image"
                 android:textColor="@color/act_text_main"
@@ -192,7 +195,7 @@
                 android:id="@+id/task_group1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:visibility="@{data.isNotifyEnabled ? View.VISIBLE : View.GONE}"
+                android:visibility="@{data.notificationEnabled ? View.VISIBLE : View.GONE}"
                 app:constraint_referenced_ids="task_alarm_image,task_alarm_time" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </com.google.android.material.card.MaterialCardView>

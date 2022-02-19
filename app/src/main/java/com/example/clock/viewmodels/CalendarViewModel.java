@@ -1,8 +1,10 @@
 package com.example.clock.viewmodels;
 
 import android.app.Application;
+import android.content.Context;
 
 import androidx.annotation.NonNull;
+import androidx.core.util.Pair;
 import androidx.databinding.BaseObservable;
 import androidx.databinding.Bindable;
 import androidx.lifecycle.LiveData;
@@ -25,25 +27,26 @@ import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class CalendarViewModel extends MemtaskViewModelBase{
     public static final int MODE_INDEPENDENTLY = 0;
     public static final int MODE_PROJECT_ITEM = 1;
+    public static final int RESTORE_ITEM_SNACKBAR_TIME = 5000;
 
     private final long millisInDay = 24*60*60*1000;
     private final long secondsInDay = 24*60*60;
+
 
     private LocalDateTime selectedDateStart;
     private LocalDateTime selectedDateEnd;
     private List<Integer> daysLoad;
     private LiveData<List<TaskData>> taskThemePack;
 
-    private String searchFilter;
-
-    private int nextSelectedTask;
     private List<TaskObserver> selectedTasks;
+
+    private TaskObserver removableItemObserver;
+    private int removableItemObserverListPos;
 
 
     // Modes:
@@ -79,9 +82,6 @@ public class CalendarViewModel extends MemtaskViewModelBase{
     }
     public TaskObserver getTaskObserver(int pos){
         return selectedTasks.get(pos);
-    }
-    public String getSearchFilter() {
-        return searchFilter;
     }
     public int isUpdatePending() {
         return updatePending.getValue();
@@ -122,9 +122,6 @@ public class CalendarViewModel extends MemtaskViewModelBase{
         else{
             selectedDateEnd = selectedDateStart.plusDays(1);
         }
-    }
-    public void setSearchFilter(String searchFilter) {
-        this.searchFilter = searchFilter;
     }
     public void setUpdatePending(int updatePending) {
         this.updatePending.setValue(updatePending);
@@ -242,59 +239,36 @@ public class CalendarViewModel extends MemtaskViewModelBase{
         return taskThemePack;
     }
     public void removeSilently(int pos){
+
+        removableItemObserverListPos = pos;
+        removableItemObserver = selectedTasks.get(pos);
+
         removeTaskByIDSilently(selectedTasks.get(pos).data.task.getTaskId());
+        // TODO: remove theme accordingly
         taskThemePack.getValue().remove(selectedTasks.get(pos).getData());
         selectedTasks.remove(pos);
+    }
+
+    public int restoreRemovedTask(){
+        if(removableItemObserver != null){
+            selectedTasks.add(removableItemObserverListPos, removableItemObserver);
+            addTaskSilently(removableItemObserver.getTask());
+            // TODO: add theme accordingly
+        }
+
+        return removableItemObserverListPos;
     }
 
     private void filterSelectedTasks(LocalDateTime startDate, LocalDateTime endDate){
         if(taskThemePack.getValue() != null) {
             selectedTasks = new ArrayList<>();
-            if(searchFilter == null || searchFilter.length() == 0) {
-                taskThemePack.getValue().parallelStream().forEach(item -> {
-                    if (item.task.getNotificationStartMillis() >= startDate.toEpochSecond(ZoneOffset.UTC) * 1000
-                            &&
-                            item.task.getNotificationStartMillis() < endDate.toEpochSecond(ZoneOffset.UTC) * 1000) {
-                        selectedTasks.add(new TaskObserver(item));
-                    }
-                });
-            }
-            else{
-                taskThemePack.getValue().parallelStream().forEach(item -> {
-                    if (item.task.getNotificationStartMillis() >= startDate.toEpochSecond(ZoneOffset.UTC) * 1000
-                            &&
-                        item.task.getNotificationStartMillis() < endDate.toEpochSecond(ZoneOffset.UTC) * 1000
-                            &&
-                        item.task.getName().toLowerCase(Locale.ROOT).contains(searchFilter)) {
-                        selectedTasks.add(new TaskObserver(item));
-                    }
-                });
-            }
-        }
-    }
-    public void filter(){
-        if(taskThemePack.getValue() != null) {
-            selectedTasks = new ArrayList<>();
-            if(searchFilter == null || searchFilter.length() == 0) {
-                taskThemePack.getValue().parallelStream().forEach(item -> {
-                    if (item.task.getNotificationStartMillis() >= selectedDateStart.toEpochSecond(ZoneOffset.UTC) * 1000
-                            &&
-                            item.task.getNotificationStartMillis() < selectedDateEnd.toEpochSecond(ZoneOffset.UTC) * 1000) {
-                        selectedTasks.add(new TaskObserver(item));
-                    }
-                });
-            }
-            else{
-                taskThemePack.getValue().parallelStream().forEach(item -> {
-                    if (item.task.getNotificationStartMillis() >= selectedDateStart.toEpochSecond(ZoneOffset.UTC) * 1000
-                            &&
-                            item.task.getNotificationStartMillis() < selectedDateEnd.toEpochSecond(ZoneOffset.UTC) * 1000
-                            &&
-                            item.task.getName().toLowerCase(Locale.ROOT).contains(searchFilter)) {
-                        selectedTasks.add(new TaskObserver(item));
-                    }
-                });
-            }
+            taskThemePack.getValue().parallelStream().forEach(item -> {
+                if (item.task.getNotificationStartMillis() >= startDate.toEpochSecond(ZoneOffset.UTC) * 1000
+                        &&
+                        item.task.getNotificationStartMillis() < endDate.toEpochSecond(ZoneOffset.UTC) * 1000) {
+                    selectedTasks.add(new TaskObserver(item));
+                }
+            });
         }
     }
     public void calcDaysLoad(){
@@ -456,11 +430,6 @@ public class CalendarViewModel extends MemtaskViewModelBase{
             return data.task.isImportant();
         }
 
-        @Bindable
-        public boolean isNotifyEnabled(){
-            return data.task.isNotifyEnabled();
-        }
-
         public String getNotify(){
             DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd.MM.yy HH:mm");
 
@@ -503,6 +472,48 @@ public class CalendarViewModel extends MemtaskViewModelBase{
             }
             addTaskSilently(data.task);
             notifyPropertyChanged(BR.completedOrExpired);
+        }
+
+        @Bindable
+        public boolean getNotificationEnabled(){
+            return data.task.isNotificationEnabled();
+        }
+
+        public int setNotificationEnabled(Context context, boolean state){
+            if(data.task.getNotificationStartMillis() == 0){
+                return 1;
+            }
+
+            if((data.task.getNotificationStartMillis() / 1000) < LocalDateTime.now().toEpochSecond(ZoneOffset.UTC)){
+                return 2;
+            }
+
+            data.task.setNotificationEnabled(state);
+
+            int returnCode;
+
+            if(state){
+                data.task.schedule(context);
+                returnCode = 0;
+            }
+            else{
+                data.task.cancelAlarm(context);
+                returnCode = -1;
+            }
+
+            addTaskSilently(data.task);
+            notifyPropertyChanged(BR.notificationEnabled);
+
+            return returnCode;
+        }
+
+        @Bindable
+        public Pair<Boolean, Boolean> getCompletedExpired(){
+            return new Pair<Boolean, Boolean>(data.task.isCompleted(), data.task.isExpired());
+        }
+
+        public void setCompletedExpired(Pair<Boolean, Boolean> data){
+            // void
         }
     }
 }

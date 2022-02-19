@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.text.InputType;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
@@ -15,6 +16,8 @@ import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import androidx.appcompat.content.res.AppCompatResources;
+import androidx.core.util.Pair;
 import androidx.databinding.BindingAdapter;
 import androidx.databinding.BindingConversion;
 import androidx.databinding.BindingMethod;
@@ -23,6 +26,7 @@ import androidx.databinding.BindingMethods;
 import com.example.clock.R;
 import com.example.clock.app.App;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.card.MaterialCardView;
 import com.mikhaellopez.circularprogressbar.CircularProgressBar;
 
 public class BindingAdapters {
@@ -74,7 +78,7 @@ public class BindingAdapters {
             v.setSingleLine(false);
             v.setImeOptions(EditorInfo.IME_FLAG_NO_ENTER_ACTION);
             v.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE);
-            v.setLines(0);
+            v.setLines(1);
             v.setMaxLines(7);
             v.setVerticalScrollBarEnabled(true);
             v.setMovementMethod(ScrollingMovementMethod.getInstance());
@@ -85,4 +89,18 @@ public class BindingAdapters {
         }
     }
 
+    @BindingAdapter("android:completedExpiredCheckedIcon")
+    public static void completedExpiredCheckedIcon(MaterialCardView v, Pair<Boolean, Boolean> completedExpired) {
+        Drawable drawable;
+        if(completedExpired.first){
+            drawable = AppCompatResources.getDrawable(v.getContext(), R.drawable.ic_round_done_all_24);
+        }
+        else if(completedExpired.second){
+            drawable = AppCompatResources.getDrawable(v.getContext(), R.drawable.ic_round_disabled_by_default_24);
+        }
+        else{
+            drawable = AppCompatResources.getDrawable(v.getContext(), R.drawable.ic_round_done_all_24);
+        }
+        v.setCheckedIcon(drawable);
+    }
 }

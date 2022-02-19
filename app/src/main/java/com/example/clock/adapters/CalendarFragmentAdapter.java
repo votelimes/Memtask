@@ -14,6 +14,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
@@ -31,6 +32,9 @@ import com.example.clock.model.Theme;
 import com.example.clock.viewmodels.CalendarViewModel;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.snackbar.Snackbar;
+import com.pedromassango.doubleclick.DoubleClick;
+import com.pedromassango.doubleclick.DoubleClickListener;
 import com.prolificinteractive.materialcalendarview.CalendarDay;
 import com.prolificinteractive.materialcalendarview.DayViewDecorator;
 import com.prolificinteractive.materialcalendarview.DayViewFacade;
@@ -58,6 +62,7 @@ public class CalendarFragmentAdapter extends RecyclerView.Adapter<RecyclerView.V
     private LifecycleOwner lifecycleOwner;
     private CalendarDay currentDate;
     private TextView noTasksInformer;
+    private Snackbar mItemHasBeenDeletedSnack;
 
     private RecyclerView.SmoothScroller smoothScroller;
     private final RecyclerView.LayoutManager mLayoutManager;
@@ -148,6 +153,7 @@ public class CalendarFragmentAdapter extends RecyclerView.Adapter<RecyclerView.V
         HighLoadDayDecorator highLoadDecorator;
         MaxLoadDayDecorator maxLoadDecorator;
         TodayDecorator todayDecorator;
+
 
         public CalendarViewHolder(View view) {
             super(view);
@@ -349,6 +355,8 @@ public class CalendarFragmentAdapter extends RecyclerView.Adapter<RecyclerView.V
                 return LinearSmoothScroller.SNAP_TO_START;
             }
         };
+
+        mItemHasBeenDeletedSnack = Snackbar.make(rootView, "", (int) CalendarViewModel.RESTORE_ITEM_SNACKBAR_TIME);
     }
 
     // Create new views (invoked by the layout manager)
@@ -377,23 +385,23 @@ public class CalendarFragmentAdapter extends RecyclerView.Adapter<RecyclerView.V
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder currentViewHolder, final int position) {
         if(getItemViewType(position) == VIEW_TYPE_TASK) {
-            CalendarViewModel.TaskObserver taskData = mViewModel.getTaskObserver(position - 1);
+            CalendarViewModel.TaskObserver taskObs = mViewModel.getTaskObserver(position - 1);
 
             TaskViewHolder viewHolder = (TaskViewHolder) currentViewHolder;
 
-            viewHolder.bind(mViewModel, taskData);
+            viewHolder.bind(mViewModel, taskObs);
             viewHolder.getMainLayout().setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View view) {
                     MaterialAlertDialogBuilder taskOptionsDialog = new MaterialAlertDialogBuilder(view.getContext())
                             .setTitle("Выберите действие")
-                            .setItems(R.array.task_dialog_long, new DialogInterface.OnClickListener() {
+                            .setItems(R.array.task_dialog_short, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialogInterface, int i) {
                                     switch (i) {
                                         case 0: // Изменить
                                             Intent intent = new Intent(view.getContext(), ManageTaskActivity.class);
-                                            intent.putExtra("ID", taskData.getTask().getTaskId());
+                                            intent.putExtra("ID", taskObs.getTask().getTaskId());
                                             intent.putExtra("mode", "TaskEditing");
 
                                             /*long rangeStart = calendar
@@ -417,17 +425,38 @@ public class CalendarFragmentAdapter extends RecyclerView.Adapter<RecyclerView.V
                     return true;
                 }
             });
-            viewHolder.getMainLayout().setOnClickListener(new View.OnClickListener() {
+            viewHolder.getMainLayout().setOnClickListener(new DoubleClick(new DoubleClickListener() {
                 @Override
-                public void onClick(View view) {
+                public void onSingleClick(View view) {
                     MaterialCardView card = (MaterialCardView) view;
                     card.toggle();
                     viewHolder.getBinding().getData().setCompleted(card.isChecked());
+                    viewHolder.getBinding().getData().setNotificationEnabled(view.getContext(), !card.isChecked());
                 }
-            });
+
+                @Override
+                public void onDoubleClick(View view) {
+                    if(!taskObs.getCompletedOrExpired()){
+                        int code = taskObs.setNotificationEnabled(view.getContext(),
+                                !taskObs.getNotificationEnabled());
+                        if(code == 1){
+                            Toast.makeText(view.getContext(), "Не выбрано время уведомления", Toast.LENGTH_SHORT).show();
+                        }
+                        else if(code == 2){
+                            Toast.makeText(view.getContext(), "Время уведомления уже прошло", Toast.LENGTH_SHORT).show();
+                        }
+                        else if(code == 0){
+                            Toast.makeText(view.getContext(), "Уведомление установлено", Toast.LENGTH_SHORT).show();
+                        }
+                        else if(code == -1){
+                            Toast.makeText(view.getContext(), "Уведомление выключено", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                }
+            }));
 
             //Colors binding
-            Theme theme = taskData.getTheme();
+            Theme theme = taskObs.getTheme();
             if(theme != null) {
                 viewHolder.getMainLayout().setCardBackgroundColor(theme.getFirstColor());
                 viewHolder.getCategoryLayout().getBackground().setTint(theme.getSecondColor());
@@ -452,9 +481,37 @@ public class CalendarFragmentAdapter extends RecyclerView.Adapter<RecyclerView.V
     }
 
     private void removeItem(int position){
-        mViewModel.removeSilently(position - 1);
-        notifyItemRemoved(position);
-        notifyItemRangeChanged(position, mViewModel.getPoolSize());
+        new MaterialAlertDialogBuilder(calendar.getContext())
+                .setTitle("Удаление задачи")
+                .setMessage("Вы действительно хотите удалить эту задачу?")
+                .setPositiveButton("Удалить", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        mViewModel.removeSilently(position - 1);
+                        mItemHasBeenDeletedSnack
+                                .setText("Задача была удалена")
+                                .setAction(App.getInstance().getString(R.string.restore_item_dialog_item_back), view -> {
+                                    int itemPos = mViewModel.restoreRemovedTask();
+                                    getNoTasksInformer().setVisibility(mViewModel.getPoolSize() == 0 ? View.VISIBLE : View.GONE);
+                                    notifyItemInserted(itemPos);
+                                    scrollTo(itemPos);
+                                }).show();
+                        notifyItemRemoved(position);
+                        if(mViewModel.getPoolSize() == 0){
+                            getNoTasksInformer().setVisibility(View.VISIBLE);
+                        }
+                        else{
+                            getNoTasksInformer().setVisibility(View.GONE);
+                        }
+                    }
+                })
+                .setNegativeButton("Отменить", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.dismiss();
+                    }
+                })
+                .show();
     }
 
     // Return the size of your dataset (invoked by the layout manager)
@@ -500,4 +557,7 @@ public class CalendarFragmentAdapter extends RecyclerView.Adapter<RecyclerView.V
         mViewModel.updateData(filterName).observe(lifecycleOwner, monthChangeObserver);
         notifyDataSetChanged();
     };
+    public Snackbar getRemoveItemSnackbar(){
+        return mItemHasBeenDeletedSnack;
+    }
 }

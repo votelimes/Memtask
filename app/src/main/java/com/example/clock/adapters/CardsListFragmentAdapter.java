@@ -30,6 +30,8 @@ import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
 import com.mikhaellopez.circularprogressbar.CircularProgressBar;
+import com.pedromassango.doubleclick.DoubleClick;
+import com.pedromassango.doubleclick.DoubleClickListener;
 
 import java.util.Date;
 
@@ -291,14 +293,35 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
                     return true;
                 }
             });
-            viewHolder.getMainLayout().setOnClickListener(new View.OnClickListener() {
+
+            viewHolder.getMainLayout().setOnClickListener(new DoubleClick(new DoubleClickListener() {
                 @Override
-                public void onClick(View view) {
+                public void onSingleClick(View view) {
                     MaterialCardView card = (MaterialCardView) view;
                     card.toggle();
                     taskObs.setCompletedOrExpired(card.isChecked());
                 }
-            });
+
+                @Override
+                public void onDoubleClick(View view) {
+                    if(!taskObs.getCompletedOrExpired()){
+                        int code = taskObs.setNotificationEnabled(view.getContext(),
+                                !taskObs.getNotificationEnabled());
+                        if(code == 1){
+                            Toast.makeText(view.getContext(), "Не выбрано время уведомления", Toast.LENGTH_SHORT).show();
+                        }
+                        else if(code == 2){
+                            Toast.makeText(view.getContext(), "Время уведомления уже прошло", Toast.LENGTH_SHORT).show();
+                        }
+                        else if(code == 0){
+                            Toast.makeText(view.getContext(), "Уведомление установлено", Toast.LENGTH_SHORT).show();
+                        }
+                        else if(code == -1){
+                            Toast.makeText(view.getContext(), "Уведомление выключено", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                }
+            }));
 
             //Colors binding
             Theme theme = mViewModel.getItemTheme(position);
@@ -363,7 +386,7 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
                     return true;
                 }
             });
-            viewHolder.getMainLayout().setOnClickListener(new DoubleClickListener() {
+            viewHolder.getMainLayout().setOnClickListener(new DoubleClick(new DoubleClickListener() {
                 @Override
                 public void onSingleClick(View v) {
 
@@ -378,7 +401,7 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
                     viewHolder.getAdapter().scrollTo(viewHolder.mAdapter.getItemCount());
                     viewHolder.getAdapter().setAddedOutside(viewHolder.getAbsoluteAdapterPosition());
                 }
-            });
+            }));
 
             Theme theme = mViewModel.getItemTheme(position);
             if(theme != null) {
@@ -497,7 +520,7 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
         return mItemHasBeenDeletedSnack;
     }
 
-    public void setItemHasBeenDeletedDialog(Snackbar snackbar){
+    public void getRemoveItemSnackbar(Snackbar snackbar){
         mItemHasBeenDeletedSnack = snackbar;
     }
 }

@@ -4,7 +4,6 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
@@ -13,14 +12,12 @@ import androidx.room.PrimaryKey;
 
 import com.example.clock.broadcastreceiver.AlarmBroadcastReceiver;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.DayOfWeek;
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
@@ -42,7 +39,7 @@ public class Task extends UserCaseBase {
     protected int repeatMode;
 
 
-    protected boolean notifyEnabled;
+    protected boolean notificationEnabled;
     protected long mNotificationStartMillis;
 
     // 1, 2, 3, 4, 5, 6, 7
@@ -91,7 +88,7 @@ public class Task extends UserCaseBase {
         this.ringtonePath = other.ringtonePath;
         this.mediaEnabled = other.mediaEnabled;
         this.repeatMode = other.repeatMode;
-        this.notifyEnabled = other.notifyEnabled;
+        this.notificationEnabled = other.notificationEnabled;
         this.mNotificationStartMillis = other.mNotificationStartMillis;
         this.sunday = other.sunday;
         this.monday = other.monday;
@@ -112,7 +109,7 @@ public class Task extends UserCaseBase {
 
     // 1 if notification in the Past
     public int schedule(Context context) {
-        if(notifyEnabled){
+        if(notificationEnabled){
             cancelAlarm(context);
         }
 
@@ -175,7 +172,7 @@ public class Task extends UserCaseBase {
                     alarmPendingIntent
             );
         }*/
-        this.notifyEnabled = true;
+        this.notificationEnabled = true;
         return 0;
     }
     public void cancelAlarm(Context context) {
@@ -186,11 +183,11 @@ public class Task extends UserCaseBase {
 
         PendingIntent alarmPendingIntent = PendingIntent.getBroadcast(context, -1, intent, 0);
         alarmManager.cancel(alarmPendingIntent);
-        this.notifyEnabled = false;
+        this.notificationEnabled = false;
     }
     public void onAlarmRingFinish(){
         if(repeatMode == 0){
-            notifyEnabled = false;
+            notificationEnabled = false;
         }
     }
     public long getNotificationStartMillis(){
@@ -259,15 +256,11 @@ public class Task extends UserCaseBase {
         this.mNotificationStartMillis = timeInMillis;
     }
     public void setAlarmTime(String time){
-        Calendar calendar = GregorianCalendar.getInstance();
-        SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm");
-        try {
-            calendar.setTime(sdf.parse(time));
-            mNotificationStartMillis = calendar.getTimeInMillis();
-        } catch (ParseException e){
-            Log.e("TASK ALARM TIME SETUP ERROR: ", e.getMessage());
-        }
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
+        LocalDateTime ldt;
 
+        ldt = LocalDateTime.parse(time, dtf);
+        mNotificationStartMillis = ldt.toEpochSecond(ZoneOffset.UTC) * 1000;
     }
 
     public void setActiveDayOfWeek(int dayOfWeek, boolean state){
@@ -529,12 +522,12 @@ public class Task extends UserCaseBase {
         this.mParentID = parentID;
     }
 
-    public boolean isNotifyEnabled() {
-        return notifyEnabled;
+    public boolean isNotificationEnabled() {
+        return notificationEnabled;
     }
 
-    public void setNotifyEnabled(boolean notifyEnabled) {
-        this.notifyEnabled = notifyEnabled;
+    public void setNotificationEnabled(boolean notificationEnabled) {
+        this.notificationEnabled = notificationEnabled;
     }
 
     public static long getLocalMillis(long UTCMillis){
@@ -570,7 +563,7 @@ public class Task extends UserCaseBase {
                 return true;
             }
         }
-        else if(notifyEnabled){
+        else if(notificationEnabled){
             LocalDateTime notificationTime = LocalDateTime.ofEpochSecond(mNotificationStartMillis / 1000, 0, ZoneOffset.UTC);
             if(now.isAfter(notificationTime)){
                 expired = true;
@@ -596,7 +589,7 @@ public class Task extends UserCaseBase {
                 return true;
             }
         }
-        else if(notifyEnabled){
+        else if(notificationEnabled){
             LocalDateTime notificationTime = LocalDateTime
                     .ofEpochSecond(mNotificationStartMillis / 1000, 0, ZoneOffset.UTC);
             if(now.isAfter(notificationTime)){

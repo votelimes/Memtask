@@ -153,6 +153,7 @@ public class CalendarFragment extends Fragment implements SearchView.OnQueryText
 
     @Override
     public boolean onQueryTextChange(String newText) {
+        mRecyclerViewAdapter.getRemoveItemSnackbar().dismiss();
         mRecyclerViewAdapter.updateData(newText);
         return false;
     }

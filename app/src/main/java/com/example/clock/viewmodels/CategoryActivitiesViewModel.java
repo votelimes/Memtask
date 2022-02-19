@@ -1,7 +1,10 @@
 package com.example.clock.viewmodels;
 
 import android.app.Application;
+import android.content.Context;
+import android.graphics.drawable.Drawable;
 
+import androidx.core.util.Pair;
 import androidx.databinding.BaseObservable;
 import androidx.databinding.Bindable;
 import androidx.lifecycle.LiveData;
@@ -393,11 +396,6 @@ public class CategoryActivitiesViewModel extends MemtaskViewModelBase{
             return data.task.isImportant();
         }
 
-        @Bindable
-        public boolean isNotifyEnabled(){
-            return data.task.isNotifyEnabled();
-        }
-
         public boolean isProjectItem(){
             return projectItem;
         }
@@ -425,6 +423,49 @@ public class CategoryActivitiesViewModel extends MemtaskViewModelBase{
             }
             addTaskSilently(data.task);
             notifyPropertyChanged(BR.completedOrExpired);
+            notifyPropertyChanged(BR.completedExpired);
+        }
+
+        @Bindable
+        public boolean getNotificationEnabled(){
+            return data.task.isNotificationEnabled();
+        }
+
+        public int setNotificationEnabled(Context context, boolean state){
+            if(data.task.getNotificationStartMillis() == 0){
+                return 1;
+            }
+
+            if((data.task.getNotificationStartMillis() / 1000) < LocalDateTime.now().toEpochSecond(ZoneOffset.UTC)){
+                return 2;
+            }
+
+            data.task.setNotificationEnabled(state);
+
+            int returnCode;
+
+            if(state){
+                data.task.schedule(context);
+                returnCode = 0;
+            }
+            else{
+                data.task.cancelAlarm(context);
+                returnCode = -1;
+            }
+
+            addTaskSilently(data.task);
+            notifyPropertyChanged(BR.notificationEnabled);
+
+            return returnCode;
+        }
+
+        @Bindable
+        public Pair<Boolean, Boolean> getCompletedExpired(){
+            return new Pair<Boolean, Boolean>(data.task.isCompleted(), data.task.isExpired());
+        }
+
+        public void setCompletedExpired(Pair<Boolean, Boolean> data){
+            // void
         }
     }
 
@@ -519,13 +560,14 @@ public class CategoryActivitiesViewModel extends MemtaskViewModelBase{
         @Bindable
         public float getProgress(){
             AtomicReference<Float> progress = new AtomicReference<>((float) 0);
-            float childPrice = (float) Math.ceil( (100.0 / (float) childObservers.size()));
+            float childPrice = (float) (100.0 / (float) childObservers.size());
 
             childObservers.forEach(item ->{
                 if(item.getTask().isCompleted() || item.getTask().isExpired()){
                     progress.updateAndGet(v -> Float.valueOf((float) (v + childPrice)));
                 }
             });
+            progress.set((float) Math.round(progress.get()));
             this.progress = progress.get();
             return progress.get();
         }
@@ -608,6 +650,15 @@ public class CategoryActivitiesViewModel extends MemtaskViewModelBase{
             int c = (int) childObservers.stream().filter(item -> (item.getTask().isCompleted() || item.getTask().isExpired())).count();
 
             setCompleted(c == childObservers.size());
+        }
+
+        @Bindable
+        public Pair<Boolean, Boolean> getCompletedExpired(){
+            return new Pair<Boolean, Boolean>(data.project.isCompleted(), data.project.isExpired());
+        }
+
+        public void setCompletedExpired(Pair<Boolean, Boolean> data){
+            // void
         }
     }
 }

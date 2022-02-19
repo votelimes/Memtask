@@ -32,6 +32,7 @@
     Дальний фон (кроме элементов)
     <color name="backgroundPrimary">#dcf1f9</color>
 
+
     Ближний фон элементов
     <color name="backgroundSecondary">#f9fbf8</color>
 

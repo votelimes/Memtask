@@ -289,27 +289,27 @@ public class ProjectDaoChildsQueryTest {
 
         defaultTasksList.add(new Task("Оплатить счета", "Оплатить счета за дом", 1 ));
         defaultTasksList.get(0).setAlarmTime("25.02.2022 11:20");
-        defaultTasksList.get(0).setNotifyEnabled(true);
+        defaultTasksList.get(0).setNotificationEnabled(true);
         defaultTasksList.get(0).setRepeatMode(4);
         defaultTasksList.get(0).setImportant(true);
         defaultTasksList.get(0).setThemeID(defaultThemesList.get(20).getID());
 
         defaultTasksList.add(new Task("Полить цветы", "Полить все цветы кроме, замиокулькаса", 1 ));
         defaultTasksList.get(1).setAlarmTime("25.02.2022 17:40");
-        defaultTasksList.get(1).setNotifyEnabled(true);
+        defaultTasksList.get(1).setNotificationEnabled(true);
         defaultTasksList.get(1).setRepeatMode(3);
         defaultTasksList.get(1).setTuesday(true);
         defaultTasksList.get(1).setThemeID(defaultThemesList.get(0).getID());
 
         defaultTasksList.add(new Task("Забрать посылку", "", 1 ));
         defaultTasksList.get(2).setAlarmTime("26.02.2022 16:00");
-        defaultTasksList.get(2).setNotifyEnabled(true);
+        defaultTasksList.get(2).setNotificationEnabled(true);
         defaultTasksList.get(2).setThemeID(defaultThemesList.get(1).getID());
         defaultTasksList.get(2).setImportant(true);
 
         defaultTasksList.add(new Task("Утренняя разминка", "", 4 ));
         defaultTasksList.get(3).setAlarmTime("26.02.2022 10:00");
-        defaultTasksList.get(3).setNotifyEnabled(true);
+        defaultTasksList.get(3).setNotificationEnabled(true);
         defaultTasksList.get(3).setRepeatMode(3);
         defaultTasksList.get(3).setMonday(true);
         defaultTasksList.get(3).setWednesday(true);
@@ -318,12 +318,12 @@ public class ProjectDaoChildsQueryTest {
 
         defaultTasksList.add(new Task("Забрать ключи", "Ключи от офиса 303", 2 ));
         defaultTasksList.get(4).setAlarmTime("26.02.2022 15:00");
-        defaultTasksList.get(4).setNotifyEnabled(true);
+        defaultTasksList.get(4).setNotificationEnabled(true);
         defaultTasksList.get(4).setThemeID(defaultThemesList.get(0).getID());
 
         defaultTasksList.add(new Task("Отправиться на прием к врачу", "Кабинет 6", 4 ));
         defaultTasksList.get(5).setAlarmTime("11.02.2022 7:40");
-        defaultTasksList.get(5).setNotifyEnabled(true);
+        defaultTasksList.get(5).setNotificationEnabled(true);
         defaultTasksList.get(5).setRepeatMode(1);
         defaultTasksList.get(5).setThemeID(defaultThemesList.get(1).getID());
 
@@ -344,26 +344,26 @@ public class ProjectDaoChildsQueryTest {
         // Project tasks
         defaultTasksList.add(new Task("Подготовить литературу", "Поискать на programmer-lib", 2 ));
         defaultTasksList.get(9).setAlarmTime("24.02.2022 11:00");
-        defaultTasksList.get(9).setNotifyEnabled(true);
+        defaultTasksList.get(9).setNotificationEnabled(true);
         defaultTasksList.get(9).setParentID(defaultProjectsList.get(1).getProjectId());
         defaultTasksList.get(9).setThemeID(defaultThemesList.get(20).getID());
 
         defaultTasksList.add(new Task("Определить структуру", "3 раздела, 12 слайдов", 2 ));
         defaultTasksList.get(10).setAlarmTime("25.02.2022 11:00");
-        defaultTasksList.get(10).setNotifyEnabled(true);
+        defaultTasksList.get(10).setNotificationEnabled(true);
         defaultTasksList.get(10).setParentID(defaultProjectsList.get(1).getProjectId());
         defaultTasksList.get(10).setImportant(true);
         defaultTasksList.get(10).setThemeID(defaultThemesList.get(12).getID());
 
         defaultTasksList.add(new Task("Написать текст", "8 страниц, 14пт", 2 ));
         defaultTasksList.get(11).setAlarmTime("27.02.2022 17:00");
-        defaultTasksList.get(11).setNotifyEnabled(true);
+        defaultTasksList.get(11).setNotificationEnabled(true);
         defaultTasksList.get(11).setParentID(defaultProjectsList.get(1).getProjectId());
         defaultTasksList.get(11).setThemeID(defaultThemesList.get(11).getID());
 
         defaultTasksList.add(new Task("Проверить новую версию Room", "Последняя 2.4.1", 2 ));
         defaultTasksList.get(12).setAlarmTime("20.02.2022 17:00");
-        defaultTasksList.get(12).setNotifyEnabled(true);
+        defaultTasksList.get(12).setNotificationEnabled(true);
         defaultTasksList.get(12).setThemeID(defaultThemesList.get(10).getID());
 
         defaultTasksList.add(new Task("Посмотреть видео про коптеры", "Любое", 3 ));

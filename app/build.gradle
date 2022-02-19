@@ -34,6 +34,7 @@ android {
 }
 
 dependencies {
+    implementation 'com.github.pedromassango:doubleClick:3.0'
     implementation 'com.jakewharton:butterknife:10.2.3'
     annotationProcessor 'com.jakewharton:butterknife-compiler:10.2.3'
     implementation 'com.github.cachapa:ExpandableLayout:2.9.2'

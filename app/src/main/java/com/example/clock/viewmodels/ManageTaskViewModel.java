@@ -141,7 +141,7 @@ public class ManageTaskViewModel extends MemtaskViewModelBase {
         }
         if(mManagingTaskRepository.isTaskMode()) {
             mManagingTaskRepository.mManagingTask.setThemeID(mManagingTaskRepository.mTheme.getID());
-            if(mManagingTaskRepository.mManagingTask.isNotifyEnabled()){
+            if(mManagingTaskRepository.mManagingTask.isNotificationEnabled()){
                 mManagingTaskRepository.mManagingTask.schedule(context);
             }
             else{
@@ -474,7 +474,7 @@ public class ManageTaskViewModel extends MemtaskViewModelBase {
             if(isTaskMode() == false){
                 return false;
             }
-            return mManagingTask.isNotifyEnabled();
+            return mManagingTask.isNotificationEnabled();
         }
 
         @Bindable
@@ -499,14 +499,14 @@ public class ManageTaskViewModel extends MemtaskViewModelBase {
         }
 
         public void setTaskNotificationState(boolean isEnabled){
-            mManagingTask.setNotifyEnabled(isEnabled);
+            mManagingTask.setNotificationEnabled(isEnabled);
             notifyPropertyChanged(BR.taskNotificationState);
         }
 
         public void setTaskNotificationMillis(long millis){
 
             LocalDateTime selectedDate = LocalDateTime.ofEpochSecond((long) millis / 1000, 0, ZoneOffset.UTC);
-            if(mManagingTask.isNotifyEnabled() && millis > 0){
+            if(mManagingTask.isNotificationEnabled() && millis > 0){
                 if(mManagingTask.getRepeatMode() == 0){
                     mManagingTask.setNotificationStartMillis(millis);
                 }
@@ -548,7 +548,7 @@ public class ManageTaskViewModel extends MemtaskViewModelBase {
 
         public void scheduleOrCancel(Context context){
             if(isTaskMode()){
-                if(mManagingTask.isNotifyEnabled()){
+                if(mManagingTask.isNotificationEnabled()){
                     mManagingTask.schedule(context);
                 }
                 else{

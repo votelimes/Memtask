@@ -91,6 +91,7 @@
         &lt;br /&gt;Репозиторий: &lt;br /&gt;https://github.com/mcw1999/Memtask
 
     </string>
+    <string name="calendar_no_tasks_on_day">Нет задач на выбранный период</string>
 
     <!-- Task card-->
 

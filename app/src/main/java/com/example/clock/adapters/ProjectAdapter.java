@@ -11,12 +11,10 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.LinearSmoothScroller;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -26,10 +24,11 @@ import com.example.clock.app.App;
 import com.example.clock.databinding.CategoryTaskBinding;
 import com.example.clock.model.Theme;
 import com.example.clock.viewmodels.CategoryActivitiesViewModel;
-import com.example.clock.viewmodels.MainViewModel;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
+import com.pedromassango.doubleclick.DoubleClick;
+import com.pedromassango.doubleclick.DoubleClickListener;
 
 public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.TaskViewHolder> {
 
@@ -184,20 +183,35 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.TaskView
                 return true;
             }
         });
-        viewHolder.getMainLayout().setOnClickListener(new DoubleClickListener() {
+        viewHolder.getMainLayout().setOnClickListener(new DoubleClick(new DoubleClickListener() {
             @Override
-            public void onSingleClick(View v) {
-                MaterialCardView card = (MaterialCardView) v;
+            public void onSingleClick(View view) {
+                MaterialCardView card = (MaterialCardView) view;
                 card.toggle();
                 taskObs.setCompletedOrExpired(card.isChecked());
                 projectObs.recalcProgress();
             }
 
             @Override
-            public void onDoubleClick(View v) {
-
+            public void onDoubleClick(View view) {
+                if(!taskObs.getCompletedOrExpired()){
+                    int code = taskObs.setNotificationEnabled(view.getContext(),
+                            !taskObs.getNotificationEnabled());
+                    if(code == 1){
+                        Toast.makeText(view.getContext(), "Не выбрано время уведомления", Toast.LENGTH_SHORT).show();
+                    }
+                    else if(code == 2){
+                        Toast.makeText(view.getContext(), "Время уведомления уже прошло", Toast.LENGTH_SHORT).show();
+                    }
+                    else if(code == 0){
+                        Toast.makeText(view.getContext(), "Уведомление установлено", Toast.LENGTH_SHORT).show();
+                    }
+                    else if(code == -1){
+                        Toast.makeText(view.getContext(), "Уведомление выключено", Toast.LENGTH_SHORT).show();
+                    }
+                }
             }
-        });
+        }));
 
         //Colors binding
         Theme theme = projectObs.getChild(position).getTheme();
@@ -243,7 +257,7 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.TaskView
                                 scrollTo(itemPos);
                             });
                             snackBar.show();
-                            mParentAdapter.setItemHasBeenDeletedDialog(snackBar);
+                            mParentAdapter.getRemoveItemSnackbar(snackBar);
                             notifyItemRemoved(pos);
                         }
                     })

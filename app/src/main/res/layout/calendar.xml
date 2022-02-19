@@ -37,7 +37,7 @@
         android:id="@+id/no_tasks_message"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Нет задач на выбранный период"
+        android:text="@string/calendar_no_tasks_on_day"
         android:textSize="22sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
