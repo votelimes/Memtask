@@ -1,10 +1,12 @@
 package com.example.clock.adapters;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -12,6 +14,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
+import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.LinearSmoothScroller;
 import androidx.recyclerview.widget.RecyclerView;
@@ -42,7 +45,8 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
     private final CategoryActivitiesViewModel mViewModel;
     private final View rootView;
     private final RecyclerView.LayoutManager mLayoutManager;
-    private boolean mAddedOutside = false;
+    private int mAddedOutside = -1;
+    private Snackbar mItemHasBeenDeletedSnack;
 
     RecyclerView.SmoothScroller smoothScroller;
 
@@ -221,6 +225,8 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
                 return LinearSmoothScroller.SNAP_TO_START;
             }
         };
+
+        mItemHasBeenDeletedSnack = Snackbar.make(rootView, "", mViewModel.RESTORE_ITEM_SNACKBAR_TIME);
     }
 
     // Create new views (invoked by the layout manager)
@@ -311,9 +317,10 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
                 viewHolder.getAlarmImage().setColorFilter(theme.getIconColor());
 
             }
-            if(mAddedOutside) {
+            if(mAddedOutside != -1 && mAddedOutside == viewHolder.getAbsoluteAdapterPosition()) {
                 viewHolder.getName().requestFocus();
-                mAddedOutside = false;
+                InputMethodManager imm = (InputMethodManager) App.getInstance().getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
             }
         }
         else if(getItemViewType(position) == VIEW_TYPE_PROJECT){
@@ -335,6 +342,7 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
                                         case 0:
                                             mViewModel.addProjectChild(viewHolder.getAbsoluteAdapterPosition());
                                             viewHolder.getAdapter().scrollTo(viewHolder.mAdapter.getItemCount());
+                                            viewHolder.getAdapter().setAddedOutside(viewHolder.getAbsoluteAdapterPosition());
                                             break;
 
                                         case 1: // Изменить
@@ -367,6 +375,8 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
                     Toast.makeText(v.getContext(), "Подзадача добавлена", Toast.LENGTH_SHORT).show();
                     projectObs.recalcProgress();
                     viewHolder.getAdapter().notifyDataSetChanged();
+                    viewHolder.getAdapter().scrollTo(viewHolder.mAdapter.getItemCount());
+                    viewHolder.getAdapter().setAddedOutside(viewHolder.getAbsoluteAdapterPosition());
                 }
             });
 
@@ -381,24 +391,15 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
                 viewHolder.getRange().setTextColor(theme.getAdditionalTextColor());
             }
 
-            ProjectAdapter adapter = new ProjectAdapter(resultLauncher, mViewModel, position, rootView, viewHolder.getLayoutManager());
+            ProjectAdapter adapter = new ProjectAdapter(resultLauncher, mViewModel, position,
+                    rootView, viewHolder.getLayoutManager(), this);
             viewHolder.setAdapter(adapter);
 
-
-            /*FloatingActionButton fab = viewHolder.getMainLayout().findViewById(R.id.project2_add);
-            fab.setColorNormal(projectObs.getTheme().getSecondColor());
-            fab.setColorPressed(projectObs.getTheme().getAdditionalTextColor());
-            fab.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Intent intent = new Intent(view.getContext(), ManageTaskActivity.class);
-                    intent.putExtra("mode", "TaskCreating");
-                    intent.putExtra("parent", projectObs.getProject().getProjectId());
-                    intent.putExtra("category", projectObs.getProject().getCategoryId());
-                    resultLauncher.launch(intent);
-                }
-            });*/
-
+            if(mAddedOutside != -1 && mAddedOutside == viewHolder.getAbsoluteAdapterPosition()) {
+                viewHolder.getName().requestFocus();
+                InputMethodManager imm = (InputMethodManager) App.getInstance().getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
+            }
         }
 
     }
@@ -412,7 +413,8 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
                             mViewModel.removeSilently(position);
-                            Snackbar.make(rootView, "Задача была удалена", mViewModel.RESTORE_ITEM_SNACKBAR_TIME)
+                            mItemHasBeenDeletedSnack
+                                    .setText("Задача была удалена")
                                     .setAction(App.getInstance().getString(R.string.restore_item_dialog_item_back), view -> {
                                         int itemPos = mViewModel.returnItemBack();
                                         notifyItemInserted(itemPos);
@@ -437,13 +439,16 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
                             mViewModel.removeSilently(position);
-                            Snackbar.make(rootView, "Проект был удален", mViewModel.RESTORE_ITEM_SNACKBAR_TIME)
+
+                            mItemHasBeenDeletedSnack
+                                    .setText("Проект был удален")
                                     .setAction(App.getInstance().getString(R.string.restore_item_dialog_item_back), view -> {
                                         int itemPos = mViewModel.returnItemBack();
                                         notifyItemInserted(itemPos);
                                         smoothScroller.setTargetPosition(itemPos);
                                         mLayoutManager.startSmoothScroll(smoothScroller);
-                                    }).show();
+                                    })
+                                    .show();
                             notifyItemRemoved(position);
                         }
                     })
@@ -484,7 +489,15 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
         }
     }
 
-    public void setAddedOutside(boolean state){
-        mAddedOutside = state;
+    public void setAddedOutside(int pos){
+        mAddedOutside = pos;
+    }
+
+    public Snackbar getItemHasBeenDeletedDialog(){
+        return mItemHasBeenDeletedSnack;
+    }
+
+    public void setItemHasBeenDeletedDialog(Snackbar snackbar){
+        mItemHasBeenDeletedSnack = snackbar;
     }
 }

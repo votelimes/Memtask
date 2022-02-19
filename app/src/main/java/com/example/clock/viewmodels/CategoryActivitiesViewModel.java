@@ -24,11 +24,13 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 public class CategoryActivitiesViewModel extends MemtaskViewModelBase{
-    public final int RESTORE_ITEM_SNACKBAR_TIME = 1750;
+    public final int RESTORE_ITEM_SNACKBAR_TIME = 5750;
     public long currentCategoryID;
 
     public LiveData<Tuple3<List<TaskAndTheme>, List<ProjectData>, List<Theme>>> intermediate;
@@ -67,11 +69,29 @@ public class CategoryActivitiesViewModel extends MemtaskViewModelBase{
         projectsLiveData = null;
     }
 
+    public LiveData<Tuple3<List<TaskAndTheme>, List<ProjectData>, List<Theme>>> updateData(String filterName){
+        if(filterName != null && filterName.length() > 1){
+            singleTaskThemeLiveData = mRepository.getSingleTaskAndThemeByCategoryByName(currentCategoryID, filterName);
+            projectLiveData = mRepository.getProjectDataByCategoryByName(currentCategoryID, filterName);
+        }
+        else{
+            singleTaskThemeLiveData = mRepository.getSingleTaskAndThemeByCategory(currentCategoryID);
+            projectLiveData = mRepository.getProjectDataByCategory(currentCategoryID);
+        }
+
+        intermediate =  LiveDataTransformations.ifNotNull(
+                singleTaskThemeLiveData, projectLiveData, themesLiveData);
+
+        return intermediate;
+    }
+
     public void init(){
         mergeTasksAndProjects();
     }
 
-    public void mergeTasksAndProjects(){
+
+
+    private void mergeTasksAndProjects(){
         int totalSize = singleTaskThemeLiveData.getValue().size() + projectLiveData.getValue().size();
 
         itemObservers = new ArrayList<>(totalSize);
@@ -84,6 +104,7 @@ public class CategoryActivitiesViewModel extends MemtaskViewModelBase{
             itemObservers.add((ParentObserver) new TaskObserver(item, false));
         });
     }
+
 
     public void update(){
         long currentCategoryID = App.getSettings().getLastCategory().first;
@@ -119,13 +140,14 @@ public class CategoryActivitiesViewModel extends MemtaskViewModelBase{
     }
 
     public void removeSilentlyProjItem(int projectPos, int itemPos){
-        ProjectObserver projObs = getProjectObs(projectPos);
+        ProjectObserver beforeChangesProjectObs = (ProjectObserver) new ProjectObserver(getProjectObs(projectPos));
+        ProjectObserver afterChangesProjectObs = getProjectObs(projectPos);
 
-        removableObs = (ParentObserver) projObs.getChild(itemPos);
+        removableObs = (ParentObserver) beforeChangesProjectObs.getChild(itemPos);
         removableItemObserversListPos = projectPos;
         removableItemObserverChildPos = itemPos;
 
-        projObs.removeChild(itemPos);
+        afterChangesProjectObs.removeChild(itemPos);
     }
 
     public int returnItemBack(){
@@ -174,9 +196,7 @@ public class CategoryActivitiesViewModel extends MemtaskViewModelBase{
 
         task.setThemeID(currentTheme.getID());
 
-        TaskAndTheme taskAndTheme = new TaskAndTheme();
-        taskAndTheme.task = task;
-        taskAndTheme.theme = currentTheme;
+        TaskAndTheme taskAndTheme = new TaskAndTheme(task, currentTheme);
 
         singleTaskThemeLiveData.getValue().add(0, taskAndTheme);
 
@@ -201,9 +221,7 @@ public class CategoryActivitiesViewModel extends MemtaskViewModelBase{
 
         task.setThemeID(currentTheme.getID());
         task.setParentID(projObs.getData().project.getProjectId());
-        TaskAndTheme taskAndTheme = new TaskAndTheme();
-        taskAndTheme.task = task;
-        taskAndTheme.theme = currentTheme;
+        TaskAndTheme taskAndTheme = new TaskAndTheme(task, currentTheme);
 
         TaskObserver taskObs = new TaskObserver(taskAndTheme, true);
 
@@ -212,6 +230,18 @@ public class CategoryActivitiesViewModel extends MemtaskViewModelBase{
         mRepository.addTaskSilently(task);
 
         return taskObs;
+    }
+
+    public void filter(String filterNameField){
+        if(filterNameField.length() > 0) {
+            itemObservers = itemObservers
+                    .parallelStream()
+                    .filter(item -> item.getName().toLowerCase(Locale.ROOT).contains(filterNameField))
+                    .collect(Collectors.toList());
+        }
+        else{
+            mergeTasksAndProjects();
+        }
     }
 
     // Getters
@@ -258,7 +288,15 @@ public class CategoryActivitiesViewModel extends MemtaskViewModelBase{
     //Sub classes
 
     public class ParentObserver extends BaseObservable{
-        protected String name;
+
+        public ParentObserver() {
+            super();
+        }
+
+        public ParentObserver(ParentObserver other) {
+            super();
+            this.closeEndDate = other.closeEndDate;
+        }
 
         protected String closeEndDate;
 
@@ -266,12 +304,12 @@ public class CategoryActivitiesViewModel extends MemtaskViewModelBase{
             return closeEndDate;
         }
 
-        public String getNameSorting() {
-            return name;
-        }
-
         public void setCloseEndDate(String closeEndDate) {
             this.closeEndDate = closeEndDate;
+        }
+
+        public String getName(){
+            return "";
         }
     }
 
@@ -282,7 +320,6 @@ public class CategoryActivitiesViewModel extends MemtaskViewModelBase{
         TaskObserver(TaskAndTheme data, boolean projectItem){
             this.data = data;
             this.projectItem = projectItem;
-
         }
 
         public TaskAndTheme getData(){
@@ -341,6 +378,7 @@ public class CategoryActivitiesViewModel extends MemtaskViewModelBase{
                     0, ZoneOffset.UTC).format(dtf);
         }
 
+        @Override
         @Bindable
         public String getName(){
             return data.task.getName();
@@ -366,7 +404,6 @@ public class CategoryActivitiesViewModel extends MemtaskViewModelBase{
 
         public void setName(String name){
             data.task.setName(name);
-            this.name = name;
             CategoryActivitiesViewModel.this.addTaskSilently(data.task);
             notifyPropertyChanged(BR.name);
         }
@@ -399,10 +436,16 @@ public class CategoryActivitiesViewModel extends MemtaskViewModelBase{
         ProjectObserver(ProjectData data){
             this.data = data;
             childObservers = new ArrayList<>(data.tasksData.size());
-
             data.tasksData.forEach(item -> {
                 childObservers.add(new TaskObserver(item, true));
             });
+        }
+
+        public ProjectObserver(ProjectObserver other) {
+            super(other);
+            this.data = other.data;
+            this.childObservers = new ArrayList<>(other.childObservers);
+            this.progress = other.progress;
         }
 
         // Getters
@@ -476,7 +519,7 @@ public class CategoryActivitiesViewModel extends MemtaskViewModelBase{
         @Bindable
         public float getProgress(){
             AtomicReference<Float> progress = new AtomicReference<>((float) 0);
-            float childPrice = (float) (100.0 / (float) childObservers.size());
+            float childPrice = (float) Math.ceil( (100.0 / (float) childObservers.size()));
 
             childObservers.forEach(item ->{
                 if(item.getTask().isCompleted() || item.getTask().isExpired()){

@@ -1,7 +1,6 @@
 package com.example.clock.viewmodels;
 
 import android.app.Application;
-import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.databinding.BaseObservable;
@@ -10,7 +9,6 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.example.clock.BR;
-import com.example.clock.app.App;
 import com.example.clock.model.TaskData;
 import com.example.clock.model.Task;
 import com.example.clock.model.Theme;
@@ -153,7 +151,7 @@ public class CalendarViewModel extends MemtaskViewModelBase{
         startMillis = selectedDateStart.toEpochSecond(ZoneOffset.UTC) * 1000;
         endMillis = selectedDateEnd.toEpochSecond(ZoneOffset.UTC) * 1000;
 
-        taskThemePack = mRepository.getTasksLiveDataByNotification(
+        taskThemePack = mRepository.getTasksByNotification(
                 startMillis,
                 endMillis);
     }
@@ -217,12 +215,25 @@ public class CalendarViewModel extends MemtaskViewModelBase{
             //sort
         }
     }
+    public LiveData<List<TaskData>> updateData(String filterName){
+        long startMillis = selectedDateStart.toEpochSecond(ZoneOffset.UTC) * 1000;
+        long endMillis = selectedDateEnd.toEpochSecond(ZoneOffset.UTC) * 1000;
+
+        if(filterName != null && filterName.length() > 0){
+            taskThemePack = mRepository.getTasksByNotificationByName(startMillis, endMillis, filterName);
+        }
+        else{
+            taskThemePack = mRepository.getTasksByNotification(startMillis, endMillis);
+        }
+
+        return taskThemePack;
+    }
     public LiveData<List<TaskData>> updateMonthTasksPack(){
         LocalDateTime monthStart = selectedDateStart.withDayOfMonth(1);
         LocalDateTime monthEnd = selectedDateStart.with(TemporalAdjusters.lastDayOfMonth());
         monthEnd = monthEnd.plusDays(1);
 
-        taskThemePack = mRepository.getTasksLiveDataByNotification(
+        taskThemePack = mRepository.getTasksByNotification(
                 monthStart.toEpochSecond(ZoneOffset.UTC)*1000, monthEnd.toEpochSecond(ZoneOffset.UTC)*1000);
 
         return taskThemePack;
@@ -386,6 +397,10 @@ public class CalendarViewModel extends MemtaskViewModelBase{
 
         TaskObserver(TaskData data){
             this.data = data;
+        }
+
+        public TaskObserver(TaskObserver other) {
+            this.data = other.data;
         }
 
         @Bindable

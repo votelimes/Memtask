@@ -33,7 +33,11 @@ public abstract class TaskDao extends BaseDao<Task> {
 
     @Query("SELECT task_table.*, theme_table.*, category_table.categoryName FROM task_table LEFT JOIN theme_table ON task_table.mThemeID = theme_table.theme_ID LEFT JOIN category_table ON task_table.categoryId = category_table.categoryId"
             + " WHERE task_table.mNotificationStartMillis >= :startMillis AND task_table.mNotificationStartMillis < :endMillis")
-    public abstract LiveData<List<TaskData>> getTasksWithThemeLiveData(long startMillis, long endMillis);
+    public abstract LiveData<List<TaskData>> getTasksWithThemeByNotification(long startMillis, long endMillis);
+
+    @Query("SELECT task_table.*, theme_table.*, category_table.categoryName FROM task_table LEFT JOIN theme_table ON task_table.mThemeID = theme_table.theme_ID LEFT JOIN category_table ON task_table.categoryId = category_table.categoryId"
+            + " WHERE task_table.mNotificationStartMillis >= :startMillis AND task_table.mNotificationStartMillis < :endMillis AND task_table.mName LIKE :nameRegex")
+    public abstract LiveData<List<TaskData>> getTasksWithThemeByNotificationByName(long startMillis, long endMillis, String nameRegex);
 
     @TestOnly
     @Query("SELECT task_table.*, theme_table.* FROM task_table LEFT JOIN theme_table ON task_table.mThemeID = theme_table.theme_ID"
@@ -44,7 +48,7 @@ public abstract class TaskDao extends BaseDao<Task> {
     public abstract LiveData<TaskData> getTaskThemeLiveData(String taskID);
 
     @Query("SELECT task_table.*, theme_table.* FROM task_table LEFT JOIN theme_table ON task_table.mThemeID = theme_table.theme_ID WHERE task_table.categoryId = :categoryID")
-    public abstract LiveData<List<TaskData>> getTasksWithThemeLiveData(long categoryID);
+    public abstract LiveData<List<TaskData>> getTasksWithThemeByNotification(long categoryID);
 
     @Query("SELECT task_table.*, theme_table.* FROM task_table LEFT JOIN theme_table ON task_table.mThemeID = theme_table.theme_ID WHERE task_table.categoryId = :categoryID AND task_table.mParentID = ''")
     public abstract LiveData<List<TaskData>> getSingleTasksWithThemeLiveData(long categoryID);
@@ -63,4 +67,7 @@ public abstract class TaskDao extends BaseDao<Task> {
 
     @Query("SELECT * FROM task_table WHERE task_table.mParentID = '' AND task_table.categoryId = :categoryID")
     public abstract LiveData<List<TaskAndTheme>> getSingleTaskAndThemeByCategory(long categoryID);
+
+    @Query("SELECT * FROM task_table WHERE task_table.mParentID = '' AND task_table.categoryId = :categoryID AND task_table.mName LIKE :nameRegex")
+    public abstract LiveData<List<TaskAndTheme>> getSingleTaskAndThemeByCategoryByName(long categoryID, String nameRegex);
 }

@@ -66,8 +66,12 @@ public class MemtaskRepositoryBase {
         return this.mDatabase.themeDao().getThemesLiveData();
     }
 
-    public LiveData<List<TaskData>> getTasksLiveDataByNotification(long startMillis, long endMillis){
-        return this.mDatabase.taskDao() .getTasksWithThemeLiveData(startMillis, endMillis);
+    public LiveData<List<TaskData>> getTasksByNotification(long startMillis, long endMillis){
+        return this.mDatabase.taskDao() .getTasksWithThemeByNotification(startMillis, endMillis);
+    }
+
+    public LiveData<List<TaskData>> getTasksByNotificationByName(long startMillis, long endMillis, String name){
+        return this.mDatabase.taskDao() .getTasksWithThemeByNotificationByName(startMillis, endMillis, "%" + name + "%");
     }
 
     public LiveData<TaskData> getTaskAndTheme(String taskID){
@@ -79,11 +83,15 @@ public class MemtaskRepositoryBase {
     }
 
     public LiveData<List<TaskData>> getTaskDataByCategory(long ID){
-        return this.mDatabase.taskDao().getTasksWithThemeLiveData(ID);
+        return this.mDatabase.taskDao().getTasksWithThemeByNotification(ID);
     }
 
     public LiveData<List<ProjectData>> getProjectDataByCategory(long ID){
         return this.mDatabase.projectDao().getProjectsDataByCat(ID);
+    }
+
+    public LiveData<List<ProjectData>> getProjectDataByCategoryByName(long ID, String name){
+        return this.mDatabase.projectDao().getProjectsDataByCatByName(ID, "%" + name + "%");
     }
 
     public LiveData<List<UserCaseStatistic>> getUserCaseStatistic(long rangeStartMillis, long rangeEndMillis){
@@ -247,5 +255,9 @@ public class MemtaskRepositoryBase {
 
     public LiveData<List<TaskAndTheme>> getSingleTaskAndThemeByCategory(long categoryID) {
         return mTaskDao.getSingleTaskAndThemeByCategory(categoryID);
+    }
+
+    public LiveData<List<TaskAndTheme>> getSingleTaskAndThemeByCategoryByName(long categoryID, String name) {
+        return mTaskDao.getSingleTaskAndThemeByCategoryByName(categoryID, "%" + name + "%");
     }
 }

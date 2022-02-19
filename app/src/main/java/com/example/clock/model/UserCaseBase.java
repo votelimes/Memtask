@@ -70,6 +70,28 @@ public class UserCaseBase implements Serializable  {
         mDescription = "";
     }
 
+    public UserCaseBase(UserCaseBase other) {
+        this.categoryId = other.categoryId;
+        this.testID = other.testID;
+        this.mThemeID = other.mThemeID;
+        this.startTime = other.startTime;
+        this.endTime = other.endTime;
+        this.mNotificationID = other.mNotificationID;
+        this.nextGeneralNotificationMillis = other.nextGeneralNotificationMillis;
+        this.mDescription = other.mDescription;
+        this.mName = other.mName;
+        this.mCategoryName = other.mCategoryName;
+        this.color = other.color;
+        this.completed = other.completed;
+        this.expired = other.expired;
+        this.timeCreated = other.timeCreated;
+        this.timeChanged = other.timeChanged;
+        this.timesCompleted = other.timesCompleted;
+        this.timesExpired = other.timesExpired;
+        this.timesCancelled = other.timesCancelled;
+        this.isImportant = other.isImportant;
+    }
+
     protected String generateUUID(){
         return UUID.randomUUID().toString();
     }

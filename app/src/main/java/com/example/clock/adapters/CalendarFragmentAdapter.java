@@ -3,7 +3,6 @@ package com.example.clock.adapters;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.text.style.RelativeSizeSpan;
@@ -20,6 +19,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.Observer;
+import androidx.recyclerview.widget.LinearSmoothScroller;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.clock.R;
@@ -58,6 +58,9 @@ public class CalendarFragmentAdapter extends RecyclerView.Adapter<RecyclerView.V
     private LifecycleOwner lifecycleOwner;
     private CalendarDay currentDate;
     private TextView noTasksInformer;
+
+    private RecyclerView.SmoothScroller smoothScroller;
+    private final RecyclerView.LayoutManager mLayoutManager;
 
     public static class TaskViewHolder extends RecyclerView.ViewHolder {
         private final CalendarTaskBinding binding;
@@ -140,7 +143,6 @@ public class CalendarFragmentAdapter extends RecyclerView.Adapter<RecyclerView.V
 
     public class CalendarViewHolder extends RecyclerView.ViewHolder implements OnDateSelectedListener, OnRangeSelectedListener, OnMonthChangedListener {
         MaterialCalendarView calendar;
-        TextView noTasksInformer;
         MinLoadDayDecorator minLoadDecorator;
         MedLoadDayDecorator medLoadDecorator;
         HighLoadDayDecorator highLoadDecorator;
@@ -165,7 +167,7 @@ public class CalendarFragmentAdapter extends RecyclerView.Adapter<RecyclerView.V
             calendar.setOnDateChangedListener(this);
             calendar.setOnRangeSelectedListener(this);
             calendar.setOnMonthChangedListener(this);
-            mViewModel.updateMonthTasksPack().observe(lifecycleOwner, taskPackObserver);
+            mViewModel.updateMonthTasksPack().observe(lifecycleOwner, monthChangeObserver);
         }
         public MaterialCalendarView getCalendar(){
             return calendar;
@@ -204,7 +206,7 @@ public class CalendarFragmentAdapter extends RecyclerView.Adapter<RecyclerView.V
             currentDate = date;
             mViewModel.setDate(date, null);
             mViewModel.requestMonthTasksPack().removeObservers(lifecycleOwner);
-            mViewModel.updateMonthTasksPack().observe(lifecycleOwner, taskPackObserver);
+            mViewModel.updateMonthTasksPack().observe(lifecycleOwner, monthChangeObserver);
         }
 
         public class MinLoadDayDecorator implements DayViewDecorator {
@@ -332,25 +334,21 @@ public class CalendarFragmentAdapter extends RecyclerView.Adapter<RecyclerView.V
                 view.setSelectionDrawable(drawable);
             }
         }
-
-
-        final Observer<List<TaskData>> taskPackObserver = new Observer<List<TaskData>>() {
-            @Override
-            public void onChanged(List<TaskData> data) {
-                mViewModel.init();
-                getNoTasksInformer().setVisibility(mViewModel.getPoolSize() == 0 ? View.VISIBLE : View.GONE);
-                notifyDataSetChanged();
-                calendar.invalidateDecorators();
-            }
-        };
     }
 
     public CalendarFragmentAdapter(ActivityResultLauncher<Intent> resultLauncher,
-                                   CalendarViewModel viewModel, LifecycleOwner lcowner) {
+                                   CalendarViewModel viewModel, LifecycleOwner lcowner, View rootView, RecyclerView.LayoutManager layoutManager) {
         mViewModel = viewModel;
         this.selectedDay = selectedDay;
         this.resultLauncher = resultLauncher;
         this.lifecycleOwner = lcowner;
+
+        mLayoutManager = layoutManager;
+        smoothScroller = new LinearSmoothScroller(rootView.getContext()) {
+            @Override protected int getVerticalSnapPreference() {
+                return LinearSmoothScroller.SNAP_TO_START;
+            }
+        };
     }
 
     // Create new views (invoked by the layout manager)
@@ -482,4 +480,24 @@ public class CalendarFragmentAdapter extends RecyclerView.Adapter<RecyclerView.V
     public TextView getNoTasksInformer(){
         return noTasksInformer;
     }
+
+    public void scrollTo(int position){
+        smoothScroller.setTargetPosition(position);
+        mLayoutManager.startSmoothScroll(smoothScroller);
+    }
+
+    final Observer<List<TaskData>> monthChangeObserver = new Observer<List<TaskData>>() {
+        @Override
+        public void onChanged(List<TaskData> data) {
+            mViewModel.init();
+            getNoTasksInformer().setVisibility(mViewModel.getPoolSize() == 0 ? View.VISIBLE : View.GONE);
+            notifyDataSetChanged();
+            calendar.invalidateDecorators();
+        }
+    };
+
+    public void updateData(String filterName){
+        mViewModel.updateData(filterName).observe(lifecycleOwner, monthChangeObserver);
+        notifyDataSetChanged();
+    };
 }

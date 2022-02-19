@@ -38,6 +38,10 @@ public abstract class ProjectDao  extends BaseDao<Project> {
     @Query("SELECT project_table.*, theme_table.* FROM project_table LEFT JOIN theme_table ON project_table.mThemeID = theme_table.theme_ID WHERE project_table.categoryId = :categoryID")
     public abstract LiveData<List<ProjectData>> getProjectsDataByCat(long categoryID);
 
+    @Transaction
+    @Query("SELECT project_table.*, theme_table.* FROM project_table LEFT JOIN theme_table ON project_table.mThemeID = theme_table.theme_ID WHERE project_table.categoryId = :categoryID AND project_table.mName LIKE :nameRegex")
+    public abstract LiveData<List<ProjectData>> getProjectsDataByCatByName(long categoryID, String nameRegex);
+
     @TestOnly
     @Transaction
     @Query("SELECT project_table.*, theme_table.* FROM project_table LEFT JOIN theme_table ON project_table.mThemeID = theme_table.theme_ID")

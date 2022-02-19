@@ -14,4 +14,14 @@ public class TaskAndTheme {
             entityColumn = "theme_ID"
     )
     public Theme theme;
+
+    public TaskAndTheme(Task task, Theme theme) {
+        this.task = task;
+        this.theme = theme;
+    }
+
+    public TaskAndTheme(TaskAndTheme other) {
+        this.task = other.task;
+        this.theme = other.theme;
+    }
 }

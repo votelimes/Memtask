@@ -4,13 +4,16 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.SearchView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
@@ -34,7 +37,7 @@ import com.google.android.material.appbar.MaterialToolbar;
 
 import java.util.List;
 
-public class CardsListFragment extends Fragment {
+public class CardsListFragment extends Fragment implements SearchView.OnQueryTextListener {
 
     RecyclerView mRecyclerView;
     CardsListFragmentAdapter mRecyclerViewAdapter;
@@ -43,6 +46,7 @@ public class CardsListFragment extends Fragment {
     ConstraintLayout mMainLayoutView;
     Context mContext;
     MaterialToolbar toolbar;
+    SearchView searchView;
 
 
     final ActivityResultLauncher<Intent> activityLauncher = registerForActivityResult(
@@ -93,7 +97,7 @@ public class CardsListFragment extends Fragment {
         mLayoutManager = new LinearLayoutManager(mContext,
                 LinearLayoutManager.VERTICAL, false);
 
-        mViewModel.intermediate.observe(getViewLifecycleOwner(), hoardObserver);
+        mViewModel.intermediate.observe(getViewLifecycleOwner(), onCreateObserver);
 
         FloatingActionButton fabTask = getView().findViewById(R.id.fragment_cards_fab_task);
         FloatingActionButton fabProject = getView().findViewById(R.id.fragment_cards_fab_proj);
@@ -110,7 +114,7 @@ public class CardsListFragment extends Fragment {
                 mViewModel.addTaskChild();
                 mRecyclerViewAdapter.notifyItemInserted(0);
                 mRecyclerViewAdapter.scrollTo(0);
-                mRecyclerViewAdapter.setAddedOutside(true);
+                mRecyclerViewAdapter.setAddedOutside(0);
 
 
                 //activityLauncher.launch(taskIntent);
@@ -127,9 +131,12 @@ public class CardsListFragment extends Fragment {
             }
         });
 
-            }
+        MenuItem searchItem = toolbar.getMenu().findItem(R.id.action_search);
+        searchView = (SearchView) searchItem.getActionView();
+        searchView.setOnQueryTextListener(this);
+        }
 
-    final Observer<Tuple3<List<TaskAndTheme>, List<ProjectData>, List<Theme>>> hoardObserver = new Observer<Tuple3<List<TaskAndTheme>, List<ProjectData>, List<Theme>>>() {
+    final Observer<Tuple3<List<TaskAndTheme>, List<ProjectData>, List<Theme>>> onCreateObserver = new Observer<Tuple3<List<TaskAndTheme>, List<ProjectData>, List<Theme>>>() {
         @Override
         public void onChanged(@Nullable final Tuple3<List<TaskAndTheme>, List<ProjectData>, List<Theme>> updatedHoard) {
 
@@ -140,4 +147,23 @@ public class CardsListFragment extends Fragment {
             mRecyclerView.setAdapter(mRecyclerViewAdapter);
         }
     };
+
+    final Observer<Tuple3<List<TaskAndTheme>, List<ProjectData>, List<Theme>>> onUpdateObserver = new Observer<Tuple3<List<TaskAndTheme>, List<ProjectData>, List<Theme>>>() {
+        @Override
+        public void onChanged(@Nullable final Tuple3<List<TaskAndTheme>, List<ProjectData>, List<Theme>> updatedHoard) {
+            mViewModel.init();
+            mRecyclerViewAdapter.notifyDataSetChanged();
+        }
+    };
+
+    @Override
+    public boolean onQueryTextSubmit(String query) {
+        return false;
+    }
+
+    @Override
+    public boolean onQueryTextChange(String newText) {
+        mViewModel.updateData(newText).observe(this, onUpdateObserver);
+        return false;
+    }
 }

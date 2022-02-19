@@ -27,6 +27,11 @@ public class Project extends UserCaseBase {
         this.categoryId = categoryID;
     }
 
+    public Project(Project other) {
+        super(other);
+        this.projectId = other.projectId;
+    }
+
     public String getProjectId() {
         return projectId;
     }

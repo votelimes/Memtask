@@ -84,6 +84,28 @@ public class Task extends UserCaseBase {
         mParentID = "";
     }
 
+    public Task(Task other) {
+        super(other);
+        this.taskId = other.taskId;
+        this.vibrate = other.vibrate;
+        this.ringtonePath = other.ringtonePath;
+        this.mediaEnabled = other.mediaEnabled;
+        this.repeatMode = other.repeatMode;
+        this.notifyEnabled = other.notifyEnabled;
+        this.mNotificationStartMillis = other.mNotificationStartMillis;
+        this.sunday = other.sunday;
+        this.monday = other.monday;
+        this.tuesday = other.tuesday;
+        this.wednesday = other.wednesday;
+        this.thursday = other.thursday;
+        this.friday = other.friday;
+        this.saturday = other.saturday;
+        this.recurring = other.recurring;
+        this.enabled = other.enabled;
+        this.notificationInProgress = other.notificationInProgress;
+        this.mParentID = other.mParentID;
+    }
+
     public void reGenerateUUID(){
         taskId = generateUUID();
     }

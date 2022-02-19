@@ -1,10 +1,12 @@
 package com.example.clock.adapters;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -35,10 +37,11 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.TaskView
     CategoryActivitiesViewModel mViewModel;
 
     int mProjectPosition;
+    int mAddedOutside = -1;
     final View rootView;
     RecyclerView.LayoutManager mLayoutManager;
-
     RecyclerView.SmoothScroller smoothScroller;
+    CardsListFragmentAdapter mParentAdapter;
 
     // data is passed into the constructor
     public static class TaskViewHolder extends RecyclerView.ViewHolder {
@@ -118,19 +121,21 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.TaskView
     }
 
     public ProjectAdapter(ActivityResultLauncher<Intent> resultLauncher,
-                          CategoryActivitiesViewModel viewModel, int projectPosition, View rootView, RecyclerView.LayoutManager layoutManager){
+                          CategoryActivitiesViewModel viewModel, int projectPosition, View rootView,
+                          RecyclerView.LayoutManager layoutManager,
+                          CardsListFragmentAdapter adapter){
 
         this.mResultLauncher = resultLauncher;
         mViewModel = viewModel;
         mProjectPosition = projectPosition;
         this.rootView = rootView;
         mLayoutManager = layoutManager;
-
         smoothScroller = new LinearSmoothScroller(rootView.getContext()) {
             @Override protected int getVerticalSnapPreference() {
                 return LinearSmoothScroller.SNAP_TO_START;
             }
         };
+        mParentAdapter = adapter;
     }
 
     // inflates the row layout from xml when needed
@@ -210,6 +215,11 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.TaskView
             viewHolder.getImportant().setColorFilter(theme.getIconColor());
             viewHolder.getAlarmImage().setColorFilter(theme.getIconColor());
         }
+        if(mAddedOutside != -1 && mAddedOutside == viewHolder.getAbsoluteAdapterPosition()) {
+            viewHolder.getName().requestFocus();
+            InputMethodManager imm = (InputMethodManager) App.getInstance().getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
+        }
     }
 
     public void removeItem(int pos){
@@ -220,15 +230,21 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.TaskView
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
                             mViewModel.removeSilentlyProjItem(mProjectPosition, pos);
-                            Snackbar.make(rootView, "Подзадача была удалена", mViewModel.RESTORE_ITEM_SNACKBAR_TIME)
-                                    .setAction(App.getInstance().getString(R.string.restore_item_dialog_item_back), view -> {
-                                        int itemPos = mViewModel.returnItemBack();
-                                        notifyItemInserted(itemPos);
-                                        scrollTo(itemPos);
-                                    }).show();
+                            Snackbar snackBar = mParentAdapter.getItemHasBeenDeletedDialog();
+                            if(snackBar == null) {
+                                snackBar = Snackbar.make(rootView, "Подзадача была удалена", mViewModel.RESTORE_ITEM_SNACKBAR_TIME);
+                            }
+                            else{
+                                snackBar.setText("Подзадача была удалена");
+                            }
+                            snackBar.setAction(App.getInstance().getString(R.string.restore_item_dialog_item_back), view -> {
+                                int itemPos = mViewModel.returnItemBack();
+                                notifyItemInserted(itemPos);
+                                scrollTo(itemPos);
+                            });
+                            snackBar.show();
+                            mParentAdapter.setItemHasBeenDeletedDialog(snackBar);
                             notifyItemRemoved(pos);
-
-
                         }
                     })
                     .setNegativeButton("Отменить", new DialogInterface.OnClickListener() {
@@ -243,6 +259,10 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.TaskView
     public void scrollTo(int position){
         smoothScroller.setTargetPosition(position);
         mLayoutManager.startSmoothScroll(smoothScroller);
+    }
+
+    public void setAddedOutside(int pos){
+        mAddedOutside = pos;
     }
 
     // total number of rows

@@ -111,7 +111,7 @@ public class CalendarFragment extends Fragment implements SearchView.OnQueryText
             }
         });
         mRecyclerViewAdapter = new CalendarFragmentAdapter(
-                activityLauncher, mViewModel, getViewLifecycleOwner());
+                activityLauncher, mViewModel, getViewLifecycleOwner(), getView(), mLayoutManager);
         mRecyclerView.setLayoutManager(mLayoutManager);
         mRecyclerView.setAdapter(mRecyclerViewAdapter);
 
@@ -153,9 +153,7 @@ public class CalendarFragment extends Fragment implements SearchView.OnQueryText
 
     @Override
     public boolean onQueryTextChange(String newText) {
-        mViewModel.setSearchFilter(newText);
-        mViewModel.filter();
-        mRecyclerViewAdapter.notifyDataSetChanged();
+        mRecyclerViewAdapter.updateData(newText);
         return false;
     }
 }
