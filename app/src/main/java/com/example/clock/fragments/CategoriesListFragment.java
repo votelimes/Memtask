@@ -72,8 +72,6 @@ public class CategoriesListFragment extends Fragment {
         mViewModel = new ViewModelProvider(requireActivity(), mFactory).get(MainViewModel.class);
 
 
-
-
         mRecyclerView = getView().findViewById(R.id.categories_list);
 
         mMainLayoutView = getView().findViewById(R.id.fragment_categories_constraint);

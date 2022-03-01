@@ -105,7 +105,7 @@ public class CalendarFragment extends Fragment implements SearchView.OnQueryText
             @Override
             public void onClick(View view) {
                 Intent taskIntent = new Intent(view.getContext(), ManageTaskActivity.class);
-                taskIntent.putExtra("mode", "TaskCreating");
+                taskIntent.putExtra("mode", "TaskManaging");
                 taskIntent.putExtra("rangeStart", mViewModel.getSelectedDateStart().toEpochSecond(ZoneOffset.UTC) * 1000);
                 activityLauncher.launch(taskIntent);
             }
@@ -117,8 +117,6 @@ public class CalendarFragment extends Fragment implements SearchView.OnQueryText
 
 
         ItemTouchHelper.SimpleCallback touchHelperCallbackRight = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT) {
-            private final ColorDrawable background = new ColorDrawable(getResources().getColor(R.color.main_8));
-
             @Override
             public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
                 return false;
@@ -126,15 +124,31 @@ public class CalendarFragment extends Fragment implements SearchView.OnQueryText
 
             @Override
             public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
-                int position = viewHolder.getAbsoluteAdapterPosition() - 1;
-                mViewModel.removeSilently(position);
-                mViewModel.init();
-                mRecyclerViewAdapter.getCalendar().invalidateDecorators();
-                mRecyclerViewAdapter.notifyItemRemoved(viewHolder.getAbsoluteAdapterPosition());
-                //mRecyclerViewAdapter.notifyDataSetChanged();
+                mRecyclerViewAdapter.removeItem(viewHolder.getAbsoluteAdapterPosition());
             }
         };
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(touchHelperCallbackRight);
+        itemTouchHelper.attachToRecyclerView(mRecyclerView);
+
+        ItemTouchHelper.SimpleCallback touchHelperCallbackLeft = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
+            @Override
+            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+            @Override
+            public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+                Intent taskIntent = new Intent(view.getContext(), ManageTaskActivity.class);
+                CalendarFragmentAdapter.TaskViewHolder vh = (CalendarFragmentAdapter.TaskViewHolder) viewHolder;
+                taskIntent.putExtra("ID", vh.getBinding().getData().getTask().getTaskId());
+                taskIntent.putExtra("mode", "TaskEditing");
+                taskIntent.putExtra("rangeStart", mViewModel.getSelectedDateStart().toEpochSecond(ZoneOffset.UTC) * 1000);
+                activityLauncher.launch(taskIntent);
+                CalendarFragmentAdapter adapter = (CalendarFragmentAdapter) vh.getBindingAdapter();
+                adapter.notifyItemChanged(viewHolder.getAbsoluteAdapterPosition());
+            }
+        };
+        itemTouchHelper = new ItemTouchHelper(touchHelperCallbackLeft);
         itemTouchHelper.attachToRecyclerView(mRecyclerView);
 
         MenuItem searchItem = toolbar.getMenu().findItem(R.id.action_search);
@@ -142,8 +156,6 @@ public class CalendarFragment extends Fragment implements SearchView.OnQueryText
         //Get SearchView through MenuItem
         searchView = (SearchView) searchItem.getActionView();
         searchView.setOnQueryTextListener(this);
-
-        //mRecyclerViewAdapter.getNoTasksInformer().setVisibility(mViewModel.getPoolSize() == 0 ? View.VISIBLE : View.GONE);
     }
 
     @Override

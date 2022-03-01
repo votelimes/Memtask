@@ -15,6 +15,7 @@ import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.appcompat.app.AlertDialog;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.LinearSmoothScroller;
 import androidx.recyclerview.widget.RecyclerView;
@@ -137,6 +138,7 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
         private final EditText name;
         private final TextView progressText;
         private final CircularProgressBar progressBar;
+
         private final CategoryProjectBinding binding;
         private final RecyclerView.LayoutManager mLayoutManager;
 
@@ -211,6 +213,14 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
 
         public RecyclerView.LayoutManager getLayoutManager(){
             return mLayoutManager;
+        }
+
+        public CategoryProjectBinding getBinding() {
+            return binding;
+        }
+
+        public RecyclerView getRecyclerView() {
+            return recyclerView;
         }
     }
 
@@ -418,6 +428,40 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
                     rootView, viewHolder.getLayoutManager(), this);
             viewHolder.setAdapter(adapter);
 
+            /*ItemTouchHelper.SimpleCallback touchHelperCallbackRight = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.UP) {
+                @Override
+                public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+                    return false;
+                }
+
+                @Override
+                public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+                    ProjectAdapter adapter =  (ProjectAdapter) viewHolder.getBindingAdapter();
+                    adapter.removeItem(viewHolder.getAbsoluteAdapterPosition());
+                }
+            };
+            ItemTouchHelper itemTouchHelper = new ItemTouchHelper(touchHelperCallbackRight);
+            itemTouchHelper.attachToRecyclerView(viewHolder.getRecyclerView());
+
+            ItemTouchHelper.SimpleCallback touchHelperCallbackLeft = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.DOWN) {
+                @Override
+                public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+                    return false;
+                }
+
+                @Override
+                public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+                    Intent taskIntent = new Intent(rootView.getContext(), ManageTaskActivity.class);
+                    CardsListFragmentAdapter.TaskViewHolder vh = (CardsListFragmentAdapter.TaskViewHolder) viewHolder;
+                    taskIntent.putExtra("ID", vh.getBinding().getData().getTask().getTaskId());
+                    taskIntent.putExtra("mode", "TaskEditing");
+                    resultLauncher.launch(taskIntent);
+                    adapter.notifyItemChanged(viewHolder.getAbsoluteAdapterPosition());
+                }
+            };
+            itemTouchHelper = new ItemTouchHelper(touchHelperCallbackLeft);
+            itemTouchHelper.attachToRecyclerView(viewHolder.getRecyclerView());*/
+
             if(mAddedOutside != -1 && mAddedOutside == viewHolder.getAbsoluteAdapterPosition()) {
                 viewHolder.getName().requestFocus();
                 InputMethodManager imm = (InputMethodManager) App.getInstance().getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -427,7 +471,7 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
 
     }
 
-    private void removeItem(int position){
+    public void removeItem(int position){
         if(getItemViewType(position) == VIEW_TYPE_TASK){
             new MaterialAlertDialogBuilder(rootView.getContext())
                     .setTitle("Удаление задачи")

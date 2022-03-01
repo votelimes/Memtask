@@ -10,8 +10,10 @@
     app:cardCornerRadius="15dp"
     android:layout_marginTop="20dp"
     android:layout_marginBottom="40dp"
-    android:layout_gravity="center"
-    app:cardBackgroundColor="@color/light_grey"
+    android:layout_gravity="center_horizontal"
+    app:cardBackgroundColor="@color/primary"
+    app:strokeWidth="2dp"
+    app:strokeColor="@color/secondary"
     >
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/category_constraint"
@@ -30,7 +32,7 @@
             android:textSize="@dimen/textMM"
             android:text="СПИСОК №100000"
 
-            android:textColor="@color/black"
+            android:textColor="@color/mdtp_white"
             android:background="@color/transparent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"

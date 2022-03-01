@@ -11,6 +11,7 @@ import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.UUID;
@@ -54,8 +55,7 @@ public class UserCaseBase implements Serializable  {
     protected long timesExpired;
     protected long timesCancelled;
 
-
-    protected boolean isImportant;
+    protected int mImportance;
 
     public UserCaseBase(){
         categoryId = -1;
@@ -68,6 +68,7 @@ public class UserCaseBase implements Serializable  {
 
         mName = "";
         mDescription = "";
+        mImportance = -1;
     }
 
     public UserCaseBase(UserCaseBase other) {
@@ -89,7 +90,7 @@ public class UserCaseBase implements Serializable  {
         this.timesCompleted = other.timesCompleted;
         this.timesExpired = other.timesExpired;
         this.timesCancelled = other.timesCancelled;
-        this.isImportant = other.isImportant;
+        this.mImportance = other.mImportance;
     }
 
     protected String generateUUID(){
@@ -161,20 +162,17 @@ public class UserCaseBase implements Serializable  {
     }
 
     public void setRange(String rangeStart, String rangeEnd){
-        Calendar calendar = GregorianCalendar.getInstance();
-        SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy");
-        try {
-            calendar.setTime(sdf.parse(rangeStart));
-            startTime = calendar.getTimeInMillis();
-        } catch (ParseException e){
-            Log.e("TASK ALARM TIME SETUP ERROR: ", e.getMessage());
-        }
-        try {
-            calendar.setTime(sdf.parse(rangeEnd));
-            endTime = calendar.getTimeInMillis();
-        } catch (ParseException e){
-            Log.e("TASK ALARM TIME SETUP ERROR: ", e.getMessage());
-        }
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+        LocalDateTime ldtStart = LocalDateTime.parse(rangeStart, dtf);
+        LocalDateTime ldtEnd = LocalDateTime.parse(rangeEnd, dtf);
+
+        startTime = ldtStart.toEpochSecond(ZoneOffset.UTC);
+        endTime = ldtEnd.toEpochSecond(ZoneOffset.UTC);
+    }
+
+    public void setRange(long startTime, long endTime){
+        this.startTime = startTime;
+        this.endTime = endTime;
     }
 
     public void setColor(int color) {
@@ -294,14 +292,6 @@ public class UserCaseBase implements Serializable  {
         this.expired = expired;
     }
 
-    public boolean isImportant() {
-        return isImportant;
-    }
-
-    public void setImportant(boolean important) {
-        isImportant = important;
-    }
-
     public String getThemeID() {
         return mThemeID;
     }
@@ -343,5 +333,13 @@ public class UserCaseBase implements Serializable  {
 
     public void setNotificationID(int mNotificationID) {
         this.mNotificationID = mNotificationID;
+    }
+
+    public int getImportance() {
+        return mImportance;
+    }
+
+    public void setImportance(int mImportance) {
+        this.mImportance = mImportance;
     }
 }

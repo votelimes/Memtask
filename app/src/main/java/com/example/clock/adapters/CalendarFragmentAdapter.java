@@ -480,7 +480,7 @@ public class CalendarFragmentAdapter extends RecyclerView.Adapter<RecyclerView.V
         }
     }
 
-    private void removeItem(int position){
+    public void removeItem(int position){
         new MaterialAlertDialogBuilder(calendar.getContext())
                 .setTitle("Удаление задачи")
                 .setMessage("Вы действительно хотите удалить эту задачу?")

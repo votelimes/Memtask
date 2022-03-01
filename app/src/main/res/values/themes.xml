@@ -26,7 +26,4 @@
         <item name="colorControlNormal">@color/secondary</item>
     </style>
 
-    <style name="toolbar" parent="Theme.Clock.Main">
-        <item name="android:textColorSecondary">@color/secondary</item>
-    </style>
 </resources>

@@ -28,15 +28,16 @@
             />
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/categories_list"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            android:layout_gravity="center_horizontal"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:clipChildren="false"
+            android:clipToPadding="false"
             android:paddingTop="15dp"
-            android:paddingBottom="15dp"
-            android:paddingStart="20dp"
-            android:paddingEnd="20dp"
+            android:paddingBottom="24dp"
             />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

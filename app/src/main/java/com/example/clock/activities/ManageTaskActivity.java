@@ -5,6 +5,7 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.util.Pair;
+import androidx.core.util.Supplier;
 import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
@@ -13,6 +14,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.graphics.drawable.Drawable;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
@@ -20,6 +22,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
@@ -39,6 +42,7 @@ import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.datepicker.MaterialPickerOnPositiveButtonClickListener;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.android.material.timepicker.MaterialTimePicker;
 import com.google.android.material.timepicker.TimeFormat;
 import com.skydoves.colorpickerview.ColorEnvelope;
@@ -132,9 +136,9 @@ public class ManageTaskActivity extends AppCompatActivity implements View.OnFocu
             mViewModel.mManagingTaskRepository.setRepeatModeString(selectedMode);
         });
 
-        TextInputEditText rangeLayout = findViewById(R.id.manage_task_text_range);
-        TextInputEditText notificationLayout = findViewById(R.id.manage_task_text_notify);
-        rangeLayout.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+        TextInputEditText rangeText = findViewById(R.id.manage_task_text_range);
+        TextInputLayout rangeLayout = findViewById(R.id.manage_task_layout_range);
+        rangeText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View view, boolean b) {
                 if(b){
@@ -157,13 +161,31 @@ public class ManageTaskActivity extends AppCompatActivity implements View.OnFocu
                             mViewModel.mManagingTaskRepository
                                     .setRangeMillis(selection.first, selection.second);
                             datepicker.dismiss();
+                            view.clearFocus();
+                        }
+                    });
+                    datepicker.addOnNegativeButtonClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            rangeLayout.setEndIconVisible(true);
+                            rangeLayout.setEndIconActivated(true);
                         }
                     });
                     datepicker.show(getSupportFragmentManager(), datepicker.toString());
-                view.clearFocus();
+                    view.clearFocus();
                 }
             }
         });
+        rangeLayout.setEndIconOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                rangeText.setText("");
+            }
+        });
+        rangeLayout.setEndIconDrawable(com.google.android.material.R.drawable.mtrl_ic_cancel);
+
+
+        TextInputEditText notificationLayout = findViewById(R.id.manage_task_text_notify);
         notificationLayout.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View view, boolean b) {
@@ -488,6 +510,119 @@ public class ManageTaskActivity extends AppCompatActivity implements View.OnFocu
                         .show();
             }
         });
+
+        TextInputEditText button6 = (TextInputEditText) findViewById(R.id.manage_task_text_priority);
+        TextInputLayout button6Layout = (TextInputLayout) findViewById(R.id.manage_task_layout_priority);
+
+        button6.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean b) {
+                if(b){
+                    MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(ManageTaskActivity.this);
+                    // Get the layout inflater
+                    LayoutInflater inflater = (ManageTaskActivity.this).getLayoutInflater();
+
+                    View view2 = inflater.inflate(R.layout.matrix_picker, null);
+                    MaterialButton button = (MaterialButton) view2.findViewById(R.id.mat_max);
+
+                    MaterialButton btn1 = view2.findViewById(R.id.mat_max);
+                    MaterialButton btn2 = view2.findViewById(R.id.high);
+                    MaterialButton btn3 = view2.findViewById(R.id.med);
+                    MaterialButton btn4 = view2.findViewById(R.id.min);
+
+                    Supplier<Integer> disableStrokes = () -> {
+                        btn1.setStrokeColor(ColorStateList.valueOf(getColor(R.color.transparent)));
+                        btn2.setStrokeColor(ColorStateList.valueOf(getColor(R.color.transparent)));
+                        btn3.setStrokeColor(ColorStateList.valueOf(getColor(R.color.transparent)));
+                        btn4.setStrokeColor(ColorStateList.valueOf(getColor(R.color.transparent)));
+                        return 0;
+                    };
+
+                    View.OnClickListener listener = new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            switch (view.getId()){
+                                case R.id.mat_max:
+                                    disableStrokes.get();
+                                    btn1.setStrokeColor(ColorStateList.valueOf(getColor(R.color.def_blue)));
+                                    mViewModel.mManagingTaskRepository.setImportance(0);
+                                    break;
+                                case R.id.high:
+                                    disableStrokes.get();
+                                    btn2.setStrokeColor(ColorStateList.valueOf(getColor(R.color.def_blue)));
+                                    mViewModel.mManagingTaskRepository.setImportance(1);
+                                    break;
+                                case R.id.med:
+                                    disableStrokes.get();
+                                    btn3.setStrokeColor(ColorStateList.valueOf(getColor(R.color.def_blue)));
+                                    mViewModel.mManagingTaskRepository.setImportance(2);
+                                    break;
+                                case R.id.min:
+                                    disableStrokes.get();
+                                    btn4.setStrokeColor(ColorStateList.valueOf(getColor(R.color.def_blue)));
+                                    mViewModel.mManagingTaskRepository.setImportance(3);
+                                    break;
+                            }
+                        }
+                    };
+
+                    builder.setTitle("Определите важность");
+                    builder.setCancelable(true);
+
+                    btn1.setOnClickListener(listener);
+                    btn2.setOnClickListener(listener);
+                    btn3.setOnClickListener(listener);
+                    btn4.setOnClickListener(listener);
+
+                    switch (mViewModel.mManagingTaskRepository.getImportance()){
+                        case 0:
+                            disableStrokes.get();
+                            btn1.setStrokeColor(ColorStateList.valueOf(getColor(R.color.def_blue)));
+                            break;
+                        case 1:
+                            disableStrokes.get();
+                            btn2.setStrokeColor(ColorStateList.valueOf(getColor(R.color.def_blue)));
+                            break;
+                        case 2:
+                            disableStrokes.get();
+                            btn3.setStrokeColor(ColorStateList.valueOf(getColor(R.color.def_blue)));
+                            break;
+                        case 3:
+                            disableStrokes.get();
+                            btn4.setStrokeColor(ColorStateList.valueOf(getColor(R.color.def_blue)));
+                            break;
+                        default:
+                            disableStrokes.get();
+                            break;
+                    }
+
+                    builder.setView(view2)
+                            // Add action buttons
+                            .setPositiveButton("Ок", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int id) {
+
+                                }
+                            })
+                            .setNeutralButton("Очистить", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    mViewModel.mManagingTaskRepository.setImportance(-1);
+                                }
+                            });
+                    androidx.appcompat.app.AlertDialog dialog = builder.create();
+                    dialog.show();
+                    view.clearFocus();
+                }
+            }
+        });
+        button6Layout.setEndIconOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                button6.setText("");
+            }
+        });
+        button6Layout.setEndIconDrawable(com.google.android.material.R.drawable.mtrl_ic_cancel);
     }
 
     private int isNameCorrect(String name){
@@ -625,4 +760,59 @@ public class ManageTaskActivity extends AppCompatActivity implements View.OnFocu
         onBackPressed();
         return true;
     }
+
+
+    /*private void showPriorityDialog(){
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
+        // Get the layout inflater
+        LayoutInflater inflater = (this).getLayoutInflater();
+        // Inflate and set the layout for the dialog
+        // Pass null as the parent view because its going in the
+        // dialog layout
+        builder.setTitle("Определите важность");
+        builder.setCancelable(true);
+        builder.setView(inflater.inflate(R.layout.matrix_picker, null))
+                // Add action buttons
+                .setPositiveButton("Ок", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+
+                    }
+                })
+                .setNegativeButton("Отменить", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.dismiss();
+                    }
+                })
+                .setNeutralButton("Очистить", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        // очистить
+                    }
+                });
+        androidx.appcompat.app.AlertDialog dialog = builder.create();
+        View.OnClickListener listener = new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                switch (view.getId()){
+                    case R.id.mat_max:
+
+                        break;
+                    case R.id.high:
+
+                        break;
+                    case R.id.med:
+
+                        break;
+                    case R.id.min:
+
+                        break;
+                }
+                // set to task or project
+                dialog.dismiss();
+            }
+        };
+        builder.show();
+    }*/
 }

@@ -82,6 +82,14 @@
                     android:text="@={viewmodel.mManagingTaskRepository.TaskDescription}"
                     />
                 </com.google.android.material.textfield.TextInputLayout>
+                <com.google.android.material.divider.MaterialDivider
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/manage_task_text_input"
+                    android:layout_marginTop="7dp"
+                    app:dividerColor="@color/textPrimary"
+                    />
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/manage_task_category_layout"
                     android:layout_width="match_parent"
@@ -102,13 +110,22 @@
                         android:inputType="@{InputType.TYPE_NULL}"
                         />
                 </com.google.android.material.textfield.TextInputLayout>
+                <com.google.android.material.divider.MaterialDivider
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/manage_task_category_layout"
+                    android:layout_marginTop="7dp"
+                    app:dividerColor="@color/textPrimary"
+                    />
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/manage_task_layout_range"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     app:startIconDrawable="@drawable/ic_outline_date_range_24"
                     app:startIconTint="@color/primary"
-                    app:endIconMode="clear_text"
+                    app:endIconMode="custom"
+                    app:endIconTint="@color/secondary"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/manage_task_category_layout"
                     android:layout_marginTop="10dp"
@@ -120,21 +137,44 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint='Выберите срок выполнения'
-                        android:text="@{viewmodel.mManagingTaskRepository.getRange}"
+                        android:text="@={viewmodel.mManagingTaskRepository.range}"
+                        android:inputType="@{InputType.TYPE_NULL}"
+
+                        />
+
+                </com.google.android.material.textfield.TextInputLayout>
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/manage_task_layout_priority"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:startIconDrawable="@drawable/ic_round_priority_high_24"
+                    app:startIconTint="@color/primary"
+                    app:endIconMode="custom"
+                    app:endIconTint="@color/secondary"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/manage_task_layout_range"
+                    android:layout_marginTop="10dp"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    >
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/manage_task_text_priority"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint='Определите важность'
+                        android:text="@={viewmodel.mManagingTaskRepository.importanceString}"
                         android:inputType="@{InputType.TYPE_NULL}"
 
                         />
 
                 </com.google.android.material.textfield.TextInputLayout>
                 <com.google.android.material.divider.MaterialDivider
-                    android:id="@+id/manage_task_divider1"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    app:dividerInsetStart="16dp"
-                    app:dividerInsetEnd="16dp"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/manage_task_layout_range"
-                    android:layout_marginBottom="4dp"
+                    app:layout_constraintTop_toBottomOf="@id/manage_task_layout_priority"
+                    android:layout_marginTop="7dp"
+                    app:dividerColor="@color/textPrimary"
                     />
                 <com.google.android.material.checkbox.MaterialCheckBox
                     android:id="@+id/manage_task_notify_enabled"
@@ -143,7 +183,7 @@
                     android:text="Уведомление"
                     android:checked="@={viewmodel.mManagingTaskRepository.taskNotificationState}"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/manage_task_divider1"
+                    app:layout_constraintTop_toBottomOf="@id/manage_task_layout_priority"
                     />
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/manage_task_layout_notify"
@@ -151,7 +191,6 @@
                     android:layout_height="wrap_content"
                     app:startIconDrawable="@drawable/ic_outline_access_alarm_24"
                     app:startIconTint="@color/primary"
-                    app:endIconDrawable="@drawable/ic_outline_access_alarm_24"
                     app:endIconMode="clear_text"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/manage_task_notify_enabled"
@@ -241,8 +280,6 @@
                         />
 
                 </com.google.android.material.textfield.TextInputLayout>
-
-
                 <androidx.constraintlayout.widget.Barrier
                     android:id="@+id/manage_task_barrier_2"
                     android:layout_width="wrap_content"
@@ -353,6 +390,14 @@
                         android:inputType="@{InputType.TYPE_NULL}"
                         />
                 </com.google.android.material.textfield.TextInputLayout>
+                <com.google.android.material.divider.MaterialDivider
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/manage_task_theme_layout"
+                    android:layout_marginTop="7dp"
+                    app:dividerColor="@color/textPrimary"
+                    />
                 <net.cachapa.expandablelayout.ExpandableLayout
                     android:id="@+id/manage_task_color_expandable_layout"
                     android:layout_width="match_parent"
@@ -485,8 +530,6 @@
                     </androidx.constraintlayout.widget.ConstraintLayout>
 
                 </net.cachapa.expandablelayout.ExpandableLayout>
-
-
             </androidx.constraintlayout.widget.ConstraintLayout>
 
         </ScrollView>

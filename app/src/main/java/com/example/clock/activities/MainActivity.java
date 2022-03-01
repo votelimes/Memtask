@@ -3,18 +3,21 @@ package com.example.clock.activities;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.SpannableString;
 import android.text.style.AbsoluteSizeSpan;
 import android.text.style.ForegroundColorSpan;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -42,6 +45,7 @@ import com.example.clock.viewmodels.MainViewModel;
 import com.example.clock.viewmodels.ViewModelFactoryBase;
 import com.example.clock.databinding.ActivityMainBinding;
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.navigation.NavigationView;
 
 import java.text.ParseException;
@@ -230,7 +234,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         return false;
     }
-
 
     public void setupNav(){
         Drawable navIcon = getDrawable(R.drawable.ic_round_menu_24);
@@ -455,7 +458,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             defaultTasksList.get(0).setAlarmTime("25.02.2022 11:20");
             defaultTasksList.get(0).setNotificationEnabled(true);
             defaultTasksList.get(0).setRepeatMode(4);
-            defaultTasksList.get(0).setImportant(true);
+            defaultTasksList.get(0).setImportance(3);
             defaultTasksList.get(0).setThemeID(defaultThemesList.get(20).getID());
 
             defaultTasksList.add(new Task("Полить цветы", "Полить все цветы кроме, замиокулькаса", 1 ));
@@ -469,7 +472,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             defaultTasksList.get(2).setAlarmTime("26.02.2022 16:00");
             defaultTasksList.get(2).setNotificationEnabled(true);
             defaultTasksList.get(2).setThemeID(defaultThemesList.get(1).getID());
-            defaultTasksList.get(2).setImportant(true);
+            defaultTasksList.get(2).setImportance(0);
 
             defaultTasksList.add(new Task("Утренняя разминка", "", 4 ));
             defaultTasksList.get(3).setAlarmTime("26.02.2022 10:00");
@@ -516,7 +519,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             defaultTasksList.get(10).setAlarmTime("25.02.2022 11:00");
             defaultTasksList.get(10).setNotificationEnabled(true);
             defaultTasksList.get(10).setParentID(defaultProjectsList.get(1).getProjectId());
-            defaultTasksList.get(10).setImportant(true);
+            defaultTasksList.get(10).setImportance(3);
             defaultTasksList.get(10).setThemeID(defaultThemesList.get(12).getID());
 
             defaultTasksList.add(new Task("Написать текст", "8 страниц, 14пт", 2 ));

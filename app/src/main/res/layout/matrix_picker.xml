@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    >
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:text="Определите важность:"
+        android:textColor="@color/primary"
+        android:textSize="20sp"
+        android:layout_marginStart="44dp"
+        android:visibility="gone"
+        />
+    <GridLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_gravity="center"
+        android:columnCount="2"
+        android:orientation="horizontal"
+        android:layout_marginTop="0dp"
+        android:padding="12dp"
+        >
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/mat_max"
+            android:text="Очень важно"
+            android:height="110dp"
+            android:width="90dp"
+            android:layout_columnWeight="1"
+            android:layout_rowWeight="1"
+            android:layout_marginEnd="12dp"
+            android:backgroundTint="#F94144"
+            app:strokeWidth="3dp"
+            />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/high"
+            android:text="Важно"
+            android:layout_columnWeight="1"
+            android:layout_rowWeight="1"
+            android:height="110dp"
+            android:width="90dp"
+            android:backgroundTint="#F3722C"
+            app:strokeWidth="3dp"/>
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/med"
+            android:text="Мало важно"
+            android:layout_columnWeight="1"
+            android:layout_rowWeight="1"
+            android:height="110dp"
+            android:width="90dp"
+            android:layout_marginEnd="12dp"
+            android:backgroundTint="#F9C74F"
+            app:strokeWidth="3dp"/>
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/min"
+            android:text="Не важно"
+            android:layout_columnWeight="1"
+            android:layout_rowWeight="1"
+            android:height="110dp"
+            android:width="90dp"
+            android:backgroundTint="#43AA8B"
+            app:strokeWidth="3dp"/>
+    </GridLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -393,7 +393,7 @@ public class CategoryActivitiesViewModel extends MemtaskViewModelBase{
         }
 
         public boolean isImportant(){
-            return data.task.isImportant();
+            return data.task.getImportance() == 0;
         }
 
         public boolean isProjectItem(){
@@ -595,7 +595,7 @@ public class CategoryActivitiesViewModel extends MemtaskViewModelBase{
         }
 
         public boolean isImportant(){
-            return data.project.isImportant();
+            return data.project.getImportance() == 0;
         }
 
         // Setters

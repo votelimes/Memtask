@@ -27,6 +27,8 @@ import com.example.clock.R;
 import com.example.clock.app.App;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import com.mikhaellopez.circularprogressbar.CircularProgressBar;
 
 public class BindingAdapters {
@@ -102,5 +104,18 @@ public class BindingAdapters {
             drawable = AppCompatResources.getDrawable(v.getContext(), R.drawable.ic_round_done_all_24);
         }
         v.setCheckedIcon(drawable);
+    }
+
+    @BindingAdapter("android:textImp")
+    public static void setText(TextInputEditText v, String text) {
+        View parent = (View) v.getParent().getParent();
+
+        if(parent instanceof TextInputLayout){
+            TextInputLayout layout = (TextInputLayout) parent;
+            v.setText(text);
+
+            layout.setEndIconVisible(true);
+            layout.setEndIconActivated(true);
+        }
     }
 }

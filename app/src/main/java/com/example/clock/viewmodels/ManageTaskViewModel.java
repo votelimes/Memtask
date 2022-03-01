@@ -439,6 +439,9 @@ public class ManageTaskViewModel extends MemtaskViewModelBase {
             if(firstDateLong == 0 && endDateLong == 0){
                 return "";
             }
+            else if(firstDateLong == -1 && endDateLong == -1){
+
+            }
 
             Date firstDate=new Date(firstDateLong);
             Date endDate=new Date(endDateLong);
@@ -447,6 +450,17 @@ public class ManageTaskViewModel extends MemtaskViewModelBase {
 
 
             return sdf2.format(firstDate) + " — " + sdf2.format(endDate) ;
+        }
+
+        public void setRange(String value){
+            if(value == null || value.length() == 0){
+                if(isTaskMode()){
+                    mManagingTask.setRange(0, 0);
+                }
+                else if(isProjectMode()){
+                    mManagingProject.setRange(0, 0);
+                }
+            }
         }
 
         public void setRangeMillis(long start, long end){
@@ -494,6 +508,7 @@ public class ManageTaskViewModel extends MemtaskViewModelBase {
 
             DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
 
+            String fin = LocalDateTime.ofEpochSecond(notificationSeconds, 0, ZoneOffset.UTC).format(dtf);
 
             return LocalDateTime.ofEpochSecond(notificationSeconds, 0, ZoneOffset.UTC).format(dtf);
         }
@@ -729,38 +744,152 @@ public class ManageTaskViewModel extends MemtaskViewModelBase {
             }
             return mManagingTask.isSunday();
         }
+
+        @Bindable
+        public String getImportanceString(){
+            if(isTaskMode()){
+                switch (mManagingTask.getImportance()){
+                    case 0:
+                        return "Очень важно";
+                    case 1:
+                        return "Важно";
+                    case 2:
+                        return "Маловажно";
+                    case 3:
+                        return "Не важно";
+                    default:
+                        return "";
+                }
+            }
+            else if(isProjectMode()){
+                switch (mManagingProject.getImportance()){
+                    case 0:
+                        return "Очень важно";
+                    case 1:
+                        return "Важно";
+                    case 2:
+                        return "Маловажно";
+                    case 3:
+                        return "Не важно";
+                    default:
+                        return "";
+                }
+            }
+            return "";
+        }
+        public void setImportanceString(String value){
+            if(isTaskMode()){
+                switch (value){
+                    case "Очень важно":
+                        mManagingTask.setImportance(0);
+                        break;
+                    case "Важно":
+                        mManagingTask.setImportance(1);
+                        break;
+                    case "Маловажно":
+                        mManagingTask.setImportance(2);
+                        break;
+                    case "Не важно":
+                        mManagingTask.setImportance(3);
+                        break;
+                    default:
+                        mManagingTask.setImportance(-1);
+                        break;
+                }
+            }
+            else if(isProjectMode()){
+                switch (value){
+                    case "Очень важно":
+                        mManagingProject.setImportance(0);
+                        break;
+                    case "Важно":
+                        mManagingProject.setImportance(1);
+                        break;
+                    case "Маловажно":
+                        mManagingProject.setImportance(2);
+                        break;
+                    case "Не важно":
+                        mManagingProject.setImportance(3);
+                        break;
+                    default:
+                        mManagingProject.setImportance(-1);
+                        break;
+                }
+            }
+
+        }
+        public int getImportance(){
+            if(isTaskMode()){
+                return mManagingTask.getImportance();
+            }
+            else if(isProjectMode()){
+                return mManagingProject.getImportance();
+            }
+            return -2;
+        }
+        public void setImportance(int value){
+            if(isTaskMode()){
+                mManagingTask.setImportance(value);
+            }
+            else if(isProjectMode()){
+                mManagingProject.setImportance(value);
+            }
+
+            notifyPropertyChanged(BR.importanceString);
+        }
         // Setters
         public void setMonday(boolean state){
+            if(mManagingTask.isMonday() == state){
+                return;
+            }
             mManagingTask.setMonday(state);
             setTaskNotificationMillis(mManagingTask.getNotificationStartMillis());
             notifyPropertyChanged(BR.monday);
         }
         public void setTuesday(boolean state){
+            if(mManagingTask.isTuesday() == state){
+                return;
+            }
             mManagingTask.setTuesday(state);
             setTaskNotificationMillis(mManagingTask.getNotificationStartMillis());
             notifyPropertyChanged(BR.tuesday);
         }
         public void setWednesday(boolean state){
+            if(mManagingTask.isWednesday() == state){
+                return;
+            }
             mManagingTask.setWednesday(state);
             setTaskNotificationMillis(mManagingTask.getNotificationStartMillis());
             notifyPropertyChanged(BR.wednesday);
         }
         public void setThursday(boolean state){
+            if(mManagingTask.isThursday() == state){
+                return;
+            }
             mManagingTask.setThursday(state);
             setTaskNotificationMillis(mManagingTask.getNotificationStartMillis());
             notifyPropertyChanged(BR.thursday);
         }
         public void setFriday(boolean state){
+            if(mManagingTask.isFriday() == state){
+                return;
+            }
             mManagingTask.setFriday(state);
             setTaskNotificationMillis(mManagingTask.getNotificationStartMillis());
             notifyPropertyChanged(BR.friday);
         }
         public void setSaturday(boolean state){
+            if(mManagingTask.isSaturday() == state){
+                return;
+            }
             mManagingTask.setSaturday(state);
             setTaskNotificationMillis(mManagingTask.getNotificationStartMillis());
             notifyPropertyChanged(BR.saturday);
         }
         public void setSunday(boolean state){
+            if(mManagingTask.isSunday() == state){
+                return;
+            }
             mManagingTask.setSunday(state);
             setTaskNotificationMillis(mManagingTask.getNotificationStartMillis());
             notifyPropertyChanged(BR.sunday);

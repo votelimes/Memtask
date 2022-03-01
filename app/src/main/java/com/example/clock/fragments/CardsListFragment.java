@@ -18,11 +18,13 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.clock.R;
 import com.example.clock.activities.ManageTaskActivity;
+import com.example.clock.adapters.CalendarFragmentAdapter;
 import com.example.clock.adapters.CardsListFragmentAdapter;
 import com.example.clock.app.App;
 import com.example.clock.model.ProjectData;
@@ -35,6 +37,7 @@ import com.github.clans.fab.FloatingActionButton;
 import com.github.clans.fab.FloatingActionMenu;
 import com.google.android.material.appbar.MaterialToolbar;
 
+import java.time.ZoneOffset;
 import java.util.List;
 
 public class CardsListFragment extends Fragment implements SearchView.OnQueryTextListener {
@@ -134,6 +137,59 @@ public class CardsListFragment extends Fragment implements SearchView.OnQueryTex
         MenuItem searchItem = toolbar.getMenu().findItem(R.id.action_search);
         searchView = (SearchView) searchItem.getActionView();
         searchView.setOnQueryTextListener(this);
+
+        ItemTouchHelper.SimpleCallback touchHelperCallbackRight = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT) {
+            @Override
+            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+            @Override
+            public int getSwipeDirs(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
+                if (viewHolder instanceof CardsListFragmentAdapter.ProjectViewHolder) return 0;
+                return super.getSwipeDirs(recyclerView, viewHolder);
+            }
+
+            @Override
+            public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+                mRecyclerViewAdapter.removeItem(viewHolder.getAbsoluteAdapterPosition());
+            }
+        };
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(touchHelperCallbackRight);
+        itemTouchHelper.attachToRecyclerView(mRecyclerView);
+
+        ItemTouchHelper.SimpleCallback touchHelperCallbackLeft = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
+            @Override
+            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+            @Override
+            public int getSwipeDirs(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
+                if (viewHolder instanceof CardsListFragmentAdapter.ProjectViewHolder) return 0;
+                return super.getSwipeDirs(recyclerView, viewHolder);
+            }
+
+            @Override
+            public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+                Intent taskIntent = new Intent(view.getContext(), ManageTaskActivity.class);
+                if(viewHolder instanceof CardsListFragmentAdapter.TaskViewHolder){
+                    CardsListFragmentAdapter.TaskViewHolder vh = (CardsListFragmentAdapter.TaskViewHolder) viewHolder;
+                    taskIntent.putExtra("ID", vh.getBinding().getData().getTask().getTaskId());
+                    taskIntent.putExtra("mode", "TaskEditing");
+                }
+                else if(viewHolder instanceof CardsListFragmentAdapter.ProjectViewHolder){
+                    CardsListFragmentAdapter.ProjectViewHolder vh = (CardsListFragmentAdapter.ProjectViewHolder) viewHolder;
+                    taskIntent.putExtra("ID", vh.getBinding().getData().getProject().getProjectId());
+                    taskIntent.putExtra("mode", "ProjectEditing");
+                }
+                activityLauncher.launch(taskIntent);
+                CardsListFragmentAdapter adapter = (CardsListFragmentAdapter) viewHolder.getBindingAdapter();
+                adapter.notifyItemChanged(viewHolder.getAbsoluteAdapterPosition());
+            }
+        };
+        itemTouchHelper = new ItemTouchHelper(touchHelperCallbackLeft);
+        itemTouchHelper.attachToRecyclerView(mRecyclerView);
         }
 
     final Observer<Tuple3<List<TaskAndTheme>, List<ProjectData>, List<Theme>>> onCreateObserver = new Observer<Tuple3<List<TaskAndTheme>, List<ProjectData>, List<Theme>>>() {

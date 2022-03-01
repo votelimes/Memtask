@@ -427,7 +427,7 @@ public class CalendarViewModel extends MemtaskViewModelBase{
         }
 
         public boolean isImportant(){
-            return data.task.isImportant();
+            return data.task.getImportance() == 0;
         }
 
         public String getNotify(){
