@@ -521,41 +521,51 @@ public class ManageTaskViewModel extends MemtaskViewModelBase {
         public void setTaskNotificationMillis(long millis){
 
             LocalDateTime selectedDate = LocalDateTime.ofEpochSecond((long) millis / 1000, 0, ZoneOffset.UTC);
+            LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
             if(mManagingTask.isNotificationEnabled() && millis > 0){
-                if(mManagingTask.getRepeatMode() == 0){
+                if(mManagingTask.getRepeatMode() == 0){ // Один раз
                     mManagingTask.setNotificationStartMillis(millis);
                 }
-                else if(mManagingTask.getRepeatMode() == 1){
-                    if(selectedDate.isAfter(LocalDateTime.now(ZoneOffset.UTC))){
-                        selectedDate.plusDays(1);
-                        mManagingTask.setNotificationStartMillis(selectedDate.toEpochSecond(ZoneOffset.UTC) * 1000);
+                else if(mManagingTask.getRepeatMode() == 1){ // Каждый день
+                    if(selectedDate.isBefore(now)){
+                        selectedDate = selectedDate.withYear(now.getYear());
+                        selectedDate = selectedDate.withDayOfYear(now.getDayOfYear());
+                        if(selectedDate.isBefore(now)){
+                            selectedDate = selectedDate.plusDays(1);
+                        }
                     }
-                }
+                    mManagingTask.setNotificationStartMillis(selectedDate.toEpochSecond(ZoneOffset.UTC) * 1000);
+                } // По дням неделям или будням
                 else if(mManagingTask.getRepeatMode() == 2 || mManagingTask.getRepeatMode() == 3){
-                    LocalDateTime nearest = LocalDateTime.ofEpochSecond((long) millis / 1000, 0, ZoneOffset.UTC);
+                    selectedDate = selectedDate.withYear(now.getYear());
+                    selectedDate = selectedDate.withDayOfYear(now.getDayOfYear());
+
                     if(mManagingTask.isDayOfWeekActive(selectedDate.getDayOfWeek())
-                    && selectedDate.toLocalDate().isEqual(LocalDate.now())
                     && selectedDate.isAfter(LocalDateTime.now())){
                         mManagingTask.setNotificationStartMillis(selectedDate.toEpochSecond(ZoneOffset.UTC) * 1000);
                     }
                     else {
                         int exitDecision = 0;
-                        while ((!mManagingTask.isDayOfWeekActive(nearest.getDayOfWeek())
-                                || selectedDate.toLocalDate().isEqual(nearest.toLocalDate())
-                        ) && exitDecision < 7){
-                            nearest = nearest.plusDays(1);
+                        while ((!mManagingTask.isDayOfWeekActive(selectedDate.getDayOfWeek())
+                                || selectedDate.isBefore(now))
+                                && exitDecision < 8){
+                            selectedDate = selectedDate.plusDays(1);
                             exitDecision++;
                         }
-                        if(exitDecision > 6){
-                            notifyPropertyChanged(BR.taskNotificationString);
+                        if(exitDecision > 7){
                             mManagingTask.setNotificationStartMillis(0);
+                            notifyPropertyChanged(BR.taskNotificationString);
                         }
                         else {
-                            nearest.withHour(selectedDate.getHour());
-                            nearest.withMinute(selectedDate.getMinute());
-                            mManagingTask.setNotificationStartMillis(nearest.toEpochSecond(ZoneOffset.UTC) * 1000);
+                            mManagingTask.setNotificationStartMillis(selectedDate.toEpochSecond(ZoneOffset.UTC) * 1000);
                         }
                     }
+                } // Раз в месяц
+                else{
+                    if(selectedDate.isBefore(now)){
+                        selectedDate = selectedDate.plusMonths(1);
+                    }
+                    mManagingTask.setNotificationStartMillis(selectedDate.toEpochSecond(ZoneOffset.UTC) * 1000);
                 }
             }
             notifyPropertyChanged(BR.taskNotificationString);

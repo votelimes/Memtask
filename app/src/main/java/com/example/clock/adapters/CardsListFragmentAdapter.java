@@ -132,7 +132,6 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
     public static class ProjectViewHolder extends RecyclerView.ViewHolder{
 
         private final MaterialCardView mainLayout;
-        private final LinearLayout itemsLayout;
 
         private final TextView range;
         private final EditText name;
@@ -153,8 +152,6 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
             View view = binding.getRoot();
 
             mainLayout = (MaterialCardView) view.findViewById(R.id.project2_top_layout);
-
-            itemsLayout = (LinearLayout) view.findViewById(R.id.project2_children);
 
             name = (EditText) view.findViewById(R.id.project2_name);
 
@@ -180,10 +177,6 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
 
         public MaterialCardView getMainLayout() {
             return mainLayout;
-        }
-
-        public LinearLayout getItemsLayout() {
-            return itemsLayout;
         }
 
         public TextView getRange() {
