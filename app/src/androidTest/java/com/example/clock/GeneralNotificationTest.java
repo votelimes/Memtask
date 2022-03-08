@@ -1,6 +1,7 @@
 package com.example.clock;
 
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
@@ -20,6 +21,7 @@ import com.example.clock.model.Category;
 import com.example.clock.model.Project;
 import com.example.clock.model.ProjectData;
 import com.example.clock.model.Task;
+import com.example.clock.model.TaskNotificationData;
 import com.example.clock.model.Theme;
 import com.example.clock.storageutils.Database;
 
@@ -31,13 +33,16 @@ import org.junit.runner.RunWith;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
 
 @RunWith(AndroidJUnit4.class)
-public class ProjectDaoChildsQueryTest {
+public class GeneralNotificationTest {
     private TaskDao taskDao;
     private ProjectDao projectDao;
     private CategoryDao categoryDao;
@@ -66,38 +71,37 @@ public class ProjectDaoChildsQueryTest {
     }
 
     @Test
-    public void projectsWithThemesByCategoryTest(){
-        List<ProjectData> projectsSet = projectDao.getProjectsDataByCatTEST(4);
+    public void notificationQueryAlgorithmTest(){
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
+        LocalDateTime rangeStart = LocalDateTime.parse("01.03.2022 00:00", dtf);
+        LocalDateTime rangeEnd = LocalDateTime.parse("01.04.2022 00:00", dtf);
+        List<TaskNotificationData> data = taskDao.getTasksNotificationData(rangeStart.toEpochSecond(ZoneOffset.UTC)*1000, rangeEnd.toEpochSecond(ZoneOffset.UTC)*1000);
 
-        assertThat(projectsSet.size(), equalTo(1));
-        assertNotNull(projectsSet.get(0).theme);
-        assertNotNull(projectsSet.get(0).tasksData.get(0).theme);
+
     }
 
     @Test
-    public void allProjectsWithThemesTest(){
-        List<ProjectData> allProjects = projectDao.getProjectsDataTEST2();
+    public void queryTest(){
+        List<TaskNotificationData> data = taskDao.getTasksNotificationData(0L, 1546602923713L);
+        List<Task> allData = taskDao.getAll();
 
+        data.forEach(item -> {
+            if(item.project != null){
+                Log.d("GeneralNotificationTest", "queryTest: PROJECT NAME EXISTS");
+                assertNotNull(item.project);
+            }
+            if(item.task.getName() == null){
+                assertNotNull(item.task.getName());
+                allData.forEach(innerItem -> {
+                    if(item.task.getTaskId().equals(innerItem.getTaskId())){
+                        Log.d("GeneralNotificationTest", "queryTest: FIND NULL NAME DUPLICATE");
+                        Log.d("GeneralNotificationTest", item.task.getTaskId());
+                    }
+                });
+            }
+        });
 
-        assertThat(allProjects.size(), equalTo(2));
-        assertNotNull(allProjects.get(0).theme);
-        assertNotNull(allProjects.get(0).tasksData.get(0).theme);
-    }
-
-    @Test
-    public void allProjectsTest() throws Exception {
-        List<ProjectData> allProjects = projectDao.getProjectsDataTEST();
-
-        assertNotNull(allProjects.get(0).theme);
-    }
-
-    @Test
-    public void categoryProjectsTest() throws Exception {
-        List<ProjectData> allProjects = projectDao.getProjectsDataTEST();
-        List<ProjectData> projectsWithCategory = projectDao.getProjectsDataByCatTEST(2);
-
-        assertNotNull(projectsWithCategory.get(0).theme);
-        assertThat(projectsWithCategory.get(0).tasksData.size(), equalTo(allProjects.get(1).tasksData.size()));
+        assertNotEquals(data.size(), 0);
     }
 
     private void populateDB(){
@@ -263,12 +267,12 @@ public class ProjectDaoChildsQueryTest {
         // Some projects installation
         List<Project> defaultProjectsList = new ArrayList<Project>(5);
         defaultProjectsList.add(new Project("Вылечить зуб", "", 4));
-        defaultProjectsList.get(0).setRange("24.02.2022", "28.02.2022");
+        defaultProjectsList.get(0).setRange("24.03.2022", "28.03.2022");
         defaultProjectsList.get(0).setThemeID(defaultThemesList.get(21).getID());
         project1ID = defaultProjectsList.get(0).getProjectId();
 
         defaultProjectsList.add(new Project("Сделать презентацию", "Способы оптимизации алгоритмов", 2));
-        defaultProjectsList.get(1).setRange("1.02.2022", "15.02.2022");
+        defaultProjectsList.get(1).setRange("01.03.2022", "15.03.2022");
         defaultProjectsList.get(1).setThemeID(defaultThemesList.get(21).getID());
         project2ID = defaultProjectsList.get(1).getProjectId();
 
@@ -282,33 +286,35 @@ public class ProjectDaoChildsQueryTest {
         SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
 
         try {
-            calendar.setTime(sdf.parse("25.02.2022 00:00:00"));
+            calendar.setTime(sdf.parse("25.03.2022 00:00:00"));
         } catch (ParseException e){
             Log.e("INITIAL SETUP ERROR: ", e.getMessage());
         }
 
         defaultTasksList.add(new Task("Оплатить счета", "Оплатить счета за дом", 1 ));
-        defaultTasksList.get(0).setAlarmTime("25.02.2022 11:20");
+        defaultTasksList.get(0).setAlarmTime("25.03.2022 11:20");
+        defaultTasksList.get(0).setRange("20.03.2022", "25.03.2022");
         defaultTasksList.get(0).setNotificationEnabled(true);
         defaultTasksList.get(0).setRepeatMode(4);
         defaultTasksList.get(0).setImportance(0);
         defaultTasksList.get(0).setThemeID(defaultThemesList.get(20).getID());
 
         defaultTasksList.add(new Task("Полить цветы", "Полить все цветы кроме, замиокулькаса", 1 ));
-        defaultTasksList.get(1).setAlarmTime("25.02.2022 17:40");
+        defaultTasksList.get(1).setAlarmTime("25.03.2022 17:40");
         defaultTasksList.get(1).setNotificationEnabled(true);
         defaultTasksList.get(1).setRepeatMode(3);
         defaultTasksList.get(1).setTuesday(true);
         defaultTasksList.get(1).setThemeID(defaultThemesList.get(0).getID());
 
         defaultTasksList.add(new Task("Забрать посылку", "", 1 ));
-        defaultTasksList.get(2).setAlarmTime("26.02.2022 16:00");
+        defaultTasksList.get(2).setAlarmTime("14.03.2022 16:00");
+        defaultTasksList.get(2).setRange("14.03.2022", "17.03.2022");
         defaultTasksList.get(2).setNotificationEnabled(true);
         defaultTasksList.get(2).setThemeID(defaultThemesList.get(1).getID());
         defaultTasksList.get(2).setImportance(1);
 
         defaultTasksList.add(new Task("Утренняя разминка", "", 4 ));
-        defaultTasksList.get(3).setAlarmTime("26.02.2022 10:00");
+        defaultTasksList.get(3).setAlarmTime("26.03.2022 10:00");
         defaultTasksList.get(3).setNotificationEnabled(true);
         defaultTasksList.get(3).setRepeatMode(3);
         defaultTasksList.get(3).setMonday(true);
@@ -317,12 +323,13 @@ public class ProjectDaoChildsQueryTest {
         defaultTasksList.get(3).setThemeID(defaultThemesList.get(2).getID());
 
         defaultTasksList.add(new Task("Забрать ключи", "Ключи от офиса 303", 2 ));
-        defaultTasksList.get(4).setAlarmTime("26.02.2022 15:00");
+        defaultTasksList.get(4).setAlarmTime("26.03.2022 15:00");
+        defaultTasksList.get(4).setRange("26.03.2022", "26.03.2022");
         defaultTasksList.get(4).setNotificationEnabled(true);
         defaultTasksList.get(4).setThemeID(defaultThemesList.get(0).getID());
 
         defaultTasksList.add(new Task("Отправиться на прием к врачу", "Кабинет 6", 4 ));
-        defaultTasksList.get(5).setAlarmTime("11.02.2022 7:40");
+        defaultTasksList.get(5).setAlarmTime("11.03.2022 07:40");
         defaultTasksList.get(5).setNotificationEnabled(true);
         defaultTasksList.get(5).setRepeatMode(1);
         defaultTasksList.get(5).setThemeID(defaultThemesList.get(1).getID());
@@ -331,43 +338,51 @@ public class ProjectDaoChildsQueryTest {
         defaultTasksList.add(new Task("Поискать номер регистратуры", "", 4 ));
         defaultTasksList.get(6).setParentID(defaultProjectsList.get(0).getProjectId());
         defaultTasksList.get(6).setThemeID(defaultThemesList.get(20).getID());
+        defaultTasksList.get(6).setRange("05.03.2022", "10.03.2022");
 
         defaultTasksList.add(new Task("Позвонить по номеру", "", 4 ));
         defaultTasksList.get(7).setParentID(defaultProjectsList.get(0).getProjectId());
         defaultTasksList.get(7).setThemeID(defaultThemesList.get(20).getID());
+        defaultTasksList.get(7).setRange("11.03.2022", "13.03.2022");
 
         defaultTasksList.add(new Task("Записать дату приема", "", 4));
         defaultTasksList.get(8).setParentID(defaultProjectsList.get(0).getProjectId());
         defaultTasksList.get(8).setThemeID(defaultThemesList.get(20).getID());
+        defaultTasksList.get(8).setRange("13.03.2022", "15.03.2022");
 
 
         // Project tasks
         defaultTasksList.add(new Task("Подготовить литературу", "Поискать на programmer-lib", 2 ));
-        defaultTasksList.get(9).setAlarmTime("24.02.2022 11:00");
+        defaultTasksList.get(9).setAlarmTime("24.03.2022 11:00");
+        defaultTasksList.get(9).setRange("24.03.2022", "25.03.2022");
         defaultTasksList.get(9).setNotificationEnabled(true);
         defaultTasksList.get(9).setParentID(defaultProjectsList.get(1).getProjectId());
         defaultTasksList.get(9).setThemeID(defaultThemesList.get(20).getID());
 
         defaultTasksList.add(new Task("Определить структуру", "3 раздела, 12 слайдов", 2 ));
-        defaultTasksList.get(10).setAlarmTime("25.02.2022 11:00");
+        defaultTasksList.get(10).setAlarmTime("25.03.2022 11:00");
+        defaultTasksList.get(10).setRange("25.03.2022", "26.03.2022");
         defaultTasksList.get(10).setNotificationEnabled(true);
         defaultTasksList.get(10).setParentID(defaultProjectsList.get(1).getProjectId());
         defaultTasksList.get(10).setImportance(0);
         defaultTasksList.get(10).setThemeID(defaultThemesList.get(12).getID());
 
         defaultTasksList.add(new Task("Написать текст", "8 страниц, 14пт", 2 ));
-        defaultTasksList.get(11).setAlarmTime("27.02.2022 17:00");
+        defaultTasksList.get(11).setAlarmTime("27.03.2022 17:00");
+        defaultTasksList.get(11).setRange("27.03.2022", "31.03.2022");
         defaultTasksList.get(11).setNotificationEnabled(true);
         defaultTasksList.get(11).setParentID(defaultProjectsList.get(1).getProjectId());
         defaultTasksList.get(11).setThemeID(defaultThemesList.get(11).getID());
 
         defaultTasksList.add(new Task("Проверить новую версию Room", "Последняя 2.4.1", 2 ));
-        defaultTasksList.get(12).setAlarmTime("20.02.2022 17:00");
+        defaultTasksList.get(12).setAlarmTime("20.03.2022 17:00");
+        defaultTasksList.get(12).setRange("20.03.2022", "25.03.2022");
         defaultTasksList.get(12).setNotificationEnabled(true);
         defaultTasksList.get(12).setThemeID(defaultThemesList.get(10).getID());
 
         defaultTasksList.add(new Task("Посмотреть видео про коптеры", "Любое", 3 ));
         defaultTasksList.get(13).setThemeID(defaultThemesList.get(15).getID());
+        defaultTasksList.get(13).setRange("01.03.2022", "31.03.2022");
 
         for (Task task: defaultTasksList) {
             taskDao.insert(task);

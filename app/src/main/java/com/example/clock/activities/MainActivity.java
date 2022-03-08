@@ -436,7 +436,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             defaultProjectsList.get(0).setRange("24.02.2022", "28.02.2022");
             defaultProjectsList.get(0).setThemeID(defaultThemesList.get(21).getID());
             defaultProjectsList.add(new Project("Сделать презентацию", "Способы оптимизации алгоритмов", 2));
-            defaultProjectsList.get(1).setRange("1.02.2022", "15.02.2022");
+            defaultProjectsList.get(1).setRange("01.02.2022", "15.02.2022");
             defaultProjectsList.get(1).setThemeID(defaultThemesList.get(21).getID());
 
             for (Project project: defaultProjectsList) {

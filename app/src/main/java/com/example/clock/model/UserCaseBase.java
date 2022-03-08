@@ -9,6 +9,7 @@ import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
@@ -163,11 +164,11 @@ public class UserCaseBase implements Serializable  {
 
     public void setRange(String rangeStart, String rangeEnd){
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd.MM.yyyy");
-        LocalDateTime ldtStart = LocalDateTime.parse(rangeStart, dtf);
-        LocalDateTime ldtEnd = LocalDateTime.parse(rangeEnd, dtf);
+        LocalDate ldtStart = LocalDate.parse(rangeStart, dtf);
+        LocalDate ldtEnd = LocalDate.parse(rangeEnd, dtf);
 
-        startTime = ldtStart.toEpochSecond(ZoneOffset.UTC);
-        endTime = ldtEnd.toEpochSecond(ZoneOffset.UTC);
+        startTime = ldtStart.atStartOfDay().toEpochSecond(ZoneOffset.UTC);
+        endTime = ldtEnd.atStartOfDay().toEpochSecond(ZoneOffset.UTC);
     }
 
     public void setRange(long startTime, long endTime){
