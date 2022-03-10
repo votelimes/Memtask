@@ -23,4 +23,7 @@ public class TaskNotificationManager {
     public static final int NOTIFICATION_ALARM_COMPLETE = 501;
     public static final int NOTIFICATION_ALARM_POSTPONE = 502;
     public static final int NOTIFICATION_ALARM_SKIP = 503;
+
+    public static final long MILLIS_IN_DAY = 1000 * 60 * 60 * 24;
+    public static final long MILLIS_IN_HOUR = 1000 * 60 * 60;
 }

@@ -8,6 +8,7 @@ import static org.junit.Assert.assertThat;
 import android.content.Context;
 import android.util.Log;
 
+import androidx.core.util.Pair;
 import androidx.room.Room;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -22,6 +23,7 @@ import com.example.clock.model.Project;
 import com.example.clock.model.ProjectData;
 import com.example.clock.model.Task;
 import com.example.clock.model.TaskNotificationData;
+import com.example.clock.model.TaskNotificationManager;
 import com.example.clock.model.Theme;
 import com.example.clock.storageutils.Database;
 
@@ -39,6 +41,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.LinkedList;
 import java.util.List;
 
 @RunWith(AndroidJUnit4.class)
@@ -75,9 +78,43 @@ public class GeneralNotificationTest {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
         LocalDateTime rangeStart = LocalDateTime.parse("01.03.2022 00:00", dtf);
         LocalDateTime rangeEnd = LocalDateTime.parse("01.04.2022 00:00", dtf);
-        List<TaskNotificationData> data = taskDao.getTasksNotificationData(rangeStart.toEpochSecond(ZoneOffset.UTC)*1000, rangeEnd.toEpochSecond(ZoneOffset.UTC)*1000);
 
+        long startMillis = rangeStart.toEpochSecond(ZoneOffset.UTC)*1000;
+        long endMillis = rangeEnd.toEpochSecond(ZoneOffset.UTC)*1000;
+        long nowMillis = LocalDateTime.now().toEpochSecond(ZoneOffset.UTC)*1000;
 
+        long inDayDifference = TaskNotificationManager.MILLIS_IN_HOUR * 4;
+        long dayDifference = TaskNotificationManager.MILLIS_IN_HOUR * 20;
+
+        List<TaskNotificationData> data = taskDao.getTasksNotificationData(startMillis, endMillis);
+
+        //List<LinkedList<Pair<TaskNotificationData, Long>>>;
+
+        List<TaskNotificationData> notificationQuery = new ArrayList<>(data.size());
+
+        for (int i = 0; i < data.size(); i++){
+            TaskNotificationData item = data.get(i);
+            Task task = item.task;
+
+            // Время текущей задачи
+            LocalDateTime currentStartTime = LocalDateTime.ofEpochSecond(task.getStartTime() / 1000, 0, ZoneOffset.UTC);
+            LocalDateTime nextStartTime;
+
+            // Если range маленький (в пределах дня)
+            if(task.getRangeDifference() <= TaskNotificationManager.MILLIS_IN_HOUR * 24){
+                continue;
+            }
+
+            if((i + 1) < data.size()){ // Если не последняя
+                nextStartTime = LocalDateTime.ofEpochSecond(data.get(i + 1).task.getStartTime() / 1000, 0, ZoneOffset.UTC);
+
+            }
+            else{ // Если последняя в списке
+                currentStartTime = currentStartTime.withHour(10);
+                task.setNextGeneralNotificationMillis(currentStartTime.toEpochSecond(ZoneOffset.UTC) * 1000);
+                notificationQuery.add(item);
+            }
+        }
     }
 
     @Test

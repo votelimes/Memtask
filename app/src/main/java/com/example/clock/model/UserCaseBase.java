@@ -309,6 +309,10 @@ public class UserCaseBase implements Serializable  {
         this.nextGeneralNotificationMillis = nextGeneralNotificationMillis;
     }
 
+    public boolean isGeneralNotificationSet(){
+        return nextGeneralNotificationMillis == 0 || nextGeneralNotificationMillis == -1;
+    }
+
     // Returns true if something has changed (obj got Expired or Completed)
     public boolean markIfExpired(){
         if(completed || expired){
@@ -342,5 +346,9 @@ public class UserCaseBase implements Serializable  {
 
     public void setImportance(int mImportance) {
         this.mImportance = mImportance;
+    }
+
+    public long getRangeDifference(){
+        return endTime - startTime;
     }
 }
