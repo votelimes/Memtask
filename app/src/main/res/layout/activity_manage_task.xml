@@ -168,11 +168,42 @@
                         />
 
                 </com.google.android.material.textfield.TextInputLayout>
+                <androidx.constraintlayout.widget.Barrier
+                    android:id="@+id/manage_task_barrier_4"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:barrierDirection="bottom"
+                    app:constraint_referenced_ids="manage_task_layout_priority"
+                    />
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/manage_task_layout_duration"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:startIconDrawable="@drawable/ic_round_timelapse_24"
+                    app:startIconTint="@color/primary"
+                    app:endIconMode="custom"
+                    app:endIconTint="@color/secondary"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/manage_task_layout_priority"
+                    android:layout_marginTop="10dp"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:visibility="@{viewmodel.mManagingTaskRepository.isTaskMode?View.VISIBLE : View.GONE}"
+                    >
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/manage_task_text_duration"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint='Определите продолжительность'
+                        android:text="@{viewmodel.mManagingTaskRepository.duration}"
+                        android:inputType="@{InputType.TYPE_NULL}"
+                        />
+
+                </com.google.android.material.textfield.TextInputLayout>
                 <com.google.android.material.divider.MaterialDivider
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/manage_task_layout_priority"
+                    app:layout_constraintTop_toBottomOf="@id/manage_task_layout_duration"
                     android:layout_marginTop="7dp"
                     app:dividerColor="@color/textPrimary"
                     />
@@ -183,7 +214,7 @@
                     android:text="Уведомление"
                     android:checked="@={viewmodel.mManagingTaskRepository.taskNotificationState}"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/manage_task_layout_priority"
+                    app:layout_constraintTop_toBottomOf="@id/manage_task_layout_duration"
                     />
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/manage_task_layout_notify"
@@ -369,7 +400,6 @@
                     app:constraint_referenced_ids="manage_task_pon, manage_task_vt, manage_task_sr, manage_task_cht, manage_task_pt, manage_task_sub, manage_task_vsk"
                     android:visibility="@{(viewmodel.mManagingTaskRepository.getRepeatState &amp;&amp; viewmodel.mManagingTaskRepository.taskNotificationState &amp;&amp; viewmodel.mManagingTaskRepository.taskNotificationState) ? View.VISIBLE : View.GONE}"
                     />
-
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/manage_task_theme_layout"
                     android:layout_width="match_parent"
@@ -527,6 +557,28 @@
                             app:backgroundColor="@color/main_4"
                             app:strokeWidth="1dp"
                             />
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:id="@+id/manage_task_layout_image"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            app:startIconDrawable="@drawable/ic_round_image_24"
+                            app:startIconTint="@color/primary"
+                            app:endIconMode="custom"
+                            app:endIconTint="@color/secondary"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/manage_task_random_theme_button"
+                            android:layout_marginTop="10dp"
+                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                            >
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/manage_task_text_image"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:hint='Выберите фоновое изображение'
+                                android:text="@{viewmodel.mManagingTaskRepository.image}"
+                                android:inputType="@{InputType.TYPE_NULL}"
+                                />
+                        </com.google.android.material.textfield.TextInputLayout>
                     </androidx.constraintlayout.widget.ConstraintLayout>
 
                 </net.cachapa.expandablelayout.ExpandableLayout>

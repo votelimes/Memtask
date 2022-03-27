@@ -1,10 +1,9 @@
 package com.example.clock.fragments;
 
 import android.os.Bundle;
+import android.view.View;
 
 import androidx.preference.PreferenceFragmentCompat;
-
-import android.view.View;
 
 import com.example.clock.R;
 import com.google.android.material.appbar.MaterialToolbar;

@@ -4,10 +4,10 @@ import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Query;
 
-import com.example.clock.model.TaskNotificationData;
+import com.example.clock.model.Task;
 import com.example.clock.model.TaskAndTheme;
 import com.example.clock.model.TaskData;
-import com.example.clock.model.Task;
+import com.example.clock.model.TaskNotificationData;
 
 import org.jetbrains.annotations.TestOnly;
 
@@ -73,7 +73,7 @@ public abstract class TaskDao extends BaseDao<Task> {
     public abstract LiveData<List<TaskAndTheme>> getSingleTaskAndThemeByCategoryByName(long categoryID, String nameRegex);
 
     @Query("SELECT * FROM task_table"
-            + " WHERE task_table.startTime >= :startMillis AND task_table.endTime < :endMillis")
-    public abstract List<TaskNotificationData> getTasksNotificationData(long startMillis, long endMillis);
-
+            + " WHERE task_table.startTime > 0 AND NOT task_table.notificationEnabled AND task_table.startTime <= :startMillis AND task_table.endTime >= :startMillis"
+            + " ORDER BY task_table.mImportance ASC")
+    public abstract List<TaskNotificationData> getTasksNotificationData(long startMillis);
 }

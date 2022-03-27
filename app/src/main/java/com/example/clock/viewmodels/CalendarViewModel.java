@@ -11,8 +11,8 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.example.clock.BR;
-import com.example.clock.model.TaskData;
 import com.example.clock.model.Task;
+import com.example.clock.model.TaskData;
 import com.example.clock.model.Theme;
 import com.example.clock.repositories.MemtaskRepositoryBase;
 import com.example.clock.storageutils.Database;
@@ -514,6 +514,10 @@ public class CalendarViewModel extends MemtaskViewModelBase{
 
         public void setCompletedExpired(Pair<Boolean, Boolean> data){
             // void
+        }
+
+        public String getImage(){
+            return data.task.getImageResource();
         }
     }
 }

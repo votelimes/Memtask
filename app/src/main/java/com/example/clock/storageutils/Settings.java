@@ -12,6 +12,8 @@ import com.example.clock.app.App;
 
 public class Settings {
 
+    public final boolean TESTING = false;
+
     // 0 Calendar, 1 Category list, 2 Tasks list, 3 Statistic, 4 Settings.
     private Pair<Long, String> mCurrentWindow;
     private Pair<Boolean, String> mSetupState;

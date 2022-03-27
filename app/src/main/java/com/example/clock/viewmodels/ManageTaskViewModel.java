@@ -9,9 +9,7 @@ import android.net.Uri;
 
 import androidx.databinding.BaseObservable;
 import androidx.databinding.Bindable;
-
 import androidx.lifecycle.LiveData;
-
 
 import com.example.clock.BR;
 import com.example.clock.R;
@@ -21,6 +19,7 @@ import com.example.clock.model.Project;
 import com.example.clock.model.ProjectAndTheme;
 import com.example.clock.model.Task;
 import com.example.clock.model.TaskData;
+import com.example.clock.model.TaskNotificationManager;
 import com.example.clock.model.Theme;
 import com.example.clock.repositories.MemtaskRepositoryBase;
 import com.example.clock.storageutils.Database;
@@ -30,7 +29,6 @@ import com.example.clock.storageutils.Tuple2;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
@@ -148,6 +146,16 @@ public class ManageTaskViewModel extends MemtaskViewModelBase {
                 mManagingTaskRepository.mManagingTask.cancelAlarm(context);
             }
             this.mRepository.addTask(this.mManagingTaskRepository.mManagingTask);
+
+            LocalDateTime ldt = LocalDateTime.ofEpochSecond(mManagingTaskRepository
+                    .mManagingTask.getEndTime(), 0, ZoneOffset.UTC);
+
+
+            if(mManagingTaskRepository.mManagingTask.getStartTime() != 0
+                    && mManagingTaskRepository.mManagingTask.getStartTime() != -1
+                    && ldt.isAfter(LocalDateTime.now()) && !App.instance.isTesting()){
+                TaskNotificationManager.scheduleGeneralNotifications();
+            }
         }
         else if(mManagingTaskRepository.isProjectMode()){
             mManagingTaskRepository.mManagingProject.setThemeID(mManagingTaskRepository.mTheme.getID());
@@ -703,6 +711,66 @@ public class ManageTaskViewModel extends MemtaskViewModelBase {
 
         public void setWeekDays(boolean state){
             mManagingTask.setWeekdays(state);
+        }
+
+        @Bindable
+        public String getDuration(){
+            if(isTaskMode()){
+                int duration = mManagingTask.getDuration();
+                if(duration < 1){
+                    return "";
+                }
+                else if(duration == 1){
+                    return "1 час и менее";
+                }
+                else if(duration == 2){
+                    return "2 часа";
+                }
+                else if(duration == 3){
+                    return "3 часа";
+                }
+                else if(duration == 4){
+                    return "4 часа";
+                }
+                else{
+                    return String.valueOf(duration) + " часов";
+                }
+            }
+            return "UNDEFINED";
+        }
+
+        public int getDurationValue(){
+            if(isTaskMode()){
+                return mManagingTask.getDuration();
+            }
+            return 0;
+        }
+
+        public void setDuration(int duration){
+            if(isTaskMode()){
+                mManagingTask.setDuration(duration);
+                notifyPropertyChanged(BR.duration);
+            }
+        }
+
+        @Bindable
+        public String getImage(){
+            if(isTaskMode()){
+                return mManagingTask.getImageResource();
+            }
+            else{
+                return mManagingProject.getImageResource();
+            }
+        }
+
+        public void setImage(String path){
+            if(isTaskMode()){
+                mManagingTask.setImageResource(path);
+            }
+            else{
+                mManagingProject.setImageResource(path);
+            }
+            notifyPropertyChanged(BR.image);
         }
 
         @Bindable

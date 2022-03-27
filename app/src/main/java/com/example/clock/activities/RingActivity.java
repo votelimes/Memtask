@@ -6,32 +6,19 @@ import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatButton;
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProvider;
 
 import com.example.clock.R;
-import com.example.clock.adapters.CardsListFragmentAdapter;
 import com.example.clock.app.App;
-import com.example.clock.model.Project;
 import com.example.clock.model.Task;
 import com.example.clock.model.TaskNotificationManager;
-import com.example.clock.model.Theme;
 import com.example.clock.model.UserCaseStatistic;
 import com.example.clock.repositories.MemtaskRepositoryBase;
 import com.example.clock.services.AlarmService;
-import com.example.clock.storageutils.Tuple3;
-import com.example.clock.viewmodels.ManageTaskViewModel;
-import com.example.clock.viewmodels.RingViewModel;
-import com.example.clock.viewmodels.ViewModelFactoryBase;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.Calendar;
-import java.util.List;
 
 public class RingActivity extends AppCompatActivity {
     MemtaskRepositoryBase mRepository;

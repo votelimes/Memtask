@@ -1,5 +1,34 @@
 package com.example.clock.activities;
 
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.ContentResolver;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.res.ColorStateList;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.media.Image;
+import android.media.MediaPlayer;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
+import android.net.Uri;
+import android.os.Bundle;
+import android.provider.MediaStore;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
+import android.widget.ImageView;
+
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
@@ -9,23 +38,6 @@ import androidx.core.util.Supplier;
 import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
-
-import android.app.AlertDialog;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.res.ColorStateList;
-import android.graphics.drawable.Drawable;
-import android.media.Ringtone;
-import android.media.RingtoneManager;
-import android.net.Uri;
-import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
 
 import com.example.clock.R;
 import com.example.clock.app.App;
@@ -38,6 +50,7 @@ import com.example.clock.storageutils.Tuple2;
 import com.example.clock.viewmodels.ManageTaskViewModel;
 import com.example.clock.viewmodels.ViewModelFactoryBase;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.datepicker.MaterialPickerOnPositiveButtonClickListener;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -45,12 +58,18 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.android.material.timepicker.MaterialTimePicker;
 import com.google.android.material.timepicker.TimeFormat;
+import com.shawnlin.numberpicker.NumberPicker;
 import com.skydoves.colorpickerview.ColorEnvelope;
 import com.skydoves.colorpickerview.ColorPickerDialog;
 import com.skydoves.colorpickerview.listeners.ColorEnvelopeListener;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 
 import net.cachapa.expandablelayout.ExpandableLayout;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
@@ -68,6 +87,35 @@ public class ManageTaskActivity extends AppCompatActivity implements View.OnFocu
     String mode;
     Context mContext;
     long millis;
+
+    final ActivityResultLauncher<Intent> ringtonePickerLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == RESULT_OK) {
+                    Uri uri = result.getData().getParcelableExtra(RingtoneManager.EXTRA_RINGTONE_PICKED_URI);
+                    Ringtone r = RingtoneManager.getRingtone(this, uri);
+                    mViewModel.mManagingTaskRepository.setRingtonePath(uri.toString());
+                }
+            });
+
+    final ActivityResultLauncher<Intent> imagePickerLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == RESULT_OK) {
+                    Uri uri = result.getData().getData();
+                    this.getContentResolver()
+                            .takePersistableUriPermission(uri,
+                                    Intent.FLAG_GRANT_READ_URI_PERMISSION
+                                            | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                    try {
+                        mViewModel.mManagingTaskRepository.setImage(uri.toString());
+                    }
+                    catch (Exception e){
+                        Log.d("MANAGE_TASK_ERROR: ", "Unable to get URI image path");
+                    }
+                }
+            });
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -295,7 +343,9 @@ public class ManageTaskActivity extends AppCompatActivity implements View.OnFocu
                     intent.putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_SILENT, true);
                     intent.putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_DEFAULT, true);
                     intent.putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE,RingtoneManager.TYPE_NOTIFICATION);
-                    activityLauncher.launch(intent);
+
+
+                    ringtonePickerLauncher.launch(intent);
                     view.clearFocus();
                 }
             }
@@ -623,6 +673,69 @@ public class ManageTaskActivity extends AppCompatActivity implements View.OnFocu
             }
         });
         button6Layout.setEndIconDrawable(com.google.android.material.R.drawable.mtrl_ic_cancel);
+
+        TextInputEditText button7 = (TextInputEditText) findViewById(R.id.manage_task_text_duration);
+        TextInputLayout button7Layout = (TextInputLayout) findViewById(R.id.manage_task_layout_duration);
+
+        button7.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean b) {
+                if(b){
+                    int duration;
+                    MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(ManageTaskActivity.this);
+                    androidx.appcompat.app.AlertDialog dialog = null;
+                    LayoutInflater inflater = (ManageTaskActivity.this).getLayoutInflater();
+                    View view2 = inflater.inflate(R.layout.number_picker, null);
+
+                    NumberPicker np = view2.findViewById(R.id.number_picker);
+                    np.setValue(mViewModel.mManagingTaskRepository.getDurationValue());
+
+                    builder.setTitle("Выберите продолжительность задачи");
+                    builder.setView(view2);
+                    builder.setPositiveButton("Сохранить", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            mViewModel.mManagingTaskRepository.setDuration(np.getValue());
+                            dialogInterface.dismiss();
+                        }
+                    });
+                    dialog = builder.create();
+                    dialog.show();
+                    view.clearFocus();
+                }
+            }
+        });
+        button7Layout.setEndIconOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                button7.setText("");
+                mViewModel.mManagingTaskRepository.setDuration(0);
+            }
+        });
+        button7Layout.setEndIconDrawable(com.google.android.material.R.drawable.mtrl_ic_cancel);
+
+        TextInputEditText button8 = (TextInputEditText) findViewById(R.id.manage_task_text_image);
+        TextInputLayout button8Layout = (TextInputLayout) findViewById(R.id.manage_task_layout_image);
+
+        button8.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean b) {
+                if(b){
+                    Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                    intent.setType("image/*");
+                    imagePickerLauncher.launch(intent);
+                    view.clearFocus();
+                }
+            }
+        });
+        button8Layout.setEndIconOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                button8.setText("");
+                mViewModel.mManagingTaskRepository.setImage("");
+            }
+        });
+        button8Layout.setEndIconDrawable(com.google.android.material.R.drawable.mtrl_ic_cancel);
     }
 
     private int isNameCorrect(String name){
@@ -644,7 +757,7 @@ public class ManageTaskActivity extends AppCompatActivity implements View.OnFocu
         MaterialAlertDialogBuilder errorDialog = new MaterialAlertDialogBuilder(this)
                 .setPositiveButton("Хорошо", null);
 
-        if(isCorrect == 1){
+        /*if(isCorrect == 1){
             nameText.setError("Задача должна иметь имя");
             errorDialog.setMessage("Задача не может быть создана без имени.");
             errorDialog.show();
@@ -655,7 +768,7 @@ public class ManageTaskActivity extends AppCompatActivity implements View.OnFocu
             errorDialog.setMessage("Длина имени задачи не может превышать 20 символов.");
             errorDialog.show();
             return;
-        }
+        }*/
 
         if(categoryTextString.equals("")){
             MaterialAlertDialogBuilder errorDialog2 = new MaterialAlertDialogBuilder(this)
@@ -689,16 +802,6 @@ public class ManageTaskActivity extends AppCompatActivity implements View.OnFocu
             return true;
         }
     }
-
-    final ActivityResultLauncher<Intent> activityLauncher = registerForActivityResult(
-            new ActivityResultContracts.StartActivityForResult(),
-            result -> {
-                if (result.getResultCode() == RESULT_OK) {
-                    Uri uri = result.getData().getParcelableExtra(RingtoneManager.EXTRA_RINGTONE_PICKED_URI);
-                    Ringtone r = RingtoneManager.getRingtone(this, uri);
-                    mViewModel.mManagingTaskRepository.setRingtonePath(uri.getPath());
-                }
-            });
 
     @Override
     public void onFocusChange(View view, boolean b) {
@@ -761,58 +864,19 @@ public class ManageTaskActivity extends AppCompatActivity implements View.OnFocu
         return true;
     }
 
+    public String getPathFromURI(Uri ContentUri) {
+        String res = null;
+        String[] proj = {MediaStore.Images.Media.DATA};
+        Cursor cursor = getContentResolver()
+                .query(ContentUri, proj, null, null, null);
 
-    /*private void showPriorityDialog(){
-        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
-        // Get the layout inflater
-        LayoutInflater inflater = (this).getLayoutInflater();
-        // Inflate and set the layout for the dialog
-        // Pass null as the parent view because its going in the
-        // dialog layout
-        builder.setTitle("Определите важность");
-        builder.setCancelable(true);
-        builder.setView(inflater.inflate(R.layout.matrix_picker, null))
-                // Add action buttons
-                .setPositiveButton("Ок", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int id) {
+        if (cursor != null) {
+            cursor.moveToFirst();
 
-                    }
-                })
-                .setNegativeButton("Отменить", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        dialogInterface.dismiss();
-                    }
-                })
-                .setNeutralButton("Очистить", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        // очистить
-                    }
-                });
-        androidx.appcompat.app.AlertDialog dialog = builder.create();
-        View.OnClickListener listener = new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                switch (view.getId()){
-                    case R.id.mat_max:
+            res = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA));
+            cursor.close();
+        }
 
-                        break;
-                    case R.id.high:
-
-                        break;
-                    case R.id.med:
-
-                        break;
-                    case R.id.min:
-
-                        break;
-                }
-                // set to task or project
-                dialog.dismiss();
-            }
-        };
-        builder.show();
-    }*/
+        return res;
+    }
 }

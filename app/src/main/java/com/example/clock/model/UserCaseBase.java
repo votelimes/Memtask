@@ -1,12 +1,6 @@
 package com.example.clock.model;
 
-import android.util.Log;
-
-import androidx.room.ColumnInfo;
-import androidx.room.ForeignKey;
-
 import java.io.Serializable;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -44,8 +38,6 @@ public class UserCaseBase implements Serializable  {
 
     protected String mName;
 
-    protected String mCategoryName;
-
     protected int color;
     protected boolean completed;
     protected boolean expired;
@@ -57,6 +49,7 @@ public class UserCaseBase implements Serializable  {
     protected long timesCancelled;
 
     protected int mImportance;
+    protected String mImageResource;
 
     public UserCaseBase(){
         categoryId = -1;
@@ -69,7 +62,8 @@ public class UserCaseBase implements Serializable  {
 
         mName = "";
         mDescription = "";
-        mImportance = -1;
+        mImportance = 4;
+        mImageResource = "";
     }
 
     public UserCaseBase(UserCaseBase other) {
@@ -82,7 +76,6 @@ public class UserCaseBase implements Serializable  {
         this.nextGeneralNotificationMillis = other.nextGeneralNotificationMillis;
         this.mDescription = other.mDescription;
         this.mName = other.mName;
-        this.mCategoryName = other.mCategoryName;
         this.color = other.color;
         this.completed = other.completed;
         this.expired = other.expired;
@@ -92,6 +85,7 @@ public class UserCaseBase implements Serializable  {
         this.timesExpired = other.timesExpired;
         this.timesCancelled = other.timesCancelled;
         this.mImportance = other.mImportance;
+        this.mImageResource = other.mImageResource;
     }
 
     protected String generateUUID(){
@@ -141,9 +135,6 @@ public class UserCaseBase implements Serializable  {
         return mName;
     }
 
-    public String getCategoryName() {
-        return mCategoryName;
-    }
 
     public long getStartTime() {
         return startTime;
@@ -167,8 +158,8 @@ public class UserCaseBase implements Serializable  {
         LocalDate ldtStart = LocalDate.parse(rangeStart, dtf);
         LocalDate ldtEnd = LocalDate.parse(rangeEnd, dtf);
 
-        startTime = ldtStart.atStartOfDay().toEpochSecond(ZoneOffset.UTC);
-        endTime = ldtEnd.atStartOfDay().toEpochSecond(ZoneOffset.UTC);
+        startTime = ldtStart.atStartOfDay().toEpochSecond(ZoneOffset.UTC) * 1000;
+        endTime = ldtEnd.atStartOfDay().toEpochSecond(ZoneOffset.UTC) * 1000;
     }
 
     public void setRange(long startTime, long endTime){
@@ -205,11 +196,6 @@ public class UserCaseBase implements Serializable  {
         setTimeChanged(getCurrentTime());
     }
 
-    public void setCategoryName(String mCategoryName) {
-        this.mCategoryName = mCategoryName;
-        setTimeChanged(getCurrentTime());
-    }
-
     public void setStartTime(long startTime) {
         this.startTime = startTime;
         setTimeChanged(getCurrentTime());
@@ -227,16 +213,6 @@ public class UserCaseBase implements Serializable  {
     public void setmName(String mName) {
         this.mName = mName;
         setTimeChanged(getCurrentTime());
-    }
-
-
-
-    public String getmCategoryName() {
-        return mCategoryName;
-    }
-
-    public void setmCategoryName(String mCategoryName) {
-        this.mCategoryName = mCategoryName;
     }
 
     public long getTimeCreated() {
@@ -350,5 +326,13 @@ public class UserCaseBase implements Serializable  {
 
     public long getRangeDifference(){
         return endTime - startTime;
+    }
+
+    public String getImageResource(){
+        return mImageResource;
+    }
+
+    public void setImageResource(String path){
+        mImageResource = path;
     }
 }

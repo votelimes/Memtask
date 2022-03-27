@@ -6,7 +6,6 @@ import androidx.room.Query;
 import androidx.room.Transaction;
 
 import com.example.clock.model.Category;
-import com.example.clock.model.Project;
 
 import org.jetbrains.annotations.TestOnly;
 

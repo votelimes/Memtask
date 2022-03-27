@@ -1,14 +1,11 @@
 package com.example.clock;
 
-import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
 
 import android.content.Context;
 import android.util.Log;
 
-import androidx.core.util.Pair;
 import androidx.room.Room;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -20,10 +17,8 @@ import com.example.clock.dao.TaskDao;
 import com.example.clock.dao.ThemeDao;
 import com.example.clock.model.Category;
 import com.example.clock.model.Project;
-import com.example.clock.model.ProjectData;
 import com.example.clock.model.Task;
 import com.example.clock.model.TaskNotificationData;
-import com.example.clock.model.TaskNotificationManager;
 import com.example.clock.model.Theme;
 import com.example.clock.storageutils.Database;
 
@@ -35,13 +30,14 @@ import org.junit.runner.RunWith;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
-import java.util.LinkedList;
 import java.util.List;
 
 @RunWith(AndroidJUnit4.class)
@@ -65,7 +61,7 @@ public class GeneralNotificationTest {
         categoryDao = db.categoryDao();
         themeDao = db.themeDao();
 
-        populateDB();
+        populateDB4();
     }
 
     @After
@@ -76,50 +72,151 @@ public class GeneralNotificationTest {
     @Test
     public void notificationQueryAlgorithmTest(){
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
-        LocalDateTime rangeStart = LocalDateTime.parse("01.03.2022 00:00", dtf);
-        LocalDateTime rangeEnd = LocalDateTime.parse("01.04.2022 00:00", dtf);
+        LocalDateTime today = LocalDateTime.parse("16.03.2022 00:00", dtf);
 
-        long startMillis = rangeStart.toEpochSecond(ZoneOffset.UTC)*1000;
-        long endMillis = rangeEnd.toEpochSecond(ZoneOffset.UTC)*1000;
-        long nowMillis = LocalDateTime.now().toEpochSecond(ZoneOffset.UTC)*1000;
+        List<TaskNotificationData> activeTasks = taskDao.getTasksNotificationData(today.toEpochSecond(ZoneOffset.UTC)*1000);
+        List<DayLoad> days;
+        LocalDateTime startInterval;
+        LocalDateTime endInterval;
 
-        long inDayDifference = TaskNotificationManager.MILLIS_IN_HOUR * 4;
-        long dayDifference = TaskNotificationManager.MILLIS_IN_HOUR * 20;
-
-        List<TaskNotificationData> data = taskDao.getTasksNotificationData(startMillis, endMillis);
-
-        //List<LinkedList<Pair<TaskNotificationData, Long>>>;
-
-        List<TaskNotificationData> notificationQuery = new ArrayList<>(data.size());
-
-        for (int i = 0; i < data.size(); i++){
-            TaskNotificationData item = data.get(i);
-            Task task = item.task;
-
-            // Время текущей задачи
-            LocalDateTime currentStartTime = LocalDateTime.ofEpochSecond(task.getStartTime() / 1000, 0, ZoneOffset.UTC);
-            LocalDateTime nextStartTime;
-
-            // Если range маленький (в пределах дня)
-            if(task.getRangeDifference() <= TaskNotificationManager.MILLIS_IN_HOUR * 24){
-                continue;
-            }
-
-            if((i + 1) < data.size()){ // Если не последняя
-                nextStartTime = LocalDateTime.ofEpochSecond(data.get(i + 1).task.getStartTime() / 1000, 0, ZoneOffset.UTC);
-
-            }
-            else{ // Если последняя в списке
-                currentStartTime = currentStartTime.withHour(10);
-                task.setNextGeneralNotificationMillis(currentStartTime.toEpochSecond(ZoneOffset.UTC) * 1000);
-                notificationQuery.add(item);
+        if(today.getHour() < 10){
+            startInterval = today;
+        }
+        else{
+            startInterval = today.plusDays(1);
+        }
+        endInterval = startInterval;
+        for (int i = 0; i < activeTasks.size(); i++){
+            if(activeTasks.get(i).task.getEndTime() > (endInterval.toEpochSecond(ZoneOffset.UTC) * 1000)){
+                endInterval = LocalDateTime.ofEpochSecond(activeTasks.get(i).task.getEndTime() / 1000, 0, ZoneOffset.UTC);
             }
         }
+
+        days = new ArrayList<DayLoad>((int) ChronoUnit.DAYS.between(startInterval, endInterval));
+        for (int i = 0; i < (int) ChronoUnit.DAYS.between(startInterval, endInterval) + 1; i++){
+            days.add(new DayLoad(today.toLocalDate().plusDays(i)));
+        }
+
+        // Расчет нагрузки
+        for(int i = 0; i < activeTasks.size(); i++){
+            Task task = activeTasks.get(i).task;
+            LocalDateTime now = today;
+            LocalDateTime start = LocalDateTime.ofEpochSecond(task.getStartTime()/1000, 0, ZoneOffset.UTC);
+            LocalDateTime end = LocalDateTime.ofEpochSecond(task.getEndTime()/1000, 0, ZoneOffset.UTC);
+
+            int dayStartIndex = (int) ChronoUnit.DAYS.between(today, start);
+            if(start.toLocalDate().isBefore(today.toLocalDate())){
+                dayStartIndex = 0;
+            }
+            int dayEndIndex = (int) ChronoUnit.DAYS.between(now, end);
+
+            int stepsMax = (task.getDuration() - task.getProgress());
+            int stepNow = dayStartIndex;
+            int stepSize = (int) task.getStep();
+            //long daysRange = ChronoUnit.DAYS.between(now, end);
+
+            while(stepNow < stepsMax){
+                if(stepNow >= days.size()){
+                    break;
+                }
+                if(stepNow + stepSize >= stepsMax){
+                    stepSize = stepsMax - stepNow;
+                }
+                if(stepNow == 0 && dayEndIndex / 2 > stepsMax){
+                    stepNow += stepSize;
+                    stepsMax += stepSize;
+                    continue;
+                }
+                boolean isAdded = days.get(stepNow).addOnTop(stepSize, false);
+                if(!isAdded){
+                    int currentDay = stepNow;
+                    boolean outOfRange = false;
+
+                    // Пустые дни вправо
+                    while(!isAdded){
+                        if(currentDay > dayEndIndex){
+                            outOfRange = true;
+                            break;
+                        }
+                        isAdded = days.get(currentDay).addOnTop(stepSize, false);
+                        if(isAdded){
+                            outOfRange = false;
+                            break;
+                        }
+                        currentDay++;
+                    }
+                    // Пустые дни влево
+                    if(outOfRange || !isAdded){
+                        currentDay = stepNow;
+                        while(!isAdded){
+                            if(currentDay < dayStartIndex){
+                                outOfRange = true;
+                                break;
+                            }
+                            isAdded = days.get(currentDay).addOnTop(stepSize, false);
+                            if(isAdded){
+                                outOfRange = false;
+                                break;
+                            }
+                            currentDay--;
+                        }
+                    }
+
+                    // Любые дни вправо
+                    if(outOfRange || !isAdded){
+                        currentDay = stepNow;
+                        outOfRange = false;
+                        while(!isAdded){
+                            if(currentDay > dayEndIndex){
+                                outOfRange = true;
+                                break;
+                            }
+                            isAdded = days.get(currentDay).addOnTop(stepSize, true);
+                            if(isAdded){
+                                outOfRange = false;
+                                break;
+                            }
+                            currentDay++;
+                        }
+                    }
+                    // Любые дни влево
+                    if(outOfRange || !isAdded){
+                        currentDay = stepNow;
+                        while(!isAdded){
+                            if(currentDay < dayStartIndex){
+                                outOfRange = true;
+                                break;
+                            }
+                            isAdded = days.get(currentDay).addOnTop(stepSize, true);
+                            if(isAdded){
+                                outOfRange = false;
+                                break;
+                            }
+                            currentDay--;
+                        }
+                    }
+                }
+
+                if(stepNow == 0){
+                    long notificationMillis = days.get(stepNow).getLastIntervalMillis(stepSize);
+                }
+                stepNow+=stepSize;
+            }
+        }
+
+        for (int i = 0; i < days.size(); i++){
+            Log.d("Day "+String.valueOf(i+1), "Loaded: "+String.valueOf(!(days.get(i).hour[9]==0)));
+        }
+        assertNotNull(days);
+    }
+
+    private boolean beforeOrEqual(LocalDateTime objectStart, LocalDateTime contentStart){
+        return objectStart.isBefore(contentStart) || objectStart.toLocalDate().isEqual(contentStart.toLocalDate());
     }
 
     @Test
     public void queryTest(){
-        List<TaskNotificationData> data = taskDao.getTasksNotificationData(0L, 1546602923713L);
+        List<TaskNotificationData> data = taskDao.getTasksNotificationData(1546602923713L);
         List<Task> allData = taskDao.getAll();
 
         data.forEach(item -> {
@@ -423,6 +520,149 @@ public class GeneralNotificationTest {
 
         for (Task task: defaultTasksList) {
             taskDao.insert(task);
+        }
+    }
+
+    private void populateDB2(){
+        List<Task> defaultTasksList = new ArrayList<Task>(5);
+
+        defaultTasksList.add(new Task("Задача 1", "", 1 ));
+        defaultTasksList.get(0).setAlarmTime("25.03.2022 11:20");
+        defaultTasksList.get(0).setNotificationEnabled(true);
+        defaultTasksList.get(0).setRange("16.03.2022", "18.03.2022");
+        defaultTasksList.get(0).setDuration(4);
+        defaultTasksList.get(0).setImportance(2);
+
+        defaultTasksList.add(new Task("Задача 2", "", 1 ));
+        defaultTasksList.get(1).setRange("16.03.2022", "16.03.2022");
+        defaultTasksList.get(1).setDuration(4);
+        defaultTasksList.get(1).setImportance(2);
+
+        defaultTasksList.add(new Task("Задача 3", "", 1 ));
+        defaultTasksList.get(2).setRange("18.03.2022", "19.03.2022");
+        defaultTasksList.get(2).setDuration(4);
+        defaultTasksList.get(2).setImportance(1);
+
+        defaultTasksList.add(new Task("Задача 4", "", 1 ));
+        defaultTasksList.get(3).setRange("16.03.2022", "18.03.2022");
+        defaultTasksList.get(3).setImportance(0);
+
+        defaultTasksList.add(new Task("Задача 5", "", 1 ));
+        defaultTasksList.get(4).setRange("16.03.2022", "25.03.2022");
+        defaultTasksList.get(4).setDuration(4);
+        defaultTasksList.get(4).setImportance(2);
+
+        defaultTasksList.add(new Task("Задача 6", "", 1 ));
+        defaultTasksList.get(5).setRange("14.03.2022", "25.03.2022");
+        defaultTasksList.get(5).setDuration(4);
+        defaultTasksList.get(5).setImportance(3);
+
+        defaultTasksList.add(new Task("Задача 7", "", 1 ));
+        defaultTasksList.get(6).setRange("16.03.2022", "23.03.2022");
+        defaultTasksList.get(6).setImportance(0);
+
+        defaultTasksList.add(new Task("Задача 8", "", 1 ));
+        defaultTasksList.get(7).setRange("16.03.2022", "20.03.2022");
+
+        for (Task task: defaultTasksList) {
+            taskDao.insert(task);
+        }
+    }
+
+    private void populateDB3(){
+        List<Task> defaultTasksList = new ArrayList<Task>(5);
+
+        defaultTasksList.add(new Task("Задача 1", "", 1 ));
+        defaultTasksList.get(0).setRange("16.03.2022", "24.03.2022");
+        defaultTasksList.get(0).setDuration(8);
+        defaultTasksList.get(0).setImportance(2);
+
+        defaultTasksList.add(new Task("Задача 2", "", 1 ));
+        defaultTasksList.get(1).setRange("16.03.2022", "24.03.2022");
+        defaultTasksList.get(1).setDuration(2);
+        defaultTasksList.get(1).setImportance(2);
+
+        for (Task task: defaultTasksList) {
+            taskDao.insert(task);
+        }
+    }
+
+    private void populateDB4(){
+        List<Task> defaultTasksList = new ArrayList<Task>(5);
+
+        defaultTasksList.add(new Task("Задача 1", "", 1 ));
+        defaultTasksList.get(0).setRange("16.03.2022", "24.03.2022");
+        defaultTasksList.get(0).setDuration(3);
+        defaultTasksList.get(0).setImportance(2);
+
+        defaultTasksList.add(new Task("Задача 2", "", 1 ));
+        defaultTasksList.get(1).setRange("16.03.2022", "18.03.2022");
+        defaultTasksList.get(1).setDuration(2);
+        defaultTasksList.get(1).setImportance(2);
+
+        for (Task task: defaultTasksList) {
+            taskDao.insert(task);
+        }
+    }
+
+    private class DayLoad {
+        public int hour[] = new int[24];
+
+        private final int START_WORK_DAY_HOUR = 9;
+        private final int END_WORK_DAY_HOUR = 22;
+        private LocalDate date;
+
+        public DayLoad(LocalDate date){
+            this.date = date;
+        }
+
+        public boolean addLoad(int startHour, int count){
+            int index = startHour;
+            int current = 0;
+
+            while(current < count){
+                hour[index]++;
+                index++;
+                current++;
+                if(index >= END_WORK_DAY_HOUR){
+                    return false;
+                }
+            }
+            return true;
+        }
+        public boolean addOnTop(int count, boolean hardInsert){
+            int i = START_WORK_DAY_HOUR;
+            if(hour[START_WORK_DAY_HOUR] != 0 && !hardInsert){
+                return false;
+            }
+            while (hour[i] != 0) {
+                if (i >= END_WORK_DAY_HOUR) {
+                    return false;
+                }
+                i++;
+            }
+            return addLoad(i, count);
+        }
+        public boolean isBefore(LocalDate date){
+            return this.date.isBefore(date);
+        }
+        public boolean isAfter(LocalDate date){
+            return this.date.isAfter(date);
+        }
+
+        public int getLastIntervalHour(int count){
+            int c = 0;
+            int hourOfDay = 0;
+            for(int i = 23; i > -1; i--){
+                if(hour[i] != 0 && c < count){
+                    hourOfDay = i + 1;
+                    c++;
+                }
+            }
+            return hourOfDay;
+        }
+        public long getLastIntervalMillis(int count){
+            return date.atStartOfDay().withHour(getLastIntervalHour(count)).toEpochSecond(ZoneOffset.UTC) * 1000;
         }
     }
 }

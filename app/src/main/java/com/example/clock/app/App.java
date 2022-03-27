@@ -2,11 +2,8 @@ package com.example.clock.app;
 
 import android.app.Application;
 import android.content.SharedPreferences;
-import android.content.res.Configuration;
 
 import androidx.appcompat.app.AppCompatDelegate;
-import androidx.preference.PreferenceManager;
-import androidx.room.Room;
 
 import com.example.clock.R;
 import com.example.clock.storageutils.Database;
@@ -74,5 +71,9 @@ public class App extends Application {
         else{
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
         }
+    }
+
+    public boolean isTesting(){
+        return mSettings.TESTING;
     }
 }

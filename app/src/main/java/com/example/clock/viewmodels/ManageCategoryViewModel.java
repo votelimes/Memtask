@@ -1,9 +1,6 @@
 package com.example.clock.viewmodels;
 
 import android.app.Application;
-import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.databinding.BaseObservable;
@@ -12,10 +9,7 @@ import androidx.lifecycle.LiveData;
 
 import com.example.clock.BR;
 import com.example.clock.model.Category;
-import com.example.clock.model.Project;
-import com.example.clock.model.Task;
 import com.example.clock.model.Theme;
-import com.example.clock.repositories.MemtaskRepositoryBase;
 import com.example.clock.storageutils.Database;
 import com.example.clock.storageutils.SilentDatabase;
 

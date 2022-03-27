@@ -3,12 +3,6 @@ package com.example.clock.storageutils;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 
-import com.example.clock.model.Project;
-import com.example.clock.model.Task;
-import com.example.clock.model.Theme;
-
-import java.util.List;
-
 public class LiveDataTransformations {
     private LiveDataTransformations() {}
 

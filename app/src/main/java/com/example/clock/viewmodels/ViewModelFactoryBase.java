@@ -2,13 +2,10 @@ package com.example.clock.viewmodels;
 
 import android.app.Application;
 
-import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.clock.model.Category;
-import com.example.clock.model.Project;
-import com.example.clock.model.Task;
 import com.example.clock.storageutils.Database;
 import com.example.clock.storageutils.SilentDatabase;
 

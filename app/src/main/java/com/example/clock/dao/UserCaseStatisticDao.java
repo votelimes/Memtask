@@ -5,9 +5,6 @@ import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.Query;
 
-import com.example.clock.model.Task;
-import com.example.clock.model.Theme;
-import com.example.clock.model.UserCaseBase;
 import com.example.clock.model.UserCaseStatistic;
 
 import java.util.List;

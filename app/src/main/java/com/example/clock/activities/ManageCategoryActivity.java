@@ -1,39 +1,31 @@
 package com.example.clock.activities;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.databinding.DataBindingUtil;
-import androidx.lifecycle.ViewModelProvider;
-
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
 
-import com.example.clock.R;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.databinding.DataBindingUtil;
+import androidx.lifecycle.ViewModelProvider;
 
-import com.example.clock.adapters.CardsListFragmentAdapter;
+import com.example.clock.R;
 import com.example.clock.app.App;
 import com.example.clock.databinding.ActivityManageCategoryBinding;
-import com.example.clock.databinding.ActivityManageTaskBinding;
 import com.example.clock.model.Category;
-import com.example.clock.model.Task;
 import com.example.clock.model.Theme;
 import com.example.clock.viewmodels.ManageCategoryViewModel;
-import com.example.clock.viewmodels.ManageTaskViewModel;
 import com.example.clock.viewmodels.ViewModelFactoryBase;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.skydoves.colorpickerview.ColorEnvelope;
 import com.skydoves.colorpickerview.ColorPickerDialog;
-import com.skydoves.colorpickerview.ColorPickerView;
 import com.skydoves.colorpickerview.listeners.ColorEnvelopeListener;
 
-import java.util.GregorianCalendar;
 import java.util.Random;
 
 public class ManageCategoryActivity extends AppCompatActivity {

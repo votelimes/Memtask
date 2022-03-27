@@ -1,10 +1,8 @@
 package com.example.clock.viewmodels;
 
 import android.app.Application;
-import android.util.Log;
 
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.example.clock.R;
@@ -17,7 +15,6 @@ import com.example.clock.model.UserCaseStatistic;
 import com.example.clock.repositories.MemtaskRepositoryBase;
 import com.example.clock.storageutils.Database;
 import com.example.clock.storageutils.SilentDatabase;
-import com.example.clock.storageutils.Tuple2;
 
 import java.util.ArrayList;
 import java.util.List;

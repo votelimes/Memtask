@@ -34,6 +34,8 @@ android {
 }
 
 dependencies {
+    implementation 'com.squareup.picasso:picasso:2.71828'
+    implementation 'io.github.ShawnLin013:number-picker:2.4.13'
     implementation 'com.github.pedromassango:doubleClick:3.0'
     implementation 'com.jakewharton:butterknife:10.2.3'
     annotationProcessor 'com.jakewharton:butterknife-compiler:10.2.3'

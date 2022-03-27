@@ -2,7 +2,6 @@ package com.example.clock.viewmodels;
 
 import android.app.Application;
 import android.content.Context;
-import android.graphics.drawable.Drawable;
 
 import androidx.core.util.Pair;
 import androidx.databinding.BaseObservable;
@@ -404,12 +403,14 @@ public class CategoryActivitiesViewModel extends MemtaskViewModelBase{
             data.task.setName(name);
             CategoryActivitiesViewModel.this.addTaskSilently(data.task);
             notifyPropertyChanged(BR.name);
+            notifyPropertyChanged(BR.image);
         }
 
         public void setDescription(String description){
             data.task.setDescription(description);
             CategoryActivitiesViewModel.this.addTaskSilently(data.task);
             notifyPropertyChanged(BR.description);
+            notifyPropertyChanged(BR.image);
         }
 
         public void setCompletedOrExpired(boolean state){
@@ -466,6 +467,11 @@ public class CategoryActivitiesViewModel extends MemtaskViewModelBase{
 
         public void setCompletedExpired(Pair<Boolean, Boolean> data){
             // void
+        }
+
+        @Bindable
+        public String getImage(){
+            return data.task.getImageResource();
         }
     }
 
@@ -659,6 +665,10 @@ public class CategoryActivitiesViewModel extends MemtaskViewModelBase{
 
         public void setCompletedExpired(Pair<Boolean, Boolean> data){
             // void
+        }
+
+        public String getImage(){
+            return data.project.getImageResource();
         }
     }
 }

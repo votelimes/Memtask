@@ -5,12 +5,6 @@ import android.os.IBinder;
 
 import androidx.annotation.Nullable;
 import androidx.lifecycle.LifecycleService;
-import androidx.lifecycle.Observer;
-
-import com.example.clock.app.App;
-import com.example.clock.model.Task;
-
-import java.util.List;
 
 public class RescheduleAlarmsService extends LifecycleService {
 

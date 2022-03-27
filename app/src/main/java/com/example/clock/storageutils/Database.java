@@ -11,9 +11,9 @@ import com.example.clock.dao.TaskDao;
 import com.example.clock.dao.ThemeDao;
 import com.example.clock.dao.UserCaseStatisticDao;
 import com.example.clock.model.Category;
-import com.example.clock.model.Theme;
 import com.example.clock.model.Project;
 import com.example.clock.model.Task;
+import com.example.clock.model.Theme;
 import com.example.clock.model.UserCaseStatistic;
 
 import java.util.concurrent.ExecutorService;

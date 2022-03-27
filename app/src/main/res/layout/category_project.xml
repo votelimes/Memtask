@@ -42,6 +42,14 @@
             android:layout_height="match_parent"
             android:orientation="vertical"
             >
+            <ImageView
+                android:id="@+id/bg_image"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="fitXY"
+                android:adjustViewBounds="true"
+                android:layout_gravity="center"
+                />
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/project2_info_constraint"
                 android:layout_width="match_parent"

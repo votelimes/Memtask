@@ -1,11 +1,19 @@
 package com.example.clock.adapters;
 
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.media.Image;
+import android.net.Uri;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -14,8 +22,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
-import androidx.appcompat.app.AlertDialog;
-import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.LinearSmoothScroller;
 import androidx.recyclerview.widget.RecyclerView;
@@ -23,8 +29,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.clock.R;
 import com.example.clock.activities.ManageTaskActivity;
 import com.example.clock.app.App;
-import com.example.clock.databinding.CategoryTaskBinding;
 import com.example.clock.databinding.CategoryProjectBinding;
+import com.example.clock.databinding.CategoryTaskBinding;
 import com.example.clock.model.Theme;
 import com.example.clock.viewmodels.CategoryActivitiesViewModel;
 import com.google.android.material.card.MaterialCardView;
@@ -33,8 +39,15 @@ import com.google.android.material.snackbar.Snackbar;
 import com.mikhaellopez.circularprogressbar.CircularProgressBar;
 import com.pedromassango.doubleclick.DoubleClick;
 import com.pedromassango.doubleclick.DoubleClickListener;
+import com.squareup.picasso.Callback;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.Date;
+import java.util.List;
 
 public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
@@ -65,6 +78,7 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
         private final EditText description;
         private final ImageView alarmImage;
         private final TextView alarmTime;
+        private final ImageView bgImage;
 
         public TaskViewHolder(CategoryTaskBinding binding) {
             super(binding.getRoot());
@@ -80,6 +94,7 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
             description = (EditText) view.findViewById(R.id.task_description);
             alarmImage = (ImageView) view.findViewById(R.id.task_alarm_image);
             alarmTime = (TextView) view.findViewById(R.id.task_alarm_time);
+            bgImage = (ImageView) view.findViewById(R.id.bg_image);
         }
 
         public void bind(CategoryActivitiesViewModel vm, CategoryActivitiesViewModel.TaskObserver data){
@@ -127,6 +142,10 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
         public TextView getAlarmTime() {
             return alarmTime;
         }
+
+        public ImageView getBgImage(){
+            return bgImage;
+        }
     }
 
     public static class ProjectViewHolder extends RecyclerView.ViewHolder{
@@ -144,6 +163,7 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
         private final RecyclerView recyclerView;
 
         private ProjectAdapter mAdapter;
+        private final ImageView bgImage;
 
         public ProjectViewHolder(CategoryProjectBinding binding) {
             super(binding.getRoot());
@@ -167,6 +187,8 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
                     LinearLayoutManager.HORIZONTAL, false);
 
             recyclerView.setLayoutManager(mLayoutManager);
+
+            bgImage = (ImageView) view.findViewById(R.id.bg_image);
         }
 
         public void bind(CategoryActivitiesViewModel vm, CategoryActivitiesViewModel.ProjectObserver projObs){
@@ -214,6 +236,10 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
 
         public RecyclerView getRecyclerView() {
             return recyclerView;
+        }
+
+        public ImageView getBgImage(){
+            return bgImage;
         }
     }
 
@@ -342,6 +368,25 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
                 viewHolder.getImportant().setColorFilter(theme.getIconColor());
                 viewHolder.getAlarmImage().setColorFilter(theme.getIconColor());
 
+                String uriString = viewHolder.getBinding().getData().getImage();
+                if(uriString != null && uriString.length() != 0){
+                    Uri uri = Uri.parse(uriString);
+
+                    viewHolder.getMainLayout()
+                            .getViewTreeObserver()
+                            .addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                                @Override
+                                public void onGlobalLayout() {
+                                    int width = viewHolder.getMainLayout().getWidth();
+                                    int height = viewHolder.getMainLayout().getHeight();
+
+                                    Picasso.get()
+                                            .load(uri)
+                                            .resize(width, height)
+                                            .into(viewHolder.getBgImage());
+                                }
+                            });
+                }
             }
             if(mAddedOutside != -1 && mAddedOutside == viewHolder.getAbsoluteAdapterPosition()) {
                 viewHolder.getName().requestFocus();
@@ -415,45 +460,31 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
                 viewHolder.getName().setTextColor(theme.getMainTextColor());
                 viewHolder.getName().setHintTextColor(theme.getIconColor());
                 viewHolder.getRange().setTextColor(theme.getAdditionalTextColor());
+
+                String uriString = viewHolder.getBinding().getData().getImage();
+                if(uriString != null && uriString.length() != 0){
+                    Uri uri = Uri.parse(uriString);
+
+                    viewHolder.getMainLayout()
+                            .getViewTreeObserver()
+                            .addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                                @Override
+                                public void onGlobalLayout() {
+                                    int width = viewHolder.getMainLayout().getWidth();
+                                    int height = viewHolder.getMainLayout().getHeight();
+
+                                    Picasso.get()
+                                            .load(uri)
+                                            .resize(width, height)
+                                            .into(viewHolder.getBgImage());
+                                }
+                            });
+                }
             }
 
             ProjectAdapter adapter = new ProjectAdapter(resultLauncher, mViewModel, position,
                     rootView, viewHolder.getLayoutManager(), this);
             viewHolder.setAdapter(adapter);
-
-            /*ItemTouchHelper.SimpleCallback touchHelperCallbackRight = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.UP) {
-                @Override
-                public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
-                    return false;
-                }
-
-                @Override
-                public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
-                    ProjectAdapter adapter =  (ProjectAdapter) viewHolder.getBindingAdapter();
-                    adapter.removeItem(viewHolder.getAbsoluteAdapterPosition());
-                }
-            };
-            ItemTouchHelper itemTouchHelper = new ItemTouchHelper(touchHelperCallbackRight);
-            itemTouchHelper.attachToRecyclerView(viewHolder.getRecyclerView());
-
-            ItemTouchHelper.SimpleCallback touchHelperCallbackLeft = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.DOWN) {
-                @Override
-                public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
-                    return false;
-                }
-
-                @Override
-                public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
-                    Intent taskIntent = new Intent(rootView.getContext(), ManageTaskActivity.class);
-                    CardsListFragmentAdapter.TaskViewHolder vh = (CardsListFragmentAdapter.TaskViewHolder) viewHolder;
-                    taskIntent.putExtra("ID", vh.getBinding().getData().getTask().getTaskId());
-                    taskIntent.putExtra("mode", "TaskEditing");
-                    resultLauncher.launch(taskIntent);
-                    adapter.notifyItemChanged(viewHolder.getAbsoluteAdapterPosition());
-                }
-            };
-            itemTouchHelper = new ItemTouchHelper(touchHelperCallbackLeft);
-            itemTouchHelper.attachToRecyclerView(viewHolder.getRecyclerView());*/
 
             if(mAddedOutside != -1 && mAddedOutside == viewHolder.getAbsoluteAdapterPosition()) {
                 viewHolder.getName().requestFocus();
@@ -559,5 +590,33 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
 
     public void getRemoveItemSnackbar(Snackbar snackbar){
         mItemHasBeenDeletedSnack = snackbar;
+    }
+
+    public String imageUriToPath(Uri uri){
+        List<String> ps = uri.getPathSegments();
+
+        int startIndex = 0;
+
+        for (int i = 0; i < ps.size(); i++){
+            if(ps.get(i).contains("content")){
+                startIndex = i;
+                break;
+            }
+        }
+
+        String result = ps.get(startIndex).replace("content://", "");
+
+        for (int i = 0; i < ps.size(); i++){
+            if(i > startIndex){
+                result += "/" +ps.get(i);
+            }
+        }
+        //String path = ImageFilePath.getPath(rootView.getContext(), uri);
+        //String path = RealPathUtil.getRealPathFromURI_API19(rootView.getContext(), uri);
+
+        File file = new File(result);
+        boolean exists = file.exists();
+
+        return result;
     }
 }

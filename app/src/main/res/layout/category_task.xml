@@ -43,6 +43,14 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             >
+            <ImageView
+                android:id="@+id/bg_image"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="fitXY"
+                android:adjustViewBounds="true"
+                android:layout_gravity="center"
+                />
             <TextView
                 android:id="@+id/task_range"
                 android:layout_width="wrap_content"

@@ -7,7 +7,6 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -24,7 +23,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.clock.R;
 import com.example.clock.activities.ManageTaskActivity;
-import com.example.clock.adapters.CalendarFragmentAdapter;
 import com.example.clock.adapters.CardsListFragmentAdapter;
 import com.example.clock.app.App;
 import com.example.clock.model.ProjectData;
@@ -37,7 +35,6 @@ import com.github.clans.fab.FloatingActionButton;
 import com.github.clans.fab.FloatingActionMenu;
 import com.google.android.material.appbar.MaterialToolbar;
 
-import java.time.ZoneOffset;
 import java.util.List;
 
 public class CardsListFragment extends Fragment implements SearchView.OnQueryTextListener {

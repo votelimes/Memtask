@@ -3,9 +3,11 @@ package com.example.clock.adapters;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -29,6 +31,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
 import com.pedromassango.doubleclick.DoubleClick;
 import com.pedromassango.doubleclick.DoubleClickListener;
+import com.squareup.picasso.Picasso;
 
 public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.TaskViewHolder> {
 
@@ -55,6 +58,7 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.TaskView
         private final EditText description;
         private final ImageView alarmImage;
         private final TextView alarmTime;
+        private final ImageView bgImage;
 
         public TaskViewHolder(CategoryTaskBinding binding) {
             super(binding.getRoot());
@@ -70,6 +74,7 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.TaskView
             description = (EditText) view.findViewById(R.id.task_description);
             alarmImage = (ImageView) view.findViewById(R.id.task_alarm_image);
             alarmTime = (TextView) view.findViewById(R.id.task_alarm_time);
+            bgImage = (ImageView) view.findViewById(R.id.bg_image);
         }
 
         public void bind(CategoryActivitiesViewModel vm, CategoryActivitiesViewModel.TaskObserver data){
@@ -116,6 +121,10 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.TaskView
 
         public TextView getAlarmTime() {
             return alarmTime;
+        }
+
+        public ImageView getBgImage(){
+            return bgImage;
         }
     }
 
@@ -228,6 +237,26 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.TaskView
 
             viewHolder.getImportant().setColorFilter(theme.getIconColor());
             viewHolder.getAlarmImage().setColorFilter(theme.getIconColor());
+
+            String uriString = viewHolder.getBinding().getData().getImage();
+            if(uriString != null && uriString.length() != 0){
+                Uri uri = Uri.parse(uriString);
+
+                viewHolder.getMainLayout()
+                        .getViewTreeObserver()
+                        .addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                            @Override
+                            public void onGlobalLayout() {
+                                int width = viewHolder.getMainLayout().getWidth();
+                                int height = viewHolder.getMainLayout().getHeight();
+
+                                Picasso.get()
+                                        .load(uri)
+                                        .resize(width, height)
+                                        .into(viewHolder.getBgImage());
+                            }
+                        });
+            }
         }
         if(mAddedOutside != -1 && mAddedOutside == viewHolder.getAbsoluteAdapterPosition()) {
             viewHolder.getName().requestFocus();

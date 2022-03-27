@@ -18,6 +18,7 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
@@ -56,6 +57,8 @@ public class Task extends UserCaseBase {
 
     protected boolean notificationInProgress;
 
+    protected int duration = 1;
+    protected int progress = 0;
 
     //protected long testID = 1;
     //protected boolean started;
@@ -598,5 +601,44 @@ public class Task extends UserCaseBase {
             }
         }
         return false;
+    }
+
+    public int getDuration() {
+        return duration;
+    }
+
+    public void setDuration(int duration) {
+        this.duration = duration;
+        this.progress = 0;
+    }
+
+    public void addProgress(){
+        progress += getStep();
+    }
+
+    public int getProgress(){
+        return progress;
+    }
+
+    public void setProgress(int progress){
+        this.progress = progress;
+    }
+
+    public int getStep(){
+        LocalDateTime start = LocalDateTime.ofEpochSecond(startTime / 1000, 0, ZoneOffset.UTC);
+        LocalDateTime end = LocalDateTime.ofEpochSecond(endTime / 1000, 0, ZoneOffset.UTC);
+
+        double step;
+        if(duration > ChronoUnit.DAYS.between(start, end)) {
+            step = ((double) ((duration - progress) / (ChronoUnit.DAYS.between(start, end))));
+        }
+        else if(duration < ChronoUnit.DAYS.between(start, end)){
+            step = ((double) ((ChronoUnit.DAYS.between(start, end) / (duration - progress))));
+        }
+        else{
+            step = 1;
+        }
+
+        return (int) Math.ceil(step);
     }
 }

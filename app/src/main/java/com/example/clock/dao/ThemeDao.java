@@ -8,7 +8,6 @@ import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 import androidx.room.Update;
 
-import com.example.clock.model.Project;
 import com.example.clock.model.Theme;
 
 import java.util.List;

@@ -5,11 +5,13 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.text.style.RelativeSizeSpan;
 import android.text.style.StyleSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -43,6 +45,7 @@ import com.prolificinteractive.materialcalendarview.OnDateSelectedListener;
 import com.prolificinteractive.materialcalendarview.OnMonthChangedListener;
 import com.prolificinteractive.materialcalendarview.OnRangeSelectedListener;
 import com.prolificinteractive.materialcalendarview.spans.DotSpan;
+import com.squareup.picasso.Picasso;
 
 import org.threeten.bp.LocalDate;
 
@@ -81,6 +84,7 @@ public class CalendarFragmentAdapter extends RecyclerView.Adapter<RecyclerView.V
         private final EditText description;
         private final ImageView alarmImage;
         private final TextView alarmTime;
+        private final ImageView  bgImage;
 
         public TaskViewHolder(CalendarTaskBinding binding) {
             super(binding.getRoot());
@@ -97,6 +101,7 @@ public class CalendarFragmentAdapter extends RecyclerView.Adapter<RecyclerView.V
             description = (EditText) view.findViewById(R.id.task_description);
             alarmImage = (ImageView) view.findViewById(R.id.task_alarm_image);
             alarmTime = (TextView) view.findViewById(R.id.task_alarm_time);
+            bgImage = (ImageView) view.findViewById(R.id.bg_image);
         }
 
         public void bind(CalendarViewModel vm, CalendarViewModel.TaskObserver data){
@@ -143,6 +148,10 @@ public class CalendarFragmentAdapter extends RecyclerView.Adapter<RecyclerView.V
 
         public TextView getAlarmTime() {
             return alarmTime;
+        }
+
+        public ImageView getBgImage(){
+            return bgImage;
         }
     }
 
@@ -471,6 +480,25 @@ public class CalendarFragmentAdapter extends RecyclerView.Adapter<RecyclerView.V
                 viewHolder.getImportant().setColorFilter(theme.getIconColor());
                 viewHolder.getAlarmImage().setColorFilter(theme.getIconColor());
 
+                String uriString = viewHolder.getBinding().getData().getImage();
+                if(uriString != null && uriString.length() != 0){
+                    Uri uri = Uri.parse(uriString);
+
+                    viewHolder.getMainLayout()
+                            .getViewTreeObserver()
+                            .addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                                @Override
+                                public void onGlobalLayout() {
+                                    int width = viewHolder.getMainLayout().getWidth();
+                                    int height = viewHolder.getMainLayout().getHeight();
+
+                                    Picasso.get()
+                                            .load(uri)
+                                            .resize(width, height)
+                                            .into(viewHolder.getBgImage());
+                                }
+                            });
+                }
             }
         }
         if(getItemViewType(position) == VIEW_TYPE_CALENDAR){

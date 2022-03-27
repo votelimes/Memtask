@@ -1,35 +1,29 @@
 package com.example.clock.adapters;
 
-import static com.example.clock.app.App.*;
-
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Typeface;
-import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.text.InputType;
 import android.text.method.ScrollingMovementMethod;
-import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.core.util.Pair;
 import androidx.databinding.BindingAdapter;
-import androidx.databinding.BindingConversion;
-import androidx.databinding.BindingMethod;
-import androidx.databinding.BindingMethods;
 
 import com.example.clock.R;
-import com.example.clock.app.App;
-import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.mikhaellopez.circularprogressbar.CircularProgressBar;
+import com.squareup.picasso.Picasso;
 
 public class BindingAdapters {
 
@@ -118,4 +112,33 @@ public class BindingAdapters {
             layout.setEndIconActivated(true);
         }
     }
+
+    @BindingAdapter("android:picassoUpdate")
+    public static void updateImage(ImageView view, String StringUri){
+        if(StringUri != null && StringUri.length() != 0){
+            Uri uri = Uri.parse(StringUri);
+            View parent = (View)((ViewGroup) view.getParent());
+
+            int h1 = parent.findViewById(R.id.task_name).getHeight();
+            int h2 = parent.findViewById(R.id.task_description).getHeight();
+
+            if(h1 == 0 && h2 == 0){
+                h1 = 2;
+            }
+
+            int medianH = (h1 + h2)/5 + 100;
+
+            try {
+                Picasso.get()
+                        .load(uri)
+                        .resize(0, medianH)
+                        .into(view);
+            }
+            catch (Exception e){
+                e.printStackTrace();
+            }
+
+        }
+    }
+
 }

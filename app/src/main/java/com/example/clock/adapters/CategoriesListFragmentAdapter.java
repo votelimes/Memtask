@@ -3,7 +3,6 @@ package com.example.clock.adapters;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,7 +16,6 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.clock.R;
-import com.example.clock.activities.ManageTaskActivity;
 import com.example.clock.app.App;
 import com.example.clock.fragments.CardsListFragment;
 import com.example.clock.model.Category;

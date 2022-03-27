@@ -11,8 +11,8 @@ public class UserCaseStatistic {
     @PrimaryKey(autoGenerate = true)
     private long id;
     private String userCaseID;
-    private boolean stateCompleted = false;
-    private boolean stateExpired = false;
+    private boolean stateCompleted;
+    private boolean stateExpired;
 
     private long millisRecordDateTime;
 

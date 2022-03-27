@@ -5,20 +5,20 @@ import android.app.Application;
 import androidx.lifecycle.LiveData;
 
 import com.example.clock.dao.CategoryDao;
+import com.example.clock.dao.ProjectDao;
+import com.example.clock.dao.TaskDao;
 import com.example.clock.dao.ThemeDao;
 import com.example.clock.dao.UserCaseStatisticDao;
+import com.example.clock.model.Category;
+import com.example.clock.model.Project;
 import com.example.clock.model.ProjectAndTheme;
 import com.example.clock.model.ProjectData;
+import com.example.clock.model.Task;
 import com.example.clock.model.TaskAndTheme;
 import com.example.clock.model.TaskData;
 import com.example.clock.model.Theme;
 import com.example.clock.model.UserCaseStatistic;
 import com.example.clock.storageutils.Database;
-import com.example.clock.dao.ProjectDao;
-import com.example.clock.model.Category;
-import com.example.clock.model.Project;
-import com.example.clock.model.Task;
-import com.example.clock.dao.TaskDao;
 import com.example.clock.storageutils.SilentDatabase;
 
 import java.util.List;
