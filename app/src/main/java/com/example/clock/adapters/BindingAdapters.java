@@ -72,8 +72,7 @@ public class BindingAdapters {
     public static void setMultiline(EditText v, boolean state) {
         if(state){
             v.setSingleLine(false);
-            v.setImeOptions(EditorInfo.IME_FLAG_NO_ENTER_ACTION);
-            v.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE);
+            v.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
             v.setLines(1);
             v.setMaxLines(7);
             v.setVerticalScrollBarEnabled(true);

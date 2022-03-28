@@ -7,4 +7,7 @@
 
 
     <color name="textPrimary">#F2FDFF</color>
+
+    Ближний фон элементов
+    <color name="backgroundSecondary">#31333A</color>
 </resources>

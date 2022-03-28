@@ -145,7 +145,6 @@
                 android:background="@color/transparent"
                 android:textColorHint="@color/act_text_main"
                 android:typeface='@{data.Description.length() == 0 ? "regular" : "bold"}'
-                android:inputType="@{!data.CompletedOrExpired ? InputType.TYPE_CLASS_TEXT : InputType.TYPE_NULL}"
                 android:multiline="@{!data.CompletedOrExpired}"
                 />
             <androidx.constraintlayout.widget.Barrier

@@ -170,7 +170,6 @@
                 app:layout_constraintEnd_toStartOf="@id/task_important"
                 android:textColor="@color/act_text_main"
                 android:visibility="@{data.DescriptionState ? View.VISIBLE : View.GONE}"
-                android:inputType="@{!data.CompletedOrExpired ? InputType.TYPE_CLASS_TEXT : InputType.TYPE_NULL}"
                 android:multiline="@{!data.CompletedOrExpired}"
                 />
             <ImageView

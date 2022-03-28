@@ -25,5 +25,10 @@
         android:summary="Режим отображения календаря (месяц, неделя)"
         android:defaultValue="@string/preference_calendar_mode_value_default"
         />
+    <Preference
+        app:key="google_sync"
+        app:title="Учетная запись Google"
+        android:summary=""
+        />
 
 </androidx.preference.PreferenceScreen>

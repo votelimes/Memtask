@@ -164,6 +164,7 @@ public class CalendarFragmentAdapter extends RecyclerView.Adapter<RecyclerView.V
         TodayDecorator todayDecorator;
 
 
+
         public CalendarViewHolder(View view) {
             super(view);
             calendar = view.findViewById(R.id.calendar);
@@ -175,7 +176,13 @@ public class CalendarFragmentAdapter extends RecyclerView.Adapter<RecyclerView.V
             todayDecorator = new TodayDecorator(view.getContext());
 
             calendar.setTitleMonths(R.array.calendar_month_names);
-            currentDate = CalendarDay.today();
+            if(currentDate == null){
+                currentDate = CalendarDay.today();
+            }
+            else if(CalendarDay.today().getMonth() != currentDate.getMonth()) {
+                calendar.setSelectedDate(currentDate);
+            }
+
             calendar.setCurrentDate(currentDate);
             calendar.addDecorators(todayDecorator, minLoadDecorator, medLoadDecorator,
                     highLoadDecorator, maxLoadDecorator);
@@ -193,7 +200,10 @@ public class CalendarFragmentAdapter extends RecyclerView.Adapter<RecyclerView.V
 
         @Override
         public void onDateSelected(@NonNull MaterialCalendarView widget, @NonNull CalendarDay date, boolean selected) {
-            mViewModel.setDateAndUpdate(date, null);
+            if(selected){
+                currentDate = date;
+                mViewModel.setDateAndUpdate(date, null);
+            }
             getNoTasksInformer().setVisibility(mViewModel.getPoolSize() == 0 ? View.VISIBLE : View.GONE);
             notifyDataSetChanged();
         }
@@ -217,8 +227,14 @@ public class CalendarFragmentAdapter extends RecyclerView.Adapter<RecyclerView.V
 
         @Override
         public void onMonthChanged(MaterialCalendarView widget, CalendarDay date) {
-            widget.setSelectedDate(date);
             currentDate = date;
+            if(CalendarDay.today().getMonth() != currentDate.getMonth()) {
+                widget.setSelectedDate(date);
+            }
+            else{
+                widget.setSelectedDate(CalendarDay.today());
+            }
+            widget.invalidateDecorators();
             mViewModel.setDate(date, null);
             mViewModel.requestMonthTasksPack().removeObservers(lifecycleOwner);
             mViewModel.updateMonthTasksPack().observe(lifecycleOwner, monthChangeObserver);
@@ -577,6 +593,10 @@ public class CalendarFragmentAdapter extends RecyclerView.Adapter<RecyclerView.V
             mViewModel.init();
             getNoTasksInformer().setVisibility(mViewModel.getPoolSize() == 0 ? View.VISIBLE : View.GONE);
             notifyDataSetChanged();
+
+            if(currentDate.getMonth() == CalendarDay.today().getMonth()){
+                calendar.setCurrentDate(CalendarDay.today());
+            }
             calendar.invalidateDecorators();
         }
     };

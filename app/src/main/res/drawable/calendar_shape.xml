@@ -7,7 +7,7 @@
         android:color="@color/backgroundSecondary"
         />
     <padding
-        android:bottom="28dp">
+        android:bottom="0dp">
     </padding>
     <corners
         android:topLeftRadius="30dp"

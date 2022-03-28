@@ -61,12 +61,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     ViewModelFactoryBase mFactory;
     ActivityMainBinding mActivityBinding;
 
-
     //Menu
     MaterialToolbar toolbar;
     public DrawerLayout drawerLayout;
     NavigationView navigationView;
-    SearchView searchView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -530,7 +528,26 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             defaultTasksList.get(12).setThemeID(defaultThemesList.get(10).getID());
 
             defaultTasksList.add(new Task("Посмотреть видео про коптеры", "Любое", 3 ));
-            defaultTasksList.get(13).setThemeID(defaultThemesList.get(15).getID());
+            defaultTasksList.get(13).setThemeID(defaultThemesList.get(6).getID());
+
+            defaultTasksList.add(new Task("Найти книгу с голубым переплетом", "Смотрел в гостинной, в третьем шкафу. Посмотреть в кладовке.", 3 ));
+            defaultTasksList.get(14).setThemeID(defaultThemesList.get(7).getID());
+
+            defaultTasksList.add(new Task("Потратить баллы юмани", "Кол-во баллов на февраль 540", 3 ));
+            defaultTasksList.get(15).setThemeID(defaultThemesList.get(8).getID());
+
+            defaultTasksList.add(new Task("Определить планы на лето", "1. Похудеть." +
+                    "2. ...", 3 ));
+            defaultTasksList.get(16).setThemeID(defaultThemesList.get(14).getID());
+
+            defaultTasksList.add(new Task("Тексты", "Сделать пакет текстов Party-box", 3 ));
+            defaultTasksList.get(17).setThemeID(defaultThemesList.get(12).getID());
+
+            defaultTasksList.add(new Task("Обложки", "Придумать новые обложки для дисков", 3 ));
+            defaultTasksList.get(18).setThemeID(defaultThemesList.get(13).getID());
+
+            defaultTasksList.add(new Task("Тренинг", "Найти тренинг по аналитике", 3 ));
+            defaultTasksList.get(19).setThemeID(defaultThemesList.get(11).getID());
 
             for (Task task: defaultTasksList) {
                 mViewModel.addTask(task);
