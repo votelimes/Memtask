@@ -61,7 +61,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 android:textColor="@color/act_text_grey"
-                android:visibility="@{data.getTask().getStartTime > 0 ? View.VISIBLE : View.GONE}"
+                android:visibility="@{data.hasRange()? View.VISIBLE : View.GONE}"
                 />
             <androidx.constraintlayout.widget.Barrier
                 android:id="@+id/task_br1"

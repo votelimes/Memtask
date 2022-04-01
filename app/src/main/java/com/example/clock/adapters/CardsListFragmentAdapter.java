@@ -9,6 +9,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.Image;
 import android.net.Uri;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,6 +23,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.LinearSmoothScroller;
 import androidx.recyclerview.widget.RecyclerView;
@@ -52,12 +54,12 @@ import java.util.List;
 
 public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
+    //TODO: PROJECT BG IMAGE intinite_loop?
+
     private static final int VIEW_TYPE_UNDEFINED = 0;
     private static final int VIEW_TYPE_TASK = 1;
     private static final int VIEW_TYPE_PROJECT = 2;
 
-    private long currentCategoryID;
-    private Date selectedDay;
     private final ActivityResultLauncher<Intent> resultLauncher;
     private final CategoryActivitiesViewModel mViewModel;
     private final View rootView;
@@ -247,8 +249,6 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
     public CardsListFragmentAdapter(ActivityResultLauncher<Intent> resultLauncher,
                                     CategoryActivitiesViewModel viewModel, View rootView, RecyclerView.LayoutManager layoutManager) {
         mViewModel = viewModel;
-        this.currentCategoryID = currentCategoryID;
-        this.selectedDay = selectedDay;
         this.resultLauncher = resultLauncher;
         this.rootView = rootView;
         mLayoutManager = layoutManager;
@@ -259,6 +259,9 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
         };
 
         mItemHasBeenDeletedSnack = Snackbar.make(rootView, "", mViewModel.RESTORE_ITEM_SNACKBAR_TIME);
+
+        View snackBarView = mItemHasBeenDeletedSnack.getView();
+        snackBarView.setTranslationY(-(convertDpToPixel(80, snackBarView.getContext())));
     }
 
     // Create new views (invoked by the layout manager)
@@ -415,6 +418,10 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
                                             mViewModel.addProjectChild(viewHolder.getAbsoluteAdapterPosition());
                                             viewHolder.getAdapter().scrollTo(viewHolder.mAdapter.getItemCount());
                                             viewHolder.getAdapter().setAddedOutside(viewHolder.getAbsoluteAdapterPosition());
+                                            if(viewHolder.getAdapter().getItemCount() == 1
+                                                    || viewHolder.getAdapter().getItemCount() == 0){
+                                                notifyItemChanged(viewHolder.getAbsoluteAdapterPosition());
+                                            }
                                             break;
 
                                         case 1: // Изменить
@@ -518,6 +525,7 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
                     .setNegativeButton("Отменить", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
+                            notifyDataSetChanged();
                             dialogInterface.dismiss();
                         }
                     })
@@ -547,13 +555,12 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
                     .setNegativeButton("Отменить", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
+                            notifyDataSetChanged();
                             dialogInterface.dismiss();
                         }
                     })
                     .show();
         }
-        /*notifyItemRemoved(position);
-        notifyItemRangeChanged(position, mViewModel.getPoolSize());*/
     }
 
     public void scrollTo(int position){
@@ -619,5 +626,9 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
         boolean exists = file.exists();
 
         return result;
+    }
+
+    public static float convertDpToPixel(float dp, Context context){
+        return dp * ((float) context.getResources().getDisplayMetrics().densityDpi / DisplayMetrics.DENSITY_DEFAULT);
     }
 }

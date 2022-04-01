@@ -75,7 +75,7 @@
                     android:text="@{data.getRange()}"
                     android:textColor="@color/act_text_grey"
                     android:textSize="18sp"
-                    android:visibility="@{data.getRange != null ? View.VISIBLE : View.GONE}"
+                    android:visibility="@{data.hasRange()? View.VISIBLE : View.GONE}"
                     />
                 <EditText
                     android:id="@+id/project2_name"

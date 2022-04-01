@@ -8,6 +8,7 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.text.style.RelativeSizeSpan;
 import android.text.style.StyleSpan;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -385,6 +386,9 @@ public class CalendarFragmentAdapter extends RecyclerView.Adapter<RecyclerView.V
         };
 
         mItemHasBeenDeletedSnack = Snackbar.make(rootView, "", (int) CalendarViewModel.RESTORE_ITEM_SNACKBAR_TIME);
+
+        View snackBarView = mItemHasBeenDeletedSnack.getView();
+        snackBarView.setTranslationY(-(convertDpToPixel(75, snackBarView.getContext())));
     }
 
     // Create new views (invoked by the layout manager)
@@ -552,6 +556,7 @@ public class CalendarFragmentAdapter extends RecyclerView.Adapter<RecyclerView.V
                 .setNegativeButton("Отменить", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
+                        notifyDataSetChanged();
                         dialogInterface.dismiss();
                     }
                 })
@@ -605,7 +610,12 @@ public class CalendarFragmentAdapter extends RecyclerView.Adapter<RecyclerView.V
         mViewModel.updateData(filterName).observe(lifecycleOwner, monthChangeObserver);
         notifyDataSetChanged();
     };
+
     public Snackbar getRemoveItemSnackbar(){
         return mItemHasBeenDeletedSnack;
+    }
+
+    public static float convertDpToPixel(float dp, Context context){
+        return dp * ((float) context.getResources().getDisplayMetrics().densityDpi / DisplayMetrics.DENSITY_DEFAULT);
     }
 }

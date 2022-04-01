@@ -442,11 +442,11 @@ public class ManageTaskViewModel extends MemtaskViewModelBase {
             long firstDateLong = 0;
             long endDateLong = 0;
 
-            if(mManagingTask != null){
+            if(isTaskMode()){
                 firstDateLong = mManagingTask.getStartTime();
                 endDateLong = mManagingTask.getEndTime();
             }
-            if(mManagingProject != null){
+            else if(isProjectMode()){
                 firstDateLong = mManagingProject.getStartTime();
                 endDateLong = mManagingProject.getEndTime();
             }
@@ -479,13 +479,13 @@ public class ManageTaskViewModel extends MemtaskViewModelBase {
         }
 
         public void setRangeMillis(long start, long end){
-            if(mManagingTask != null){
+            if(isTaskMode()){
                 mManagingTask.setStartTime(start);
                 mManagingTask.setEndTime(end);
             }
-            if(mManagingProject != null){
-                mManagingTask.setStartTime(start);
-                mManagingTask.setEndTime(end);
+            else if(isProjectMode()){
+                mManagingProject.setStartTime(start);
+                mManagingProject.setEndTime(end);
             }
             notifyPropertyChanged(BR.range);
         }

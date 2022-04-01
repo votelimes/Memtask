@@ -416,6 +416,19 @@ public class CalendarViewModel extends MemtaskViewModelBase{
             return startTime.format(dtf) + " — " + endTime.format(dtf);
         }
 
+        public boolean hasRange(){
+            if(data.task.getStartTime() == 0
+                    || data.task.getStartTime() == 1
+                    || data.task.getEndTime() == 0
+                    || data.task.getEndTime() == 1
+                    || data.task.getStartTime() >= data.task.getEndTime()){
+                return false;
+            }
+            else{
+                return true;
+            }
+        }
+
         @Bindable
         public String getCategoryName(){
             return data.categoryName;

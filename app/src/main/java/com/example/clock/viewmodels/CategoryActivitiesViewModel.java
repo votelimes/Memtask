@@ -341,6 +341,14 @@ public class CategoryActivitiesViewModel extends MemtaskViewModelBase{
             LocalDateTime endTime;
             DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd.MM.yyyy");
 
+            if(data.task.getStartTime() == 0
+                    || data.task.getStartTime() == 1
+                    || data.task.getEndTime() == 0
+                    || data.task.getEndTime() == 1
+                    || data.task.getStartTime() >= data.task.getEndTime()){
+                return "";
+            }
+
 
             startTime = LocalDateTime.ofEpochSecond(
                     data
@@ -356,6 +364,19 @@ public class CategoryActivitiesViewModel extends MemtaskViewModelBase{
             );
 
             return startTime.format(dtf) + " — " + endTime.format(dtf);
+        }
+
+        public boolean hasRange(){
+            if(data.task.getStartTime() == 0
+                    || data.task.getStartTime() == 1
+                    || data.task.getEndTime() == 0
+                    || data.task.getEndTime() == 1
+                    || data.task.getStartTime() >= data.task.getEndTime()){
+                return false;
+            }
+            else{
+                return true;
+            }
         }
 
         public LocalDateTime getEndRange(){
@@ -525,6 +546,14 @@ public class CategoryActivitiesViewModel extends MemtaskViewModelBase{
         public String getRange(){
             DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd.MM.yyyy");
 
+            if(data.project.getStartTime() == 0
+            || data.project.getStartTime() == 1
+            || data.project.getEndTime() == 0
+            || data.project.getEndTime() == 1
+            || data.project.getStartTime() >= data.project.getEndTime()){
+                return "";
+            }
+
             final LocalDateTime startTime = LocalDateTime.ofEpochSecond(
                     data
                             .project
@@ -561,6 +590,19 @@ public class CategoryActivitiesViewModel extends MemtaskViewModelBase{
             }
 
             return startTime.format(dtf) + " — " + endTime.get().format(dtf);
+        }
+
+        public boolean hasRange(){
+            if(data.project.getStartTime() == 0
+                    || data.project.getStartTime() == 1
+                    || data.project.getEndTime() == 0
+                    || data.project.getEndTime() == 1
+                    || data.project.getStartTime() >= data.project.getEndTime()){
+                return false;
+            }
+            else{
+                return true;
+            }
         }
 
         @Bindable

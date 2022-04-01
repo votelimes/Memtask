@@ -62,6 +62,8 @@ import java.util.Objects;
 
 public class ManageTaskActivity extends AppCompatActivity implements View.OnFocusChangeListener {
 
+    //TODO: Project range crash
+
     ManageTaskViewModel mViewModel;
     ViewModelFactoryBase mFactory;
     ActivityManageTaskBinding mActivityBinding;
