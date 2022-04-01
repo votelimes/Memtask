@@ -1,23 +1,15 @@
 package com.example.clock.activities;
 
-import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.ColorStateList;
-import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.media.Image;
-import android.media.MediaPlayer;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -25,10 +17,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
-import android.widget.ImageView;
 
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
@@ -48,9 +37,9 @@ import com.example.clock.model.TaskData;
 import com.example.clock.model.Theme;
 import com.example.clock.storageutils.Tuple2;
 import com.example.clock.viewmodels.ManageTaskViewModel;
+import com.example.clock.viewmodels.MemtaskViewModelBase;
 import com.example.clock.viewmodels.ViewModelFactoryBase;
 import com.google.android.material.button.MaterialButton;
-import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.datepicker.MaterialPickerOnPositiveButtonClickListener;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -62,14 +51,9 @@ import com.shawnlin.numberpicker.NumberPicker;
 import com.skydoves.colorpickerview.ColorEnvelope;
 import com.skydoves.colorpickerview.ColorPickerDialog;
 import com.skydoves.colorpickerview.listeners.ColorEnvelopeListener;
-import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Target;
 
 import net.cachapa.expandablelayout.ExpandableLayout;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
@@ -84,7 +68,7 @@ public class ManageTaskActivity extends AppCompatActivity implements View.OnFocu
     TextInputEditText nameText;
     TextInputEditText categoryText;
     ExpandableLayout expandableColorLayout;
-    String mode;
+    int mode;
     Context mContext;
     long millis;
 
@@ -124,14 +108,13 @@ public class ManageTaskActivity extends AppCompatActivity implements View.OnFocu
         mActivityBinding = DataBindingUtil
                 .setContentView(this, R.layout.activity_manage_task);
 
-        mode =  getIntent()
-                .getStringExtra("mode");
+        mode =  getIntent().getIntExtra(MemtaskViewModelBase.MTP_MODE, -1);
         mContext = this;
-        String itemID = getIntent().getStringExtra("ID");
+        String itemID = getIntent().getStringExtra(MemtaskViewModelBase.MTP_ID);
 
-        long categoryID = getIntent().getLongExtra("category", -1);
+        long categoryID = getIntent().getLongExtra(MemtaskViewModelBase.MTP_CATEGORY_ID, -1);
 
-        String parentID = getIntent().getStringExtra("parent");
+        String parentID = getIntent().getStringExtra(MemtaskViewModelBase.MTP_PARENT);
 
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd.MM.yyyy");
 
@@ -403,16 +386,16 @@ public class ManageTaskActivity extends AppCompatActivity implements View.OnFocu
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
-        if(mode.equals("TaskCreating")){
+        if(mode == MemtaskViewModelBase.TASK_CREATING){
             toolbar.setTitle("Создание задачи");
         }
-        else if(mode.equals("TaskEditing")){
+        else if(mode == MemtaskViewModelBase.TASK_EDITING){
             toolbar.setTitle("Изменение задачи");
         }
-        else if(mode.equals("ProjectCreating")){
+        else if(mode == MemtaskViewModelBase.PROJECT_CREATING){
             toolbar.setTitle("Создание проекта");
         }
-        else if(mode.equals("ProjectEditing")){
+        else if(mode == MemtaskViewModelBase.PROJECT_EDITING){
             toolbar.setTitle("Изменение проекта");
         }
 
@@ -779,16 +762,16 @@ public class ManageTaskActivity extends AppCompatActivity implements View.OnFocu
         }
 
         mViewModel.saveChanges(this);
-        if(mode.equals("TaskCreating")){
+        if(mode == MemtaskViewModelBase.TASK_CREATING){
             setResult(20); // 20 Task created
         }
-        else if(mode.equals("TaskEditing")){
+        else if(mode == MemtaskViewModelBase.TASK_EDITING){
             setResult(21); // 30
         }
-        else if(mode.equals("ProjectCreating")){
+        else if(mode == MemtaskViewModelBase.PROJECT_CREATING){
             setResult(30); // 30 Project created
         }
-        else if(mode.equals("ProjectEditing")){
+        else if(mode == MemtaskViewModelBase.PROJECT_EDITING){
             setResult(31); // 30 Project created
         }
         finish();
@@ -819,64 +802,61 @@ public class ManageTaskActivity extends AppCompatActivity implements View.OnFocu
     final Observer<Tuple2<List<Theme>, List<Category>>> intermediateThemeCategoryObs = new Observer<Tuple2<List<Theme>, List<Category>>>() {
         @Override
         public void onChanged(Tuple2<List<Theme>, List<Category>> data) {
-            if(mode.equals("TaskCreating") || mode.equals("ProjectCreating")){
+            if(mode == MemtaskViewModelBase.TASK_CREATING || mode == MemtaskViewModelBase.PROJECT_CREATING){
                 mViewModel.initCreating();
                 mActivityBinding.setViewmodel(mViewModel);
             }
-            else if(mode.equals("TaskEditing")){
+            else if(mode == MemtaskViewModelBase.TASK_EDITING){
                 mViewModel.taskLiveData.observe(ManageTaskActivity.this, taskObs);
             }
-            else if(mode.equals("ProjectEditing")){
+            else if(mode == MemtaskViewModelBase.PROJECT_EDITING){
                 mViewModel.projectLiveData.observe(ManageTaskActivity.this, projectObs);
             }
         }
     };
+
+
     final Observer<TaskData> taskObs = new Observer<TaskData>() {
         @Override
         public void onChanged(TaskData data) {
-            mViewModel.initTaskEditing();
+            if(mode == MemtaskViewModelBase.TASK_EDITING){
+                mViewModel.initTaskEditing();
+            }
+            else{
+                mViewModel.initCreating();
+            }
+
             mActivityBinding.setViewmodel(mViewModel);
         }
     };
     final Observer<ProjectAndTheme> projectObs = new Observer<ProjectAndTheme>() {
         @Override
         public void onChanged(ProjectAndTheme data) {
-            mViewModel.initProjectEditing();
+            if(mode == MemtaskViewModelBase.PROJECT_EDITING){
+                mViewModel.initProjectEditing();
+            }
+            else{
+                mViewModel.initCreating();
+            }
             mActivityBinding.setViewmodel(mViewModel);
         }
     };
 
     @Override
     public boolean onSupportNavigateUp() {
-        if(mode.equals("TaskCreating")){
+        if(mode == MemtaskViewModelBase.TASK_CREATING){
             setResult(20); // 20 Task created
         }
-        else if(mode.equals("TaskEditing")){
+        else if(mode == MemtaskViewModelBase.TASK_EDITING){
             setResult(21); // 30
         }
-        else if(mode.equals("ProjectCreating")){
+        else if(mode == MemtaskViewModelBase.PROJECT_CREATING){
             setResult(30); // 30 Project created
         }
-        else if(mode.equals("ProjectEditing")){
+        else if(mode == MemtaskViewModelBase.PROJECT_EDITING){
             setResult(31); // 30 Project created
         }
         onBackPressed();
         return true;
-    }
-
-    public String getPathFromURI(Uri ContentUri) {
-        String res = null;
-        String[] proj = {MediaStore.Images.Media.DATA};
-        Cursor cursor = getContentResolver()
-                .query(ContentUri, proj, null, null, null);
-
-        if (cursor != null) {
-            cursor.moveToFirst();
-
-            res = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA));
-            cursor.close();
-        }
-
-        return res;
     }
 }

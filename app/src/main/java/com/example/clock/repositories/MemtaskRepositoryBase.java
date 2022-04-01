@@ -35,7 +35,7 @@ public class MemtaskRepositoryBase {
     private final ThemeDao mThemeDao;
     private final UserCaseStatisticDao mUserCaseStatisticDao;
 
-    public MemtaskRepositoryBase(Application application, Database database, SilentDatabase silentDatabase){
+    public MemtaskRepositoryBase(Database database, SilentDatabase silentDatabase){
         this.mDatabase = database;
         this.mSilentDatabase = silentDatabase;
 

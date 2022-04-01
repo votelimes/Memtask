@@ -25,6 +25,7 @@ import com.example.clock.app.App;
 import com.example.clock.model.Category;
 import com.example.clock.viewmodels.MainViewModel;
 import com.example.clock.viewmodels.ViewModelFactoryBase;
+import com.github.clans.fab.FloatingActionButton;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 
@@ -80,7 +81,7 @@ public class CategoriesListFragment extends Fragment {
 
         mViewModel.requestCategoriesData().observe(getViewLifecycleOwner(), hoardObserver);
 
-        ExtendedFloatingActionButton addButton = getView()
+        FloatingActionButton addButton = getView()
                 .findViewById(R.id.fragment_categories_add_button);
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override

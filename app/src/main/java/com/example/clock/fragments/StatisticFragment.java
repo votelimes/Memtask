@@ -16,7 +16,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.example.clock.R;
 import com.example.clock.app.App;
-import com.example.clock.databinding.StatisticFragmentBinding;
+import com.example.clock.databinding.FragmentStatisticBinding;
 import com.example.clock.model.UserCaseStatistic;
 import com.example.clock.viewmodels.StatisticViewModel;
 import com.example.clock.viewmodels.ViewModelFactoryBase;
@@ -39,7 +39,7 @@ public class StatisticFragment extends Fragment {
 
     private StatisticViewModel mViewModel;
     private BarChart chart1;
-    private StatisticFragmentBinding binding;
+    private FragmentStatisticBinding binding;
     private TextInputEditText chart1RangeStart;
     private TextInputEditText chart1RangeEnd;
 
@@ -50,7 +50,7 @@ public class StatisticFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        binding = DataBindingUtil.inflate(inflater, R.layout.statistic_fragment, container, false);
+        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_statistic, container, false);
         return binding.getRoot();
     }
 
@@ -141,12 +141,14 @@ public class StatisticFragment extends Fragment {
                 }
             }
         });
+
+        chart1.getLegend().setTextColor(getResources().getColor(R.color.textPrimary));
     }
     final Observer<List<UserCaseStatistic>> statPoolObserver = new Observer<List<UserCaseStatistic>>() {
         @Override
         public void onChanged(List<UserCaseStatistic> data) {
             mViewModel.init();
-            BarDataSet bds = new BarDataSet(mViewModel.getChart1Entries(), "Отношение выполненных задач к общему количеству по периодам");
+            BarDataSet bds = new BarDataSet(mViewModel.getChart1Entries(), "Успешность выполнения задач");
             BarData bd = new BarData(bds);
             List<Integer> colorList = new ArrayList<>(mViewModel.getChart1Entries().size());
             Random random = new Random();

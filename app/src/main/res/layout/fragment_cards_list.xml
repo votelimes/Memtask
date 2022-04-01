@@ -39,7 +39,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:menu_icon="@drawable/ic_outline_add_24"
-            app:menu_colorNormal="@color/main_4"
+            app:menu_colorNormal="@color/fab_color"
             android:layout_marginBottom="20dp"
             android:layout_marginEnd="12dp"
             >

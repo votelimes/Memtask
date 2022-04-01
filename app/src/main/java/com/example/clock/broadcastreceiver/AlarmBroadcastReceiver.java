@@ -33,7 +33,7 @@ public class AlarmBroadcastReceiver extends BroadcastReceiver {
         int value = intent.getIntExtra(TaskNotificationManager.MODE_KEY, -1);
         String action = intent.getAction();
         if(intent.getIntExtra(TaskNotificationManager.MODE_KEY, -1) == TaskNotificationManager.MODE_INLINE){
-            mRepository = new MemtaskRepositoryBase(App.getInstance(), App.getDatabase(), App.getSilentDatabase());
+            mRepository = new MemtaskRepositoryBase(App.getDatabase(), App.getSilentDatabase());
             String taskID = intent.getStringExtra(TaskNotificationManager.ID_KEY);
             task = mRepository.getTaskSilently(taskID);
             if(task == null){

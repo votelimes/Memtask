@@ -12,7 +12,7 @@ import com.example.clock.app.App;
 
 public class Settings {
 
-    public final boolean TESTING = false;
+    public final boolean TESTING = true;
 
     // 0 Calendar, 1 Category list, 2 Tasks list, 3 Statistic, 4 Settings.
     private Pair<Long, String> mCurrentWindow;
@@ -22,6 +22,8 @@ public class Settings {
     private Pair<String, String> mUseDarkTheme;
     private Pair<Boolean, String> mUseRandomThemes;
     private Pair<String, String> mCalendarMode;
+    private Pair<Boolean, String> mUseSync;
+    private Pair<String, String> mAccount;
 
     private final SharedPreferences mSharedPref;
 
@@ -65,7 +67,13 @@ public class Settings {
                         .getResources()
                         .getStringArray(R.array.preference_light_theme_value)[0]), mUseDarkThemeTag);
 
+        String mUseSyncTag = "memtask_preference_use_sync";
+        mUseSync = new Pair<Boolean, String>
+                (mSharedPref.getBoolean(mUseSyncTag, false), mUseSyncTag);
 
+        String mAccountTag = "memtask_preference_account";
+        mAccount = new Pair<String, String>
+        (mSharedPref.getString(mAccountTag, ""), mAccountTag);
     }
 
     public SharedPreferences getSharedPref(){
@@ -130,5 +138,25 @@ public class Settings {
 
     public String getCalendarMode(){
         return this.mCalendarMode.first;
+    }
+
+    public String getAccount(){
+        return this.mAccount.first;
+    }
+
+    public void setAccount(String acc){
+        SharedPreferences.Editor editor = mSharedPref.edit();
+        editor.putString(mAccount.second, acc);
+        editor.commit();
+    }
+
+    public boolean getUseSync(){
+        return mUseSync.first;
+    }
+
+    public void setUseSync(boolean val){
+        SharedPreferences.Editor editor = mSharedPref.edit();
+        editor.putBoolean(mUseSync.second, val);
+        editor.commit();
     }
 }

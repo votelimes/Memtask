@@ -51,7 +51,7 @@ public class CategoryActivitiesViewModel extends MemtaskViewModelBase{
     private boolean shouldUpdate;
 
     CategoryActivitiesViewModel(Application application, Database database, SilentDatabase silentDatabase){
-        mRepository = new MemtaskRepositoryBase(application, database, silentDatabase);
+        mRepository = new MemtaskRepositoryBase(database, silentDatabase);
     }
 
     // Util methods

@@ -12,7 +12,7 @@
     <color name="main_1">#493843</color>
     <color name="main_2">#118AB2</color>
     <color name="main_3">#EF476F</color>
-    <color name="main_4">#FFD166</color>
+    <color name="fab_color">#FFD166</color>
     <color name="main_5">#06D6A0</color>
     <color name="main_6">#118AB2</color>
     <color name="main_8">#7EF1BB</color>
@@ -34,7 +34,7 @@
 
 
     Ближний фон элементов
-    <color name="backgroundSecondary">#f9fbf8</color>
+    <color name="backgroundSecondary">#FFFFFFFF</color>
 
     <color name="toolbarTitle">#329F5B</color>
     <color name="toolbarIcons">#4B4F5B</color>

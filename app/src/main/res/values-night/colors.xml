@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="main_1">#2E3038</color>
+    <color name="main_1">#434652</color>
 
-    <color name="toolbarTitle">#4B4F5B</color>
+    <color name="toolbarTitle">#FC6C5F</color>
     <color name="toolbarIcons">#F2FDFF</color>
 
 
     <color name="textPrimary">#F2FDFF</color>
 
     Ближний фон элементов
-    <color name="backgroundSecondary">#31333A</color>
+    <color name="backgroundSecondary">#131313</color>
 </resources>

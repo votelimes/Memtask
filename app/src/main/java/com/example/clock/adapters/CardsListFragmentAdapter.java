@@ -33,6 +33,7 @@ import com.example.clock.databinding.CategoryProjectBinding;
 import com.example.clock.databinding.CategoryTaskBinding;
 import com.example.clock.model.Theme;
 import com.example.clock.viewmodels.CategoryActivitiesViewModel;
+import com.example.clock.viewmodels.MemtaskViewModelBase;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
@@ -306,9 +307,9 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
                                             break;
                                         case 1: // Изменить
                                             Intent intent = new Intent(view.getContext(), ManageTaskActivity.class);
-                                            intent.putExtra("mode", "TaskEditing");
-                                            intent.putExtra("ID", taskObs.getTask().getTaskId());
-                                            intent.putExtra("category", taskObs.getTask().getCategoryId());
+                                            intent.putExtra(MemtaskViewModelBase.MTP_MODE, MemtaskViewModelBase.TASK_EDITING);
+                                            intent.putExtra(MemtaskViewModelBase.MTP_ID, taskObs.getTask().getTaskId());
+                                            intent.putExtra(MemtaskViewModelBase.MTP_CATEGORY_ID, taskObs.getTask().getCategoryId());
 
                                             resultLauncher.launch(intent);
                                             break;
@@ -418,9 +419,9 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
 
                                         case 1: // Изменить
                                             Intent intent = new Intent(view.getContext(), ManageTaskActivity.class);
-                                            intent.putExtra("mode", "ProjectEditing");
-                                            intent.putExtra("ID",  projectObs.getProject().getProjectId());
-                                            intent.putExtra("category", projectObs.getProject().getCategoryId());
+                                            intent.putExtra(MemtaskViewModelBase.MTP_MODE, MemtaskViewModelBase.PROJECT_EDITING);
+                                            intent.putExtra(MemtaskViewModelBase.MTP_ID,  projectObs.getProject().getProjectId());
+                                            intent.putExtra(MemtaskViewModelBase.MTP_CATEGORY_ID, projectObs.getProject().getCategoryId());
 
                                             resultLauncher.launch(intent);
                                             break;

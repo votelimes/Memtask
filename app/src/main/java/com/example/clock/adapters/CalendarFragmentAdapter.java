@@ -8,6 +8,7 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.text.style.RelativeSizeSpan;
 import android.text.style.StyleSpan;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,6 +33,7 @@ import com.example.clock.databinding.CalendarTaskBinding;
 import com.example.clock.model.TaskData;
 import com.example.clock.model.Theme;
 import com.example.clock.viewmodels.CalendarViewModel;
+import com.example.clock.viewmodels.MemtaskViewModelBase;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
@@ -168,6 +170,7 @@ public class CalendarFragmentAdapter extends RecyclerView.Adapter<RecyclerView.V
         public CalendarViewHolder(View view) {
             super(view);
             calendar = view.findViewById(R.id.calendar);
+
             noTasksInformer = view.findViewById(R.id.no_tasks_message);
             minLoadDecorator = new MinLoadDayDecorator();
             medLoadDecorator = new MedLoadDayDecorator();
@@ -426,17 +429,8 @@ public class CalendarFragmentAdapter extends RecyclerView.Adapter<RecyclerView.V
                                     switch (i) {
                                         case 0: // Изменить
                                             Intent intent = new Intent(view.getContext(), ManageTaskActivity.class);
-                                            intent.putExtra("ID", taskObs.getTask().getTaskId());
-                                            intent.putExtra("mode", "TaskEditing");
-
-                                            /*long rangeStart = calendar
-                                                    .getSelectedDate()
-                                                    .getDate()
-                                                    .toEpochDay() * 24 * 60 * 60;
-                                            if(rangeStart == -1 || rangeStart == 0){
-                                                rangeStart = LocalDateTime.now().toEpochSecond(ZoneOffset.UTC);
-                                            }
-                                            intent.putExtra("rangeStart", rangeStart);*/
+                                            intent.putExtra(MemtaskViewModelBase.MTP_ID, taskObs.getTask().getTaskId());
+                                            intent.putExtra(MemtaskViewModelBase.MTP_MODE, MemtaskViewModelBase.TASK_EDITING);
 
                                             resultLauncher.launch(intent);
                                             break;
@@ -498,22 +492,28 @@ public class CalendarFragmentAdapter extends RecyclerView.Adapter<RecyclerView.V
 
                 String uriString = viewHolder.getBinding().getData().getImage();
                 if(uriString != null && uriString.length() != 0){
-                    Uri uri = Uri.parse(uriString);
-
                     viewHolder.getMainLayout()
                             .getViewTreeObserver()
                             .addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
                                 @Override
                                 public void onGlobalLayout() {
+                                    String uriImage = viewHolder.getBinding().getData().getImage();
+                                    if(uriImage == null
+                                    || uriImage.length() == 0){
+                                        return;
+                                    }
                                     int width = viewHolder.getMainLayout().getWidth();
                                     int height = viewHolder.getMainLayout().getHeight();
-
+                                    Uri uri = Uri.parse(uriImage);
                                     Picasso.get()
                                             .load(uri)
                                             .resize(width, height)
                                             .into(viewHolder.getBgImage());
                                 }
                             });
+                }
+                else {
+                    viewHolder.getBgImage().setImageDrawable(null);
                 }
             }
         }

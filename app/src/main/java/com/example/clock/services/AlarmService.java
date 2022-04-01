@@ -87,7 +87,7 @@ public class AlarmService extends Service {
         PendingIntent pendingSkipIntent = PendingIntent.getBroadcast(this, 0, notificationSkipIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         NotificationCompat.Action skip = new NotificationCompat.Action.Builder(R.mipmap.ic_launcher, "Пропустить", pendingSkipIntent).build();
 
-        mRepository = new MemtaskRepositoryBase(App.getInstance(), App.getDatabase(), App.getSilentDatabase());
+        mRepository = new MemtaskRepositoryBase(App.getDatabase(), App.getSilentDatabase());
         task = mRepository.getTaskSilently(taskID);
         mediaEnabled = task.isMediaEnabled();
         vibrateEnabled = task.isVibrate();

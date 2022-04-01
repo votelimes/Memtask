@@ -14,10 +14,10 @@ public class RingViewModel extends MemtaskViewModelBase{
     private String taskID;
 
     public RingViewModel(Application application, Database database, SilentDatabase silentDatabase, String taskID){
-        loadData(application, database, silentDatabase, taskID);
+        loadData(database, silentDatabase, taskID);
     }
-    protected void loadData(Application application, Database database, SilentDatabase silentDatabase, String taskID){
-        mRepository = new MemtaskRepositoryBase(application, database, silentDatabase);
+    protected void loadData(Database database, SilentDatabase silentDatabase, String taskID){
+        mRepository = new MemtaskRepositoryBase(database, silentDatabase);
         this.taskID = taskID;
         currentTask = mRepository.getTaskLiveData(taskID);
         projectsLiveData = null;

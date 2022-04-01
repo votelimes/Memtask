@@ -28,7 +28,7 @@ public class RingActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         taskID = getIntent().getStringExtra(TaskNotificationManager.ID_KEY);
-        mRepository = new MemtaskRepositoryBase(App.getInstance(), App.getDatabase(), App.getSilentDatabase());
+        mRepository = new MemtaskRepositoryBase(App.getDatabase(), App.getSilentDatabase());
         task = mRepository.getTaskSilently(taskID);
 
         if (task == null) {

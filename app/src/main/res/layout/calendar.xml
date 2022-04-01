@@ -13,7 +13,6 @@
         android:layout_marginEnd="8dp"
         >
         <com.prolificinteractive.materialcalendarview.MaterialCalendarView
-            xmlns:app="http://schemas.android.com/apk/res-auto"
             android:id="@+id/calendar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -21,8 +20,8 @@
             app:mcv_selectionColor="@color/calendar_select_light2"
             app:mcv_allowClickDaysOutsideCurrentMonth="false"
             app:mcv_selectionMode="range"
-            app:mcv_headerTextAppearance="@style/calendar_header"
-            android:layout_marginBottom="0dp"
+            app:mcv_dateTextAppearance="@style/calendarDateText"
+            app:mcv_headerTextAppearance="@style/calendarDateText"
             />
     </androidx.appcompat.widget.LinearLayoutCompat>
     <ImageView
@@ -30,7 +29,7 @@
         android:layout_height="10dp"
         android:src="@drawable/calendar_divider_shape"
         android:layout_gravity="center"
-        android:layout_marginTop="0dp"
+        android:layout_marginTop="5dp"
         />
     <TextView
         android:id="@+id/no_tasks_message"

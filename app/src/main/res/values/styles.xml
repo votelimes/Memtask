@@ -5,5 +5,9 @@
         <item name="android:textSize">20sp</item>
         <item name="android:textColor">@color/act_text_main</item>
     </style>
+    
+    <style name="calendarDateText">
+        <item name="android:textColor">@color/textPrimary</item>
+    </style>
 
 </resources>

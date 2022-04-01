@@ -26,6 +26,7 @@ import com.example.clock.adapters.CalendarFragmentAdapter;
 import com.example.clock.app.App;
 import com.example.clock.databinding.FragmentCalendarBinding;
 import com.example.clock.viewmodels.CalendarViewModel;
+import com.example.clock.viewmodels.MemtaskViewModelBase;
 import com.example.clock.viewmodels.ViewModelFactoryBase;
 import com.github.clans.fab.FloatingActionButton;
 import com.google.android.material.appbar.MaterialToolbar;
@@ -102,8 +103,8 @@ public class CalendarFragment extends Fragment implements SearchView.OnQueryText
             @Override
             public void onClick(View view) {
                 Intent taskIntent = new Intent(view.getContext(), ManageTaskActivity.class);
-                taskIntent.putExtra("mode", "TaskManaging");
-                taskIntent.putExtra("rangeStart", mViewModel.getSelectedDateStart().toEpochSecond(ZoneOffset.UTC) * 1000);
+                taskIntent.putExtra(MemtaskViewModelBase.MTP_MODE, MemtaskViewModelBase.TASK_CREATING);
+                taskIntent.putExtra(MemtaskViewModelBase.MTP_RANGE_START, mViewModel.getSelectedDateStart().toEpochSecond(ZoneOffset.UTC) * 1000);
                 activityLauncher.launch(taskIntent);
             }
         });
@@ -137,9 +138,9 @@ public class CalendarFragment extends Fragment implements SearchView.OnQueryText
             public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
                 Intent taskIntent = new Intent(view.getContext(), ManageTaskActivity.class);
                 CalendarFragmentAdapter.TaskViewHolder vh = (CalendarFragmentAdapter.TaskViewHolder) viewHolder;
-                taskIntent.putExtra("ID", vh.getBinding().getData().getTask().getTaskId());
-                taskIntent.putExtra("mode", "TaskEditing");
-                taskIntent.putExtra("rangeStart", mViewModel.getSelectedDateStart().toEpochSecond(ZoneOffset.UTC) * 1000);
+                taskIntent.putExtra(MemtaskViewModelBase.MTP_ID, vh.getBinding().getData().getTask().getTaskId());
+                taskIntent.putExtra(MemtaskViewModelBase.MTP_MODE, MemtaskViewModelBase.TASK_EDITING);
+                taskIntent.putExtra(MemtaskViewModelBase.MTP_RANGE_START, mViewModel.getSelectedDateStart().toEpochSecond(ZoneOffset.UTC) * 1000);
                 activityLauncher.launch(taskIntent);
                 CalendarFragmentAdapter adapter = (CalendarFragmentAdapter) vh.getBindingAdapter();
                 adapter.notifyItemChanged(viewHolder.getAbsoluteAdapterPosition());

@@ -25,8 +25,13 @@
         android:summary="Режим отображения календаря (месяц, неделя)"
         android:defaultValue="@string/preference_calendar_mode_value_default"
         />
+    <SwitchPreferenceCompat
+        app:key="memtask_preference_use_sync"
+        app:title="Использовать синхронизацию"
+        android:summary="Синхронизировать активности со сторонними сервисами"
+    />
     <Preference
-        app:key="google_sync"
+        app:key="memtask_preference_account"
         app:title="Учетная запись Google"
         android:summary=""
         />

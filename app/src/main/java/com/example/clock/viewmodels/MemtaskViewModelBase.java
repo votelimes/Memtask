@@ -22,6 +22,18 @@ import java.util.Random;
 
 public abstract class MemtaskViewModelBase extends ViewModel {
 
+    public static final int TASK_CREATING = 100001;
+    public static final int TASK_EDITING = 100002;
+    public static final int PROJECT_CREATING = 200001;
+    public static final int PROJECT_EDITING = 200002;
+    public static final String MTP_MODE = "mtp_mode";
+
+    public static final String MTP_CATEGORY_ID = "mtp_category_ID";
+    public static final String MTP_ID = "mtp_ID";
+    public static final String MTP_PARENT = "mtp_parent";
+    public static final String MTP_RANGE_START = "mtp_range_start";
+    public static final String MTP_RANGE_END = "mtp_range_end";
+
     protected MemtaskRepositoryBase mRepository;
     protected LiveData<List<Task>> tasksLiveData;
     protected LiveData<List<Project>> projectsLiveData;
@@ -34,7 +46,7 @@ public abstract class MemtaskViewModelBase extends ViewModel {
 
     //Load data
     protected void loadData(Application application, Database database, SilentDatabase silentDatabase){
-        mRepository = new MemtaskRepositoryBase(application, database, silentDatabase);
+        mRepository = new MemtaskRepositoryBase(database, silentDatabase);
         tasksLiveData = mRepository.getAllTasksLive();
         projectsLiveData = mRepository.getAllProjectsLive();
         categoriesLiveData = mRepository.getAllCategoriesLive();

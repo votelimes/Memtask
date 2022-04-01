@@ -38,7 +38,7 @@ public class StatisticViewModel extends MemtaskViewModelBase {
 
     @Override
     protected void loadData(Application application, Database database, SilentDatabase silentDatabase){
-        mRepository = new MemtaskRepositoryBase(application, database, silentDatabase);
+        mRepository = new MemtaskRepositoryBase(database, silentDatabase);
         tasksLiveData = null;
         projectsLiveData = null;
         categoriesLiveData = null;

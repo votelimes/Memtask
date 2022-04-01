@@ -26,6 +26,7 @@ import com.example.clock.app.App;
 import com.example.clock.databinding.CategoryTaskBinding;
 import com.example.clock.model.Theme;
 import com.example.clock.viewmodels.CategoryActivitiesViewModel;
+import com.example.clock.viewmodels.MemtaskViewModelBase;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
@@ -175,11 +176,11 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.TaskView
                                 switch (i) {
                                     case 0: // Изменить
                                         Intent intent = new Intent(view.getContext(), ManageTaskActivity.class);
-                                        intent.putExtra("mode", "TaskEditing");
-                                        intent.putExtra("parent", projectObs.getProject().getProjectId());
+                                        intent.putExtra(MemtaskViewModelBase.MTP_MODE, MemtaskViewModelBase.TASK_EDITING);
+                                        intent.putExtra(MemtaskViewModelBase.MTP_PARENT, projectObs.getProject().getProjectId());
 
-                                        intent.putExtra("ID", taskObs.getTask().getTaskId());
-                                        intent.putExtra("category", App.getSettings().getLastCategory().first);
+                                        intent.putExtra(MemtaskViewModelBase.MTP_ID, taskObs.getTask().getTaskId());
+                                        intent.putExtra(MemtaskViewModelBase.MTP_CATEGORY_ID, App.getSettings().getLastCategory().first);
                                         mResultLauncher.launch(intent);
                                         break;
                                     case 1: // Удалить

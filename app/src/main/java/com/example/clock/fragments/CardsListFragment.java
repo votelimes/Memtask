@@ -30,6 +30,7 @@ import com.example.clock.model.TaskAndTheme;
 import com.example.clock.model.Theme;
 import com.example.clock.storageutils.Tuple3;
 import com.example.clock.viewmodels.CategoryActivitiesViewModel;
+import com.example.clock.viewmodels.MemtaskViewModelBase;
 import com.example.clock.viewmodels.ViewModelFactoryBase;
 import com.github.clans.fab.FloatingActionButton;
 import com.github.clans.fab.FloatingActionMenu;
@@ -107,25 +108,19 @@ public class CardsListFragment extends Fragment implements SearchView.OnQueryTex
         fabTask.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                /*Intent taskIntent = new Intent(view.getContext(), ManageTaskActivity.class);
-                taskIntent.putExtra("mode", "TaskCreating");
-                taskIntent.putExtra("category", App.getSettings().getLastCategory().first);*/
                 fabMenu.close(true);
                 mViewModel.addTaskChild();
                 mRecyclerViewAdapter.notifyItemInserted(0);
                 mRecyclerViewAdapter.scrollTo(0);
                 mRecyclerViewAdapter.setAddedOutside(0);
-
-
-                //activityLauncher.launch(taskIntent);
             }
         });
         fabProject.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent projectIntent = new Intent(view.getContext(), ManageTaskActivity.class);
-                projectIntent.putExtra("mode", "ProjectCreating");
-                projectIntent.putExtra("category", App.getSettings().getLastCategory().first);
+                projectIntent.putExtra(MemtaskViewModelBase.MTP_MODE, MemtaskViewModelBase.PROJECT_CREATING);
+                projectIntent.putExtra(MemtaskViewModelBase.MTP_CATEGORY_ID, App.getSettings().getLastCategory().first);
                 fabMenu.close(true);
                 activityLauncher.launch(projectIntent);
             }
@@ -172,13 +167,15 @@ public class CardsListFragment extends Fragment implements SearchView.OnQueryTex
                 Intent taskIntent = new Intent(view.getContext(), ManageTaskActivity.class);
                 if(viewHolder instanceof CardsListFragmentAdapter.TaskViewHolder){
                     CardsListFragmentAdapter.TaskViewHolder vh = (CardsListFragmentAdapter.TaskViewHolder) viewHolder;
-                    taskIntent.putExtra("ID", vh.getBinding().getData().getTask().getTaskId());
-                    taskIntent.putExtra("mode", "TaskEditing");
+                    taskIntent.putExtra(MemtaskViewModelBase.MTP_ID, vh.getBinding().getData().getTask().getTaskId());
+                    taskIntent.putExtra(MemtaskViewModelBase.MTP_MODE, MemtaskViewModelBase.TASK_EDITING);
+                    taskIntent.putExtra(MemtaskViewModelBase.MTP_CATEGORY_ID, vh.getBinding().getData().getTask().getCategoryId());
                 }
                 else if(viewHolder instanceof CardsListFragmentAdapter.ProjectViewHolder){
                     CardsListFragmentAdapter.ProjectViewHolder vh = (CardsListFragmentAdapter.ProjectViewHolder) viewHolder;
-                    taskIntent.putExtra("ID", vh.getBinding().getData().getProject().getProjectId());
-                    taskIntent.putExtra("mode", "ProjectEditing");
+                    taskIntent.putExtra(MemtaskViewModelBase.MTP_ID, vh.getBinding().getData().getProject().getProjectId());
+                    taskIntent.putExtra(MemtaskViewModelBase.MTP_MODE, MemtaskViewModelBase.PROJECT_EDITING);
+                    taskIntent.putExtra(MemtaskViewModelBase.MTP_CATEGORY_ID, vh.getBinding().getData().getProject().getCategoryId());
                 }
                 activityLauncher.launch(taskIntent);
                 CardsListFragmentAdapter adapter = (CardsListFragmentAdapter) viewHolder.getBindingAdapter();

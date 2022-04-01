@@ -6,6 +6,7 @@ import android.content.Context;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
+import android.os.Handler;
 
 import androidx.databinding.BaseObservable;
 import androidx.databinding.Bindable;
@@ -50,13 +51,13 @@ public class ManageTaskViewModel extends MemtaskViewModelBase {
     public LiveData<ProjectAndTheme> projectLiveData;
 
 
-    String mMode;
+    int mMode;
     String mTaskID;
     String mParentID;
     long mCategoryID;
 
     public ManageTaskViewModel(Application application, Database database, SilentDatabase silentDatabase,
-                               String mode, String taskID, long categoryID, String parentID){
+                               int mode, String taskID, long categoryID, String parentID){
         mMode = mode;
         mCategoryID = categoryID;
         mParentID = parentID;
@@ -70,7 +71,7 @@ public class ManageTaskViewModel extends MemtaskViewModelBase {
         intermediateThemeAndCategory = LiveDataTransformations.ifNotNull(themesLiveData, categoriesLiveData);
     }
     protected void loadData(Application application, Database database, SilentDatabase silentDatabase){
-        mRepository = new MemtaskRepositoryBase(application, database, silentDatabase);
+        mRepository = new MemtaskRepositoryBase(database, silentDatabase);
         tasksLiveData = null;
         projectsLiveData = null;
         categoriesLiveData = mRepository.getAllCategoriesLive();
@@ -100,7 +101,7 @@ public class ManageTaskViewModel extends MemtaskViewModelBase {
         mManagingTaskRepository.setTheme(projectLiveData.getValue().theme);
     }
     public void initCreating(){
-        if (mMode.equals("TaskCreating")) {
+        if (mMode == MemtaskViewModelBase.TASK_CREATING) {
             mManagingTaskRepository = new Observer(new Task("", "", mCategoryID));
             if (mParentID != null && mParentID.length() != 0) {
                 mManagingTaskRepository.mManagingTask.setParentID(mParentID);
@@ -116,7 +117,7 @@ public class ManageTaskViewModel extends MemtaskViewModelBase {
                 });
             }
         }
-        if (mMode.equals("ProjectCreating")) {
+        if (mMode == MemtaskViewModelBase.PROJECT_CREATING) {
             mManagingTaskRepository = new Observer(new Project("", "", mCategoryID));
             if (App.getSettings().getGenerateRandomThemes()) {
                 mManagingTaskRepository.setTheme(getRandomBaseTheme());
@@ -154,7 +155,13 @@ public class ManageTaskViewModel extends MemtaskViewModelBase {
             if(mManagingTaskRepository.mManagingTask.getStartTime() != 0
                     && mManagingTaskRepository.mManagingTask.getStartTime() != -1
                     && ldt.isAfter(LocalDateTime.now()) && !App.instance.isTesting()){
-                TaskNotificationManager.scheduleGeneralNotifications();
+
+                Thread thread = new Thread(new Runnable() {
+                    public void run() {
+                        TaskNotificationManager.scheduleGeneralNotifications();
+                    }
+                });
+                thread.start();
             }
         }
         else if(mManagingTaskRepository.isProjectMode()){

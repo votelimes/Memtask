@@ -20,7 +20,7 @@ public class MainViewModel extends MemtaskViewModelBase {
     }
 
     protected void loadData(Application application, Database database, SilentDatabase silentDatabase){
-        mRepository = new MemtaskRepositoryBase(application, database, silentDatabase);
+        mRepository = new MemtaskRepositoryBase(database, silentDatabase);
         categoriesLiveData = mRepository.getAllCategoriesLive();
     }
 

@@ -1,2 +1,21 @@
 <resources>
+    <style name="Theme.Clock.Main" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimaryDark">@color/backgroundSecondary</item>
+        <item name="android:windowLightStatusBar">false</item>
+
+        <!-- Primary brand color. -->
+        <item name="android:textColorPrimary">@color/textPrimary</item>
+        <item name="android:textColorSecondary">@color/textSecondary</item>
+
+        <item name="fontFamily">@font/encode_sans_medium</item>
+        <item name="fontStyle">normal</item>
+        <item name="android:iconTint">@color/secondary</item>
+        <item name="android:iconTintMode">src_atop</item>
+
+        <item name="android:windowBackground">@color/backgroundSecondary</item>
+        <item name="android:colorBackground">@color/backgroundSecondary</item>
+
+        <item name="colorSecondary">@color/secondary</item>
+        <item name="colorPrimary">@color/secondary</item>
+    </style>
 </resources>
