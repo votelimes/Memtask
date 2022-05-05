@@ -22,6 +22,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
+
 @Entity(tableName = "task_table")
 public class Task extends UserCaseBase {
 
@@ -158,24 +159,33 @@ public class Task extends UserCaseBase {
             case 2: // По будням
 
         }
-
-        /*if (repeatMode == 0) {
-            alarmManager.setExact(
-                    AlarmManager.RTC_WAKEUP,
-                    calendar.getTimeInMillis(),
-                    alarmPendingIntent
-            );
-        }
-        else {
-            final long RUN_DAILY = 24 * 60 * 60 * 1000;
-            alarmManager.setRepeating(
-                    AlarmManager.RTC_WAKEUP,
-                    calendar.getTimeInMillis(),
-                    RUN_DAILY,
-                    alarmPendingIntent
-            );
-        }*/
         this.notificationEnabled = true;
+        return 0;
+    }
+    public int scheduleGeneral(Context context, long millis){
+        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+
+        Intent intent = new Intent(context, AlarmBroadcastReceiver.class);
+        intent.setAction(taskId);
+        intent.putExtra(TaskNotificationManager.ID_KEY, taskId);
+        intent.putExtra(TaskNotificationManager.MODE_KEY, TaskNotificationManager.MODE_INLINE);
+
+        PendingIntent alarmPendingIntent = PendingIntent
+                .getBroadcast(context, TaskNotificationManager.REQUEST_CODE_BASE, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        LocalDateTime ldt = LocalDateTime.ofEpochSecond((long) millis / 1000, 0, ZoneOffset.UTC);
+        LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
+
+        if(ldt.isBefore(now)){
+            return 1;
+        }
+
+        alarmManager.setExact(
+                AlarmManager.RTC_WAKEUP,
+                getLocalMillis(millis),
+                alarmPendingIntent
+        );
+
         return 0;
     }
     public void cancelAlarm(Context context) {

@@ -158,7 +158,7 @@ public class ManageTaskViewModel extends MemtaskViewModelBase {
 
                 Thread thread = new Thread(new Runnable() {
                     public void run() {
-                        TaskNotificationManager.scheduleGeneralNotifications();
+                        TaskNotificationManager.scheduleGeneralNotifications(context);
                     }
                 });
                 thread.start();

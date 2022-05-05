@@ -28,7 +28,7 @@ public abstract class Database extends RoomDatabase {
     public abstract UserCaseStatisticDao userCaseStatisticDao();
 
     private static volatile Database INSTANCE;
-    private static final int NUMBER_OF_THREADS = 4;
+    private static final int NUMBER_OF_THREADS = 8;
     public static final ExecutorService databaseWriteExecutor = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
 
     public static Database getDatabase(final Context context) {
@@ -42,6 +42,8 @@ public abstract class Database extends RoomDatabase {
                     )
                      .build();
                 }
+                INSTANCE.getOpenHelper().getWritableDatabase().setMaxSqlCacheSize(1);
+                INSTANCE.getOpenHelper().getWritableDatabase().setPageSize(2);
             }
         }
         return INSTANCE;

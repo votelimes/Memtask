@@ -416,12 +416,9 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
                                     switch (i) {
                                         case 0:
                                             mViewModel.addProjectChild(viewHolder.getAbsoluteAdapterPosition());
+                                            notifyItemChanged(viewHolder.getAbsoluteAdapterPosition());
                                             viewHolder.getAdapter().scrollTo(viewHolder.mAdapter.getItemCount());
                                             viewHolder.getAdapter().setAddedOutside(viewHolder.getAbsoluteAdapterPosition());
-                                            if(viewHolder.getAdapter().getItemCount() == 1
-                                                    || viewHolder.getAdapter().getItemCount() == 0){
-                                                notifyItemChanged(viewHolder.getAbsoluteAdapterPosition());
-                                            }
                                             break;
 
                                         case 1: // Изменить
@@ -500,7 +497,6 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
                 imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
             }
         }
-
     }
 
     public void removeItem(int position){

@@ -5,6 +5,7 @@ import android.app.NotificationManager;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.text.SpannableString;
 import android.text.style.AbsoluteSizeSpan;
 import android.text.style.ForegroundColorSpan;
@@ -21,6 +22,7 @@ import androidx.core.view.GravityCompat;
 import androidx.databinding.DataBindingUtil;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.clock.R;
@@ -179,7 +181,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        Fragment nextFragment = null;
         String title = "";
 
         navigationView.getMenu().findItem(R.id.categories_item).setChecked(false);
@@ -189,38 +190,42 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         item.setChecked(true);
 
+        FragmentTransaction ftr = getSupportFragmentManager().beginTransaction();
+
         switch (item.getItemId()){
             case R.id.categories_item:
-                nextFragment = new CategoriesListFragment();
+                //nextFragment = new CategoriesListFragment();
+                ftr = ftr.replace(R.id.main_fragment_container_view, CategoriesListFragment.class, null);
                 title = "Категории";
                 App.getSettings().setCurrentWindow(1);
                 break;
             case R.id.calendar_item:
-                nextFragment = new CalendarFragment();
+                //nextFragment = new CalendarFragment();
+                ftr = ftr.replace(R.id.main_fragment_container_view, CalendarFragment.class, null);
                 title = "Календарь";
                 App.getSettings().setCurrentWindow(2);
                 break;
             case R.id.statistic_item:
-                nextFragment = new StatisticFragment();
+                //nextFragment = new StatisticFragment();
+                ftr = ftr.replace(R.id.main_fragment_container_view, StatisticFragment.class, null);
                 title = "Статистика";
                 App.getSettings().setCurrentWindow(3);
                 break;
             case R.id.settings_item:
-                nextFragment = new SettingsFragment();
+                //nextFragment = new SettingsFragment();
+                ftr = ftr.replace(R.id.main_fragment_container_view, SettingsFragment.class, null);
                 title = "Настройки";
                 App.getSettings().setCurrentWindow(4);
                 break;
         }
+        ftr
+        /*.setCustomAnimations(R.anim.fragment_enter, R.anim.fragment_exit,
+                R.anim.fragment_pop_enter, R.anim.fragment_pop_exit)*/
+        .setReorderingAllowed(false)
+        //.replace(R.id.main_fragment_container_view, nextFragment)
+        .addToBackStack(null)
+        .commit();
 
-        if(nextFragment != null){
-            getSupportFragmentManager().beginTransaction()
-                    .setCustomAnimations(R.anim.fragment_enter, R.anim.fragment_exit,
-                            R.anim.fragment_pop_enter, R.anim.fragment_pop_exit)
-                    .setReorderingAllowed(true)
-                    .replace(R.id.main_fragment_container_view, nextFragment)
-                    .addToBackStack(null)
-                    .commit();
-        }
         drawerLayout.closeDrawer(GravityCompat.START);
 
         toolbar.setTitle(title);
@@ -244,7 +249,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private void setupApplication(){
 
         if(App.getSettings().getSetupState() == false){
-
             // NotificationChannels installation
             NotificationManager notificationManager =
                     (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
@@ -557,6 +561,56 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             Log.d("MAIN_ACT: ", "INITIAL SETUP COMPLETED");
             App.getSettings().setSetupState(true);
+
+            if(App.isTesting()){
+
+                List<Project> testProjList = new ArrayList<>(10);
+                for(int i = 0; i < 10; i++){
+                    Project proj = new Project("Project #" + String.valueOf(i+1), "", 1);
+                    proj.setThemeID(defaultThemesList.get(20).getID());
+
+                    Task task1 = new Task("Task #" + String.valueOf(i+1) + "*1", "test", 1);
+                    task1.setThemeID(defaultThemesList.get(20).getID());
+                    task1.setParentID(proj.getProjectId());
+
+                    Task task2 = new Task("Task #" + String.valueOf(i+1) + "*2", "test", 1);
+                    task2.setThemeID(defaultThemesList.get(20).getID());
+                    task2.setParentID(proj.getProjectId());
+
+                    testProjList.add(proj);
+                    mViewModel.addProject(proj);
+                    mViewModel.addTask(task1);
+                    mViewModel.addTask(task2);
+                }
+
+                for(int i = 0; i < 10000; i++){
+                    Task task = new Task("Task #" + String.valueOf(i+1), "test", 1);
+                    task.setThemeID(defaultThemesList.get(20).getID());
+                    if((i+1)%9 == 0){
+                        task.setParentID(testProjList.get(9).getProjectId());
+                    }
+                    else if((i+1)%8 == 0){
+                        task.setParentID(testProjList.get(8).getProjectId());
+                    }
+                    else if((i+1)%7 == 0){
+                        task.setParentID(testProjList.get(7).getProjectId());
+                    }
+                    else if((i+1)%6 == 0){
+                        task.setParentID(testProjList.get(6).getProjectId());
+                    }
+                    else if((i+1)%5 == 0){
+                        task.setParentID(testProjList.get(5).getProjectId());
+                    }
+                    else if((i+1)%4 == 0){
+                        task.setParentID(testProjList.get(4).getProjectId());
+                    }
+                    else if((i+1)%3 == 0){
+                        task.setParentID(testProjList.get(3).getProjectId());
+                    }
+                    mViewModel.addTask(task);
+                    SystemClock.sleep(10);
+                }
+            }
         }
         else{
             return;
@@ -611,4 +665,5 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 .addToBackStack(null)
                 .commit();
     }
+
 }

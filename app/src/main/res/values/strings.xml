@@ -85,11 +85,7 @@
     <string name="close_nav_drawer">Navigation drawer close</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="about">
-        Программа MemTask для ведения ваших задач и их аналитики.
-        &lt;br /&gt; Версия 0.0962a., 08/02/2022.
-        &lt;br /&gt;
-        &lt;br /&gt;Репозиторий: &lt;br /&gt;https://github.com/mcw1999/Memtask
-
+        Программа MemTask для ведения ваших задач и их аналитики.\nВерсия 0.0962a., 08/02/2022.\nРепозиторий: https://github.com/mcw1999/Memtask
     </string>
     <string name="calendar_no_tasks_on_day">Нет задач на выбранный период</string>
     <string name="title_activity_login">LoginActivity</string>

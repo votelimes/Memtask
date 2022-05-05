@@ -91,7 +91,7 @@ public class CardsListFragment extends Fragment implements SearchView.OnQueryTex
 
         toolbar = getActivity().findViewById(R.id.toolbar);
 
-        toolbar.findViewById(R.id.action_search).setVisibility(View.VISIBLE);
+        //toolbar.findViewById(R.id.action_search).setVisibility(View.VISIBLE);
 
         toolbar.setTitle(App.getSettings().getLastCategory().second);
 
@@ -195,6 +195,7 @@ public class CardsListFragment extends Fragment implements SearchView.OnQueryTex
                     activityLauncher, mViewModel, mMainLayoutView, mLayoutManager);
             mRecyclerView.setLayoutManager(mLayoutManager);
             mRecyclerView.setAdapter(mRecyclerViewAdapter);
+            App.getInstance().fixLoadTimer();
         }
     };
 
@@ -202,6 +203,7 @@ public class CardsListFragment extends Fragment implements SearchView.OnQueryTex
         @Override
         public void onChanged(@Nullable final Tuple3<List<TaskAndTheme>, List<ProjectData>, List<Theme>> updatedHoard) {
             mViewModel.init();
+            App.getInstance().fixLoadTimer();
             mRecyclerViewAdapter.notifyDataSetChanged();
         }
     };

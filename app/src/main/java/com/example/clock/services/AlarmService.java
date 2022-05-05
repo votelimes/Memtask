@@ -117,7 +117,9 @@ public class AlarmService extends Service {
         notification = notificationBuilder.build();
 
         if(mediaEnabled || vibrateEnabled){
-            mediaPlayer.start();
+            if(task.isMediaEnabled()) {
+                mediaPlayer.start();
+            }
             new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
                 @Override
                 public void run() {

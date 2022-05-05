@@ -166,8 +166,6 @@ public class CalendarFragmentAdapter extends RecyclerView.Adapter<RecyclerView.V
         MaxLoadDayDecorator maxLoadDecorator;
         TodayDecorator todayDecorator;
 
-
-
         public CalendarViewHolder(View view) {
             super(view);
             calendar = view.findViewById(R.id.calendar);
@@ -374,7 +372,6 @@ public class CalendarFragmentAdapter extends RecyclerView.Adapter<RecyclerView.V
     public CalendarFragmentAdapter(ActivityResultLauncher<Intent> resultLauncher,
                                    CalendarViewModel viewModel, LifecycleOwner lcowner, View rootView, RecyclerView.LayoutManager layoutManager) {
         mViewModel = viewModel;
-        this.selectedDay = selectedDay;
         this.resultLauncher = resultLauncher;
         this.lifecycleOwner = lcowner;
 

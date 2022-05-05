@@ -4,11 +4,13 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
 
 import com.example.clock.R;
 import com.example.clock.activities.MainActivity;
+import com.example.clock.app.App;
 import com.google.android.material.appbar.MaterialToolbar;
 
 
@@ -36,6 +38,10 @@ public class AboutFragment extends Fragment {
                 ((MainActivity) getActivity()).setupNav();
             }
         });
+        if(App.isTesting()){
+            TextView text = (TextView) getView().findViewById(R.id.about_text);
+            text.setText(text.getText() + "\n" + "App load time: " + String.valueOf(App.getInstance().getWorkTimeMillis()));
+        }
     }
 
     @Override

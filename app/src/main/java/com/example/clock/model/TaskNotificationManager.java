@@ -1,5 +1,7 @@
 package com.example.clock.model;
 
+import android.content.Context;
+
 import com.example.clock.app.App;
 
 import java.time.LocalDate;
@@ -38,7 +40,7 @@ public class TaskNotificationManager {
 
     public static final int GENERAL_NOTIFICATION_MAIN_DIFFERENCE = 4;
 
-    public static void scheduleGeneralNotifications(){
+    public static void scheduleGeneralNotifications(Context context){
         LocalDateTime today = LocalDateTime.now();
         LocalDateTime startInterval;
         LocalDateTime endInterval;
@@ -166,6 +168,7 @@ public class TaskNotificationManager {
 
                 if(stepNow == 0){
                     long notificationMillis = days.get(stepNow).getLastIntervalMillis(stepSize);
+                    task.scheduleGeneral(context, notificationMillis);
                 }
                 stepNow+=stepSize;
             }

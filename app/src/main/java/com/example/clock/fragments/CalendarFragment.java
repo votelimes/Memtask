@@ -3,6 +3,7 @@ package com.example.clock.fragments;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -30,11 +31,14 @@ import com.example.clock.viewmodels.MemtaskViewModelBase;
 import com.example.clock.viewmodels.ViewModelFactoryBase;
 import com.github.clans.fab.FloatingActionButton;
 import com.google.android.material.appbar.MaterialToolbar;
+import com.prolificinteractive.materialcalendarview.CalendarDay;
 
 import java.time.ZoneOffset;
 
 
 public class CalendarFragment extends Fragment implements SearchView.OnQueryTextListener {
+    //TODO: FORCE FRAGMENT TO RESTORE AFTER NAV DRAW CLICK BACK
+
     RecyclerView mRecyclerView;
     CalendarFragmentAdapter mRecyclerViewAdapter;
     CalendarViewModel mViewModel;
@@ -44,7 +48,6 @@ public class CalendarFragment extends Fragment implements SearchView.OnQueryText
     Context mContext;
     MaterialToolbar toolbar;
     SearchView searchView;
-    boolean adapterCreated = false;
 
     final ActivityResultLauncher<Intent> activityLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
@@ -108,11 +111,21 @@ public class CalendarFragment extends Fragment implements SearchView.OnQueryText
                 activityLauncher.launch(taskIntent);
             }
         });
+
+        setUpRecyclerView();
+
+        MenuItem searchItem = toolbar.getMenu().findItem(R.id.action_search);
+
+        //Get SearchView through MenuItem
+        searchView = (SearchView) searchItem.getActionView();
+        searchView.setOnQueryTextListener(this);
+    }
+
+    protected void setUpRecyclerView(){
         mRecyclerViewAdapter = new CalendarFragmentAdapter(
                 activityLauncher, mViewModel, getViewLifecycleOwner(), getView(), mLayoutManager);
         mRecyclerView.setLayoutManager(mLayoutManager);
         mRecyclerView.setAdapter(mRecyclerViewAdapter);
-
 
         ItemTouchHelper.SimpleCallback touchHelperCallbackRight = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT) {
             @Override
@@ -136,7 +149,7 @@ public class CalendarFragment extends Fragment implements SearchView.OnQueryText
 
             @Override
             public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
-                Intent taskIntent = new Intent(view.getContext(), ManageTaskActivity.class);
+                Intent taskIntent = new Intent(getView().getContext(), ManageTaskActivity.class);
                 CalendarFragmentAdapter.TaskViewHolder vh = (CalendarFragmentAdapter.TaskViewHolder) viewHolder;
                 taskIntent.putExtra(MemtaskViewModelBase.MTP_ID, vh.getBinding().getData().getTask().getTaskId());
                 taskIntent.putExtra(MemtaskViewModelBase.MTP_MODE, MemtaskViewModelBase.TASK_EDITING);
@@ -148,12 +161,6 @@ public class CalendarFragment extends Fragment implements SearchView.OnQueryText
         };
         itemTouchHelper = new ItemTouchHelper(touchHelperCallbackLeft);
         itemTouchHelper.attachToRecyclerView(mRecyclerView);
-
-        MenuItem searchItem = toolbar.getMenu().findItem(R.id.action_search);
-
-        //Get SearchView through MenuItem
-        searchView = (SearchView) searchItem.getActionView();
-        searchView.setOnQueryTextListener(this);
     }
 
     @Override
@@ -166,5 +173,12 @@ public class CalendarFragment extends Fragment implements SearchView.OnQueryText
         mRecyclerViewAdapter.getRemoveItemSnackbar().dismiss();
         mRecyclerViewAdapter.updateData(newText);
         return false;
+    }
+
+    @Override
+    public void onViewStateRestored(Bundle inState) {
+        super.onViewStateRestored(inState);
+        mViewModel.setDate(CalendarDay.today(), null);
+        //setUpRecyclerView();
     }
 }

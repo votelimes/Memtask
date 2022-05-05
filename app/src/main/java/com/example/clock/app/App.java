@@ -10,6 +10,8 @@ import com.example.clock.storageutils.Database;
 import com.example.clock.storageutils.Settings;
 import com.example.clock.storageutils.SilentDatabase;
 
+import java.time.Instant;
+
 public class App extends Application {
 
     public static App instance;
@@ -17,11 +19,14 @@ public class App extends Application {
     private static Database mDatabase;
     private static SilentDatabase mSilentDatabase;
     SharedPreferences.OnSharedPreferenceChangeListener settingsUpdateListener;
+    private long mAppStartTimeMillis = 0;
+    private long mAppFinishLoadTimeMillis = 0;
 
     @Override
     public void onCreate() {
         super.onCreate();
         instance = this;
+        mAppStartTimeMillis = Instant.now().toEpochMilli();
 
         mDatabase = Database.getDatabase(this);
         mSilentDatabase = SilentDatabase.getDatabase(this);
@@ -73,7 +78,20 @@ public class App extends Application {
         }
     }
 
-    public boolean isTesting(){
+    public static boolean isTesting(){
         return mSettings.TESTING;
+    }
+
+    public void fixLoadTimer(){
+        mAppFinishLoadTimeMillis = Instant.now().toEpochMilli();
+    }
+
+    public long getWorkTimeMillis(){
+        if(mAppFinishLoadTimeMillis == 0) {
+            return Instant.now().toEpochMilli() - mAppStartTimeMillis;
+        }
+        else{
+            return mAppFinishLoadTimeMillis - mAppStartTimeMillis;
+        }
     }
 }
