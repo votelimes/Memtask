@@ -389,12 +389,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             defaultThemesList.add(new Theme("MainTaskTheme",
                     "#F7EDE2", "#F15152", 0));
             defaultThemesList.get(20).setMainTextColor(getColor(R.color.act_text_main));
-            defaultThemesList.get(20).setIconColor(getColor(R.color.act_text_main));
+            defaultThemesList.get(20).setIconColor("#304C89");
 
             defaultThemesList.add(new Theme("MainProjectTheme",
                     "#F7EDE2", "#F15152", 0));
             defaultThemesList.get(21).setMainTextColor(getColor(R.color.act_text_main));
-            defaultThemesList.get(21).setIconColor(getColor(R.color.act_text_main));
+            defaultThemesList.get(21).setIconColor("#304C89");
 
             for (Theme theme: defaultThemesList) {
                 if(theme.getAdditionalTextColor() == -1){
@@ -553,6 +553,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             defaultTasksList.add(new Task("Тренинг", "Найти тренинг по аналитике", 3 ));
             defaultTasksList.get(19).setThemeID(defaultThemesList.get(11).getID());
 
+            //defaultTasksList.get(0).setParentID(defaultProjectsList.get(0).getProjectId());
+
             for (Task task: defaultTasksList) {
                 mViewModel.addTask(task);
             }
@@ -562,7 +564,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             Log.d("MAIN_ACT: ", "INITIAL SETUP COMPLETED");
             App.getSettings().setSetupState(true);
 
-            if(App.isTesting()){
+            if(App.isTesting() && false){
 
                 List<Project> testProjList = new ArrayList<>(10);
                 for(int i = 0; i < 10; i++){

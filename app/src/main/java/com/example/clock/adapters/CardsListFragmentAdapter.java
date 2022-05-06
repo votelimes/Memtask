@@ -9,6 +9,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.Image;
 import android.net.Uri;
+import android.os.SystemClock;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -496,6 +497,9 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
                 InputMethodManager imm = (InputMethodManager) App.getInstance().getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
             }
+        }
+        if(App.isTesting()){
+            App.getInstance().fixLoadTimer();
         }
     }
 

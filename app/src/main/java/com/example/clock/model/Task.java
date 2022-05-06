@@ -8,6 +8,8 @@ import android.content.Intent;
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
+import androidx.room.ForeignKey;
+import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
 import com.example.clock.broadcastreceiver.AlarmBroadcastReceiver;
@@ -23,14 +25,25 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 
 
-@Entity(tableName = "task_table")
+@Entity(tableName = "task_table",
+        indices = {
+        @Index(value = "mName"),
+        @Index(value = "categoryId"),
+        @Index(name = "task_parent", value = "mParentID"),
+        @Index(name = "task_theme", value = "mThemeID")
+        },
+
+        foreignKeys = {
+        @ForeignKey(entity = Project.class, parentColumns = "projectId", childColumns = "mParentID"),
+        @ForeignKey(entity = Theme.class, parentColumns = "theme_ID", childColumns = "mThemeID")
+        }
+        )
 public class Task extends UserCaseBase {
 
     @PrimaryKey()
     @NonNull
-    @ColumnInfo(name = "task_ID")
+    @ColumnInfo(name = "task_ID", index = true)
     private String taskId;
-
 
     protected boolean vibrate;
 
@@ -63,12 +76,12 @@ public class Task extends UserCaseBase {
 
     //protected long testID = 1;
     //protected boolean started;
-
+    @ColumnInfo(index = true)
     protected String mParentID;
 
     public Task(String name, String description, long catID){
         super();
-        mParentID = "";
+        mParentID = null;
         ringtonePath = "";
         taskId = generateUUID();
         mName = name;
@@ -82,7 +95,7 @@ public class Task extends UserCaseBase {
         super();
         this.taskId = generateUUID();
         ringtonePath = "";
-        mParentID = "";
+        mParentID = null;
     }
 
     public Task(Task other) {

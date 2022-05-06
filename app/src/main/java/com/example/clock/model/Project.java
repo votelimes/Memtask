@@ -3,14 +3,25 @@ package com.example.clock.model;
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
+import androidx.room.ForeignKey;
+import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
-@Entity(tableName = "project_table")
+@Entity(tableName = "project_table",
+        indices = {
+        @Index(name = "project_name", value = "mName"),
+        @Index(name = "project_catID", value = "categoryId"),
+        @Index(name = "project_theme", value = "mThemeID")},
+
+        foreignKeys = {
+        @ForeignKey(entity = Theme.class, parentColumns = "theme_ID", childColumns = "mThemeID")}
+
+)
 public class Project extends UserCaseBase {
 
     @PrimaryKey()
     @NonNull
-    @ColumnInfo(name = "projectId")
+    @ColumnInfo(name = "projectId", index = true)
     public String projectId;
 
     public Project(){

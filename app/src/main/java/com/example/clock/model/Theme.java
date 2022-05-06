@@ -14,7 +14,7 @@ import java.util.UUID;
 public class Theme {
     @PrimaryKey
     @NonNull
-    @ColumnInfo(name = "theme_ID")
+    @ColumnInfo(name = "theme_ID", index = true)
     private String mID;
     @ColumnInfo(name = "theme_name")
     private String mName;
