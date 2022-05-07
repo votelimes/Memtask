@@ -66,13 +66,13 @@ public abstract class TaskDao extends BaseDao<Task> {
     @Query("SELECT * FROM task_table WHERE task_ID = :id")
     public abstract Task getTask(String id);
 
-    @Query("SELECT * FROM task_table WHERE task_table.mParentID IS NULL OR task_table.mParentID = '' AND task_table.categoryId = :categoryID")
+    @Query("SELECT * FROM task_table WHERE (task_table.mParentID IS NULL OR task_table.mParentID = '') AND task_table.categoryId = :categoryID")
     public abstract LiveData<List<TaskAndTheme>> getSingleTaskAndThemeByCategory(long categoryID);
 
     @Query("SELECT * FROM task_table WHERE task_table.mParentID IS NULL")
     public abstract List<TaskAndTheme> getSingleTaskAndThemeByCategoryTEST();
 
-    @Query("SELECT * FROM task_table WHERE task_table.mParentID IS NULL OR task_table.mParentID = '' AND task_table.categoryId = :categoryID AND task_table.mName LIKE :nameRegex")
+    @Query("SELECT * FROM task_table WHERE (task_table.mParentID IS NULL OR task_table.mParentID = '') AND task_table.categoryId = :categoryID AND task_table.mName LIKE :nameRegex")
     public abstract LiveData<List<TaskAndTheme>> getSingleTaskAndThemeByCategoryByName(long categoryID, String nameRegex);
 
     @Query("SELECT * FROM task_table"

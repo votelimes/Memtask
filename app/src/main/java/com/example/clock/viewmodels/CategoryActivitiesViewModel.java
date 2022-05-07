@@ -2,6 +2,8 @@ package com.example.clock.viewmodels;
 
 import android.app.Application;
 import android.content.Context;
+import android.os.SystemClock;
+import android.util.Log;
 
 import androidx.core.util.Pair;
 import androidx.databinding.BaseObservable;
@@ -30,6 +32,7 @@ import java.util.Locale;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class CategoryActivitiesViewModel extends MemtaskViewModelBase{
     public final int RESTORE_ITEM_SNACKBAR_TIME = 5750;
@@ -98,7 +101,7 @@ public class CategoryActivitiesViewModel extends MemtaskViewModelBase{
 
         itemObservers = new ArrayList<>(totalSize);
 
-        projectLiveData.getValue().forEach(item -> {
+        projectLiveData.getValue().stream().parallel().forEachOrdered(item -> {
             itemObservers.add((ParentObserver) new ProjectObserver(item));
         });
 

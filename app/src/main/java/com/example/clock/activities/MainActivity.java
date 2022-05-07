@@ -564,7 +564,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             Log.d("MAIN_ACT: ", "INITIAL SETUP COMPLETED");
             App.getSettings().setSetupState(true);
 
-            if(App.isTesting() && false){
+            if(App.isTesting()){
 
                 List<Project> testProjList = new ArrayList<>(10);
                 for(int i = 0; i < 10; i++){

@@ -249,6 +249,7 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
 
     public CardsListFragmentAdapter(ActivityResultLauncher<Intent> resultLauncher,
                                     CategoryActivitiesViewModel viewModel, View rootView, RecyclerView.LayoutManager layoutManager) {
+        App.getInstance().dropLoadTimer();
         mViewModel = viewModel;
         this.resultLauncher = resultLauncher;
         this.rootView = rootView;
@@ -488,8 +489,9 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
                 }
             }
 
-            ProjectAdapter adapter = new ProjectAdapter(resultLauncher, mViewModel, position,
-                    rootView, viewHolder.getLayoutManager(), this);
+            ProjectAdapter adapter = new ProjectAdapter(resultLauncher, mViewModel, currentViewHolder.getAbsoluteAdapterPosition(),
+                    rootView, viewHolder.getLayoutManager(), CardsListFragmentAdapter.this);
+
             viewHolder.setAdapter(adapter);
 
             if(mAddedOutside != -1 && mAddedOutside == viewHolder.getAbsoluteAdapterPosition()) {
@@ -575,12 +577,12 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
 
     @Override
     public int getItemViewType(int position) {
-        Object obj = (Object) mViewModel.getObs(position);
+        CategoryActivitiesViewModel.ParentObserver obs = mViewModel.getObs(position);
 
-        if(obj instanceof CategoryActivitiesViewModel.TaskObserver){
+        if(obs instanceof CategoryActivitiesViewModel.TaskObserver){
             return VIEW_TYPE_TASK;
         }
-        if(obj instanceof CategoryActivitiesViewModel.ProjectObserver){
+        if(obs instanceof CategoryActivitiesViewModel.ProjectObserver){
             return VIEW_TYPE_PROJECT;
         }
         else {

@@ -86,6 +86,10 @@ public class App extends Application {
         mAppFinishLoadTimeMillis = Instant.now().toEpochMilli();
     }
 
+    public void dropLoadTimer(){
+        mAppFinishLoadTimeMillis = Instant.now().toEpochMilli();
+    }
+
     public long getWorkTimeMillis(){
         if(mAppFinishLoadTimeMillis == 0) {
             return Instant.now().toEpochMilli() - mAppStartTimeMillis;
