@@ -31,6 +31,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.clock.R;
 import com.example.clock.activities.ManageTaskActivity;
+import com.example.clock.activities.MapActivity;
 import com.example.clock.app.App;
 import com.example.clock.databinding.CategoryProjectBinding;
 import com.example.clock.databinding.CategoryTaskBinding;
@@ -304,7 +305,7 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
                 public boolean onLongClick(View view) {
                     MaterialAlertDialogBuilder taskOptionsDialog = new MaterialAlertDialogBuilder(view.getContext())
                             .setTitle("Выберите действие")
-                            .setItems(R.array.task_dialog_long, new DialogInterface.OnClickListener() {
+                            .setItems(R.array.task_dialog_user_act, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialogInterface, int i) {
                                     switch (i) {
@@ -318,7 +319,15 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
 
                                             resultLauncher.launch(intent);
                                             break;
-                                        case 2: // Удалить
+                                        case 2: // Контакты
+
+                                            break;
+                                        case 3: // Адреса
+                                            Intent intentMap = new Intent(view.getContext(), MapActivity.class);
+                                            intentMap.putExtra(MemtaskViewModelBase.MTP_ID, taskObs.getTask().getTaskId());
+                                            resultLauncher.launch(intentMap);
+                                            break;
+                                        case 4: // Удалить
                                             removeItem(currentViewHolder.getAbsoluteAdapterPosition());
                                             break;
                                     }

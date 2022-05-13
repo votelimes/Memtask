@@ -1,12 +1,10 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- Base application theme. -->
     <style name="Theme.Clock.Main" parent="Theme.MaterialComponents.DayNight.NoActionBar">
-
         <item name="colorSecondary">@color/secondary</item>
         <item name="colorPrimary">@color/secondary</item>
 
         <item name="colorPrimaryDark">@color/backgroundSecondary</item>
-        <item name="android:windowLightStatusBar">true</item>
 
         <!-- Primary brand color. -->
         <item name="android:textColorPrimary">@color/textPrimary</item>
@@ -20,6 +18,7 @@
         <item name="android:colorAccent">@color/secondary</item>
         <item name="android:colorError">@color/secondary</item>
         <item name="colorControlNormal">@color/secondary</item>
+        <item name="android:windowLightStatusBar">true</item>
     </style>
 
 </resources>

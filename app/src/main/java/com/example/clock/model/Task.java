@@ -74,6 +74,9 @@ public class Task extends UserCaseBase {
     protected int duration = 1;
     protected int progress = 0;
 
+    protected double mapX;
+    protected double mapY;
+
     //protected long testID = 1;
     //protected boolean started;
     @ColumnInfo(index = true)
@@ -663,5 +666,21 @@ public class Task extends UserCaseBase {
         }
 
         return (int) Math.ceil(step);
+    }
+
+    public double getMapX() {
+        return mapX;
+    }
+
+    public void setMapX(double mapX) {
+        this.mapX = mapX;
+    }
+
+    public double getMapY() {
+        return mapY;
+    }
+
+    public void setMapY(double mapY) {
+        this.mapY = mapY;
     }
 }

@@ -22,6 +22,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.clock.R;
 import com.example.clock.activities.ManageTaskActivity;
+import com.example.clock.activities.MapActivity;
 import com.example.clock.app.App;
 import com.example.clock.databinding.CategoryTaskBinding;
 import com.example.clock.model.Theme;
@@ -183,7 +184,15 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.TaskView
                                         intent.putExtra(MemtaskViewModelBase.MTP_CATEGORY_ID, App.getSettings().getLastCategory().first);
                                         mResultLauncher.launch(intent);
                                         break;
-                                    case 1: // Удалить
+                                    case 1: // Контакты
+
+                                        break;
+                                    case 2: // Адреса
+                                        Intent intentMap = new Intent(view.getContext(), MapActivity.class);
+                                        intentMap.putExtra(MemtaskViewModelBase.MTP_ID, taskObs.getTask().getTaskId());
+                                        mResultLauncher.launch(intentMap);
+                                        break;
+                                    case 3: // Удалить
                                         removeItem(viewHolder.getAbsoluteAdapterPosition());
                                         break;
                                 }

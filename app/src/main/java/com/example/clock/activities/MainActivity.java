@@ -12,6 +12,7 @@ import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowInsets;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -19,6 +20,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.view.GravityCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
 import androidx.databinding.DataBindingUtil;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
@@ -564,7 +566,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             Log.d("MAIN_ACT: ", "INITIAL SETUP COMPLETED");
             App.getSettings().setSetupState(true);
 
-            if(App.isTesting()){
+            if(App.isTesting() && false){
 
                 List<Project> testProjList = new ArrayList<>(10);
                 for(int i = 0; i < 10; i++){

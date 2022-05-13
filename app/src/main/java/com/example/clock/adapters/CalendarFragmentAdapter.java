@@ -29,6 +29,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.clock.R;
 import com.example.clock.activities.ManageTaskActivity;
+import com.example.clock.activities.MapActivity;
 import com.example.clock.app.App;
 import com.example.clock.databinding.CalendarTaskBinding;
 import com.example.clock.model.TaskData;
@@ -435,7 +436,15 @@ public class CalendarFragmentAdapter extends RecyclerView.Adapter<RecyclerView.V
 
                                             resultLauncher.launch(intent);
                                             break;
-                                        case 1: // Удалить
+                                        case 1: // Контакты
+
+                                            break;
+                                        case 2: // Адреса
+                                            Intent intentMap = new Intent(view.getContext(), MapActivity.class);
+                                            intentMap.putExtra(MemtaskViewModelBase.MTP_ID, taskObs.getTask().getTaskId());
+                                            resultLauncher.launch(intentMap);
+                                            break;
+                                        case 3: // Удалить
                                             removeItem(currentViewHolder.getAbsoluteAdapterPosition());
                                             break;
                                     }

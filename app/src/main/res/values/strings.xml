@@ -16,8 +16,18 @@
         <item>Удалить</item>
     </string-array>
 
+    <string-array name="task_dialog_user_act">
+        <item>Декомпозировать</item>
+        <item>Изменить</item>
+        <item>Контакты</item>
+        <item>Адрес</item>
+        <item>Удалить</item>
+    </string-array>
+
     <string-array name="task_dialog_short">
         <item>Изменить</item>
+        <item>Контакты</item>
+        <item>Адрес</item>
         <item>Удалить</item>
     </string-array>
 
