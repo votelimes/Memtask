@@ -35,8 +35,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class CategoryActivitiesViewModel extends MemtaskViewModelBase{
-    public final int RESTORE_ITEM_SNACKBAR_TIME = 5750;
-    public long currentCategoryID;
+    public final int RESTORE_ITEM_SNACKBAR_TIME = 1750;
+    public String currentCategoryID;
 
     public LiveData<Tuple3<List<TaskAndTheme>, List<ProjectData>, List<Theme>>> intermediate;
 
@@ -49,6 +49,9 @@ public class CategoryActivitiesViewModel extends MemtaskViewModelBase{
     private int removableItemObserversIntermediatePos;
     private int removableItemObserversListPos;
     private int removableItemObserverChildPos;
+
+    private int contactsMode = 0;
+    private String contactsModdingTaskID;
 
     private int sortType;
     private boolean shouldUpdate;
@@ -112,7 +115,7 @@ public class CategoryActivitiesViewModel extends MemtaskViewModelBase{
 
 
     public void update(){
-        long currentCategoryID = App.getSettings().getLastCategory().first;
+        String currentCategoryID = App.getSettings().getLastCategory().first;
         singleTaskThemeLiveData = mRepository.getSingleTaskAndThemeByCategory(currentCategoryID);
         projectLiveData = mRepository.getProjectDataByCategory(currentCategoryID);
     }
@@ -226,6 +229,7 @@ public class CategoryActivitiesViewModel extends MemtaskViewModelBase{
 
         task.setThemeID(currentTheme.getID());
         task.setParentID(projObs.getData().project.getProjectId());
+        task.setCategoryId(App.getSettings().getLastCategory().first);
         TaskAndTheme taskAndTheme = new TaskAndTheme(task, currentTheme);
 
         TaskObserver taskObs = new TaskObserver(taskAndTheme, true);
@@ -247,6 +251,33 @@ public class CategoryActivitiesViewModel extends MemtaskViewModelBase{
         else{
             mergeTasksAndProjects();
         }
+    }
+
+    public void putContacts(String contacts){
+        if(contactsMode == 1){
+            itemObservers.forEach(item -> {
+                if(item instanceof TaskObserver){
+                    TaskObserver obs = (TaskObserver) item;
+                    if(obs.getId().equals(contactsModdingTaskID)){
+                        obs.getTask().setContactsID(contacts);
+                    }
+                }
+            });
+        }
+        else if(contactsMode == 2){
+            itemObservers.forEach(item -> {
+                if(item instanceof ProjectObserver){
+                    ProjectObserver obs = (ProjectObserver) item;
+                    obs.setChildContacts(contacts, contactsModdingTaskID);
+                }
+            });
+        }
+    }
+
+    // 1 outer, 2 inner
+    public void prepareContactsDialog(int mode, String id){
+        contactsMode = mode;
+        contactsModdingTaskID = id;
     }
 
     // Getters
@@ -315,6 +346,10 @@ public class CategoryActivitiesViewModel extends MemtaskViewModelBase{
 
         public String getName(){
             return "";
+        }
+
+        public String getId(){
+            return null;
         }
     }
 
@@ -496,6 +531,11 @@ public class CategoryActivitiesViewModel extends MemtaskViewModelBase{
         @Bindable
         public String getImage(){
             return data.task.getImageResource();
+        }
+
+        @Override
+        public String getId(){
+            return data.task.getTaskId();
         }
     }
 
@@ -714,6 +754,19 @@ public class CategoryActivitiesViewModel extends MemtaskViewModelBase{
 
         public String getImage(){
             return data.project.getImageResource();
+        }
+
+        @Override
+        public String getId(){
+            return data.project.getProjectId();
+        }
+
+        public void setChildContacts(String contacts, String id){
+            childObservers.forEach(item -> {
+                if(item.getId().equals(id)){
+                    item.getTask().setContactsID(contacts);
+                }
+            });
         }
     }
 }

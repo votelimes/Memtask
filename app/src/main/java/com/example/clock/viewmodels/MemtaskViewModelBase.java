@@ -99,10 +99,6 @@ public abstract class MemtaskViewModelBase extends ViewModel {
         mRepository.removeProjectByIDSilently(id);
     }
 
-    public void removeCategoryByID (long id){
-        mRepository.removeCategoryByID(id);
-    }
-
     //Updating existing data
     public void updateTask (Task updatableTask) {
         mRepository.updateTask(updatableTask);

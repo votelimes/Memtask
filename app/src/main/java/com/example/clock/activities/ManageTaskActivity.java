@@ -114,7 +114,7 @@ public class ManageTaskActivity extends AppCompatActivity implements View.OnFocu
         mContext = this;
         String itemID = getIntent().getStringExtra(MemtaskViewModelBase.MTP_ID);
 
-        long categoryID = getIntent().getLongExtra(MemtaskViewModelBase.MTP_CATEGORY_ID, -1);
+        String categoryID = getIntent().getStringExtra(MemtaskViewModelBase.MTP_CATEGORY_ID);
 
         String parentID = getIntent().getStringExtra(MemtaskViewModelBase.MTP_PARENT);
 

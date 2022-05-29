@@ -25,7 +25,7 @@ public class ViewModelFactoryBase extends ViewModelProvider.NewInstanceFactory {
     @Override
     public <T extends ViewModel> T create(Class<T> modelClass) {
         if (modelClass == ManageTaskViewModel.class) {
-            return (T) new ManageTaskViewModel(mApplication, (Database) mParams[0], (SilentDatabase) mParams[1], (int) mParams[2], (String) mParams[3], (long) mParams[4], (String) mParams[5]);
+            return (T) new ManageTaskViewModel(mApplication, (Database) mParams[0], (SilentDatabase) mParams[1], (int) mParams[2], (String) mParams[3], (String) mParams[4], (String) mParams[5]);
         }
         else if (modelClass == ManageCategoryViewModel.class) {
             return (T) new ManageCategoryViewModel(mApplication, (Database) mParams[0], (SilentDatabase) mParams[1], (Category) mParams[2]);

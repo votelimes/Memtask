@@ -34,4 +34,7 @@ public interface ThemeDao {
 
     @Query("SELECT * FROM theme_table ORDER BY theme_name ASC")
     LiveData<List<Theme>> getThemesLiveData();
+
+    @Query("SELECT * FROM theme_table where theme_name = :name")
+    Theme getByName(String name);
 }

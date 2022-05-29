@@ -1,5 +1,6 @@
 package com.example.clock.storageutils;
 
+import android.accounts.Account;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Pair;
@@ -9,6 +10,12 @@ import androidx.preference.PreferenceManager;
 
 import com.example.clock.R;
 import com.example.clock.app.App;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 
 public class Settings {
 
@@ -17,13 +24,15 @@ public class Settings {
     // 0 Calendar, 1 Category list, 2 Tasks list, 3 Statistic, 4 Settings.
     private Pair<Long, String> mCurrentWindow;
     private Pair<Boolean, String> mSetupState;
-    private Pair<Long, String> mLastCategoryID;
+    private Pair<String, String> mLastCategoryID;
     private Pair<String, String> mLastCategoryName;
     private Pair<String, String> mUseDarkTheme;
     private Pair<Boolean, String> mUseRandomThemes;
     private Pair<String, String> mCalendarMode;
     private Pair<Boolean, String> mUseSync;
-    private Pair<String, String> mAccount;
+    private Pair<String, String> mAccountEmail;
+
+    private GoogleSignInAccount mSignedAccount;
 
     private final SharedPreferences mSharedPref;
 
@@ -31,6 +40,8 @@ public class Settings {
 
         mSharedPref = PreferenceManager.getDefaultSharedPreferences(context);
         updateData(context);
+
+        updateAccount(context);
     }
 
     public void updateData(Context context){
@@ -44,8 +55,8 @@ public class Settings {
                 (mSharedPref.getBoolean(mSetupStateTag, false), mSetupStateTag);
 
         String mLastCategoryIDTag = "last_category_id";
-        mLastCategoryID = new Pair<Long, String>
-                (mSharedPref.getLong(mLastCategoryIDTag, -1), mLastCategoryIDTag);
+        mLastCategoryID = new Pair<String, String>
+                (mSharedPref.getString(mLastCategoryIDTag, ""), mLastCategoryIDTag);
 
         String mLastCategoryNameTag = "last_category_name";
         mLastCategoryName = new Pair<String, String>
@@ -72,7 +83,7 @@ public class Settings {
                 (mSharedPref.getBoolean(mUseSyncTag, false), mUseSyncTag);
 
         String mAccountTag = "memtask_preference_account";
-        mAccount = new Pair<String, String>
+        mAccountEmail = new Pair<String, String>
         (mSharedPref.getString(mAccountTag, ""), mAccountTag);
     }
 
@@ -95,15 +106,15 @@ public class Settings {
         editor.commit();
     }
 
-    public void setLastCategory(long id, String name){
+    public void setLastCategory(String id, String name){
 
 
         SharedPreferences.Editor editor = mSharedPref.edit();
 
-        mLastCategoryID = new Pair<Long, String>
+        mLastCategoryID = new Pair<String, String>
                 (id, mLastCategoryID.second);
 
-        editor.putLong(mLastCategoryID.second, id);
+        editor.putString(mLastCategoryID.second, id);
 
         mLastCategoryName = new Pair<String, String>
                 (name, mLastCategoryName.second);
@@ -113,8 +124,8 @@ public class Settings {
         editor.commit();
     }
 
-    public Pair<Long, String> getLastCategory(){
-        return new Pair<Long , String>(mLastCategoryID.first, mLastCategoryName.first);
+    public Pair<String, String> getLastCategory(){
+        return new Pair<String , String>(mLastCategoryID.first, mLastCategoryName.first);
     }
 
     public boolean getSetupState(){
@@ -140,13 +151,19 @@ public class Settings {
         return this.mCalendarMode.first;
     }
 
-    public String getAccount(){
-        return this.mAccount.first;
+    public String getAccountEmail(Context context){
+        updateAccount(context);
+        if(mSignedAccount != null) {
+            return this.mSignedAccount.getEmail();
+        }
+        else{
+            return "";
+        }
     }
 
     public void setAccount(String acc){
         SharedPreferences.Editor editor = mSharedPref.edit();
-        editor.putString(mAccount.second, acc);
+        editor.putString(mAccountEmail.second, acc);
         editor.commit();
     }
 
@@ -158,5 +175,30 @@ public class Settings {
         SharedPreferences.Editor editor = mSharedPref.edit();
         editor.putBoolean(mUseSync.second, val);
         editor.commit();
+    }
+
+    public boolean isAccountSigned(Context context){
+        updateAccount(context);
+        return mSignedAccount != null;
+    }
+
+    public void updateAccount(Context context){
+        mSignedAccount = GoogleSignIn.getLastSignedInAccount(context);
+        if(mSignedAccount == null && (mAccountEmail.first != null || mAccountEmail.first.length() != 0)){
+            setAccount("");
+        }
+    }
+
+    public Task<Void> removeAccount(Context context){
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestEmail()
+                .requestId()
+                .build();
+        GoogleSignInClient gsi = GoogleSignIn.getClient(context, gso);
+        return gsi.signOut();
+    }
+
+    public GoogleSignInAccount getAccount(){
+        return mSignedAccount;
     }
 }

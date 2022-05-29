@@ -98,4 +98,5 @@ public class App extends Application {
             return mAppFinishLoadTimeMillis - mAppStartTimeMillis;
         }
     }
+
 }

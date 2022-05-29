@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name">Memtask</string>
+    <string name="oauth_client_id">300793284979-knnseujcvn15hjtsjh7qv23cb9kn32a7.apps.googleusercontent.com</string>
     <string name="action_settings">Введите часть названия...</string>
     <!-- Strings used for fragments for navigation -->
 

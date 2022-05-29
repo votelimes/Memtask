@@ -32,15 +32,15 @@ public abstract class ProjectDao  extends BaseDao<Project> {
     public abstract LiveData<ProjectAndTheme> getProjectThemeLiveData(String projectID);
 
     @Query("SELECT project_table.*, theme_table.* FROM project_table LEFT JOIN theme_table ON project_table.mThemeID = theme_table.theme_ID WHERE project_table.categoryId = :categoryID")
-    public abstract LiveData<List<ProjectAndTheme>> getProjectsWithThemeLiveData(long categoryID);
+    public abstract LiveData<List<ProjectAndTheme>> getProjectsWithThemeLiveData(String categoryID);
 
     @Transaction
     @Query("SELECT project_table.*, theme_table.* FROM project_table LEFT JOIN theme_table ON project_table.mThemeID = theme_table.theme_ID WHERE project_table.categoryId = :categoryID")
-    public abstract LiveData<List<ProjectData>> getProjectsDataByCat(long categoryID);
+    public abstract LiveData<List<ProjectData>> getProjectsDataByCat(String categoryID);
 
     @Transaction
     @Query("SELECT project_table.*, theme_table.* FROM project_table LEFT JOIN theme_table ON project_table.mThemeID = theme_table.theme_ID WHERE project_table.categoryId = :categoryID AND project_table.mName LIKE :nameRegex")
-    public abstract LiveData<List<ProjectData>> getProjectsDataByCatByName(long categoryID, String nameRegex);
+    public abstract LiveData<List<ProjectData>> getProjectsDataByCatByName(String categoryID, String nameRegex);
 
     @TestOnly
     @Transaction
@@ -50,18 +50,13 @@ public abstract class ProjectDao  extends BaseDao<Project> {
     @TestOnly
     @Transaction
     @Query("SELECT project_table.*, theme_table.* FROM project_table LEFT JOIN theme_table ON project_table.mThemeID = theme_table.theme_ID WHERE project_table.categoryId = :categoryID")
-    public abstract List<ProjectData> getProjectsDataByCatTEST(int categoryID);
+    public abstract List<ProjectData> getProjectsDataByCatTEST(String categoryID);
 
 
     @TestOnly
     @Transaction
     @Query("SELECT * from project_table")
     public abstract List<ProjectData> getProjectsDataTEST2();
-
-    @TestOnly
-    @Transaction
-    @Query("SELECT * FROM project_table WHERE project_table.categoryId = :categoryID")
-    public abstract List<ProjectData> getProjectsDataByCatTEST(long categoryID);
 
     @Query("DELETE FROM task_table WHERE task_table.mParentID = :parentID")
     public abstract void deleteSubItems(String parentID);

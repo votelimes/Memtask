@@ -1,6 +1,9 @@
 package com.example.clock.viewmodels;
 
 import android.app.Application;
+import android.content.Context;
+
+import androidx.lifecycle.LifecycleOwner;
 
 import com.example.clock.repositories.MemtaskRepositoryBase;
 import com.example.clock.storageutils.Database;
@@ -15,7 +18,6 @@ public class MainViewModel extends MemtaskViewModelBase {
 
     MainViewModel(Application application, Database database, SilentDatabase silentDatabase){
         loadData(application, database, silentDatabase);
-
         shouldUpdate = true;
     }
 
@@ -28,7 +30,11 @@ public class MainViewModel extends MemtaskViewModelBase {
 
     }
 
-    public void removeCategoryWithItems(long id){
+    public void removeCategoryWithItems(String id){
         mRepository.removeCategoryWithItems(id);
+    }
+
+    public void syncGCREAD(Context context, LifecycleOwner lco){
+        mRepository.synchronizeGCCalendars(context, lco);
     }
 }

@@ -22,7 +22,11 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.GregorianCalendar;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 @Entity(tableName = "task_table",
@@ -44,7 +48,6 @@ public class Task extends UserCaseBase {
     @NonNull
     @ColumnInfo(name = "task_ID", index = true)
     private String taskId;
-
     protected boolean vibrate;
 
     protected String ringtonePath;
@@ -77,12 +80,16 @@ public class Task extends UserCaseBase {
     protected double mapX;
     protected double mapY;
 
+    protected String contactsID = "";
+
     //protected long testID = 1;
     //protected boolean started;
     @ColumnInfo(index = true)
     protected String mParentID;
 
-    public Task(String name, String description, long catID){
+    protected boolean syncing;
+
+    public Task(String name, String description, String catID){
         super();
         mParentID = null;
         ringtonePath = "";
@@ -682,5 +689,32 @@ public class Task extends UserCaseBase {
 
     public void setMapY(double mapY) {
         this.mapY = mapY;
+    }
+
+    public String getContactsID() {
+        return contactsID;
+    }
+
+    public void setContactsID(String contactsID) {
+        this.contactsID = contactsID;
+    }
+
+    public List<Long> getContactsCollection(){
+        if(contactsID != null){
+            if(contactsID.length() > 0){
+                return Stream.of(contactsID.split(","))
+                        .map(Long::parseLong)
+                        .collect(Collectors.toList());
+            }
+        }
+        return null;
+    }
+
+    public boolean isSyncing() {
+        return syncing;
+    }
+
+    public void setSyncing(boolean syncing) {
+        this.syncing = syncing;
     }
 }

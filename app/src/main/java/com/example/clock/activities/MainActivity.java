@@ -1,9 +1,13 @@
 package com.example.clock.activities;
 
+import android.Manifest;
+import android.app.Activity;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.text.SpannableString;
@@ -14,11 +18,14 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowInsets;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.app.ActivityCompat;
 import androidx.core.view.GravityCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
 import androidx.databinding.DataBindingUtil;
@@ -131,7 +138,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         Fragment nextFragment = null;
         String title = "";
-        if(App.getSettings().getLastCategory().first != -1) {
+        if(!App.getSettings().getLastCategory().first.equals("")) {
             switch ((int) App.getSettings().getCurrentWindow()) {
                 // Categories list
                 case 1:
@@ -179,6 +186,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         ConstraintLayout mh = (ConstraintLayout) navigationView.getHeaderView(0);
         mh.setOnClickListener(this);
+
+        if (Build.VERSION.SDK_INT >= 23) {
+            String[] PERMISSIONS = {android.Manifest.permission.READ_CONTACTS};
+            if (!hasPermissions(this, PERMISSIONS)) {
+                ActivityCompat.requestPermissions((Activity) this, PERMISSIONS, 100);
+            }
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        mViewModel.syncGCREAD(getBaseContext(), this);
     }
 
     @Override
@@ -249,7 +269,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void setupApplication(){
-
         if(App.getSettings().getSetupState() == false){
             // NotificationChannels installation
             NotificationManager notificationManager =
@@ -431,11 +450,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             // Some projects installation
             List<Project> defaultProjectsList = new ArrayList<Project>(5);
-            defaultProjectsList.add(new Project("Вылечить зуб", "", 4));
-            defaultProjectsList.get(0).setRange("24.02.2022", "28.02.2022");
+            defaultProjectsList.add(new Project("Вылечить зуб", "", defaultCategoriesList.get(3).getCategoryId()));
+            defaultProjectsList.get(0).setRange("24.05.2022", "28.05.2022");
             defaultProjectsList.get(0).setThemeID(defaultThemesList.get(21).getID());
-            defaultProjectsList.add(new Project("Сделать презентацию", "Способы оптимизации алгоритмов", 2));
-            defaultProjectsList.get(1).setRange("01.02.2022", "15.02.2022");
+            defaultProjectsList.add(new Project("Сделать презентацию", "Способы оптимизации алгоритмов", defaultCategoriesList.get(1).getCategoryId()));
+            defaultProjectsList.get(1).setRange("01.05.2022", "15.05.2022");
             defaultProjectsList.get(1).setThemeID(defaultThemesList.get(21).getID());
 
             for (Project project: defaultProjectsList) {
@@ -448,33 +467,33 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
 
             try {
-                calendar.setTime(sdf.parse("25.02.2022 00:00:00"));
+                calendar.setTime(sdf.parse("25.05.2022 00:00:00"));
             } catch (ParseException e){
                 Log.e("INITIAL SETUP ERROR: ", e.getMessage());
             }
 
-            defaultTasksList.add(new Task("Оплатить счета", "Оплатить счета за дом", 1 ));
-            defaultTasksList.get(0).setAlarmTime("25.02.2022 11:20");
+            defaultTasksList.add(new Task("Оплатить счета", "Оплатить счета за дом", defaultCategoriesList.get(0).getCategoryId() ));
+            defaultTasksList.get(0).setAlarmTime("25.05.2022 11:20");
             defaultTasksList.get(0).setNotificationEnabled(true);
             defaultTasksList.get(0).setRepeatMode(4);
             defaultTasksList.get(0).setImportance(3);
             defaultTasksList.get(0).setThemeID(defaultThemesList.get(20).getID());
 
-            defaultTasksList.add(new Task("Полить цветы", "Полить все цветы кроме, замиокулькаса", 1 ));
-            defaultTasksList.get(1).setAlarmTime("25.02.2022 17:40");
+            defaultTasksList.add(new Task("Полить цветы", "Полить все цветы кроме, замиокулькаса", defaultCategoriesList.get(0).getCategoryId() ));
+            defaultTasksList.get(1).setAlarmTime("25.05.2022 17:40");
             defaultTasksList.get(1).setNotificationEnabled(true);
             defaultTasksList.get(1).setRepeatMode(3);
             defaultTasksList.get(1).setTuesday(true);
             defaultTasksList.get(1).setThemeID(defaultThemesList.get(0).getID());
 
-            defaultTasksList.add(new Task("Забрать посылку", "", 1 ));
-            defaultTasksList.get(2).setAlarmTime("26.02.2022 16:00");
+            defaultTasksList.add(new Task("Забрать посылку", "", defaultCategoriesList.get(0).getCategoryId() ));
+            defaultTasksList.get(2).setAlarmTime("26.05.2022 16:00");
             defaultTasksList.get(2).setNotificationEnabled(true);
             defaultTasksList.get(2).setThemeID(defaultThemesList.get(1).getID());
             defaultTasksList.get(2).setImportance(0);
 
-            defaultTasksList.add(new Task("Утренняя разминка", "", 4 ));
-            defaultTasksList.get(3).setAlarmTime("26.02.2022 10:00");
+            defaultTasksList.add(new Task("Утренняя разминка", "", defaultCategoriesList.get(3).getCategoryId() ));
+            defaultTasksList.get(3).setAlarmTime("26.05.2022 10:00");
             defaultTasksList.get(3).setNotificationEnabled(true);
             defaultTasksList.get(3).setRepeatMode(3);
             defaultTasksList.get(3).setMonday(true);
@@ -482,77 +501,77 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             defaultTasksList.get(3).setFriday(true);
             defaultTasksList.get(3).setThemeID(defaultThemesList.get(2).getID());
 
-            defaultTasksList.add(new Task("Забрать ключи", "Ключи от офиса 303", 2 ));
-            defaultTasksList.get(4).setAlarmTime("26.02.2022 15:00");
+            defaultTasksList.add(new Task("Забрать ключи", "Ключи от офиса 303", defaultCategoriesList.get(1).getCategoryId() ));
+            defaultTasksList.get(4).setAlarmTime("26.05.2022 15:00");
             defaultTasksList.get(4).setNotificationEnabled(true);
             defaultTasksList.get(4).setThemeID(defaultThemesList.get(0).getID());
 
-            defaultTasksList.add(new Task("Отправиться на прием к врачу", "Кабинет 6", 4 ));
-            defaultTasksList.get(5).setAlarmTime("11.02.2022 07:40");
+            defaultTasksList.add(new Task("Отправиться на прием к врачу", "Кабинет 6", defaultCategoriesList.get(3).getCategoryId() ));
+            defaultTasksList.get(5).setAlarmTime("11.05.2022 07:40");
             defaultTasksList.get(5).setNotificationEnabled(true);
             defaultTasksList.get(5).setRepeatMode(1);
             defaultTasksList.get(5).setThemeID(defaultThemesList.get(1).getID());
 
             // Project tasks
-            defaultTasksList.add(new Task("Поискать номер регистратуры", "", 4 ));
+            defaultTasksList.add(new Task("Поискать номер регистратуры", "", defaultCategoriesList.get(3).getCategoryId() ));
             defaultTasksList.get(6).setParentID(defaultProjectsList.get(0).getProjectId());
             defaultTasksList.get(6).setThemeID(defaultThemesList.get(20).getID());
 
-            defaultTasksList.add(new Task("Позвонить по номеру", "", 4 ));
+            defaultTasksList.add(new Task("Позвонить по номеру", "", defaultCategoriesList.get(3).getCategoryId() ));
             defaultTasksList.get(7).setParentID(defaultProjectsList.get(0).getProjectId());
             defaultTasksList.get(7).setThemeID(defaultThemesList.get(20).getID());
 
-            defaultTasksList.add(new Task("Записать дату приема", "", 4));
+            defaultTasksList.add(new Task("Записать дату приема", "", defaultCategoriesList.get(3).getCategoryId()));
             defaultTasksList.get(8).setParentID(defaultProjectsList.get(0).getProjectId());
             defaultTasksList.get(8).setThemeID(defaultThemesList.get(20).getID());
 
 
             // Project tasks
-            defaultTasksList.add(new Task("Подготовить литературу", "Поискать на programmer-lib", 2 ));
-            defaultTasksList.get(9).setAlarmTime("24.02.2022 11:00");
+            defaultTasksList.add(new Task("Подготовить литературу", "Поискать на programmer-lib", defaultCategoriesList.get(1).getCategoryId() ));
+            defaultTasksList.get(9).setAlarmTime("24.05.2022 11:00");
             defaultTasksList.get(9).setNotificationEnabled(true);
             defaultTasksList.get(9).setParentID(defaultProjectsList.get(1).getProjectId());
             defaultTasksList.get(9).setThemeID(defaultThemesList.get(20).getID());
 
-            defaultTasksList.add(new Task("Определить структуру", "3 раздела, 12 слайдов", 2 ));
-            defaultTasksList.get(10).setAlarmTime("25.02.2022 11:00");
+            defaultTasksList.add(new Task("Определить структуру", "3 раздела, 12 слайдов", defaultCategoriesList.get(1).getCategoryId() ));
+            defaultTasksList.get(10).setAlarmTime("25.05.2022 11:00");
             defaultTasksList.get(10).setNotificationEnabled(true);
             defaultTasksList.get(10).setParentID(defaultProjectsList.get(1).getProjectId());
             defaultTasksList.get(10).setImportance(3);
             defaultTasksList.get(10).setThemeID(defaultThemesList.get(12).getID());
 
-            defaultTasksList.add(new Task("Написать текст", "8 страниц, 14пт", 2 ));
-            defaultTasksList.get(11).setAlarmTime("27.02.2022 17:00");
+            defaultTasksList.add(new Task("Написать текст", "8 страниц, 14пт", defaultCategoriesList.get(1).getCategoryId() ));
+            defaultTasksList.get(11).setAlarmTime("27.05.2022 17:00");
             defaultTasksList.get(11).setNotificationEnabled(true);
             defaultTasksList.get(11).setParentID(defaultProjectsList.get(1).getProjectId());
             defaultTasksList.get(11).setThemeID(defaultThemesList.get(11).getID());
 
-            defaultTasksList.add(new Task("Проверить новую версию Room", "Последняя 2.4.1", 2 ));
-            defaultTasksList.get(12).setAlarmTime("20.02.2022 17:00");
+            defaultTasksList.add(new Task("Проверить новую версию Room", "Последняя 2.4.1", defaultCategoriesList.get(1).getCategoryId() ));
+            defaultTasksList.get(12).setAlarmTime("20.05.2022 17:00");
             defaultTasksList.get(12).setNotificationEnabled(false);
             defaultTasksList.get(12).setExpired(true);
             defaultTasksList.get(12).setThemeID(defaultThemesList.get(10).getID());
 
-            defaultTasksList.add(new Task("Посмотреть видео про коптеры", "Любое", 3 ));
+            defaultTasksList.add(new Task("Посмотреть видео про коптеры", "Любое", defaultCategoriesList.get(2).getCategoryId() ));
             defaultTasksList.get(13).setThemeID(defaultThemesList.get(6).getID());
 
-            defaultTasksList.add(new Task("Найти книгу с голубым переплетом", "Смотрел в гостинной, в третьем шкафу. Посмотреть в кладовке.", 3 ));
+            defaultTasksList.add(new Task("Найти книгу с голубым переплетом", "Смотрел в гостинной, в третьем шкафу. Посмотреть в кладовке.", defaultCategoriesList.get(2).getCategoryId() ));
             defaultTasksList.get(14).setThemeID(defaultThemesList.get(7).getID());
 
-            defaultTasksList.add(new Task("Потратить баллы юмани", "Кол-во баллов на февраль 540", 3 ));
+            defaultTasksList.add(new Task("Потратить баллы юмани", "Кол-во баллов на февраль 540", defaultCategoriesList.get(2).getCategoryId() ));
             defaultTasksList.get(15).setThemeID(defaultThemesList.get(8).getID());
 
             defaultTasksList.add(new Task("Определить планы на лето", "1. Похудеть." +
-                    "2. ...", 3 ));
+                    "2. ...", defaultCategoriesList.get(2).getCategoryId() ));
             defaultTasksList.get(16).setThemeID(defaultThemesList.get(14).getID());
 
-            defaultTasksList.add(new Task("Тексты", "Сделать пакет текстов Party-box", 3 ));
+            defaultTasksList.add(new Task("Тексты", "Сделать пакет текстов Party-box", defaultCategoriesList.get(2).getCategoryId() ));
             defaultTasksList.get(17).setThemeID(defaultThemesList.get(12).getID());
 
-            defaultTasksList.add(new Task("Обложки", "Придумать новые обложки для дисков", 3 ));
+            defaultTasksList.add(new Task("Обложки", "Придумать новые обложки для дисков", defaultCategoriesList.get(2).getCategoryId() ));
             defaultTasksList.get(18).setThemeID(defaultThemesList.get(13).getID());
 
-            defaultTasksList.add(new Task("Тренинг", "Найти тренинг по аналитике", 3 ));
+            defaultTasksList.add(new Task("Тренинг", "Найти тренинг по аналитике", defaultCategoriesList.get(2).getCategoryId() ));
             defaultTasksList.get(19).setThemeID(defaultThemesList.get(11).getID());
 
             //defaultTasksList.get(0).setParentID(defaultProjectsList.get(0).getProjectId());
@@ -570,14 +589,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                 List<Project> testProjList = new ArrayList<>(10);
                 for(int i = 0; i < 10; i++){
-                    Project proj = new Project("Project #" + String.valueOf(i+1), "", 1);
+                    Project proj = new Project("Project #" + String.valueOf(i+1), "", defaultCategoriesList.get(0).getCategoryId());
                     proj.setThemeID(defaultThemesList.get(20).getID());
 
-                    Task task1 = new Task("Task #" + String.valueOf(i+1) + "*1", "test", 1);
+                    Task task1 = new Task("Task #" + String.valueOf(i+1) + "*1", "test", defaultCategoriesList.get(0).getCategoryId());
                     task1.setThemeID(defaultThemesList.get(20).getID());
                     task1.setParentID(proj.getProjectId());
 
-                    Task task2 = new Task("Task #" + String.valueOf(i+1) + "*2", "test", 1);
+                    Task task2 = new Task("Task #" + String.valueOf(i+1) + "*2", "test", defaultCategoriesList.get(0).getCategoryId());
                     task2.setThemeID(defaultThemesList.get(20).getID());
                     task2.setParentID(proj.getProjectId());
 
@@ -588,7 +607,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 }
 
                 for(int i = 0; i < 10000; i++){
-                    Task task = new Task("Task #" + String.valueOf(i+1), "test", 1);
+                    Task task = new Task("Task #" + String.valueOf(i+1), "test", defaultCategoriesList.get(0).getCategoryId());
                     task.setThemeID(defaultThemesList.get(20).getID());
                     if((i+1)%9 == 0){
                         task.setParentID(testProjList.get(9).getProjectId());
@@ -670,4 +689,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 .commit();
     }
 
+    private static boolean hasPermissions(Context context, String... permissions) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && context != null && permissions != null) {
+            for (String permission : permissions) {
+                if (ActivityCompat.checkSelfPermission(context, permission) != PackageManager.PERMISSION_GRANTED) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    ActivityResultLauncher<String[]> contactsPermissionRequest =
+            registerForActivityResult(new ActivityResultContracts
+                            .RequestMultiplePermissions(), result -> {
+                        Boolean readContacts = result.getOrDefault(
+                                Manifest.permission.READ_CONTACTS, false);
+                    }
+            );
 }

@@ -37,14 +37,14 @@ public class CategoriesListFragmentAdapter extends RecyclerView.Adapter<Categori
 
         private final ConstraintLayout mainLayout;
         private final TextView name;
-        private long mCategoryID;
+        private String mCategoryID;
 
         public ViewHolder(View view) {
             super(view);
 
             name = (TextView) view.findViewById(R.id.category_list_name);
             mainLayout = (ConstraintLayout) view.findViewById(R.id.category_constraint);
-            mCategoryID = -1;
+            mCategoryID = "";
 
             //mainViewModel = new ViewModelProvider(mActivity).get(MainViewModel.class);
         }
@@ -57,11 +57,11 @@ public class CategoriesListFragmentAdapter extends RecyclerView.Adapter<Categori
             return mainLayout;
         }
 
-        public long getCategoryID(){
+        public String getCategoryID(){
             return mCategoryID;
         }
 
-        public void setCategoryID(long categoryID){
+        public void setCategoryID(String categoryID){
             mCategoryID = categoryID;
         }
     }

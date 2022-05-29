@@ -13,7 +13,7 @@ import java.util.UUID;
 
 public class UserCaseBase implements Serializable  {
 
-    protected long categoryId;
+    protected String categoryId;
 
     public long getTestID() {
         return testID;
@@ -52,7 +52,7 @@ public class UserCaseBase implements Serializable  {
     protected String mImageResource;
 
     public UserCaseBase(){
-        categoryId = -1;
+        categoryId = "";
         mThemeID = "";
         mNotificationID = (int) Instant.now().toEpochMilli() / 1000;
 
@@ -100,7 +100,7 @@ public class UserCaseBase implements Serializable  {
         return color;
     }
 
-    public long getCategoryId() {
+    public String getCategoryId() {
         return categoryId;
     }
 
@@ -186,7 +186,7 @@ public class UserCaseBase implements Serializable  {
         this.completed = completed;
     }
 
-    public void setCategoryId(long categoryId) {
+    public void setCategoryId(String categoryId) {
         this.categoryId = categoryId;
         setTimeChanged(getCurrentTime());
     }

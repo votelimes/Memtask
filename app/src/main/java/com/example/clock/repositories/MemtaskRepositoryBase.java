@@ -1,9 +1,13 @@
 package com.example.clock.repositories;
 
-import android.app.Application;
+import android.content.Context;
 
+import androidx.core.util.Pair;
+import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Observer;
 
+import com.example.clock.app.App;
 import com.example.clock.dao.CategoryDao;
 import com.example.clock.dao.ProjectDao;
 import com.example.clock.dao.TaskDao;
@@ -18,10 +22,21 @@ import com.example.clock.model.TaskAndTheme;
 import com.example.clock.model.TaskData;
 import com.example.clock.model.Theme;
 import com.example.clock.model.UserCaseStatistic;
+import com.example.clock.services.CalendarProvider;
 import com.example.clock.storageutils.Database;
+import com.example.clock.storageutils.LiveDataTransformations;
 import com.example.clock.storageutils.SilentDatabase;
+import com.example.clock.storageutils.Tuple2;
+import com.google.api.services.calendar.Calendar;
+import com.google.api.services.calendar.model.CalendarList;
+import com.google.api.services.calendar.model.CalendarListEntry;
+import com.google.api.services.calendar.model.Event;
+import com.google.api.services.calendar.model.Events;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class MemtaskRepositoryBase {
 
@@ -34,6 +49,9 @@ public class MemtaskRepositoryBase {
     private final CategoryDao mCategoryDao;
     private final ThemeDao mThemeDao;
     private final UserCaseStatisticDao mUserCaseStatisticDao;
+    private List<OuterCalendar> calendars = null;
+    private List<OuterEvent> events = null;
+    private Thread syncThread;
 
     public MemtaskRepositoryBase(Database database, SilentDatabase silentDatabase){
         this.mDatabase = database;
@@ -82,15 +100,15 @@ public class MemtaskRepositoryBase {
         return this.mDatabase.projectDao().getProjectThemeLiveData(projectID);
     }
 
-    public LiveData<List<TaskData>> getTaskDataByCategory(long ID){
+    public LiveData<List<TaskData>> getTaskDataByCategory(String ID){
         return this.mDatabase.taskDao().getTasksWithThemeByNotification(ID);
     }
 
-    public LiveData<List<ProjectData>> getProjectDataByCategory(long ID){
+    public LiveData<List<ProjectData>> getProjectDataByCategory(String ID){
         return this.mDatabase.projectDao().getProjectsDataByCat(ID);
     }
 
-    public LiveData<List<ProjectData>> getProjectDataByCategoryByName(long ID, String name){
+    public LiveData<List<ProjectData>> getProjectDataByCategoryByName(String ID, String name){
         return this.mDatabase.projectDao().getProjectsDataByCatByName(ID, "%" + name + "%");
     }
 
@@ -98,11 +116,11 @@ public class MemtaskRepositoryBase {
         return this.mDatabase.userCaseStatisticDao().getUserCaseStatistic(rangeStartMillis, rangeEndMillis);
     }
 
-    public LiveData<List<TaskData>> getSingleTasksByCategoryLiveData(long categoryID){
+    public LiveData<List<TaskData>> getSingleTasksByCategoryLiveData(String categoryID){
         return this.mDatabase.taskDao().getSingleTasksWithThemeLiveData(categoryID);
     }
 
-    public LiveData<List<TaskData>> getProjectTasksByCategoryLiveData(long categoryID){
+    public LiveData<List<TaskData>> getProjectTasksByCategoryLiveData(String categoryID){
         return this.mDatabase.taskDao().getProjectTasksWithThemeLiveData(categoryID);
     }
 
@@ -118,7 +136,7 @@ public class MemtaskRepositoryBase {
         return this.mDatabase.taskDao().getTaskLiveData(taskID);
     }
 
-    public LiveData<List<TaskAndTheme>> getTaskAndThemeByCategory(long categoryID){
+    public LiveData<List<TaskAndTheme>> getTaskAndThemeByCategory(String categoryID){
         return mTaskDao.getSingleTaskAndThemeByCategory(categoryID);
     }
 
@@ -210,7 +228,7 @@ public class MemtaskRepositoryBase {
         });
     }
 
-    public void removeCategoryByID (long id){
+    public void removeCategoryByID (String id){
         Database.databaseWriteExecutor.execute(() -> {
             mCategoryDao.delete(id);
         });
@@ -222,7 +240,7 @@ public class MemtaskRepositoryBase {
         });
     }
 
-    public void removeCategoryWithItems(long id){
+    public void removeCategoryWithItems(String id){
         Database.databaseWriteExecutor.execute(() -> {
             mCategoryDao.deleteWithItemsTransaction(id);
         });
@@ -253,11 +271,206 @@ public class MemtaskRepositoryBase {
         });
     }
 
-    public LiveData<List<TaskAndTheme>> getSingleTaskAndThemeByCategory(long categoryID) {
+    public LiveData<List<TaskAndTheme>> getSingleTaskAndThemeByCategory(String categoryID) {
         return mTaskDao.getSingleTaskAndThemeByCategory(categoryID);
     }
 
-    public LiveData<List<TaskAndTheme>> getSingleTaskAndThemeByCategoryByName(long categoryID, String name) {
+    public LiveData<List<TaskAndTheme>> getSingleTaskAndThemeByCategoryByName(String categoryID, String name) {
         return mTaskDao.getSingleTaskAndThemeByCategoryByName(categoryID, "%" + name + "%");
+    }
+
+    // SYNC GET GC DATA METH
+    public void synchronizeGCCalendars(Context context, LifecycleOwner lco){
+        if(!App.getSettings().isAccountSigned(context)){
+            return;
+        }
+
+        CalendarProvider calendarProvider = new CalendarProvider(context);
+        Pair<LiveData<CalendarList>, Calendar> result = calendarProvider.getCalendars();
+        result.first.observe(lco, new Observer<CalendarList>() {
+            @Override
+            public void onChanged(CalendarList calendarList) {
+                LiveData<List<Category>> syncItemsCategoriesLD = getCategorySyncing();
+                LiveData<List<Task>> syncItemsTasksLD = getTaskSyncing();
+
+                LiveData<Tuple2<List<Category>, List<Task>>> intermediate =
+                        LiveDataTransformations.ifNotNull(syncItemsCategoriesLD, syncItemsTasksLD);
+
+                AtomicBoolean syncLoop = new AtomicBoolean(false);
+
+                intermediate.observe(lco, new Observer<Tuple2<List<Category>, List<Task>>>() {
+                    @Override
+                    public void onChanged(Tuple2<List<Category>, List<Task>> data) {
+                        syncThread = new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                if(syncLoop.get() != true) {
+                                    Theme baseTheme = getThemeByName("MainTaskTheme");
+                                    calendars = new ArrayList<>(calendarList.getItems().size());
+                                    events = new ArrayList<>();
+                                    List<Category> dbInCats = new ArrayList<>(calendarList.getItems().size());
+                                    List<Task> dbInTasks = new ArrayList<>();
+
+                                    for (int i = 0; i < calendarList.getItems().size(); i++) {
+                                        CalendarListEntry le = calendarList.getItems().get(i);
+                                        AtomicBoolean ft = new AtomicBoolean(false);
+                                        final Events[] eventsWB = {null};
+                                        data.first.forEach(category -> {
+                                            if (le.getId().equals(category.getOuterID())) {
+                                                calendars.add(new OuterCalendar(le, category));
+                                                ft.set(true);
+                                            }
+                                        });
+                                        if (!ft.get()) {
+                                            calendars.add(new OuterCalendar((le)));
+                                        }
+                                        final int c = i;
+                                        Thread thrd = new Thread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                try {
+                                                    eventsWB[0] = result.second.events().list(le.getId()).execute();
+                                                } catch (IOException e) {
+                                                    e.printStackTrace();
+                                                }
+                                                List<Event> eventsList = eventsWB[0].getItems();
+                                                for(int j = 0; j < eventsList.size(); j++){
+                                                    AtomicBoolean fte = new AtomicBoolean(false);
+                                                    Event ev = eventsList.get(j);
+                                                    data.second.forEach(task -> {
+                                                        if(ev.getId().equals(task.getTaskId())){
+                                                            events.add(new OuterEvent(ev, task));
+                                                            calendars.get(c).addEvent(ev);
+                                                            fte.set(true);
+                                                        }
+                                                    });
+                                                    if(!fte.get()){
+                                                        events.add(new OuterEvent(ev, calendars.get(c).ct.getCategoryId(), baseTheme.getID()));
+                                                    }
+                                                    dbInTasks.add(events.get(events.size() - 1).ts);
+                                                }
+                                            }
+                                        });
+                                        thrd.start();
+                                        dbInCats.add(calendars.get(calendars.size() - 1).ct);
+                                        try {
+                                            thrd.join();
+                                        } catch (InterruptedException e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                    insertAndUpdateGCData(dbInCats, dbInTasks);
+                                    syncLoop.set(true);
+                                }
+                            }
+                        });
+                        syncThread.start();
+                    }
+                });
+            }
+        });
+    }
+
+    public List<Task> getAllTasks(){
+        return mSilentTaskDao.getAllTasks();
+    }
+
+    public LiveData<List<Category>> getCategorySyncing(){
+        return mCategoryDao.getAllSyncing();
+    }
+
+    public LiveData<List<Task>> getTaskSyncing(){
+        return mTaskDao.getAllSyncing();
+    }
+
+    public void insertCategories(List<Category> list){
+        Database.databaseWriteExecutor.execute(() -> {
+            mCategoryDao.insertList(list);
+        });
+    }
+
+    public void insertAndUpdate(List<Category> list){
+        Database.databaseWriteExecutor.execute(() -> {
+            mCategoryDao.insertListWithReplace(list);
+        });
+    }
+
+    public void insertAndUpdateGCData(List<Category> categories, List<Task> tasks){
+        Database.databaseWriteExecutor.execute(() -> {
+            mCategoryDao.setGCData(categories, tasks);
+        });
+    }
+
+    public Theme getThemeByName(String name){
+        return mSilentDatabase.themeDao().getByName(name);
+    }
+
+    class OuterCalendar{
+        public CalendarListEntry le;
+        public Category ct;
+        public boolean checked;
+        public List<Event> events;
+        public OuterCalendar(CalendarListEntry le, Category ct){
+            this.le = le;
+            this.ct = ct;
+            events = new ArrayList<>();
+            checked = false;
+            processMerge();
+        }
+        public OuterCalendar(CalendarListEntry le){
+            this.le = le;
+            this.ct = new Category();
+            events = new ArrayList<>();
+            checked = false;
+            processMerge();
+        }
+
+        public void processMerge(){
+            ct.setName(le.getSummary());
+            ct.setDescription(le.getDescription());
+            ct.setOuterID(le.getId());
+        }
+        public void addEvent(Event ev){
+            events.add(ev);
+        }
+    }
+    class OuterEvent{
+        public Event ev;
+        public Task ts;
+        public boolean checked;
+        public OuterEvent(Event ev, Task ts){
+            this.ev = ev;
+            this.ts = ts;
+            checked = false;
+            processMerge();
+        }
+        public OuterEvent(Event ev, String categoryID, String themeID){
+            this.ev = ev;
+            this.ts = new Task();
+            checked = false;
+            processMerge(categoryID, themeID);
+        }
+
+        public void processMerge(String categoryID, String themeID){
+            if(ev.getSummary() != null) {
+                ts.setName(ev.getSummary());
+            }
+            if(ev.getDescription() != null) {
+                ts.setDescription(ev.getDescription());
+            }
+            ts.setTaskId(ev.getId());
+            ts.setCategoryId(categoryID);
+            ts.setThemeID(themeID);
+        }
+
+        public void processMerge(){
+            if(ev.getSummary() != null) {
+                ts.setName(ev.getSummary());
+            }
+            if(ev.getDescription() != null) {
+                ts.setDescription(ev.getDescription());
+            }
+            ts.setTaskId(ev.getId());
+        }
     }
 }

@@ -54,10 +54,10 @@ public class ManageTaskViewModel extends MemtaskViewModelBase {
     int mMode;
     String mTaskID;
     String mParentID;
-    long mCategoryID;
+    String mCategoryID;
 
     public ManageTaskViewModel(Application application, Database database, SilentDatabase silentDatabase,
-                               int mode, String taskID, long categoryID, String parentID){
+                               int mode, String taskID, String categoryID, String parentID){
         mMode = mode;
         mCategoryID = categoryID;
         mParentID = parentID;
@@ -206,20 +206,20 @@ public class ManageTaskViewModel extends MemtaskViewModelBase {
             if(intermediateThemeAndCategory.getValue().second == null){
                 return "Список категорий пуст";
             }
-            long catID = 0;
+            String catID = "";
             if(isTaskMode()){
                 catID = mManagingTask.getCategoryId();
             }
             else if(isProjectMode()){
                 catID = mManagingProject.getCategoryId();
             }
-            if(catID == -1){
+            if(catID.equals("")){
                 return "";
             }
             else{
                 for(int i = 0; i < intermediateThemeAndCategory.getValue().second.size(); i++){
                     Category category = intermediateThemeAndCategory.getValue().second.get(i);
-                    if(category.getCategoryId() == catID){
+                    if(category.getCategoryId().equals(catID)){
                         return category.getName();
                     }
                 }

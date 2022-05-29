@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Query;
 
+import com.example.clock.model.Category;
 import com.example.clock.model.Task;
 import com.example.clock.model.TaskAndTheme;
 import com.example.clock.model.TaskData;
@@ -22,6 +23,9 @@ public abstract class TaskDao extends BaseDao<Task> {
     //@Query("SELECT * FROM task_table ORDER BY timeInMillis DESC")
     @Query("SELECT * FROM task_table ORDER by mName ASC")
     public abstract LiveData<List<Task>> getTasksLiveData();
+
+    @Query("SELECT * FROM task_table ORDER by mName ASC")
+    public abstract List<Task> getAllTasks();
 
     @Query("DELETE FROM task_table")
     public abstract int clear();
@@ -49,13 +53,13 @@ public abstract class TaskDao extends BaseDao<Task> {
     public abstract LiveData<TaskData> getTaskThemeLiveData(String taskID);
 
     @Query("SELECT task_table.*, theme_table.* FROM task_table LEFT JOIN theme_table ON task_table.mThemeID = theme_table.theme_ID WHERE task_table.categoryId = :categoryID")
-    public abstract LiveData<List<TaskData>> getTasksWithThemeByNotification(long categoryID);
+    public abstract LiveData<List<TaskData>> getTasksWithThemeByNotification(String categoryID);
 
     @Query("SELECT task_table.*, theme_table.* FROM task_table LEFT JOIN theme_table ON task_table.mThemeID = theme_table.theme_ID WHERE task_table.categoryId = :categoryID AND task_table.mParentID = ''")
-    public abstract LiveData<List<TaskData>> getSingleTasksWithThemeLiveData(long categoryID);
+    public abstract LiveData<List<TaskData>> getSingleTasksWithThemeLiveData(String categoryID);
 
     @Query("SELECT task_table.*, theme_table.* FROM task_table LEFT JOIN theme_table ON task_table.mThemeID = theme_table.theme_ID WHERE task_table.categoryId = :categoryID AND task_table.mParentID != '' ORDER BY task_table.timeCreated DESC")
-    public abstract LiveData<List<TaskData>> getProjectTasksWithThemeLiveData(long categoryID);
+    public abstract LiveData<List<TaskData>> getProjectTasksWithThemeLiveData(String categoryID);
 
     @TestOnly
     @Query("SELECT task_table.*, theme_table.* FROM task_table LEFT JOIN theme_table ON task_table.mThemeID = theme_table.theme_ID WHERE task_table.categoryId = :catID")
@@ -67,16 +71,19 @@ public abstract class TaskDao extends BaseDao<Task> {
     public abstract Task getTask(String id);
 
     @Query("SELECT * FROM task_table WHERE (task_table.mParentID IS NULL OR task_table.mParentID = '') AND task_table.categoryId = :categoryID")
-    public abstract LiveData<List<TaskAndTheme>> getSingleTaskAndThemeByCategory(long categoryID);
+    public abstract LiveData<List<TaskAndTheme>> getSingleTaskAndThemeByCategory(String categoryID);
 
     @Query("SELECT * FROM task_table WHERE task_table.mParentID IS NULL")
     public abstract List<TaskAndTheme> getSingleTaskAndThemeByCategoryTEST();
 
     @Query("SELECT * FROM task_table WHERE (task_table.mParentID IS NULL OR task_table.mParentID = '') AND task_table.categoryId = :categoryID AND task_table.mName LIKE :nameRegex")
-    public abstract LiveData<List<TaskAndTheme>> getSingleTaskAndThemeByCategoryByName(long categoryID, String nameRegex);
+    public abstract LiveData<List<TaskAndTheme>> getSingleTaskAndThemeByCategoryByName(String categoryID, String nameRegex);
 
     @Query("SELECT * FROM task_table"
             + " WHERE task_table.startTime > 0 AND NOT task_table.notificationEnabled AND task_table.startTime <= :startMillis AND task_table.endTime >= :startMillis"
             + " ORDER BY task_table.mImportance ASC")
     public abstract List<TaskNotificationData> getTasksNotificationData(long startMillis);
+
+    @Query("SELECT * FROM task_table WHERE (task_table.syncing = 1)")
+    public abstract LiveData<List<Task>> getAllSyncing();
 }

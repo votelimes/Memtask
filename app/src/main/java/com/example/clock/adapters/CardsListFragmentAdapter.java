@@ -1,5 +1,6 @@
 package com.example.clock.adapters;
 
+import android.Manifest;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -9,7 +10,9 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.Image;
 import android.net.Uri;
+import android.os.Parcelable;
 import android.os.SystemClock;
+import android.provider.ContactsContract;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -24,6 +27,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.LinearSmoothScroller;
@@ -42,6 +46,10 @@ import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
 import com.mikhaellopez.circularprogressbar.CircularProgressBar;
+import com.onegravity.contactpicker.contact.ContactDescription;
+import com.onegravity.contactpicker.contact.ContactSortOrder;
+import com.onegravity.contactpicker.core.ContactPickerActivity;
+import com.onegravity.contactpicker.picture.ContactPictureType;
 import com.pedromassango.doubleclick.DoubleClick;
 import com.pedromassango.doubleclick.DoubleClickListener;
 import com.squareup.picasso.Callback;
@@ -51,6 +59,8 @@ import com.squareup.picasso.Target;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.io.Serializable;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
@@ -68,6 +78,7 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
     private final RecyclerView.LayoutManager mLayoutManager;
     private int mAddedOutside = -1;
     private Snackbar mItemHasBeenDeletedSnack;
+    public String mContactsTaskID;
 
     RecyclerView.SmoothScroller smoothScroller;
 
@@ -320,7 +331,24 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
                                             resultLauncher.launch(intent);
                                             break;
                                         case 2: // Контакты
-
+                                            List<Long> cid = mViewModel
+                                                    .getSingleTaskObs(viewHolder.getAbsoluteAdapterPosition())
+                                                    .getTask()
+                                                    .getContactsCollection();
+                                            Intent intentCont = new Intent(view.getContext(), ContactPickerActivity.class)
+                                                    //.putExtra(ContactPickerActivity.EXTRA_THEME, App.getSettings().getUseDarkTheme() ? R.style.Theme_Dark : R.style.Theme_Light)
+                                                    .putExtra(ContactPickerActivity.EXTRA_CONTACT_BADGE_TYPE, ContactPictureType.ROUND.name())
+                                                    .putExtra(ContactPickerActivity.EXTRA_SHOW_CHECK_ALL, true)
+                                                    .putExtra(ContactPickerActivity.EXTRA_CONTACT_DESCRIPTION, ContactDescription.ADDRESS.name())
+                                                    .putExtra(ContactPickerActivity.EXTRA_CONTACT_DESCRIPTION_TYPE, ContactsContract.CommonDataKinds.Email.TYPE_WORK)
+                                                    .putExtra(ContactPickerActivity.EXTRA_CONTACT_SORT_ORDER, ContactSortOrder.AUTOMATIC.name());
+                                            if(cid != null && cid.size() != 0){
+                                                intentCont.putExtra(ContactPickerActivity.EXTRA_PRESELECTED_CONTACTS, (Serializable) cid);
+                                            }
+                                            mViewModel.prepareContactsDialog(1, mViewModel
+                                                    .getSingleTaskObs(viewHolder.getAbsoluteAdapterPosition())
+                                                    .getTask().getTaskId());
+                                            resultLauncher.launch(intentCont);
                                             break;
                                         case 3: // Адреса
                                             Intent intentMap = new Intent(view.getContext(), MapActivity.class);
@@ -386,6 +414,12 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
                 String uriString = viewHolder.getBinding().getData().getImage();
                 if(uriString != null && uriString.length() != 0){
                     Uri uri = Uri.parse(uriString);
+
+                    int width = viewHolder.getMainLayout().getWidth();
+                    int height = viewHolder.getMainLayout().getHeight();
+                    Picasso.get()
+                            .load(uri)
+                            .into(viewHolder.getBgImage());
 
                     viewHolder.getMainLayout()
                             .getViewTreeObserver()
@@ -642,4 +676,7 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
     public static float convertDpToPixel(float dp, Context context){
         return dp * ((float) context.getResources().getDisplayMetrics().densityDpi / DisplayMetrics.DENSITY_DEFAULT);
     }
+
+
+
 }

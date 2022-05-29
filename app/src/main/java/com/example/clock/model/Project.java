@@ -27,10 +27,10 @@ public class Project extends UserCaseBase {
     public Project(){
         super();
         this.projectId = generateUUID();
-        this.categoryId = -1;
+        this.categoryId = "";
     }
 
-    public Project(String name, String description, long categoryID){
+    public Project(String name, String description, String categoryID){
         super();
         this.projectId = generateUUID();
         this.mName = name;

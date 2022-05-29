@@ -6,14 +6,17 @@ import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
 import java.io.Serializable;
+import java.util.UUID;
 
 @Entity(tableName = "category_table")
 public class Category implements Serializable {
 
-    @PrimaryKey(autoGenerate = true)
+    @PrimaryKey()
     @NonNull
     @ColumnInfo(name = "categoryId")
-    private long mCategoryId;
+    private String mCategoryId;
+
+    private String mOuterID;
 
     @ColumnInfo(name = "categoryName")
     private String mName;
@@ -28,28 +31,30 @@ public class Category implements Serializable {
 
 
     public Category(){
-        mCategoryId = 0;
+        mCategoryId = UUID.randomUUID().toString();
         mName = "New list";
         //mDescription = "";
         mType = "FIELD";
         mFirstColor = Integer.parseInt("FFFFFF", 16);
         mDescription = "";
         mThemeID = "";
+        mOuterID = "";
     }
 
     public Category(@NonNull String name, @NonNull String type){
-        mCategoryId = 0;
+        mCategoryId = UUID.randomUUID().toString();
         mName = name;
         mType = type;
         mFirstColor = Integer.parseInt("FFFFFF", 16);
         mDescription = "";
         mThemeID = "";
+        mOuterID = "";
     }
 
     public Category(@NonNull String name,
                     @NonNull String description,
                     @NonNull String type){
-        mCategoryId = 0;
+        mCategoryId = UUID.randomUUID().toString();
         mName = name;
         mType = type;
         mDescription = description;
@@ -57,14 +62,19 @@ public class Category implements Serializable {
         mFirstColor = 0;
         mSecondColor = 0;
         mThemeID = "";
+        mOuterID = "";
     }
 
-    public long getCategoryId() {
+    public String getCategoryId() {
         return mCategoryId;
     }
 
-    public void setCategoryId(long mCategoryId) {
+    public void setCategoryId(String mCategoryId) {
         this.mCategoryId = mCategoryId;
+    }
+
+    public void regenerateID(){
+        this.mCategoryId = UUID.randomUUID().toString();
     }
 
     public String getName() {
@@ -119,5 +129,13 @@ public class Category implements Serializable {
         setFirstColor(theme.getFirstColor());
         setSecondColor(theme.getSecondColor());
         setThemeID(theme.getID());
+    }
+
+    public String getOuterID() {
+        return mOuterID;
+    }
+
+    public void setOuterID(String mOuterID) {
+        this.mOuterID = mOuterID;
     }
 }

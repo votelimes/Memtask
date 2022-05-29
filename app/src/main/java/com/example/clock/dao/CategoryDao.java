@@ -2,10 +2,13 @@ package com.example.clock.dao;
 
 import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
+import androidx.room.Insert;
+import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 import androidx.room.Transaction;
 
 import com.example.clock.model.Category;
+import com.example.clock.model.Task;
 
 import org.jetbrains.annotations.TestOnly;
 
@@ -15,6 +18,9 @@ import java.util.List;
 public abstract class CategoryDao extends BaseDao<Category>{
     @Query("SELECT * FROM category_table")
     public abstract List<Category> getAll();
+
+    @Query("SELECT * FROM category_table WHERE (category_table.mOuterID != NULL AND category_table.mOuterID != '')")
+    public abstract LiveData<List<Category>> getAllSyncing();
 
     @Query("SELECT * FROM category_table ORDER BY categoryName ASC")
     public abstract LiveData<List<Category>> getCategoriesLiveData();
@@ -27,14 +33,22 @@ public abstract class CategoryDao extends BaseDao<Category>{
     public abstract int clear();
 
     @Query("DELETE FROM category_table WHERE categoryId = :id")
-    public abstract void delete(long id);
+    public abstract void delete(String id);
 
     @Query("DELETE FROM task_table WHERE categoryId = :id")
-    public abstract void deleteTasksByID(long id);
+    public abstract void deleteTasksByID(String id);
 
     @Transaction
-    public void deleteWithItemsTransaction(long id){
+    public void deleteWithItemsTransaction(String id){
         delete(id);
         deleteTasksByID(id);
     }
+
+
+    public void setGCData(List<Category> categories, List<Task> tasks){
+        insertListWithReplace(categories);
+        insertTaskWithReplace(tasks);
+    }
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    protected abstract void insertTaskWithReplace(List<Task> list);
 }

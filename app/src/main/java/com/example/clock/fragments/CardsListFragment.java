@@ -1,5 +1,7 @@
 package com.example.clock.fragments;
 
+import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -35,6 +37,9 @@ import com.example.clock.viewmodels.ViewModelFactoryBase;
 import com.github.clans.fab.FloatingActionButton;
 import com.github.clans.fab.FloatingActionMenu;
 import com.google.android.material.appbar.MaterialToolbar;
+import com.onegravity.contactpicker.contact.Contact;
+import com.onegravity.contactpicker.core.ContactPickerActivity;
+import com.onegravity.contactpicker.group.Group;
 
 import java.util.List;
 
@@ -59,8 +64,32 @@ public class CardsListFragment extends Fragment implements SearchView.OnQueryTex
                 else if(result.getResultCode() == 30){
                     Toast.makeText(getActivity(), "Проект создан", Toast.LENGTH_SHORT).show();
                 }
-                else{
-                    Toast.makeText(getActivity(), "Изменения отменены", Toast.LENGTH_SHORT).show();
+                if(result.getData() != null && result.getData().hasExtra(ContactPickerActivity.RESULT_CONTACT_DATA)){
+
+                    List<Contact> contacts = (List<Contact>) result
+                            .getData()
+                            .getSerializableExtra(ContactPickerActivity.RESULT_CONTACT_DATA);
+                    String contactsList = "";
+
+                    if(contacts != null) {
+                        for (int i = 0; i < contacts.size(); i++) {
+                            contactsList = contactsList + String.valueOf(contacts.get(i).getId());
+                            if (i != contacts.size() - 1) {
+                                contactsList = contactsList + "";
+                            }
+                        }
+                        if(contactsList.length() != 0){
+                            mViewModel.putContacts(contactsList);
+                        }
+                    }
+
+                    /*// process groups
+                    List<Group> groups = (List<Group>) result
+                            .getData()
+                            .getSerializableExtra(ContactPickerActivity.RESULT_GROUP_DATA);
+                    for (Group group : groups) {
+                        // process the groups...
+                    }*/
                 }
             });
 
