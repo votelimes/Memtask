@@ -3,7 +3,9 @@ package com.example.clock.adapters;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.Typeface;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.text.style.RelativeSizeSpan;
@@ -22,6 +24,7 @@ import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.LinearSmoothScroller;
@@ -50,6 +53,7 @@ import com.prolificinteractive.materialcalendarview.OnMonthChangedListener;
 import com.prolificinteractive.materialcalendarview.OnRangeSelectedListener;
 import com.prolificinteractive.materialcalendarview.spans.DotSpan;
 import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 
 import org.threeten.bp.LocalDate;
 
@@ -62,7 +66,6 @@ public class CalendarFragmentAdapter extends RecyclerView.Adapter<RecyclerView.V
     private static final int VIEW_TYPE_TASK = 1;
     private static final int VIEW_TYPE_CALENDAR = 2;
 
-    private Date selectedDay;
     private final ActivityResultLauncher<Intent> resultLauncher;
     private final CalendarViewModel mViewModel;
     private MaterialCalendarView calendar;
@@ -74,9 +77,10 @@ public class CalendarFragmentAdapter extends RecyclerView.Adapter<RecyclerView.V
     private RecyclerView.SmoothScroller smoothScroller;
     private final RecyclerView.LayoutManager mLayoutManager;
 
-    public static class TaskViewHolder extends RecyclerView.ViewHolder {
+    public static class TaskViewHolder extends RecyclerView.ViewHolder implements View.OnLayoutChangeListener{
         private final CalendarTaskBinding binding;
         private final MaterialCardView mainLayout;
+        private final ConstraintLayout mainConstraint;
 
         private final TextView range;
         private final ImageView important;
@@ -88,14 +92,31 @@ public class CalendarFragmentAdapter extends RecyclerView.Adapter<RecyclerView.V
         private final EditText description;
         private final ImageView alarmImage;
         private final TextView alarmTime;
-        private final ImageView  bgImage;
+
+        private Uri imageUri = null;
+        private Target target = new Target() {
+            @Override
+            public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                mainConstraint.setBackground(new BitmapDrawable(bitmap));
+            }
+
+            @Override
+            public void onBitmapFailed(Exception e, Drawable errorDrawable) {
+
+            }
+
+            @Override
+            public void onPrepareLoad(Drawable placeHolderDrawable) {
+
+            }
+        };
 
         public TaskViewHolder(CalendarTaskBinding binding) {
             super(binding.getRoot());
             this.binding = binding;
             View view = binding.getRoot();
-
             mainLayout = (MaterialCardView) view.findViewById(R.id.task_top_layout);
+            mainConstraint = (ConstraintLayout) view.findViewById(R.id.main_constraint);
             range = (TextView) view.findViewById(R.id.task_range);
             important = (ImageView) view.findViewById(R.id.task_important);
             categoryLayout = (LinearLayout) view.findViewById(R.id.task_category_layout);
@@ -105,7 +126,6 @@ public class CalendarFragmentAdapter extends RecyclerView.Adapter<RecyclerView.V
             description = (EditText) view.findViewById(R.id.task_description);
             alarmImage = (ImageView) view.findViewById(R.id.task_alarm_image);
             alarmTime = (TextView) view.findViewById(R.id.task_alarm_time);
-            bgImage = (ImageView) view.findViewById(R.id.bg_image);
         }
 
         public void bind(CalendarViewModel vm, CalendarViewModel.TaskObserver data){
@@ -154,8 +174,25 @@ public class CalendarFragmentAdapter extends RecyclerView.Adapter<RecyclerView.V
             return alarmTime;
         }
 
-        public ImageView getBgImage(){
-            return bgImage;
+        public void setImageUri(Uri imageUri) {
+            this.imageUri = imageUri;
+        }
+
+        @Override
+        public void onLayoutChange(View view,
+                                   int left, int top, int right, int bottom,
+                                   int leftWas, int topWas, int rightWas, int bottomWas) {
+            Picasso.get()
+                    .load(imageUri)
+                    .into(target);
+        }
+
+        public void bindLayoutChange(){
+            mainLayout.addOnLayoutChangeListener(this);
+        }
+
+        public ConstraintLayout getMainConstraint() {
+            return mainConstraint;
         }
     }
 
@@ -420,7 +457,7 @@ public class CalendarFragmentAdapter extends RecyclerView.Adapter<RecyclerView.V
             TaskViewHolder viewHolder = (TaskViewHolder) currentViewHolder;
 
             viewHolder.bind(mViewModel, taskObs);
-            viewHolder.getMainLayout().setOnLongClickListener(new View.OnLongClickListener() {
+            viewHolder.getMainConstraint().setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View view) {
                     MaterialAlertDialogBuilder taskOptionsDialog = new MaterialAlertDialogBuilder(view.getContext())
@@ -454,13 +491,12 @@ public class CalendarFragmentAdapter extends RecyclerView.Adapter<RecyclerView.V
                     return true;
                 }
             });
-            viewHolder.getMainLayout().setOnClickListener(new DoubleClick(new DoubleClickListener() {
+            viewHolder.getMainConstraint().setOnClickListener(new DoubleClick(new DoubleClickListener() {
                 @Override
                 public void onSingleClick(View view) {
-                    MaterialCardView card = (MaterialCardView) view;
-                    card.toggle();
-                    viewHolder.getBinding().getData().setCompleted(card.isChecked());
-                    viewHolder.getBinding().getData().setNotificationEnabled(view.getContext(), !card.isChecked());
+                    viewHolder.getMainLayout().toggle();
+                    viewHolder.getBinding().getData().setCompleted(viewHolder.getMainLayout().isChecked());
+                    viewHolder.getBinding().getData().setNotificationEnabled(view.getContext(), !viewHolder.getMainLayout().isChecked());
                 }
 
                 @Override
@@ -502,28 +538,11 @@ public class CalendarFragmentAdapter extends RecyclerView.Adapter<RecyclerView.V
 
                 String uriString = viewHolder.getBinding().getData().getImage();
                 if(uriString != null && uriString.length() != 0){
-                    viewHolder.getMainLayout()
-                            .getViewTreeObserver()
-                            .addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-                                @Override
-                                public void onGlobalLayout() {
-                                    String uriImage = viewHolder.getBinding().getData().getImage();
-                                    if(uriImage == null
-                                    || uriImage.length() == 0){
-                                        return;
-                                    }
-                                    int width = viewHolder.getMainLayout().getWidth();
-                                    int height = viewHolder.getMainLayout().getHeight();
-                                    Uri uri = Uri.parse(uriImage);
-                                    Picasso.get()
-                                            .load(uri)
-                                            .resize(width, height)
-                                            .into(viewHolder.getBgImage());
-                                }
-                            });
-                }
-                else {
-                    viewHolder.getBgImage().setImageDrawable(null);
+                    if(uriString != null && uriString.length() != 0){
+                        Uri uri = Uri.parse(uriString);
+                        viewHolder.setImageUri(uri);
+                        viewHolder.bindLayoutChange();
+                    }
                 }
             }
         }

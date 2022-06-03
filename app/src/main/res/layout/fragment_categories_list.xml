@@ -38,6 +38,9 @@
             android:clipToPadding="false"
             android:paddingTop="15dp"
             android:paddingBottom="24dp"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:clickable="true"
             />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

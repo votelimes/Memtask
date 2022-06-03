@@ -507,6 +507,14 @@ public class ManageTaskViewModel extends MemtaskViewModelBase {
         }
 
         @Bindable
+        public boolean getTaskGeneralNotificationState(){
+            if(isTaskMode() == false){
+                return false;
+            }
+            return mManagingTask.isGeneralNotificationEnabled();
+        }
+
+        @Bindable
         public String getTaskNotificationString(){
             long notificationSeconds = 0;
 
@@ -531,6 +539,11 @@ public class ManageTaskViewModel extends MemtaskViewModelBase {
         public void setTaskNotificationState(boolean isEnabled){
             mManagingTask.setNotificationEnabled(isEnabled);
             notifyPropertyChanged(BR.taskNotificationState);
+        }
+
+        public void setTaskGeneralNotificationState(boolean isEnabled){
+            mManagingTask.setGeneralNotificationEnabled(isEnabled);
+            notifyPropertyChanged(BR.taskGeneralNotificationState);
         }
 
         public void setTaskNotificationMillis(long millis){

@@ -13,9 +13,12 @@ import android.net.Uri;
 import android.os.Parcelable;
 import android.os.SystemClock;
 import android.provider.ContactsContract;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
@@ -28,6 +31,7 @@ import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.LinearSmoothScroller;
@@ -82,9 +86,11 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
 
     RecyclerView.SmoothScroller smoothScroller;
 
-    public static class TaskViewHolder extends RecyclerView.ViewHolder {
+    public static class TaskViewHolder extends RecyclerView.ViewHolder implements View.OnLayoutChangeListener {
         private final CategoryTaskBinding binding;
         private final MaterialCardView mainLayout;
+
+        private final ConstraintLayout mainConstraint;
 
         private final TextView range;
         private final ImageView important;
@@ -94,14 +100,30 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
         private final EditText description;
         private final ImageView alarmImage;
         private final TextView alarmTime;
-        private final ImageView bgImage;
+        private Uri imageUri = null;
+        private Target target = new Target() {
+            @Override
+            public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                mainConstraint.setBackground(new BitmapDrawable(bitmap));
+            }
+
+            @Override
+            public void onBitmapFailed(Exception e, Drawable errorDrawable) {
+
+            }
+
+            @Override
+            public void onPrepareLoad(Drawable placeHolderDrawable) {
+
+            }
+        };
 
         public TaskViewHolder(CategoryTaskBinding binding) {
             super(binding.getRoot());
             this.binding = binding;
             View view = binding.getRoot();
-
             mainLayout = (MaterialCardView) view.findViewById(R.id.task_top_layout);
+            mainConstraint = (ConstraintLayout) view.findViewById(R.id.main_constraint);
             range = (TextView) view.findViewById(R.id.task_range);
             important = (ImageView) view.findViewById(R.id.task_important);
             categoryLayout = (LinearLayout) view.findViewById(R.id.task_category_layout);
@@ -110,7 +132,12 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
             description = (EditText) view.findViewById(R.id.task_description);
             alarmImage = (ImageView) view.findViewById(R.id.task_alarm_image);
             alarmTime = (TextView) view.findViewById(R.id.task_alarm_time);
-            bgImage = (ImageView) view.findViewById(R.id.bg_image);
+            mainConstraint.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Log.d("", "");
+                }
+            });
         }
 
         public void bind(CategoryActivitiesViewModel vm, CategoryActivitiesViewModel.TaskObserver data){
@@ -159,12 +186,32 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
             return alarmTime;
         }
 
-        public ImageView getBgImage(){
-            return bgImage;
+        public Uri getImageUri() {
+            return imageUri;
+        }
+
+        public void setImageUri(Uri imageUri) {
+            this.imageUri = imageUri;
+        }
+
+        @Override
+        public void onLayoutChange(View view,
+                                   int left, int top, int right, int bottom,
+                                   int leftWas, int topWas, int rightWas, int bottomWas) {
+            Picasso.get()
+                    .load(imageUri)
+                    .into(target);
+        }
+
+        public void bindLayoutChange(){
+            mainLayout.addOnLayoutChangeListener(this);
+        }
+
+        public ConstraintLayout getMainConstraint() {
+            return mainConstraint;
         }
     }
-
-    public static class ProjectViewHolder extends RecyclerView.ViewHolder{
+    public static class ProjectViewHolder extends RecyclerView.ViewHolder  implements View.OnLayoutChangeListener {
 
         private final MaterialCardView mainLayout;
 
@@ -173,13 +220,31 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
         private final TextView progressText;
         private final CircularProgressBar progressBar;
 
+        private final ConstraintLayout mainConstraint;
+
         private final CategoryProjectBinding binding;
         private final RecyclerView.LayoutManager mLayoutManager;
 
         private final RecyclerView recyclerView;
 
         private ProjectAdapter mAdapter;
-        private final ImageView bgImage;
+        private Uri imageUri = null;
+        private Target target = new Target() {
+            @Override
+            public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                mainConstraint.setBackground(new BitmapDrawable(bitmap));
+            }
+
+            @Override
+            public void onBitmapFailed(Exception e, Drawable errorDrawable) {
+
+            }
+
+            @Override
+            public void onPrepareLoad(Drawable placeHolderDrawable) {
+
+            }
+        };
 
         public ProjectViewHolder(CategoryProjectBinding binding) {
             super(binding.getRoot());
@@ -188,6 +253,8 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
             View view = binding.getRoot();
 
             mainLayout = (MaterialCardView) view.findViewById(R.id.project2_top_layout);
+
+            mainConstraint = (ConstraintLayout) view.findViewById(R.id.main_constraint);
 
             name = (EditText) view.findViewById(R.id.project2_name);
 
@@ -203,8 +270,6 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
                     LinearLayoutManager.HORIZONTAL, false);
 
             recyclerView.setLayoutManager(mLayoutManager);
-
-            bgImage = (ImageView) view.findViewById(R.id.bg_image);
         }
 
         public void bind(CategoryActivitiesViewModel vm, CategoryActivitiesViewModel.ProjectObserver projObs){
@@ -254,8 +319,29 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
             return recyclerView;
         }
 
-        public ImageView getBgImage(){
-            return bgImage;
+        public Uri getImageUri() {
+            return imageUri;
+        }
+
+        public void setImageUri(Uri imageUri) {
+            this.imageUri = imageUri;
+        }
+
+        @Override
+        public void onLayoutChange(View view,
+                                   int left, int top, int right, int bottom,
+                                   int leftWas, int topWas, int rightWas, int bottomWas) {
+            Picasso.get()
+                    .load(imageUri)
+                    .into(target);
+        }
+
+        public void bindLayoutChange(){
+            mainLayout.addOnLayoutChangeListener(this);
+        }
+
+        public ConstraintLayout getMainConstraint() {
+            return mainConstraint;
         }
     }
 
@@ -304,14 +390,13 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
     // Replace the contents of a view (invoked by the layout manager)
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder currentViewHolder, final int position) {
-
         if(getItemViewType(position) == VIEW_TYPE_TASK) {
 
             CategoryActivitiesViewModel.TaskObserver taskObs = mViewModel.getSingleTaskObs(position);
             TaskViewHolder viewHolder = (TaskViewHolder) currentViewHolder;
 
             viewHolder.bind(mViewModel, mViewModel.getSingleTaskObs(position));
-            viewHolder.getMainLayout().setOnLongClickListener(new View.OnLongClickListener() {
+            viewHolder.getMainConstraint().setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View view) {
                     MaterialAlertDialogBuilder taskOptionsDialog = new MaterialAlertDialogBuilder(view.getContext())
@@ -366,12 +451,12 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
                 }
             });
 
-            viewHolder.getMainLayout().setOnClickListener(new DoubleClick(new DoubleClickListener() {
+            viewHolder.getMainConstraint().setOnClickListener(new DoubleClick(new DoubleClickListener() {
                 @Override
                 public void onSingleClick(View view) {
-                    MaterialCardView card = (MaterialCardView) view;
-                    card.toggle();
-                    taskObs.setCompletedOrExpired(card.isChecked());
+                    viewHolder.getMainLayout().toggle();
+
+                    taskObs.setCompletedOrExpired(viewHolder.getMainLayout().isChecked());
                 }
 
                 @Override
@@ -397,6 +482,7 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
 
             //Colors binding
             Theme theme = mViewModel.getItemTheme(position);
+
             if(theme != null) {
                 viewHolder.getMainLayout().setCardBackgroundColor(theme.getFirstColor());
                 viewHolder.getCategoryLayout().getBackground().setTint(theme.getSecondColor());
@@ -414,33 +500,15 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
                 String uriString = viewHolder.getBinding().getData().getImage();
                 if(uriString != null && uriString.length() != 0){
                     Uri uri = Uri.parse(uriString);
-
-                    int width = viewHolder.getMainLayout().getWidth();
-                    int height = viewHolder.getMainLayout().getHeight();
-                    Picasso.get()
-                            .load(uri)
-                            .into(viewHolder.getBgImage());
-
-                    viewHolder.getMainLayout()
-                            .getViewTreeObserver()
-                            .addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-                                @Override
-                                public void onGlobalLayout() {
-                                    int width = viewHolder.getMainLayout().getWidth();
-                                    int height = viewHolder.getMainLayout().getHeight();
-
-                                    Picasso.get()
-                                            .load(uri)
-                                            .resize(width, height)
-                                            .into(viewHolder.getBgImage());
-                                }
-                            });
+                    viewHolder.setImageUri(uri);
+                    viewHolder.bindLayoutChange();
                 }
             }
             if(mAddedOutside != -1 && mAddedOutside == viewHolder.getAbsoluteAdapterPosition()) {
                 viewHolder.getName().requestFocus();
                 InputMethodManager imm = (InputMethodManager) App.getInstance().getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
+                mAddedOutside = -1;
             }
         }
         else if(getItemViewType(position) == VIEW_TYPE_PROJECT){
@@ -450,7 +518,7 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
 
             viewHolder.bind(mViewModel,projectObs);
 
-            viewHolder.getMainLayout().setOnLongClickListener(new View.OnLongClickListener() {
+            viewHolder.getMainConstraint().setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View view) {
                     MaterialAlertDialogBuilder taskOptionsDialog = new MaterialAlertDialogBuilder(view.getContext())
@@ -461,9 +529,8 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
                                     switch (i) {
                                         case 0:
                                             mViewModel.addProjectChild(viewHolder.getAbsoluteAdapterPosition());
-                                            notifyItemChanged(viewHolder.getAbsoluteAdapterPosition());
-                                            viewHolder.getAdapter().scrollTo(viewHolder.mAdapter.getItemCount());
                                             viewHolder.getAdapter().setAddedOutside(viewHolder.getAbsoluteAdapterPosition());
+                                            notifyItemChanged(viewHolder.getAbsoluteAdapterPosition());
                                             break;
 
                                         case 1: // Изменить
@@ -484,7 +551,7 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
                     return true;
                 }
             });
-            viewHolder.getMainLayout().setOnClickListener(new DoubleClick(new DoubleClickListener() {
+            viewHolder.getMainConstraint().setOnClickListener(new DoubleClick(new DoubleClickListener() {
                 @Override
                 public void onSingleClick(View v) {
 
@@ -514,28 +581,24 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
                 String uriString = viewHolder.getBinding().getData().getImage();
                 if(uriString != null && uriString.length() != 0){
                     Uri uri = Uri.parse(uriString);
-
-                    viewHolder.getMainLayout()
-                            .getViewTreeObserver()
-                            .addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-                                @Override
-                                public void onGlobalLayout() {
-                                    int width = viewHolder.getMainLayout().getWidth();
-                                    int height = viewHolder.getMainLayout().getHeight();
-
-                                    Picasso.get()
-                                            .load(uri)
-                                            .resize(width, height)
-                                            .into(viewHolder.getBgImage());
-                                }
-                            });
+                    viewHolder.setImageUri(uri);
+                    viewHolder.bindLayoutChange();
                 }
             }
 
-            ProjectAdapter adapter = new ProjectAdapter(resultLauncher, mViewModel, currentViewHolder.getAbsoluteAdapterPosition(),
+            ProjectAdapter adapter = new ProjectAdapter(resultLauncher, mViewModel, viewHolder,
                     rootView, viewHolder.getLayoutManager(), CardsListFragmentAdapter.this);
 
             viewHolder.setAdapter(adapter);
+            viewHolder.getRecyclerView().setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View view, MotionEvent motionEvent) {
+                    InputMethodManager imm = (InputMethodManager) view.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+                    rootView.requestFocus();
+                    return false;
+                }
+            });
 
             if(mAddedOutside != -1 && mAddedOutside == viewHolder.getAbsoluteAdapterPosition()) {
                 viewHolder.getName().requestFocus();
@@ -676,7 +739,6 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
     public static float convertDpToPixel(float dp, Context context){
         return dp * ((float) context.getResources().getDisplayMetrics().densityDpi / DisplayMetrics.DENSITY_DEFAULT);
     }
-
 
 
 }

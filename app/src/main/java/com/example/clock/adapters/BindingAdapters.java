@@ -15,10 +15,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.appcompat.content.res.AppCompatResources;
+import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.util.Pair;
 import androidx.databinding.BindingAdapter;
 
 import com.example.clock.R;
+import com.example.clock.app.App;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
@@ -140,4 +142,26 @@ public class BindingAdapters {
         }
     }
 
+    @BindingAdapter("android:imageChecked")
+    public static void imageViewChecker(ImageView view, Pair<Integer, Integer> data){
+        switch (data.first){
+            case 0:
+                view.setVisibility(View.GONE);
+                break;
+            case 1:
+                view.setVisibility(View.VISIBLE);
+                Drawable unwrappedDrawable = AppCompatResources.getDrawable(view.getContext(), R.drawable.ic_round_check_circle_outline_24);
+                Drawable wrappedDrawable = DrawableCompat.wrap(unwrappedDrawable);
+                DrawableCompat.setTint(wrappedDrawable, data.second);
+                view.setImageDrawable(wrappedDrawable);
+                break;
+            case 2:
+                view.setVisibility(View.VISIBLE);
+                Drawable unwrappedDrawable2 = AppCompatResources.getDrawable(view.getContext(), R.drawable.ic_round_remove_circle_outline_24);
+                Drawable wrappedDrawable2 = DrawableCompat.wrap(unwrappedDrawable2);
+                DrawableCompat.setTint(wrappedDrawable2, data.second);
+                view.setImageDrawable(wrappedDrawable2);
+                break;
+        }
+    }
 }

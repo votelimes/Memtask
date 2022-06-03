@@ -216,6 +216,16 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/manage_task_layout_duration"
                     />
+                <com.google.android.material.checkbox.MaterialCheckBox
+                    android:id="@+id/manage_task_general_notify_enabled"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="190dp"
+                    android:text="Общие уведомления"
+                    android:checked="@={viewmodel.mManagingTaskRepository.taskGeneralNotificationState}"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/manage_task_layout_duration"
+                    />
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/manage_task_layout_notify"
                     android:layout_width="match_parent"

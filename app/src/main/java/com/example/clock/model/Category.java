@@ -29,6 +29,8 @@ public class Category implements Serializable {
 
     private String mThemeID;
 
+    private boolean outer;
+
 
     public Category(){
         mCategoryId = UUID.randomUUID().toString();
@@ -137,5 +139,13 @@ public class Category implements Serializable {
 
     public void setOuterID(String mOuterID) {
         this.mOuterID = mOuterID;
+    }
+
+    public boolean isOuter() {
+        return outer;
+    }
+
+    public void setOuter(boolean outer) {
+        this.outer = outer;
     }
 }

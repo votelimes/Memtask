@@ -382,6 +382,19 @@ public class CalendarViewModel extends MemtaskViewModelBase{
             return data.task.isCompleted() || data.task.isExpired();
         }
 
+        @Bindable
+        public Pair<Integer, Integer> getCompletenessData(){
+            int completeness = 0;
+            if(data.task.isCompleted()){
+                completeness = 1;
+            }
+            else if(data.task.isExpired()){
+                completeness = 2;
+            }
+            int color = data.theme.getSecondColor();
+            return new Pair<>(completeness, color);
+        }
+
         public TaskData getData(){
             return data;
         }
@@ -485,6 +498,8 @@ public class CalendarViewModel extends MemtaskViewModelBase{
             }
             addTaskSilently(data.task);
             notifyPropertyChanged(BR.completedOrExpired);
+            notifyPropertyChanged(BR.completenessData);
+
         }
 
         @Bindable

@@ -58,6 +58,8 @@ public class Task extends UserCaseBase {
 
 
     protected boolean notificationEnabled;
+
+    protected boolean generalNotificationEnabled;
     protected long mNotificationStartMillis;
 
     // 1, 2, 3, 4, 5, 6, 7
@@ -86,8 +88,9 @@ public class Task extends UserCaseBase {
     //protected boolean started;
     @ColumnInfo(index = true)
     protected String mParentID;
-
     protected boolean syncing;
+
+    protected boolean outer;
 
     public Task(String name, String description, String catID){
         super();
@@ -716,5 +719,21 @@ public class Task extends UserCaseBase {
 
     public void setSyncing(boolean syncing) {
         this.syncing = syncing;
+    }
+
+    public boolean isOuter() {
+        return outer;
+    }
+
+    public void setOuter(boolean outer) {
+        this.outer = outer;
+    }
+
+    public boolean isGeneralNotificationEnabled() {
+        return generalNotificationEnabled;
+    }
+
+    public void setGeneralNotificationEnabled(boolean generalNotificationEnabled) {
+        this.generalNotificationEnabled = generalNotificationEnabled;
     }
 }

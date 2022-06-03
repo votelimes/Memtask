@@ -312,6 +312,7 @@ public class CategoryActivitiesViewModel extends MemtaskViewModelBase{
         return (TaskObserver) itemObservers.get(pos);
     }
 
+    //TODO: Задача добавляется в список первой и ломает очередь
     public ProjectObserver getProjectObs(int pos){
         return (ProjectObserver) itemObservers.get(pos);
     }
@@ -422,6 +423,19 @@ public class CategoryActivitiesViewModel extends MemtaskViewModelBase{
         }
 
         @Bindable
+        public Pair<Integer, Integer> getCompletenessData(){
+            int completeness = 0;
+            if(data.task.isCompleted()){
+                completeness = 1;
+            }
+            else if(data.task.isExpired()){
+                completeness = 2;
+            }
+            int color = data.theme.getSecondColor();
+            return new Pair<>(completeness, color);
+        }
+
+        @Bindable
         public boolean getCompletedOrExpired(){
             return data.task.isCompleted() || data.task.isExpired();
         }
@@ -484,6 +498,7 @@ public class CategoryActivitiesViewModel extends MemtaskViewModelBase{
             addTaskSilently(data.task);
             notifyPropertyChanged(BR.completedOrExpired);
             notifyPropertyChanged(BR.completedExpired);
+            notifyPropertyChanged(BR.completenessData);
         }
 
         @Bindable
@@ -714,6 +729,7 @@ public class CategoryActivitiesViewModel extends MemtaskViewModelBase{
             addProjectSilently(data.project);
             notifyPropertyChanged(BR.completedOrExpired);
             notifyPropertyChanged(BR.progressText);
+            notifyPropertyChanged(BR.completenessData);
         }
 
         // Utils

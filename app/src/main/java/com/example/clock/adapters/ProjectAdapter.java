@@ -3,6 +3,9 @@ package com.example.clock.adapters;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,6 +20,7 @@ import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.LinearSmoothScroller;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -34,13 +38,14 @@ import com.google.android.material.snackbar.Snackbar;
 import com.pedromassango.doubleclick.DoubleClick;
 import com.pedromassango.doubleclick.DoubleClickListener;
 import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 
 public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.TaskViewHolder> {
 
     ActivityResultLauncher<Intent> mResultLauncher;
     CategoryActivitiesViewModel mViewModel;
 
-    int mProjectPosition;
+    CardsListFragmentAdapter.ProjectViewHolder vh = null;
     int mAddedOutside = -1;
     final View rootView;
     RecyclerView.LayoutManager mLayoutManager;
@@ -48,9 +53,10 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.TaskView
     CardsListFragmentAdapter mParentAdapter;
 
     // data is passed into the constructor
-    public static class TaskViewHolder extends RecyclerView.ViewHolder {
+    public static class TaskViewHolder extends RecyclerView.ViewHolder implements View.OnLayoutChangeListener{
         private final CategoryTaskBinding binding;
         private final MaterialCardView mainLayout;
+        private final ConstraintLayout mainConstraint;
 
         private final TextView range;
         private final ImageView important;
@@ -60,7 +66,24 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.TaskView
         private final EditText description;
         private final ImageView alarmImage;
         private final TextView alarmTime;
-        private final ImageView bgImage;
+
+        private Uri imageUri = null;
+        private Target target = new Target() {
+            @Override
+            public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                mainConstraint.setBackground(new BitmapDrawable(bitmap));
+            }
+
+            @Override
+            public void onBitmapFailed(Exception e, Drawable errorDrawable) {
+
+            }
+
+            @Override
+            public void onPrepareLoad(Drawable placeHolderDrawable) {
+
+            }
+        };
 
         public TaskViewHolder(CategoryTaskBinding binding) {
             super(binding.getRoot());
@@ -68,6 +91,7 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.TaskView
             View view = binding.getRoot();
 
             mainLayout = (MaterialCardView) view.findViewById(R.id.task_top_layout);
+            mainConstraint = (ConstraintLayout) view.findViewById(R.id.main_constraint);
             range = (TextView) view.findViewById(R.id.task_range);
             important = (ImageView) view.findViewById(R.id.task_important);
             categoryLayout = (LinearLayout) view.findViewById(R.id.task_category_layout);
@@ -76,7 +100,6 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.TaskView
             description = (EditText) view.findViewById(R.id.task_description);
             alarmImage = (ImageView) view.findViewById(R.id.task_alarm_image);
             alarmTime = (TextView) view.findViewById(R.id.task_alarm_time);
-            bgImage = (ImageView) view.findViewById(R.id.bg_image);
         }
 
         public void bind(CategoryActivitiesViewModel vm, CategoryActivitiesViewModel.TaskObserver data){
@@ -125,19 +148,40 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.TaskView
             return alarmTime;
         }
 
-        public ImageView getBgImage(){
-            return bgImage;
+        public Uri getImageUri() {
+            return imageUri;
+        }
+
+        public void setImageUri(Uri imageUri) {
+            this.imageUri = imageUri;
+        }
+
+        @Override
+        public void onLayoutChange(View view,
+                                   int left, int top, int right, int bottom,
+                                   int leftWas, int topWas, int rightWas, int bottomWas) {
+            Picasso.get()
+                    .load(imageUri)
+                    .into(target);
+        }
+
+        public void bindLayoutChange(){
+            mainLayout.addOnLayoutChangeListener(this);
+        }
+
+        public ConstraintLayout getMainConstraint() {
+            return mainConstraint;
         }
     }
 
     public ProjectAdapter(ActivityResultLauncher<Intent> resultLauncher,
-                          CategoryActivitiesViewModel viewModel, int projectPosition, View rootView,
+                          CategoryActivitiesViewModel viewModel, CardsListFragmentAdapter.ProjectViewHolder vh, View rootView,
                           RecyclerView.LayoutManager layoutManager,
                           CardsListFragmentAdapter adapter){
 
         this.mResultLauncher = resultLauncher;
         mViewModel = viewModel;
-        mProjectPosition = projectPosition;
+        this.vh = vh;
         this.rootView = rootView;
         mLayoutManager = layoutManager;
         smoothScroller = new LinearSmoothScroller(rootView.getContext()) {
@@ -162,11 +206,11 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.TaskView
     @Override
     public void onBindViewHolder(@NonNull TaskViewHolder viewHolder, int position) {
 
-        CategoryActivitiesViewModel.TaskObserver taskObs = mViewModel.getProjItemObs(mProjectPosition, position);
-        CategoryActivitiesViewModel.ProjectObserver projectObs = mViewModel.getProjectObs(mProjectPosition);
+        CategoryActivitiesViewModel.TaskObserver taskObs = mViewModel.getProjItemObs(vh.getAbsoluteAdapterPosition(), position);
+        CategoryActivitiesViewModel.ProjectObserver projectObs = mViewModel.getProjectObs(vh.getAbsoluteAdapterPosition());
 
         viewHolder.bind(mViewModel, taskObs);
-        viewHolder.getMainLayout().setOnLongClickListener(new View.OnLongClickListener() {
+        viewHolder.getMainConstraint().setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
                 MaterialAlertDialogBuilder taskOptionsDialog = new MaterialAlertDialogBuilder(view.getContext())
@@ -202,12 +246,11 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.TaskView
                 return true;
             }
         });
-        viewHolder.getMainLayout().setOnClickListener(new DoubleClick(new DoubleClickListener() {
+        viewHolder.getMainConstraint().setOnClickListener(new DoubleClick(new DoubleClickListener() {
             @Override
             public void onSingleClick(View view) {
-                MaterialCardView card = (MaterialCardView) view;
-                card.toggle();
-                taskObs.setCompletedOrExpired(card.isChecked());
+                viewHolder.getMainLayout().toggle();
+                taskObs.setCompletedOrExpired(viewHolder.getMainLayout().isChecked());
                 projectObs.recalcProgress();
             }
 
@@ -251,27 +294,16 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.TaskView
             String uriString = viewHolder.getBinding().getData().getImage();
             if(uriString != null && uriString.length() != 0){
                 Uri uri = Uri.parse(uriString);
-
-                viewHolder.getMainLayout()
-                        .getViewTreeObserver()
-                        .addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-                            @Override
-                            public void onGlobalLayout() {
-                                int width = viewHolder.getMainLayout().getWidth();
-                                int height = viewHolder.getMainLayout().getHeight();
-
-                                Picasso.get()
-                                        .load(uri)
-                                        .resize(width, height)
-                                        .into(viewHolder.getBgImage());
-                            }
-                        });
+                viewHolder.setImageUri(uri);
+                viewHolder.bindLayoutChange();
             }
         }
         if(mAddedOutside != -1 && mAddedOutside == viewHolder.getAbsoluteAdapterPosition()) {
             viewHolder.getName().requestFocus();
             InputMethodManager imm = (InputMethodManager) App.getInstance().getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
+            scrollTo(viewHolder.getAbsoluteAdapterPosition());
+            mAddedOutside = -1;
         }
     }
 
@@ -282,7 +314,7 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.TaskView
                     .setPositiveButton("Удалить", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
-                            mViewModel.removeSilentlyProjItem(mProjectPosition, pos);
+                            mViewModel.removeSilentlyProjItem(vh.getAbsoluteAdapterPosition(), pos);
                             Snackbar snackBar = mParentAdapter.getItemHasBeenDeletedDialog();
                             if(snackBar == null) {
                                 snackBar = Snackbar.make(rootView, "Подзадача была удалена", mViewModel.RESTORE_ITEM_SNACKBAR_TIME);
@@ -310,7 +342,7 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.TaskView
     }
 
     public void scrollTo(int position){
-        smoothScroller.setTargetPosition(position);
+        smoothScroller.setTargetPosition(position - 1);
         mLayoutManager.startSmoothScroll(smoothScroller);
     }
 
@@ -321,6 +353,6 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.TaskView
     // total number of rows
     @Override
     public int getItemCount() {
-        return mViewModel.getProjectObs(mProjectPosition).getChildsCount();
+        return mViewModel.getProjectObs(vh.getAbsoluteAdapterPosition()).getChildsCount();
     }
 }

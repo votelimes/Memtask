@@ -80,7 +80,7 @@ public abstract class TaskDao extends BaseDao<Task> {
     public abstract LiveData<List<TaskAndTheme>> getSingleTaskAndThemeByCategoryByName(String categoryID, String nameRegex);
 
     @Query("SELECT * FROM task_table"
-            + " WHERE task_table.startTime > 0 AND NOT task_table.notificationEnabled AND task_table.startTime <= :startMillis AND task_table.endTime >= :startMillis"
+            + " WHERE task_table.startTime > 0 AND NOT task_table.notificationEnabled AND task_table.startTime <= :startMillis AND task_table.endTime >= :startMillis AND task_table.generalNotificationEnabled > 0"
             + " ORDER BY task_table.mImportance ASC")
     public abstract List<TaskNotificationData> getTasksNotificationData(long startMillis);
 
