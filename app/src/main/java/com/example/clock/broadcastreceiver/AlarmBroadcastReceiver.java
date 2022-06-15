@@ -1,12 +1,17 @@
 package com.example.clock.broadcastreceiver;
 
 import android.app.AlarmManager;
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
+import androidx.core.app.NotificationCompat;
+
+import com.example.clock.R;
 import com.example.clock.app.App;
 import com.example.clock.model.Task;
 import com.example.clock.model.TaskNotificationManager;
@@ -19,8 +24,6 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 
 public class AlarmBroadcastReceiver extends BroadcastReceiver {
-
-
     MemtaskRepositoryBase mRepository;
     Task task;
 
@@ -29,10 +32,7 @@ public class AlarmBroadcastReceiver extends BroadcastReceiver {
         if (Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction())) {
             startRescheduleAlarmsService(context);
         }
-
-        int value = intent.getIntExtra(TaskNotificationManager.MODE_KEY, -1);
-        String action = intent.getAction();
-        if(intent.getIntExtra(TaskNotificationManager.MODE_KEY, -1) == TaskNotificationManager.MODE_INLINE){
+        if(false && intent.getIntExtra(TaskNotificationManager.MODE_KEY, -1) == TaskNotificationManager.MODE_INLINE){
             mRepository = new MemtaskRepositoryBase(App.getDatabase(), App.getSilentDatabase());
             String taskID = intent.getStringExtra(TaskNotificationManager.ID_KEY);
             task = mRepository.getTaskSilently(taskID);
@@ -50,8 +50,8 @@ public class AlarmBroadcastReceiver extends BroadcastReceiver {
                 mRepository.addTask(task);
                 mRepository.addUserCaseStatisticSilently(new UserCaseStatistic(task.getTaskId(), true, false));
                 alarmService.putExtra(AlarmService.STOP_KEY, AlarmService.STOP_BY_USER);
-
                 context.startForegroundService(alarmService);
+
             }
             else if(intent.getIntExtra(TaskNotificationManager.NOTIFICATION_ALARM_REQUEST_CODE, -1) == TaskNotificationManager.NOTIFICATION_ALARM_POSTPONE){
 
@@ -67,6 +67,23 @@ public class AlarmBroadcastReceiver extends BroadcastReceiver {
             else if (alarmIsToday(task)) {
                 startAlarmService(context, task.getTaskId());
             }
+        }
+        if(true || intent.getIntExtra(TaskNotificationManager.MODE_KEY, -1) == TaskNotificationManager.MODE_GENERAL){
+            String taskID = intent.getStringExtra(TaskNotificationManager.ID_KEY);
+            mRepository = new MemtaskRepositoryBase(App.getDatabase(), App.getSilentDatabase());
+            task = mRepository.getTaskSilently(taskID);
+            NotificationManager manager = (NotificationManager) App.getInstance().getSystemService(Context.NOTIFICATION_SERVICE);
+            NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(App.getInstance(), TaskNotificationManager.NOTIFICATION_ALARM_CHANNEL_ID);
+
+            Notification notification;
+            notificationBuilder = notificationBuilder
+                    .setSmallIcon(R.drawable.ic_launcher_foreground)
+                    .setContentTitle(task.getName())
+                    .setPriority(NotificationManager.IMPORTANCE_DEFAULT)
+                    .setCategory(Notification.CATEGORY_EVENT)
+                    .setColor(App.getInstance().getColor(R.color.main_8));
+            manager.notify((int) System.currentTimeMillis(), notificationBuilder.build());
+
         }
     }
 

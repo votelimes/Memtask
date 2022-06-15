@@ -33,9 +33,14 @@ public class AboutFragment extends Fragment {
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                toolbar.setNavigationIcon(null);
-                getActivity().getSupportFragmentManager().popBackStack();
-                ((MainActivity) getActivity()).setupNav();
+                try {
+                    toolbar.setNavigationIcon(null);
+                    ((MainActivity) getActivity()).setupNav();
+                    getActivity().getSupportFragmentManager().popBackStack();
+                }
+                catch (Exception e){
+                    e.printStackTrace();
+                }
             }
         });
         if(App.isTesting()){

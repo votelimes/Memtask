@@ -115,8 +115,14 @@ public class ManageTaskActivity extends AppCompatActivity implements View.OnFocu
         String itemID = getIntent().getStringExtra(MemtaskViewModelBase.MTP_ID);
 
         String categoryID = getIntent().getStringExtra(MemtaskViewModelBase.MTP_CATEGORY_ID);
+        if(categoryID == null){
+            categoryID = "";
+        }
 
         String parentID = getIntent().getStringExtra(MemtaskViewModelBase.MTP_PARENT);
+        if(parentID == null){
+            parentID = "";
+        }
 
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd.MM.yyyy");
 
@@ -390,6 +396,7 @@ public class ManageTaskActivity extends AppCompatActivity implements View.OnFocu
 
         if(mode == MemtaskViewModelBase.TASK_CREATING){
             toolbar.setTitle("Создание задачи");
+
         }
         else if(mode == MemtaskViewModelBase.TASK_EDITING){
             toolbar.setTitle("Изменение задачи");
@@ -741,19 +748,6 @@ public class ManageTaskActivity extends AppCompatActivity implements View.OnFocu
         int isCorrect = isNameCorrect(nameTextString);
         MaterialAlertDialogBuilder errorDialog = new MaterialAlertDialogBuilder(this)
                 .setPositiveButton("Хорошо", null);
-
-        /*if(isCorrect == 1){
-            nameText.setError("Задача должна иметь имя");
-            errorDialog.setMessage("Задача не может быть создана без имени.");
-            errorDialog.show();
-            return;
-        }
-        else if(isCorrect == 2){
-            nameText.setError("Слишком длинное имя");
-            errorDialog.setMessage("Длина имени задачи не может превышать 20 символов.");
-            errorDialog.show();
-            return;
-        }*/
 
         if(categoryTextString.equals("")){
             MaterialAlertDialogBuilder errorDialog2 = new MaterialAlertDialogBuilder(this)

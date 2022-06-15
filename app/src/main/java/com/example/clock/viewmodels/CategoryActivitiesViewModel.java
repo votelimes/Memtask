@@ -2,13 +2,14 @@ package com.example.clock.viewmodels;
 
 import android.app.Application;
 import android.content.Context;
-import android.os.SystemClock;
-import android.util.Log;
 
 import androidx.core.util.Pair;
 import androidx.databinding.BaseObservable;
 import androidx.databinding.Bindable;
+import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
 
 import com.example.clock.BR;
 import com.example.clock.app.App;
@@ -29,10 +30,10 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class CategoryActivitiesViewModel extends MemtaskViewModelBase{
     public final int RESTORE_ITEM_SNACKBAR_TIME = 1750;
@@ -312,7 +313,6 @@ public class CategoryActivitiesViewModel extends MemtaskViewModelBase{
         return (TaskObserver) itemObservers.get(pos);
     }
 
-    //TODO: Задача добавляется в список первой и ломает очередь
     public ProjectObserver getProjectObs(int pos){
         return (ProjectObserver) itemObservers.get(pos);
     }
@@ -321,6 +321,37 @@ public class CategoryActivitiesViewModel extends MemtaskViewModelBase{
         return itemObservers.get(pos);
     }
 
+    public void decomposeTask(int pos, LifecycleOwner lco){
+        Task task = getSingleTaskObs(pos).getTask();
+        Project project = new Project();
+        AtomicReference<TaskAndTheme> taskData = new AtomicReference<>();
+        Objects.requireNonNull(intermediate
+                .getValue())
+                .first
+                .forEach(item -> {
+                    if(item.task.getTaskId().equals(task.getTaskId())){
+                        taskData.set(item);
+                    }
+                });
+        ProjectData projectData = new ProjectData();
+        project.setProjectId(task.getTaskId());
+        project.setName(task.getName());
+        project.setDescription(task.getDescription());
+        project.setImageResource(task.getImageResource());
+        project.setThemeID(task.getThemeID());
+        project.setStartTime(task.getStartTime());
+        project.setEndTime(task.getEndTime());
+        project.setCategoryId(task.getCategoryId());
+
+        projectData.project = project;
+        projectData.theme = taskData.get().theme;
+        projectData.tasksData = new ArrayList<TaskAndTheme>();
+
+        mRepository.removeTaskByIDSilently(task.getTaskId());
+        mRepository.addProjectSilently(project);
+        //task.cancelAlarm(App.getInstance().getApplicationContext());
+        itemObservers.set(pos, new ProjectObserver(projectData));
+    }
 
     //Sub classes
 

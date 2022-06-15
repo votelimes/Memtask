@@ -28,7 +28,7 @@ public abstract class SilentDatabase extends RoomDatabase {
     public abstract UserCaseStatisticDao userCaseStatisticDao();
 
     private static volatile SilentDatabase INSTANCE;
-    private static final int NUMBER_OF_THREADS = 4;
+    private static final int NUMBER_OF_THREADS = 8;
     public static final ExecutorService databaseWriteExecutor = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
 
     public static SilentDatabase getDatabase(final Context context) {
@@ -41,6 +41,8 @@ public abstract class SilentDatabase extends RoomDatabase {
                             "memtask_db"
                     ).allowMainThreadQueries()
                      .build();
+                    INSTANCE.getOpenHelper().getWritableDatabase().setMaxSqlCacheSize(40);
+                    INSTANCE.getOpenHelper().getWritableDatabase().setPageSize(256);
                 }
             }
         }

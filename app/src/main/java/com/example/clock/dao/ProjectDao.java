@@ -35,7 +35,7 @@ public abstract class ProjectDao  extends BaseDao<Project> {
     public abstract LiveData<List<ProjectAndTheme>> getProjectsWithThemeLiveData(String categoryID);
 
     @Transaction
-    @Query("SELECT project_table.*, theme_table.* FROM project_table LEFT JOIN theme_table ON project_table.mThemeID = theme_table.theme_ID WHERE project_table.categoryId = :categoryID")
+    @Query("SELECT project_table.*, theme_table.* FROM project_table LEFT JOIN theme_table ON project_table.mThemeID = theme_table.theme_ID WHERE project_table.categoryId = :categoryID ORDER BY mName ASC")
     public abstract LiveData<List<ProjectData>> getProjectsDataByCat(String categoryID);
 
     @Transaction

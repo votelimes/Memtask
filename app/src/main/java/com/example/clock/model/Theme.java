@@ -153,6 +153,10 @@ public class Theme {
         this.mAdditionalTextColor = mAdditionalTextColor;
     }
 
+    public void setAdditionalTextColor(String mAdditionalTextColor) {
+        this.mAdditionalTextColor = Color.parseColor(mAdditionalTextColor);
+    }
+
     public boolean isBaseTheme() {
         return baseTheme;
     }

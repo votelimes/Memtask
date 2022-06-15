@@ -201,9 +201,25 @@ public class UserCaseBase implements Serializable  {
         setTimeChanged(getCurrentTime());
     }
 
+    public void setStartTime(String time){
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+        LocalDate ldt;
+
+        ldt = LocalDate.parse(time, dtf);
+        startTime = ldt.atTime(0, 0).toEpochSecond(ZoneOffset.UTC) * 1000;
+    }
+
     public void setEndTime(long endTime) {
         this.endTime = endTime;
         setTimeChanged(getCurrentTime());
+    }
+
+    public void setEndTime(String time){
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+        LocalDate ldt;
+
+        ldt = LocalDate.parse(time, dtf);
+        endTime = ldt.atTime(0, 0).toEpochSecond(ZoneOffset.UTC) * 1000;
     }
 
     public String getmName() {

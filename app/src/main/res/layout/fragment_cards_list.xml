@@ -30,6 +30,9 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             android:paddingBottom="24dp"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:descendantFocusability="beforeDescendants"
             />
         <com.github.clans.fab.FloatingActionMenu
             android:id="@+id/fragment_cards_fabl"

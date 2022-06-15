@@ -19,8 +19,12 @@ import com.example.clock.storageutils.Database;
 import com.example.clock.storageutils.SilentDatabase;
 import com.prolificinteractive.materialcalendarview.CalendarDay;
 
+import org.threeten.extra.LocalDateRange;
+
 import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.YearMonth;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
@@ -137,16 +141,8 @@ public class CalendarViewModel extends MemtaskViewModelBase{
         categoriesLiveData = null;
         themesLiveData = mRepository.getAllThemesLive();
 
-
-        long startMillis = 0;
-        long endMillis = 0;
-
-        /*if(App.getSettings()
-                .getCalendarMode()
-                .equals(application.getResources().getStringArray(R.array.preference_calendar_mode_names)[0]))
-        {*/
-        startMillis = selectedDateStart.toEpochSecond(ZoneOffset.UTC) * 1000;
-        endMillis = selectedDateEnd.toEpochSecond(ZoneOffset.UTC) * 1000;
+        long startMillis = selectedDateStart.toEpochSecond(ZoneOffset.UTC) * 1000;
+        long endMillis = selectedDateEnd.toEpochSecond(ZoneOffset.UTC) * 1000;
 
         taskThemePack = mRepository.getTasksByNotification(
                 startMillis,
@@ -209,7 +205,6 @@ public class CalendarViewModel extends MemtaskViewModelBase{
                 daysLoad.add(new Integer(0));
             }
             calcDaysLoad();
-            //sort
         }
     }
     public LiveData<List<TaskData>> updateData(String filterName){
@@ -262,16 +257,63 @@ public class CalendarViewModel extends MemtaskViewModelBase{
     private void filterSelectedTasks(LocalDateTime startDate, LocalDateTime endDate){
         if(taskThemePack.getValue() != null) {
             selectedTasks = new ArrayList<>();
-            taskThemePack.getValue().parallelStream().forEach(item -> {
-                if (item.task.getNotificationStartMillis() >= startDate.toEpochSecond(ZoneOffset.UTC) * 1000
+            taskThemePack.getValue().stream().forEach(item -> {
+                if (item.task.getStartTime() != 0 && item.task.getEndTime() != 0){
+                   if((item.task.getRepeatMode() == 0 || item.task.getRepeatMode() == 4) && (rangeOverlaps(startDate.toLocalDate(), endDate.toLocalDate(), item.task) ||
+                           item.task.getStartTime() == 0 || item.task.getEndTime() == 0)){
+                       if (item.task.getNotificationStartMillis() >= startDate.toEpochSecond(ZoneOffset.UTC) * 1000
+                               &&
+                               item.task.getNotificationStartMillis() < endDate.toEpochSecond(ZoneOffset.UTC) * 1000) {
+                           selectedTasks.add(new TaskObserver(item));
+                       }
+                   }
+                   else if(item.task.getRepeatMode() == 1
+                           && (rangeOverlaps(startDate.toLocalDate(), endDate.toLocalDate(), item.task) ||
+                           item.task.getStartTime() == 0 || item.task.getEndTime() == 0)){
+                       selectedTasks.add(new TaskObserver(item));
+                   }
+                   else if(item.task.getRepeatMode() == 2
+                           && (checkInRange(startDate, endDate, item.task) ||
+                           item.task.getStartTime() == 0 || item.task.getEndTime() == 0)){
+                       selectedTasks.add(new TaskObserver(item));
+                   }
+                   else if(item.task.getRepeatMode() == 3
+                           && (checkInRange(startDate, endDate, item.task) ||
+                           item.task.getStartTime() == 0 || item.task.getEndTime() == 0)){
+                       selectedTasks.add(new TaskObserver(item));
+                   }
+                }
+                else if (item.task.getNotificationStartMillis() >= startDate.toEpochSecond(ZoneOffset.UTC) * 1000
                         &&
-                        item.task.getNotificationStartMillis() < endDate.toEpochSecond(ZoneOffset.UTC) * 1000) {
+                        item.task.getNotificationStartMillis() < endDate.toEpochSecond(ZoneOffset.UTC) * 1000
+                        && rangeOverlaps(startDate.toLocalDate(), endDate.toLocalDate(), item.task)) {
                     selectedTasks.add(new TaskObserver(item));
+                }
+                else if(item.task.getStartTime() == 0 || item.task.getEndTime() == 0){
+                    if(item.task.getRepeatMode() == 0 || item.task.getRepeatMode() == 4){
+                        if(item.task.getConvertedNotifyMillis() >= startDate.toEpochSecond(ZoneOffset.UTC) * 1000
+                        && item.task.getConvertedNotifyMillis() < endDate.toEpochSecond(ZoneOffset.UTC) * 1000){
+                            selectedTasks.add(new TaskObserver(item));
+                        }
+                    }
+                    else if(item.task.getRepeatMode() == 1){
+                        selectedTasks.add(new TaskObserver(item));
+                    }
+                    else if(item.task.getRepeatMode() == 2 || item.task.getRepeatMode() == 3){
+                        for(LocalDate i = selectedDateStart.toLocalDate();
+                            i.isBefore(selectedDateEnd.toLocalDate().plusDays(1));
+                            i = i.plusDays(1)){
+                            if(item.task.isDayOfWeekActive(i.getDayOfWeek())){
+                                selectedTasks.add(new TaskObserver(item));
+                                break;
+                            }
+                        }
+                    }
                 }
             });
         }
     }
-    public void calcDaysLoad(){
+    public void calcDaysLoad3(){
         // Вычислять в зависимости от продолжительности задачи
         if(taskThemePack.getValue() != null) {
             AtomicInteger monday = new AtomicInteger(0);
@@ -282,8 +324,24 @@ public class CalendarViewModel extends MemtaskViewModelBase{
             AtomicInteger saturday = new AtomicInteger(0);
             AtomicInteger sunday = new AtomicInteger(0);
 
+            YearMonth month = YearMonth.from(selectedDateStart);
+            LocalDate monthStart = selectedDateStart.withDayOfMonth(1).toLocalDate();
+            LocalDate monthEnd = month.atEndOfMonth();
+
+
             taskThemePack.getValue().forEach(item -> {
                 boolean repeatFlag = false;
+                if(item.task.getRepeatMode() != 0 && item.task.getStartTime() != 0 && item.task.getEndTime() != 0){
+                    LocalDate taskStart = LocalDateTime
+                            .ofEpochSecond(item.task.getStartTime() / 1000, 0, ZoneOffset.UTC)
+                            .toLocalDate();
+                    LocalDate taskEnd = LocalDateTime
+                            .ofEpochSecond(item.task.getEndTime() / 1000, 0, ZoneOffset.UTC)
+                            .toLocalDate();
+                    if(taskEnd.isBefore(monthStart) || taskStart.isAfter(monthEnd)){
+                        return;
+                    }
+                }
                 switch (item.task.getRepeatMode()) {
                     case 1:
                         monday.addAndGet(1);
@@ -365,6 +423,138 @@ public class CalendarViewModel extends MemtaskViewModelBase{
             //Log.d("Completed", "Completed");
         }
     }
+    public void calcDaysLoad(){
+        if(taskThemePack.getValue() != null) {
+            YearMonth month = YearMonth.from(selectedDateStart);
+            LocalDate monthStart = selectedDateStart.withDayOfMonth(1).toLocalDate();
+            LocalDate monthEnd = month.atEndOfMonth();
+            AtomicInteger rm1u = new AtomicInteger();
+
+            taskThemePack.getValue().forEach(item -> {
+                if(item.task.getRepeatMode() != 0
+                        && item.task.getRepeatMode() != 4
+                        && item.task.getStartTime() != 0
+                        && item.task.getEndTime() != 0){
+                    LocalDate taskStart = LocalDateTime
+                            .ofEpochSecond(item.task.getStartTime() / 1000, 0, ZoneOffset.UTC)
+                            .toLocalDate();
+                    LocalDate taskEnd = LocalDateTime
+                            .ofEpochSecond(item.task.getEndTime() / 1000, 0, ZoneOffset.UTC)
+                            .toLocalDate();
+                    if(taskEnd.isBefore(monthStart) || taskStart.isAfter(monthEnd)){
+                        return;
+                    }
+                    ///////////////////////////////////////////////////////////////////////////////
+                    int dayIndex = 0;
+                    if(item.task.getRepeatMode() == 1){
+                        LocalDate lwDate;
+                        if(monthStart.isBefore(taskStart)){
+                            lwDate = taskStart;
+                        }
+                        else{
+                            lwDate = monthStart;
+                        }
+
+                        for(LocalDate i = lwDate; i.isBefore(taskEnd.plusDays(1))
+                                || i.isBefore(monthEnd.plusDays(1));i = i.plusDays(1)){
+                            dayIndex = i.getDayOfMonth() - 1;
+                            daysLoad.set(dayIndex,daysLoad.get(dayIndex) + 1);
+                        }
+                    }
+                    else if(item.task.getRepeatMode() == 2 || item.task.getRepeatMode() == 3){
+                        LocalDate lwDate;
+                        if(monthStart.isBefore(taskStart)){
+                            lwDate = taskStart;
+                        }
+                        else{
+                            lwDate = monthStart;
+                        }
+
+                        for(LocalDate i = lwDate; i.isBefore(taskEnd.plusDays(1))
+                                || i.isBefore(monthEnd.plusDays(1));i = i.plusDays(1)){
+                            dayIndex = i.getDayOfMonth() - 1;
+                            if(item.task.isDayOfWeekActive(i.getDayOfWeek())){
+                                daysLoad.set(dayIndex,daysLoad.get(dayIndex) + 1);
+                            }
+                        }
+                    }
+                }
+                else{
+                    int dayIndex = LocalDateTime
+                            .ofEpochSecond(item.task.getNotificationStartMillis()/1000,0,ZoneOffset.UTC)
+                            .toLocalDate()
+                            .getDayOfMonth() - 1;
+                    if(dayIndex >= daysLoad.size()){
+                        return;
+                    }
+                    if(item.task.getRepeatMode() == 0 || item.task.getRepeatMode() == 4) {
+                        daysLoad.set(dayIndex, daysLoad.get(dayIndex) + 1);
+                    }
+                    else if(item.task.getRepeatMode() == 1){
+                        rm1u.addAndGet(1);
+                    }
+                    else if(item.task.getRepeatMode() == 2 || item.task.getRepeatMode() == 3){
+                        for(LocalDate day = selectedDateStart.toLocalDate().withDayOfMonth(1);
+                        day.toEpochDay() < selectedDateStart
+                                .toLocalDate()
+                                .withDayOfMonth(1)
+                                .plusMonths(1)
+                                .toEpochDay(); day = day.plusDays(1)){
+                            dayIndex = day.getDayOfMonth() - 1;
+                            if(item.task.isDayOfWeekActive(day.getDayOfWeek())){
+                                daysLoad.set(dayIndex, daysLoad.get(dayIndex) + 1);
+                            }
+                        }
+                    }
+
+                }
+            });
+            for(int i = 0; i < daysLoad.size(); i++){
+                daysLoad.set(i, daysLoad.get(i) + rm1u.get());
+            }
+        }
+    }
+
+    public boolean checkInRange(LocalDateTime dts, LocalDateTime dte, Task task){
+        if(!rangeOverlaps(dts.toLocalDate(), dte.toLocalDate(), task)){
+            return false;
+        }
+
+        for(LocalDate i = dts.toLocalDate(); i.isBefore(dte.toLocalDate());i = i.plusDays(1)){
+            if(task.getRepeatMode() == 2 || task.getRepeatMode() == 3) {
+                if (rangeOverlaps(i, i.plusDays(1), task)
+                        && task.isDayOfWeekActive(i.getDayOfWeek())) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private boolean rangeOverlaps(LocalDate os, LocalDate oe, LocalDate is, LocalDate ie){
+        if(os.isEqual(oe)){
+            if(os.isEqual(is)){
+                return true;
+            }
+        }
+        LocalDateRange outer = LocalDateRange.of(os, oe.plusDays(1));
+        LocalDateRange inner = LocalDateRange.of(os, oe.plusDays(1));
+        return outer.overlaps(inner);
+    }
+
+    private boolean rangeOverlaps(LocalDate os, LocalDate oe, Task task){
+        LocalDate is = LocalDateTime
+                .ofEpochSecond(task.getStartTime()/1000, 0, ZoneOffset.UTC)
+                .toLocalDate();
+        LocalDate ie = LocalDateTime
+                .ofEpochSecond(task.getEndTime()/1000, 0, ZoneOffset.UTC)
+                .toLocalDate();
+
+        LocalDateRange outer = LocalDateRange.of(os, oe);
+        LocalDateRange inner = LocalDateRange.of(is, ie.plusDays(1));
+        boolean tr = outer.overlaps(inner);
+        return outer.overlaps(inner);
+    }
 
     public class TaskObserver extends BaseObservable {
         private TaskData data;
@@ -380,19 +570,6 @@ public class CalendarViewModel extends MemtaskViewModelBase{
         @Bindable
         public boolean getCompletedOrExpired(){
             return data.task.isCompleted() || data.task.isExpired();
-        }
-
-        @Bindable
-        public Pair<Integer, Integer> getCompletenessData(){
-            int completeness = 0;
-            if(data.task.isCompleted()){
-                completeness = 1;
-            }
-            else if(data.task.isExpired()){
-                completeness = 2;
-            }
-            int color = data.theme.getSecondColor();
-            return new Pair<>(completeness, color);
         }
 
         public TaskData getData(){
@@ -535,6 +712,18 @@ public class CalendarViewModel extends MemtaskViewModelBase{
             return returnCode;
         }
 
+        @Bindable
+        public Pair<Integer, Integer> getCompletenessData(){
+            int completeness = 0;
+            if(data.task.isCompleted()){
+                completeness = 1;
+            }
+            else if(data.task.isExpired()){
+                completeness = 2;
+            }
+            int color = data.theme.getSecondColor();
+            return new Pair<>(completeness, color);
+        }
         @Bindable
         public Pair<Boolean, Boolean> getCompletedExpired(){
             return new Pair<Boolean, Boolean>(data.task.isCompleted(), data.task.isExpired());

@@ -14,7 +14,9 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".fragments.StatisticFragment">
+        tools:context=".fragments.StatisticFragment"
+        android:padding="8dp"
+        >
 
         <ScrollView
             android:layout_width="match_parent"
@@ -81,81 +83,168 @@
 
                     android:layout_marginTop="32dp"
                     />
+                <com.google.android.material.divider.MaterialDivider
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/stat_chart1"
+                    />
                 <TextView
                     android:id="@+id/stat1"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/stat_chart1"
                     android:layout_marginTop="20dp"
                     android:layout_marginStart="28dp"
-                    android:text="Выполнено заданий: 65"
+                    android:text="Выполнено заданий:"
+                    android:textSize="18sp"
+                    />
+                <TextView
+                    android:id="@+id/stat1_val"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintStart_toEndOf="@id/stat1"
+                    app:layout_constraintTop_toBottomOf="@id/stat_chart1"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginStart="8dp"
+                    android:text="32"
                     android:textSize="18sp"
                     />
                 <TextView
                     android:id="@+id/stat2"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/stat1"
                     android:layout_marginTop="20dp"
                     android:layout_marginStart="28dp"
-                    android:text="Провалено заданий: 14"
+                    android:text="Провалено заданий:"
                     android:textSize="18sp"
                     />
                 <TextView
+                    android:id="@+id/stat2_val"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintStart_toEndOf="@id/stat2"
+                    app:layout_constraintTop_toBottomOf="@id/stat1"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginStart="8dp"
+                    android:text="11"
+                    android:textSize="18sp"
+                    />
+                <com.google.android.material.divider.MaterialDivider
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/stat2"
+                    />
+                <TextView
                     android:id="@+id/stat3"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/stat2"
                     android:layout_marginTop="20dp"
                     android:layout_marginStart="28dp"
-                    android:text="Отменено заданий: 8"
+                    android:text="Всего активностей:"
+                    android:textSize="18sp"
+                    />
+                <TextView
+                    android:id="@+id/stat3_val"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintStart_toEndOf="@id/stat3"
+                    app:layout_constraintTop_toBottomOf="@id/stat2"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginStart="28dp"
+                    android:text="24"
                     android:textSize="18sp"
                     />
                 <TextView
                     android:id="@+id/stat4"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/stat3"
                     android:layout_marginTop="20dp"
                     android:layout_marginStart="28dp"
-                    android:text="Повторяющихся активностей: 10"
+                    android:text="Повторяющихся задач: "
                     android:textSize="18sp"
                     />
                 <TextView
-                    android:id="@+id/stat5"
-                    android:layout_width="match_parent"
+                    android:id="@+id/stat4_val"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintStart_toEndOf="@id/stat4"
+                    app:layout_constraintTop_toBottomOf="@id/stat3"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginStart="28dp"
+                    android:text="9"
+                    android:textSize="18sp"
+                    />
+                <com.google.android.material.divider.MaterialDivider
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/stat4"
+                    />
+                <TextView
+                    android:id="@+id/stat45"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/stat4"
                     android:layout_marginTop="20dp"
                     android:layout_marginStart="28dp"
-                    android:text="Обращений в неделю: 54"
+                    android:text="Время использования "
+                    android:textSize="18sp"
+                    />
+                <TextView
+                    android:id="@+id/stat5"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/stat45"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginStart="28dp"
+                    android:text="Всего: "
+                    android:textSize="18sp"
+                    />
+                <TextView
+                    android:id="@+id/stat5_val"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintStart_toEndOf="@id/stat5"
+                    app:layout_constraintTop_toBottomOf="@id/stat45"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginStart="8dp"
+                    android:text="71 час"
                     android:textSize="18sp"
                     />
                 <TextView
                     android:id="@+id/stat6"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/stat5"
                     android:layout_marginTop="20dp"
                     android:layout_marginStart="28dp"
-                    android:text="Обращений в день: 8"
+                    android:text="За неделю:"
                     android:textSize="18sp"
                     />
                 <TextView
-                    android:id="@+id/stat7"
-                    android:layout_width="match_parent"
+                    android:id="@+id/stat6_val"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/stat6"
+                    app:layout_constraintStart_toEndOf="@id/stat6"
+                    app:layout_constraintTop_toBottomOf="@id/stat5"
                     android:layout_marginTop="20dp"
-                    android:layout_marginStart="28dp"
-                    android:text="Создано за неделю: 21"
+                    android:layout_marginStart="8dp"
+                    android:text="6 часов 39 минут"
                     android:textSize="18sp"
                     />
 

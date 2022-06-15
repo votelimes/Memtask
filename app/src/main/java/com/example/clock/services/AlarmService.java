@@ -6,12 +6,16 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.media.AudioAttributes;
 import android.media.MediaPlayer;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.Vibrator;
+import android.util.Log;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
@@ -26,6 +30,8 @@ import com.example.clock.model.TaskNotificationManager;
 import com.example.clock.model.UserCaseStatistic;
 import com.example.clock.repositories.MemtaskRepositoryBase;
 
+import java.io.IOException;
+
 public class AlarmService extends Service {
     public static final String STOP_KEY = "Alarm_Service_stop_key";
     public static final int STOP_BY_USER = 401;
@@ -38,6 +44,7 @@ public class AlarmService extends Service {
     private MemtaskRepositoryBase mRepository;
     private Task task;
     private static final long TWO_MINUTES = 1000 * 60 * 2;
+    Ringtone r;
 
     @Override
     public void onCreate() {
@@ -84,7 +91,7 @@ public class AlarmService extends Service {
         notificationSkipIntent.putExtra(TaskNotificationManager.NOTIFICATION_ALARM_REQUEST_CODE, TaskNotificationManager.NOTIFICATION_ALARM_SKIP);
         notificationSkipIntent.putExtra(TaskNotificationManager.MODE_KEY, TaskNotificationManager.MODE_INLINE);
 
-        PendingIntent pendingSkipIntent = PendingIntent.getBroadcast(this, 0, notificationSkipIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent pendingSkipIntent = PendingIntent.getBroadcast(this, 1, notificationSkipIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         NotificationCompat.Action skip = new NotificationCompat.Action.Builder(R.mipmap.ic_launcher, "Пропустить", pendingSkipIntent).build();
 
         mRepository = new MemtaskRepositoryBase(App.getDatabase(), App.getSilentDatabase());
@@ -92,7 +99,20 @@ public class AlarmService extends Service {
         mediaEnabled = task.isMediaEnabled();
         vibrateEnabled = task.isVibrate();
         if(mediaEnabled){
-            mediaPlayer = MediaPlayer.create(this, Uri.parse(task.getRingtonePath()));
+            MediaPlayer mediaPlayer = new MediaPlayer();
+            mediaPlayer.setAudioAttributes(
+                    new AudioAttributes.Builder()
+                            .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                            .setUsage(AudioAttributes.USAGE_MEDIA)
+                            .build()
+            );
+            try {
+                Uri uri = Uri.parse(task.getRingtonePath());
+                r = RingtoneManager.getRingtone(getApplicationContext(), uri);
+                r.setLooping(true);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
         NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
@@ -105,8 +125,7 @@ public class AlarmService extends Service {
                 .setSmallIcon(R.drawable.ic_launcher_foreground)
                 .setContentTitle(task.getName())
                 .setPriority(NotificationManager.IMPORTANCE_HIGH)
-                .setContentIntent(pendingClickIntent)
-                .setCategory(Notification.CATEGORY_SERVICE)
+                .setCategory(Notification.CATEGORY_EVENT)
                 .addAction(complete)
                 .addAction(skip)
                 .setColor(getColor(R.color.main_8))
@@ -118,17 +137,42 @@ public class AlarmService extends Service {
 
         if(mediaEnabled || vibrateEnabled){
             if(task.isMediaEnabled()) {
-                mediaPlayer.start();
+                try{
+                    r.play();
+                } catch (Exception e){
+                    e.printStackTrace();
+                }
+                /*try {
+                    mediaPlayer.prepare();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                mediaPlayer.start();*/
             }
             new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    updateTaskData(task);
-                    if(mediaPlayer != null){
-                        mediaPlayer.stop();
+                    if(task.isNotificationInProgress() == false){
+                        return;
                     }
-                    if(vibrator != null){
-                        vibrator.cancel();
+                    task = mRepository.getTaskSilently(task.getTaskId());
+                    updateTaskData(task);
+                    if(r != null){
+                        try{
+                            r.stop();
+                            if(vibrator != null){
+                                vibrator.cancel();
+                            }
+                        }
+                        catch (Exception e){
+                            e.printStackTrace();
+                        }
+                        if(task.isCompleted() != true) {
+                            task.schedule(getApplicationContext());
+                            task.setCompleted(false);
+                            task.setExpired(true);
+                            mRepository.addTaskSilently(task);
+                        }
                     }
                 }
             }, TWO_MINUTES);
@@ -142,32 +186,31 @@ public class AlarmService extends Service {
         return START_STICKY;
     }
 
-    Runnable stopPlayerTask = new Runnable(){
-        @Override
-        public void run() {
-            mediaPlayer.stop();
-        }};
-
     @Override
     public void onDestroy() {
         super.onDestroy();
+        try {
+            if (mediaEnabled) {
+                r.stop();
+            }
+            if (vibrateEnabled) {
+                vibrator.cancel();
+            }
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+        task = mRepository.getTaskSilently(task.getTaskId());
+        //updateTaskData(task);
+        task.schedule(getApplicationContext());
+        mRepository.addTask(task);
         if(stopByUser){
             return;
         }
-
-        if(mediaEnabled){
-            mediaPlayer.stop();
-        }
-        if(vibrateEnabled){
-            vibrator.cancel();
-        }
-        updateTaskData(task);
     }
     private void updateTaskData(Task task){
         if(task.isNotificationInProgress()){
             if(task.markIfExpired()){
-                mRepository.addUserCaseStatisticSilently(
-                        new UserCaseStatistic(task.getTaskId(), task.isCompleted(), task.isExpired()));
                 mRepository.addTask(task);
             }
             task.setNotificationInProgress(false);

@@ -1,6 +1,7 @@
 package com.example.clock.activities;
 
 import android.Manifest;
+import android.app.ActionBar;
 import android.app.Activity;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -15,8 +16,8 @@ import android.text.style.AbsoluteSizeSpan;
 import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
-import android.view.WindowInsets;
 import android.view.inputmethod.InputMethodManager;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -24,11 +25,9 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.SearchView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.view.GravityCompat;
-import androidx.core.view.WindowInsetsControllerCompat;
 import androidx.databinding.DataBindingUtil;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
@@ -194,6 +193,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 ActivityCompat.requestPermissions((Activity) this, PERMISSIONS, 100);
             }
         }
+
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+                drawerLayout.requestFocus();
+                drawerLayout.open();
+            }
+        });
     }
 
     @Override
@@ -252,7 +261,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         .commit();
 
         drawerLayout.closeDrawer(GravityCompat.START);
-
         toolbar.setTitle(title);
 
         return false;
@@ -296,15 +304,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             List<Theme> defaultThemesList = new ArrayList<Theme>(20);
 
-            defaultThemesList.add(new Theme("Rajah",
-                    "#FFB563", "#68B0AB", 0));
-            defaultThemesList.get(0).setMainTextColor(getColor(R.color.act_text_main));
+            defaultThemesList.add(new Theme("Y In Mn Blue",
+                    "#2C497F", "#FF8427", 0));
+            defaultThemesList.get(0).setMainTextColor(getColor(R.color.act_text_light));
             defaultThemesList.get(0).setIconColor(getColor(R.color.act_text_main));
+            defaultThemesList.get(0).setAdditionalTextColor(getColor(R.color.act_text_light));
 
-            defaultThemesList.add(new Theme("Celadon",
-                    "#BAF2BB", "#F47B93", 0));
-            defaultThemesList.get(1).setMainTextColor(getColor(R.color.act_text_main));
+            defaultThemesList.add(new Theme("Emerland",
+                    "#4CB963", "#F47B93", 0));
+            defaultThemesList.get(1).setMainTextColor(getColor(R.color.act_text_light));
             defaultThemesList.get(1).setIconColor(getColor(R.color.act_text_main));
+            defaultThemesList.get(1).setAdditionalTextColor(getColor(R.color.act_text_main));
 
             defaultThemesList.add(new Theme("Fiery Rose",
                     "#EF626C", "#05A8AA", 0));
@@ -334,7 +344,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             defaultThemesList.get(6).setMainTextColor(getColor(R.color.act_text_main));
             defaultThemesList.get(6).setIconColor(getColor(R.color.act_text_main));
 
-            defaultThemesList.add(new Theme("Mauve Taupe",
+            defaultThemesList.add(new Theme("Antique Fuchsia",
                     "#925E78", "#F15152", 0));
             defaultThemesList.get(7).setMainTextColor(getColor(R.color.act_text_light));
             defaultThemesList.get(4).setAdditionalTextColor(getColor(R.color.act_text_light));
@@ -391,10 +401,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             defaultThemesList.get(16).setIconColor(getColor(R.color.act_text_main));
             defaultThemesList.get(16).setAdditionalTextColor(getColor(R.color.act_text_light));
 
-            defaultThemesList.add(new Theme("Satin Sheen Gold",
-                    "#C59849", "#549F93", 0));
-            defaultThemesList.get(17).setMainTextColor(getColor(R.color.act_text_light));
-            defaultThemesList.get(17).setIconColor(getColor(R.color.act_text_grey));
+            defaultThemesList.add(new Theme("Electric Blue",
+                    "#75F4F4", "#B02E0C", 0));
+            defaultThemesList.get(17).setMainTextColor(getColor(R.color.act_text_main));
+            defaultThemesList.get(17).setIconColor(getColor(R.color.act_text_main));
             defaultThemesList.get(17).setAdditionalTextColor(getColor(R.color.act_text_light));
 
 
@@ -454,10 +464,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             // Some projects installation
             List<Project> defaultProjectsList = new ArrayList<Project>(5);
             defaultProjectsList.add(new Project("Вылечить зуб", "", defaultCategoriesList.get(3).getCategoryId()));
-            defaultProjectsList.get(0).setRange("24.05.2022", "28.05.2022");
+            defaultProjectsList.get(0).setRange("10.06.2022", "15.06.2022");
             defaultProjectsList.get(0).setThemeID(defaultThemesList.get(21).getID());
             defaultProjectsList.add(new Project("Сделать презентацию", "Способы оптимизации алгоритмов", defaultCategoriesList.get(1).getCategoryId()));
-            defaultProjectsList.get(1).setRange("01.05.2022", "15.05.2022");
+            defaultProjectsList.get(1).setRange("24.06.2022", "27.06.2022");
             defaultProjectsList.get(1).setThemeID(defaultThemesList.get(21).getID());
 
             for (Project project: defaultProjectsList) {
@@ -470,33 +480,37 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
 
             try {
-                calendar.setTime(sdf.parse("25.05.2022 00:00:00"));
+                calendar.setTime(sdf.parse("25.06.2022 00:00:00"));
             } catch (ParseException e){
                 Log.e("INITIAL SETUP ERROR: ", e.getMessage());
             }
 
             defaultTasksList.add(new Task("Оплатить счета", "Оплатить счета за дом", defaultCategoriesList.get(0).getCategoryId() ));
-            defaultTasksList.get(0).setAlarmTime("25.05.2022 11:20");
+            defaultTasksList.get(0).setAlarmTime("25.06.2022 11:20");
             defaultTasksList.get(0).setNotificationEnabled(true);
             defaultTasksList.get(0).setRepeatMode(4);
             defaultTasksList.get(0).setImportance(3);
             defaultTasksList.get(0).setThemeID(defaultThemesList.get(20).getID());
 
             defaultTasksList.add(new Task("Полить цветы", "Полить все цветы кроме, замиокулькаса", defaultCategoriesList.get(0).getCategoryId() ));
-            defaultTasksList.get(1).setAlarmTime("25.05.2022 17:40");
+            defaultTasksList.get(1).setAlarmTime("21.06.2022 17:40");
             defaultTasksList.get(1).setNotificationEnabled(true);
             defaultTasksList.get(1).setRepeatMode(3);
             defaultTasksList.get(1).setTuesday(true);
             defaultTasksList.get(1).setThemeID(defaultThemesList.get(0).getID());
 
             defaultTasksList.add(new Task("Забрать посылку", "", defaultCategoriesList.get(0).getCategoryId() ));
-            defaultTasksList.get(2).setAlarmTime("26.05.2022 16:00");
+            defaultTasksList.get(2).setStartTime("20.06.2022");
+            defaultTasksList.get(2).setEndTime("28.06.2022");
+            defaultTasksList.get(2).setAlarmTime("26.06.2022 16:00");
             defaultTasksList.get(2).setNotificationEnabled(true);
             defaultTasksList.get(2).setThemeID(defaultThemesList.get(1).getID());
             defaultTasksList.get(2).setImportance(0);
 
             defaultTasksList.add(new Task("Утренняя разминка", "", defaultCategoriesList.get(3).getCategoryId() ));
-            defaultTasksList.get(3).setAlarmTime("26.05.2022 10:00");
+            defaultTasksList.get(3).setStartTime("01.06.2022");
+            defaultTasksList.get(3).setEndTime("01.07.2022");
+            defaultTasksList.get(3).setAlarmTime("24.06.2022 10:00");
             defaultTasksList.get(3).setNotificationEnabled(true);
             defaultTasksList.get(3).setRepeatMode(3);
             defaultTasksList.get(3).setMonday(true);
@@ -505,64 +519,77 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             defaultTasksList.get(3).setThemeID(defaultThemesList.get(2).getID());
 
             defaultTasksList.add(new Task("Забрать ключи", "Ключи от офиса 303", defaultCategoriesList.get(1).getCategoryId() ));
-            defaultTasksList.get(4).setAlarmTime("26.05.2022 15:00");
+            defaultTasksList.get(4).setStartTime("26.06.2022");
+            defaultTasksList.get(4).setEndTime("26.06.2022");
+            defaultTasksList.get(4).setAlarmTime("26.06.2022 15:00");
             defaultTasksList.get(4).setNotificationEnabled(true);
             defaultTasksList.get(4).setThemeID(defaultThemesList.get(0).getID());
 
             defaultTasksList.add(new Task("Отправиться на прием к врачу", "Кабинет 6", defaultCategoriesList.get(3).getCategoryId() ));
-            defaultTasksList.get(5).setAlarmTime("11.05.2022 07:40");
+            defaultTasksList.get(5).setAlarmTime("11.06.2022 07:40");
             defaultTasksList.get(5).setNotificationEnabled(true);
-            defaultTasksList.get(5).setRepeatMode(1);
-            defaultTasksList.get(5).setThemeID(defaultThemesList.get(1).getID());
+            defaultTasksList.get(5).setRepeatMode(0);
+            defaultTasksList.get(5).setThemeID(defaultThemesList.get(17).getID());
 
             // Project tasks
             defaultTasksList.add(new Task("Поискать номер регистратуры", "", defaultCategoriesList.get(3).getCategoryId() ));
+            defaultTasksList.get(6).setStartTime("10.06.2022");
+            defaultTasksList.get(6).setEndTime("12.06.2022");
             defaultTasksList.get(6).setParentID(defaultProjectsList.get(0).getProjectId());
             defaultTasksList.get(6).setThemeID(defaultThemesList.get(20).getID());
 
             defaultTasksList.add(new Task("Позвонить по номеру", "", defaultCategoriesList.get(3).getCategoryId() ));
+            defaultTasksList.get(7).setStartTime("12.06.2022");
+            defaultTasksList.get(7).setEndTime("15.06.2022");
             defaultTasksList.get(7).setParentID(defaultProjectsList.get(0).getProjectId());
             defaultTasksList.get(7).setThemeID(defaultThemesList.get(20).getID());
 
             defaultTasksList.add(new Task("Записать дату приема", "", defaultCategoriesList.get(3).getCategoryId()));
+            defaultTasksList.get(8).setStartTime("12.06.2022");
+            defaultTasksList.get(8).setEndTime("15.06.2022");
             defaultTasksList.get(8).setParentID(defaultProjectsList.get(0).getProjectId());
             defaultTasksList.get(8).setThemeID(defaultThemesList.get(20).getID());
 
 
             // Project tasks
             defaultTasksList.add(new Task("Подготовить литературу", "Поискать на programmer-lib", defaultCategoriesList.get(1).getCategoryId() ));
-            defaultTasksList.get(9).setAlarmTime("24.05.2022 11:00");
+            defaultTasksList.get(9).setAlarmTime("24.06.2022 11:00");;
             defaultTasksList.get(9).setNotificationEnabled(true);
             defaultTasksList.get(9).setParentID(defaultProjectsList.get(1).getProjectId());
             defaultTasksList.get(9).setThemeID(defaultThemesList.get(20).getID());
 
             defaultTasksList.add(new Task("Определить структуру", "3 раздела, 12 слайдов", defaultCategoriesList.get(1).getCategoryId() ));
-            defaultTasksList.get(10).setAlarmTime("25.05.2022 11:00");
+            defaultTasksList.get(10).setAlarmTime("25.06.2022 11:00");
             defaultTasksList.get(10).setNotificationEnabled(true);
             defaultTasksList.get(10).setParentID(defaultProjectsList.get(1).getProjectId());
             defaultTasksList.get(10).setImportance(3);
             defaultTasksList.get(10).setThemeID(defaultThemesList.get(12).getID());
 
             defaultTasksList.add(new Task("Написать текст", "8 страниц, 14пт", defaultCategoriesList.get(1).getCategoryId() ));
-            defaultTasksList.get(11).setAlarmTime("27.05.2022 17:00");
+            defaultTasksList.get(11).setAlarmTime("27.06.2022 17:00");
             defaultTasksList.get(11).setNotificationEnabled(true);
             defaultTasksList.get(11).setParentID(defaultProjectsList.get(1).getProjectId());
             defaultTasksList.get(11).setThemeID(defaultThemesList.get(11).getID());
 
             defaultTasksList.add(new Task("Проверить новую версию Room", "Последняя 2.4.1", defaultCategoriesList.get(1).getCategoryId() ));
-            defaultTasksList.get(12).setAlarmTime("20.05.2022 17:00");
+            defaultTasksList.get(12).setAlarmTime("20.06.2022 17:00");
             defaultTasksList.get(12).setNotificationEnabled(false);
             defaultTasksList.get(12).setExpired(true);
             defaultTasksList.get(12).setThemeID(defaultThemesList.get(10).getID());
 
-            defaultTasksList.add(new Task("Посмотреть видео про коптеры", "Любое", defaultCategoriesList.get(2).getCategoryId() ));
+            defaultTasksList.add(new Task("Записаться в спортзал", "Любой, в пределах 1 км от дома", defaultCategoriesList.get(2).getCategoryId() ));
             defaultTasksList.get(13).setThemeID(defaultThemesList.get(6).getID());
+            defaultTasksList.get(13).setStartTime("03.06.2022");
+            defaultTasksList.get(13).setEndTime("07.06.2022");
 
             defaultTasksList.add(new Task("Найти книгу с голубым переплетом", "Смотрел в гостинной, в третьем шкафу. Посмотреть в кладовке.", defaultCategoriesList.get(2).getCategoryId() ));
             defaultTasksList.get(14).setThemeID(defaultThemesList.get(7).getID());
 
-            defaultTasksList.add(new Task("Потратить баллы юмани", "Кол-во баллов на февраль 540", defaultCategoriesList.get(2).getCategoryId() ));
+            defaultTasksList.add(new Task("Потратить баллы юмани", "Кол-во баллов на июнь 540", defaultCategoriesList.get(2).getCategoryId() ));
             defaultTasksList.get(15).setThemeID(defaultThemesList.get(8).getID());
+            defaultTasksList.get(15).setStartTime("01.06.2022");
+            defaultTasksList.get(15).setEndTime("30.06.2022");
+            defaultTasksList.get(15).setImportance(3);
 
             defaultTasksList.add(new Task("Определить планы на лето", "1. Похудеть." +
                     "2. ...", defaultCategoriesList.get(2).getCategoryId() ));
@@ -577,7 +604,50 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             defaultTasksList.add(new Task("Тренинг", "Найти тренинг по аналитике", defaultCategoriesList.get(2).getCategoryId() ));
             defaultTasksList.get(19).setThemeID(defaultThemesList.get(11).getID());
 
-            //defaultTasksList.get(0).setParentID(defaultProjectsList.get(0).getProjectId());
+            defaultTasksList.add(new Task("Резервное копирование", "Выполнить резервное копирование базового терминала", defaultCategoriesList.get(1).getCategoryId() ));
+            defaultTasksList.get(20).setAlarmTime("25.06.2022 17:10");
+            defaultTasksList.get(20).setNotificationEnabled(true);
+            defaultTasksList.get(20).setThemeID(defaultThemesList.get(18).getID());
+
+            defaultTasksList.add(new Task("Права пользователя", "Обновить права пользователя U321", defaultCategoriesList.get(1).getCategoryId() ));
+            defaultTasksList.get(21).setAlarmTime("24.06.2022 12:10");
+            defaultTasksList.get(21).setNotificationEnabled(true);
+            defaultTasksList.get(21).setThemeID(defaultThemesList.get(12).getID());
+
+            defaultTasksList.add(new Task("Проверить лог", "Проверить лог на идентификацию ошибки EC801", defaultCategoriesList.get(1).getCategoryId() ));
+            defaultTasksList.get(22).setAlarmTime("24.06.2022 09:15");
+            defaultTasksList.get(22).setNotificationEnabled(true);
+            defaultTasksList.get(22).setThemeID(defaultThemesList.get(13).getID());
+
+            defaultTasksList.add(new Task("Проверить почту", "", defaultCategoriesList.get(1).getCategoryId() ));
+            defaultTasksList.get(23).setAlarmTime("24.06.2022 08:50");
+            defaultTasksList.get(23).setRepeatMode(1);
+            defaultTasksList.get(23).setNotificationEnabled(true);
+            defaultTasksList.get(23).setThemeID(defaultThemesList.get(5).getID());
+
+            defaultTasksList.add(new Task("Просмотреть план на день", "", defaultCategoriesList.get(1).getCategoryId() ));
+            defaultTasksList.get(24).setAlarmTime("24.06.2022 08:40");
+            defaultTasksList.get(24).setRepeatMode(1);
+            defaultTasksList.get(24).setNotificationEnabled(true);
+            defaultTasksList.get(24).setThemeID(defaultThemesList.get(4).getID());
+
+            defaultTasksList.add(new Task("Развертывать инфраструктуру", "", defaultCategoriesList.get(1).getCategoryId() ));
+            defaultTasksList.get(25).setAlarmTime("24.06.2022 12:50");
+            defaultTasksList.get(25).setRepeatMode(0);
+            defaultTasksList.get(25).setNotificationEnabled(true);
+            defaultTasksList.get(25).setThemeID(defaultThemesList.get(6).getID());
+
+            defaultTasksList.add(new Task("Решать задачи по расширению ПС", "", defaultCategoriesList.get(1).getCategoryId() ));
+            defaultTasksList.get(26).setAlarmTime("24.06.2022 14:40");
+            defaultTasksList.get(26).setRepeatMode(0);
+            defaultTasksList.get(26).setNotificationEnabled(true);
+            defaultTasksList.get(26).setThemeID(defaultThemesList.get(7).getID());
+
+            defaultTasksList.add(new Task("Выполнить поручение от В. С.", "", defaultCategoriesList.get(1).getCategoryId() ));
+            defaultTasksList.get(27).setAlarmTime("24.06.2022 16:05");
+            defaultTasksList.get(27).setRepeatMode(0);
+            defaultTasksList.get(27).setNotificationEnabled(true);
+            defaultTasksList.get(27).setThemeID(defaultThemesList.get(9).getID());
 
             for (Task task: defaultTasksList) {
                 mViewModel.addTask(task);
@@ -648,7 +718,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         long epochIntervalEndSeconds = LocalDateTime.now(ZoneOffset.UTC).toEpochSecond(ZoneOffset.UTC);
         List<UserCaseStatistic> ucsList = new ArrayList<>(count);
         for(int i = 0; i < count; i++){
-            UserCaseStatistic ucs = new UserCaseStatistic("TEST" + String.valueOf(i), false, false);
+            UserCaseStatistic ucs = new UserCaseStatistic("TEST* " + String.valueOf(i), false, false);
             ucs.setSecondsRecordDateTime(ThreadLocalRandom
                     .current()
                     .nextLong(epochIntervalStartSeconds, epochIntervalEndSeconds));
@@ -669,9 +739,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
     @Override
     public void onBackPressed() {
-
         int count = getSupportFragmentManager().getBackStackEntryCount();
-
         if (count == 0) {
             super.onBackPressed();
             //additional code

@@ -8,8 +8,9 @@
         android:orderInCategory="100"
         android:icon="@drawable/ic_round_search_24"
         android:title="@string/action_settings"
-        app:showAsAction="ifRoom"
+        app:showAsAction="always"
         app:actionViewClass="androidx.appcompat.widget.SearchView"
+        android:visible="true"
         />
     <!--<item
         android:id="@+id/action_add"

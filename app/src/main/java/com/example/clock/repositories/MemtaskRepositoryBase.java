@@ -1,10 +1,12 @@
 package com.example.clock.repositories;
 
 import android.content.Context;
+import android.util.Log;
 
 import androidx.core.util.Pair;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 
 import com.example.clock.app.App;
@@ -27,14 +29,18 @@ import com.example.clock.storageutils.Database;
 import com.example.clock.storageutils.LiveDataTransformations;
 import com.example.clock.storageutils.SilentDatabase;
 import com.example.clock.storageutils.Tuple2;
+import com.google.api.client.util.DateTime;
 import com.google.api.services.calendar.Calendar;
 import com.google.api.services.calendar.model.CalendarList;
 import com.google.api.services.calendar.model.CalendarListEntry;
 import com.google.api.services.calendar.model.Event;
+import com.google.api.services.calendar.model.EventAttachment;
+import com.google.api.services.calendar.model.EventDateTime;
 import com.google.api.services.calendar.model.Events;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -140,7 +146,13 @@ public class MemtaskRepositoryBase {
         return mTaskDao.getSingleTaskAndThemeByCategory(categoryID);
     }
 
+    public LiveData<List<Integer>> getTaskRepeatModeStatistic(){
+        return mUserCaseStatisticDao.getTaskStatistic();
+    }
 
+    public LiveData<List<Long>> getProjectTimeCreatedStatistic(){
+        return mUserCaseStatisticDao.getProjectStatistic();
+    }
 
     // Adding new data
     public void addUserCaseStatisticSilently(UserCaseStatistic ucs){
@@ -185,6 +197,15 @@ public class MemtaskRepositoryBase {
         });
     }
 
+    public LiveData<Integer> decomposeTask(String id, Project project){
+        MutableLiveData<Integer> result = new MutableLiveData<>();
+        mSilentDatabase.databaseWriteExecutor.execute(() -> {
+            int resCode = mTaskDao.decomposeTask(id, project);
+            result.postValue(resCode);
+        });
+        return result;
+    }
+
     //Removing existing data
     public void removeTask (Task removableTask) {
         Database.databaseWriteExecutor.execute(() -> {
@@ -193,15 +214,17 @@ public class MemtaskRepositoryBase {
     }
 
     public void removeTaskByID (String id){
-        Database.databaseWriteExecutor.execute(() -> {
+        mDatabase.databaseWriteExecutor.execute(() -> {
             mTaskDao.deleteById(id);
         });
     }
 
-    public void removeTaskByIDSilently(String id){
+    public LiveData<Integer> removeTaskByIDSilently(String id){
+        MutableLiveData<Integer> result = new MutableLiveData<>();
         mSilentDatabase.databaseWriteExecutor.execute(() -> {
-            mSilentTaskDao.deleteById(id);
+           result.postValue(mSilentTaskDao.deleteById(id));
         });
+        return result;
     }
 
     public void removeProject (String id) {
@@ -330,24 +353,37 @@ public class MemtaskRepositoryBase {
                                             public void run() {
                                                 try {
                                                     eventsWB[0] = result.second.events().list(le.getId()).execute();
-                                                } catch (IOException e) {
+                                                }
+                                                catch (IOException e) {
                                                     e.printStackTrace();
                                                 }
-                                                List<Event> eventsList = eventsWB[0].getItems();
-                                                for(int j = 0; j < eventsList.size(); j++){
-                                                    AtomicBoolean fte = new AtomicBoolean(false);
-                                                    Event ev = eventsList.get(j);
-                                                    data.second.forEach(task -> {
-                                                        if(ev.getId().equals(task.getTaskId())){
-                                                            events.add(new OuterEvent(ev, task));
-                                                            calendars.get(c).addEvent(ev);
-                                                            fte.set(true);
+                                                try {
+                                                    List<Event> eventsList = eventsWB[0].getItems();
+                                                    for (int j = 0; j < eventsList.size(); j++) {
+                                                        AtomicBoolean fte = new AtomicBoolean(false);
+                                                        Event ev = eventsList.get(j);
+
+                                                        if(ev
+                                                                .getSummary()
+                                                                .equalsIgnoreCase("Father's day")){
+                                                            Log.d("duplciate", "father");
                                                         }
-                                                    });
-                                                    if(!fte.get()){
-                                                        events.add(new OuterEvent(ev, calendars.get(c).ct.getCategoryId(), baseTheme.getID()));
+
+                                                        data.second.forEach(task -> {
+                                                            if (ev.getId().equals(task.getTaskId())) {
+                                                                events.add(new OuterEvent(ev, task));
+                                                                calendars.get(c).addEvent(ev);
+                                                                fte.set(true);
+                                                            }
+                                                        });
+                                                        if (!fte.get()) {
+                                                            events.add(new OuterEvent(ev, calendars.get(c).ct.getCategoryId(), baseTheme.getID()));
+                                                        }
+                                                        dbInTasks.add(events.get(events.size() - 1).ts);
                                                     }
-                                                    dbInTasks.add(events.get(events.size() - 1).ts);
+                                                }
+                                                catch (Exception e){
+                                                    e.printStackTrace();
                                                 }
                                             }
                                         });
@@ -359,6 +395,11 @@ public class MemtaskRepositoryBase {
                                             e.printStackTrace();
                                         }
                                     }
+                                    dbInTasks.forEach(item -> {
+                                        if(item.getName().equalsIgnoreCase("Father's day")){
+                                            Log.d("duplciate", "father");
+                                        }
+                                    });
                                     insertAndUpdateGCData(dbInCats, dbInTasks);
                                     syncLoop.set(true);
                                 }
@@ -397,12 +438,19 @@ public class MemtaskRepositoryBase {
 
     public void insertAndUpdateGCData(List<Category> categories, List<Task> tasks){
         Database.databaseWriteExecutor.execute(() -> {
-            mCategoryDao.setGCData(categories, tasks);
+            mCategoryDao.setGCCatData(categories);
+            setGCTaskData(tasks);
         });
     }
 
     public Theme getThemeByName(String name){
         return mSilentDatabase.themeDao().getByName(name);
+    }
+
+    public void setGCTaskData(List<Task> tasks){
+        tasks.forEach(task -> {
+            addTask(task);
+        });
     }
 
     class OuterCalendar{
@@ -461,6 +509,45 @@ public class MemtaskRepositoryBase {
             ts.setTaskId(ev.getId());
             ts.setCategoryId(categoryID);
             ts.setThemeID(themeID);
+
+            long start = 0;
+            try {
+                EventDateTime evdt = ev.getStart();
+                DateTime dt = evdt.getDateTime();
+                if(dt == null){
+                    DateTime dt0 = evdt.getDate();
+                    start = dt0.getValue();
+                }
+                else {
+                    start = dt.getValue();
+                }
+            } catch (Exception ignored){
+
+            }
+            List<EventAttachment> attachments = ev.getAttachments();
+            long end = 0;
+            try {
+                EventDateTime evdt = ev.getEnd();
+                DateTime dt = evdt.getDateTime();
+                if(dt == null){
+                    DateTime dt0 = evdt.getDate();
+                    end = dt0.getValue();
+                }
+                else {
+                    end = dt.getValue();
+                }
+            }
+            catch (Exception ignored){
+
+            }
+            if(start > 0){
+                ts.setNotificationStartMillis(start);
+                ts.schedule(App.getInstance().getApplicationContext());
+            }
+            if(start > 0 && end > 0){
+                ts.setStartTime(start);
+                ts.setEndTime(end);
+            }
         }
 
         public void processMerge(){

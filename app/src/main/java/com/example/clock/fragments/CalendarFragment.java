@@ -3,7 +3,6 @@ package com.example.clock.fragments;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -39,8 +38,6 @@ import java.time.ZoneOffset;
 
 
 public class CalendarFragment extends Fragment implements SearchView.OnQueryTextListener {
-    //TODO: FORCE FRAGMENT TO RESTORE AFTER NAV DRAW CLICK BACK
-
     RecyclerView mRecyclerView;
     CalendarFragmentAdapter mRecyclerViewAdapter;
     CalendarViewModel mViewModel;

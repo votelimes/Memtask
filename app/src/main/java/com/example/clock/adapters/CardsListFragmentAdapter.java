@@ -1,27 +1,20 @@
 package com.example.clock.adapters;
 
-import android.Manifest;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.media.Image;
 import android.net.Uri;
-import android.os.Parcelable;
-import android.os.SystemClock;
+import android.os.Handler;
 import android.provider.ContactsContract;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -30,14 +23,15 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.LinearSmoothScroller;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.clock.R;
+import com.example.clock.activities.ContactActivity;
 import com.example.clock.activities.ManageTaskActivity;
 import com.example.clock.activities.MapActivity;
 import com.example.clock.app.App;
@@ -56,16 +50,11 @@ import com.onegravity.contactpicker.core.ContactPickerActivity;
 import com.onegravity.contactpicker.picture.ContactPictureType;
 import com.pedromassango.doubleclick.DoubleClick;
 import com.pedromassango.doubleclick.DoubleClickListener;
-import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
 import java.io.Serializable;
-import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 
 public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
@@ -83,8 +72,10 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
     private int mAddedOutside = -1;
     private Snackbar mItemHasBeenDeletedSnack;
     public String mContactsTaskID;
+    private LifecycleOwner lifecycleOwner;
 
     RecyclerView.SmoothScroller smoothScroller;
+    private int projectAdapterItemPos = -1;
 
     public static class TaskViewHolder extends RecyclerView.ViewHolder implements View.OnLayoutChangeListener {
         private final CategoryTaskBinding binding;
@@ -346,7 +337,8 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
     }
 
     public CardsListFragmentAdapter(ActivityResultLauncher<Intent> resultLauncher,
-                                    CategoryActivitiesViewModel viewModel, View rootView, RecyclerView.LayoutManager layoutManager) {
+                                    CategoryActivitiesViewModel viewModel,
+                                    View rootView, RecyclerView.LayoutManager layoutManager, LifecycleOwner lco) {
         App.getInstance().dropLoadTimer();
         mViewModel = viewModel;
         this.resultLauncher = resultLauncher;
@@ -357,7 +349,7 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
                 return LinearSmoothScroller.SNAP_TO_START;
             }
         };
-
+        lifecycleOwner = lco;
         mItemHasBeenDeletedSnack = Snackbar.make(rootView, "", mViewModel.RESTORE_ITEM_SNACKBAR_TIME);
 
         View snackBarView = mItemHasBeenDeletedSnack.getView();
@@ -406,6 +398,10 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
                                 public void onClick(DialogInterface dialogInterface, int i) {
                                     switch (i) {
                                         case 0: // Декомпозировать
+                                            mViewModel.decomposeTask(viewHolder.getAbsoluteAdapterPosition(), lifecycleOwner);
+                                            CardsListFragmentAdapter
+                                                    .this
+                                                    .notifyItemChanged(viewHolder.getAbsoluteAdapterPosition());
                                             break;
                                         case 1: // Изменить
                                             Intent intent = new Intent(view.getContext(), ManageTaskActivity.class);
@@ -433,7 +429,10 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
                                             mViewModel.prepareContactsDialog(1, mViewModel
                                                     .getSingleTaskObs(viewHolder.getAbsoluteAdapterPosition())
                                                     .getTask().getTaskId());
-                                            resultLauncher.launch(intentCont);
+                                            Intent intent3 = new Intent(view.getContext(), ContactActivity.class);
+                                            intent3.putExtra("Contacts", (Serializable) cid);
+                                            resultLauncher.launch(intent3);
+                                            //resultLauncher.launch(intentCont);
                                             break;
                                         case 3: // Адреса
                                             Intent intentMap = new Intent(view.getContext(), MapActivity.class);
@@ -505,9 +504,16 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
                 }
             }
             if(mAddedOutside != -1 && mAddedOutside == viewHolder.getAbsoluteAdapterPosition()) {
-                viewHolder.getName().requestFocus();
-                InputMethodManager imm = (InputMethodManager) App.getInstance().getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
+                final Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        viewHolder.getName().requestFocus();
+                        InputMethodManager imm = (InputMethodManager) App.getInstance().getSystemService(Context.INPUT_METHOD_SERVICE);
+                        imm.hideSoftInputFromWindow(rootView.getApplicationWindowToken(), 0);
+                        imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
+                    }
+                }, 10);
                 mAddedOutside = -1;
             }
         }
@@ -528,9 +534,7 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
                                 public void onClick(DialogInterface dialogInterface, int i) {
                                     switch (i) {
                                         case 0:
-                                            mViewModel.addProjectChild(viewHolder.getAbsoluteAdapterPosition());
-                                            viewHolder.getAdapter().setAddedOutside(viewHolder.getAbsoluteAdapterPosition());
-                                            notifyItemChanged(viewHolder.getAbsoluteAdapterPosition());
+                                            addProjectChild(viewHolder.getAbsoluteAdapterPosition(), projectObs);
                                             break;
 
                                         case 1: // Изменить
@@ -559,12 +563,8 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
 
                 @Override
                 public void onDoubleClick(View v) {
-                    mViewModel.addProjectChild(viewHolder.getAbsoluteAdapterPosition());
+                    addProjectChild(viewHolder.getAbsoluteAdapterPosition(), projectObs);
                     Toast.makeText(v.getContext(), "Подзадача добавлена", Toast.LENGTH_SHORT).show();
-                    projectObs.recalcProgress();
-                    viewHolder.getAdapter().notifyDataSetChanged();
-                    viewHolder.getAdapter().scrollTo(viewHolder.mAdapter.getItemCount());
-                    viewHolder.getAdapter().setAddedOutside(viewHolder.getAbsoluteAdapterPosition());
                 }
             }));
 
@@ -590,6 +590,7 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
                     rootView, viewHolder.getLayoutManager(), CardsListFragmentAdapter.this);
 
             viewHolder.setAdapter(adapter);
+
             viewHolder.getRecyclerView().setOnTouchListener(new View.OnTouchListener() {
                 @Override
                 public boolean onTouch(View view, MotionEvent motionEvent) {
@@ -603,10 +604,11 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
             if(mAddedOutside != -1 && mAddedOutside == viewHolder.getAbsoluteAdapterPosition()) {
                 viewHolder.getName().requestFocus();
                 InputMethodManager imm = (InputMethodManager) App.getInstance().getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(rootView.getApplicationWindowToken(), 0);
                 imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
             }
         }
-        if(App.isTesting()){
+        if(App.isTesting() && false){
             App.getInstance().fixLoadTimer();
         }
     }
@@ -740,5 +742,16 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
         return dp * ((float) context.getResources().getDisplayMetrics().densityDpi / DisplayMetrics.DENSITY_DEFAULT);
     }
 
+    public int getProjectChildPos(){
+        return projectAdapterItemPos;
+    }
 
+    public void addProjectChild(int absoluteAdapterPosition, CategoryActivitiesViewModel.ProjectObserver projObs){
+        mViewModel.addProjectChild(absoluteAdapterPosition);
+        Toast.makeText(rootView.getContext(), "Подзадача добавлена", Toast.LENGTH_SHORT).show();
+        projObs.recalcProgress();
+        int pos = projObs.getChildsCount() - 1;
+        projectAdapterItemPos = pos;
+        notifyItemChanged(absoluteAdapterPosition);
+    }
 }

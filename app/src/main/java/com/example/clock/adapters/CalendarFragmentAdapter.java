@@ -11,11 +11,9 @@ import android.net.Uri;
 import android.text.style.RelativeSizeSpan;
 import android.text.style.StyleSpan;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -57,7 +55,6 @@ import com.squareup.picasso.Target;
 
 import org.threeten.bp.LocalDate;
 
-import java.util.Date;
 import java.util.List;
 
 public class CalendarFragmentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {

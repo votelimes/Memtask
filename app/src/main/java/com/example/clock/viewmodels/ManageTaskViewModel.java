@@ -6,7 +6,6 @@ import android.content.Context;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
-import android.os.Handler;
 
 import androidx.databinding.BaseObservable;
 import androidx.databinding.Bindable;
@@ -154,7 +153,7 @@ public class ManageTaskViewModel extends MemtaskViewModelBase {
 
             if(mManagingTaskRepository.mManagingTask.getStartTime() != 0
                     && mManagingTaskRepository.mManagingTask.getStartTime() != -1
-                    && ldt.isAfter(LocalDateTime.now()) && !App.instance.isTesting()){
+                    && ldt.isAfter(LocalDateTime.now())){
 
                 Thread thread = new Thread(new Runnable() {
                     public void run() {

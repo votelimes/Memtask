@@ -1,7 +1,5 @@
 package com.example.clock.fragments;
 
-import android.Manifest;
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -26,6 +24,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.clock.R;
+import com.example.clock.activities.ContactActivity;
 import com.example.clock.activities.ManageTaskActivity;
 import com.example.clock.adapters.CardsListFragmentAdapter;
 import com.example.clock.app.App;
@@ -41,7 +40,6 @@ import com.github.clans.fab.FloatingActionMenu;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.onegravity.contactpicker.contact.Contact;
 import com.onegravity.contactpicker.core.ContactPickerActivity;
-import com.onegravity.contactpicker.group.Group;
 
 import java.util.List;
 
@@ -65,6 +63,10 @@ public class CardsListFragment extends Fragment implements SearchView.OnQueryTex
                 }
                 else if(result.getResultCode() == 30){
                     Toast.makeText(getActivity(), "Проект создан", Toast.LENGTH_SHORT).show();
+                }
+                else if(result.getResultCode() == ContactActivity.RESULT_RETURN_ITEMS){
+                    String contactsList = result.getData().getStringExtra(ContactActivity.RESULT_KEY);
+                    mViewModel.putContacts(contactsList);
                 }
                 if(result.getData() != null && result.getData().hasExtra(ContactPickerActivity.RESULT_CONTACT_DATA)){
 
@@ -223,7 +225,7 @@ public class CardsListFragment extends Fragment implements SearchView.OnQueryTex
 
             mViewModel.init();
             mRecyclerViewAdapter = new CardsListFragmentAdapter(
-                    activityLauncher, mViewModel, mMainLayoutView, mLayoutManager);
+                    activityLauncher, mViewModel, mMainLayoutView, mLayoutManager, getActivity());
             mRecyclerView.setLayoutManager(mLayoutManager);
             mRecyclerView.setAdapter(mRecyclerViewAdapter);
             mRecyclerView.setOnTouchListener(new View.OnTouchListener() {

@@ -225,6 +225,7 @@
                     android:checked="@={viewmodel.mManagingTaskRepository.taskGeneralNotificationState}"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/manage_task_layout_duration"
+                    android:visibility="@{viewmodel.mManagingTaskRepository.isTaskMode ? View.VISIBLE : View.GONE}"
                     />
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/manage_task_layout_notify"
@@ -520,7 +521,7 @@
                             android:layout_height="wrap_content"
                             app:layout_constraintTop_toBottomOf="@+id/manage_task_first_text_color_text"
                             app:layout_constraintStart_toStartOf="parent"
-                            android:text="Цвет текста"
+                            android:text="Цвет доп. текста"
                             android:textSize="@dimen/big_font"
                             android:layout_marginTop="35dp"
                             />

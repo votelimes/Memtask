@@ -2,9 +2,11 @@ package com.example.clock.dao;
 
 import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
+import androidx.room.Insert;
 import androidx.room.Query;
+import androidx.room.Transaction;
 
-import com.example.clock.model.Category;
+import com.example.clock.model.Project;
 import com.example.clock.model.Task;
 import com.example.clock.model.TaskAndTheme;
 import com.example.clock.model.TaskData;
@@ -30,14 +32,14 @@ public abstract class TaskDao extends BaseDao<Task> {
     @Query("DELETE FROM task_table")
     public abstract int clear();
 
-    @Query("DELETE FROM task_table WHERE task_ID = :id")
-    public abstract void deleteById(String id);
+    @Query("DELETE FROM task_table WHERE task_table.task_ID = :id")
+    public abstract int deleteById(String id);
 
     @Query("SELECT * FROM task_table WHERE mNotificationStartMillis >= :startMillis AND mNotificationStartMillis < :endMillis ORDER by mNotificationStartMillis ASC")
     public abstract LiveData<List<Task>> getTasksLiveDataByNotification(long startMillis, long endMillis);
 
     @Query("SELECT task_table.*, theme_table.*, category_table.categoryName FROM task_table LEFT JOIN theme_table ON task_table.mThemeID = theme_table.theme_ID LEFT JOIN category_table ON task_table.categoryId = category_table.categoryId"
-            + " WHERE task_table.mNotificationStartMillis >= :startMillis AND task_table.mNotificationStartMillis < :endMillis")
+            + " WHERE (task_table.mNotificationStartMillis >= :startMillis AND task_table.mNotificationStartMillis < :endMillis) OR (task_table.repeatMode > 0 AND task_table.mNotificationStartMillis > 0) ORDER BY mNotificationStartMillis ASC")
     public abstract LiveData<List<TaskData>> getTasksWithThemeByNotification(long startMillis, long endMillis);
 
     @Query("SELECT task_table.*, theme_table.*, category_table.categoryName FROM task_table LEFT JOIN theme_table ON task_table.mThemeID = theme_table.theme_ID LEFT JOIN category_table ON task_table.categoryId = category_table.categoryId"
@@ -70,7 +72,7 @@ public abstract class TaskDao extends BaseDao<Task> {
     @Query("SELECT * FROM task_table WHERE task_ID = :id")
     public abstract Task getTask(String id);
 
-    @Query("SELECT * FROM task_table WHERE (task_table.mParentID IS NULL OR task_table.mParentID = '') AND task_table.categoryId = :categoryID")
+    @Query("SELECT * FROM task_table WHERE (task_table.mParentID IS NULL OR task_table.mParentID = '') AND task_table.categoryId = :categoryID ORDER BY mName ASC")
     public abstract LiveData<List<TaskAndTheme>> getSingleTaskAndThemeByCategory(String categoryID);
 
     @Query("SELECT * FROM task_table WHERE task_table.mParentID IS NULL")
@@ -86,4 +88,19 @@ public abstract class TaskDao extends BaseDao<Task> {
 
     @Query("SELECT * FROM task_table WHERE (task_table.syncing = 1)")
     public abstract LiveData<List<Task>> getAllSyncing();
+
+    @Insert
+    public abstract long insertProject(Project obj);
+
+    @Transaction
+    public int decomposeTask(String id, Project project){
+        int res1 = deleteById(id);
+        long res2 = insertProject(project);
+        if(res1 > -1 && res2 > -1){
+            return 0;
+        }
+        else{
+            return -1;
+        }
+    }
 }

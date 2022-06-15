@@ -1,16 +1,26 @@
 package com.example.clock.viewmodels;
 
 import android.app.Application;
+import android.app.usage.UsageStats;
+import android.app.usage.UsageStatsManager;
+import android.content.Context;
 
 import androidx.databinding.BaseObservable;
 import androidx.databinding.Bindable;
 import androidx.lifecycle.LiveData;
 
 import com.example.clock.BR;
+import com.example.clock.app.App;
+import com.example.clock.model.ProjectData;
+import com.example.clock.model.TaskAndTheme;
+import com.example.clock.model.Theme;
 import com.example.clock.model.UserCaseStatistic;
 import com.example.clock.repositories.MemtaskRepositoryBase;
 import com.example.clock.storageutils.Database;
+import com.example.clock.storageutils.LiveDataTransformations;
 import com.example.clock.storageutils.SilentDatabase;
+import com.example.clock.storageutils.Tuple2;
+import com.example.clock.storageutils.Tuple3;
 import com.github.mikephil.charting.data.BarEntry;
 
 import java.time.LocalDateTime;
@@ -18,11 +28,18 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class StatisticViewModel extends MemtaskViewModelBase {
     private final long millisInDay = 24*60*60*1000;
     LiveData<List<UserCaseStatistic>> mStatPool;
+
+    LiveData<List<Integer>> mTaskStat;
+    LiveData<List<Long>> mProjectStat;
+
+    public LiveData<Tuple3<List<Integer>, List<Long>, List<UserCaseStatistic>>> intermediate;
 
     private List<BarEntry> chart1Entries;
     private List<String> chart1XAxisNames;
@@ -46,6 +63,10 @@ public class StatisticViewModel extends MemtaskViewModelBase {
         mStatPool = mRepository.getUserCaseStatistic
                 (mDataHolder.getStartChart1RangeLong()*1000,
                         mDataHolder.getEndChart1RangeLong()*1000);
+        mTaskStat = mRepository.getTaskRepeatModeStatistic();
+        mProjectStat = mRepository.getProjectTimeCreatedStatistic();
+
+        intermediate = LiveDataTransformations.ifNotNull(mTaskStat, mProjectStat, mStatPool);
     }
 
     public LiveData<List<UserCaseStatistic>> getStatPoolLiveData(){
@@ -64,11 +85,65 @@ public class StatisticViewModel extends MemtaskViewModelBase {
         return chart1XAxisNames;
     }
 
-    public LiveData<List<UserCaseStatistic>> updatePool(){
+    public LiveData<Tuple3<List<Integer>, List<Long>, List<UserCaseStatistic>>> updatePool(){
         mStatPool = mRepository.getUserCaseStatistic
                 (mDataHolder.getStartChart1RangeLong()*1000,
                         mDataHolder.getEndChart1RangeLong()*1000);
-        return mStatPool;
+        intermediate = LiveDataTransformations.ifNotNull(mTaskStat, mProjectStat, mStatPool);
+        return intermediate;
+    }
+
+    public int getCompletedCount(){
+        if(mStatPool.getValue() != null) {
+            return (int) mStatPool.getValue().stream().filter(UserCaseStatistic::isStateCompleted).count();
+        }
+        return 0;
+    }
+
+    public int getExpiredCount(){
+        if(mStatPool.getValue() != null) {
+            return (int) mStatPool.getValue().stream().filter(UserCaseStatistic::isStateExpired).count();
+        }
+        return 0;
+    }
+
+    public int getSummary(){
+        int c1 = mTaskStat.getValue().size();
+        return c1 + mProjectStat.getValue().size();
+    }
+
+    public int getRepeating(){
+        return (int) mTaskStat.getValue().stream().filter(item -> item > 0).count();
+    }
+
+    public String getUsageTime(Context context){
+        UsageStatsManager mUsageStatsManager = (UsageStatsManager) context.getSystemService(Context.USAGE_STATS_SERVICE);
+        Map<String, UsageStats> lUsageStatsMap = mUsageStatsManager.queryAndAggregateUsageStats(0, System.currentTimeMillis());
+        long ut = lUsageStatsMap.get("com.example.clock").getTotalTimeInForeground();
+
+        long hours = TimeUnit.MILLISECONDS.toHours(ut);
+        long minutes = TimeUnit.MILLISECONDS.toMinutes(ut) -
+                TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(ut));
+        if(App.getSettings().TESTING){
+            hours += 2;
+        }
+
+        return String.valueOf(hours) + " часов, " + String.valueOf(minutes) + " минут";
+    }
+
+    public String getUsageTimePerWeek(Context context){
+        UsageStatsManager mUsageStatsManager = (UsageStatsManager) context.getSystemService(Context.USAGE_STATS_SERVICE);
+        long currentTime = System.currentTimeMillis();
+        long lastWeek = currentTime - (1000*60*24*7);
+
+        Map<String, UsageStats> lUsageStatsMap = mUsageStatsManager.queryAndAggregateUsageStats(lastWeek,currentTime);
+        long ut = lUsageStatsMap.get("com.example.clock").getTotalTimeInForeground();
+
+        long hours = TimeUnit.MILLISECONDS.toHours(ut);
+        long minutes = TimeUnit.MILLISECONDS.toMinutes(ut) -
+                TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(ut));
+
+        return String.valueOf(hours) + " часов, " + String.valueOf(minutes) + " минут";
     }
 
     //Private
@@ -100,6 +175,18 @@ public class StatisticViewModel extends MemtaskViewModelBase {
             chart1Entries.add(new BarEntry((float) i, (float) expiredCount.get() / (completedCount.get() + expiredCount.get())));
             chart1XAxisNames.add(LocalDateTime.ofEpochSecond(currentDiv, 0, ZoneOffset.UTC).format(dtf));
         }
+    }
+
+    public LiveData<List<Integer>> getmTaskStat() {
+        return mTaskStat;
+    }
+
+    public LiveData<List<Long>> getmProjectStat() {
+        return mProjectStat;
+    }
+
+    public LiveData<Tuple3<List<Integer>, List<Long>, List<UserCaseStatistic>>> getIntermediate() {
+        return intermediate;
     }
 
     //Obs

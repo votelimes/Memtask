@@ -12,6 +12,7 @@ import androidx.room.ForeignKey;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
+import com.example.clock.BR;
 import com.example.clock.broadcastreceiver.AlarmBroadcastReceiver;
 
 import java.time.DayOfWeek;
@@ -22,7 +23,6 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -38,8 +38,8 @@ import java.util.stream.Stream;
         },
 
         foreignKeys = {
-        @ForeignKey(entity = Project.class, parentColumns = "projectId", childColumns = "mParentID"),
-        @ForeignKey(entity = Theme.class, parentColumns = "theme_ID", childColumns = "mThemeID")
+        @ForeignKey(entity = Project.class, parentColumns = "projectId", childColumns = "mParentID", onDelete = ForeignKey.NO_ACTION),
+        @ForeignKey(entity = Theme.class, parentColumns = "theme_ID", childColumns = "mThemeID", onDelete = ForeignKey.NO_ACTION)
         }
         )
 public class Task extends UserCaseBase {
@@ -139,8 +139,11 @@ public class Task extends UserCaseBase {
 
     // 1 if notification in the Past
     public int schedule(Context context) {
+        final long RUN_DAILY = 24 * 60 * 60 * 1000;
+
         if(notificationEnabled){
             cancelAlarm(context);
+            this.notificationEnabled = true;
         }
 
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
@@ -153,37 +156,72 @@ public class Task extends UserCaseBase {
         PendingIntent alarmPendingIntent = PendingIntent
                 .getBroadcast(context, TaskNotificationManager.REQUEST_CODE_BASE, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-        LocalDateTime ldt = LocalDateTime.ofEpochSecond((long) mNotificationStartMillis / 1000, 0, ZoneOffset.UTC);
+        LocalDateTime selectedDate = LocalDateTime.ofEpochSecond((long) mNotificationStartMillis / 1000, 0, ZoneOffset.UTC);
         LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
 
-        // if alarm time has already passed, increment day by 1
-        if (ldt.isBefore(LocalDateTime.now()) && repeatMode != 0) {
-            ldt.plusDays(1);
+        if(isNotificationEnabled() != true){
+            if(repeatMode == 0){
+                return 1;
+            }
+            else{
+                return -1;
+            }
         }
-        else if(ldt.isBefore(now)){
+
+        if(isNotificationEnabled()){
+            if(getRepeatMode() == 1){ // Каждый день
+                if(selectedDate.isBefore(now)){
+                    selectedDate = selectedDate.withYear(now.getYear());
+                    selectedDate = selectedDate.withDayOfYear(now.getDayOfYear());
+                    if(selectedDate.isBefore(now)){
+                        selectedDate = selectedDate.plusDays(1);
+                    }
+                }
+                setNotificationStartMillis(selectedDate.toEpochSecond(ZoneOffset.UTC) * 1000);
+            } // По дням неделям или будням
+            else if(getRepeatMode() == 2 || getRepeatMode() == 3){
+                selectedDate = selectedDate.withYear(now.getYear());
+                selectedDate = selectedDate.withDayOfYear(now.getDayOfYear());
+
+                if(isDayOfWeekActive(selectedDate.getDayOfWeek())
+                        && selectedDate.isAfter(LocalDateTime.now())){
+                    setNotificationStartMillis(selectedDate.toEpochSecond(ZoneOffset.UTC) * 1000);
+                }
+                else {
+                    int exitDecision = 0;
+                    while ((!isDayOfWeekActive(selectedDate.getDayOfWeek())
+                            || selectedDate.isBefore(now))
+                            && exitDecision < 8){
+                        selectedDate = selectedDate.plusDays(1);
+                        exitDecision++;
+                    }
+                    if(exitDecision > 7){
+                        setNotificationStartMillis(0);
+                    }
+                    else {
+                        setNotificationStartMillis(selectedDate.toEpochSecond(ZoneOffset.UTC) * 1000);
+                    }
+                }
+            } // Раз в месяц
+            else if(getRepeatMode() == 4){
+                if(selectedDate.isBefore(now)){
+                    selectedDate = selectedDate.plusMonths(1);
+                }
+                setNotificationStartMillis(selectedDate.toEpochSecond(ZoneOffset.UTC) * 1000);
+            }
+        }
+        if(selectedDate.isAfter(LocalDateTime.now())) {
+            alarmManager.setExact(
+                    AlarmManager.RTC_WAKEUP,
+                    getConvertedNotifyMillis(),
+                    alarmPendingIntent
+            );
+        }
+        else if(getRepeatMode() == 0 && notificationInProgress == false){
             return 1;
         }
-
-        switch (repeatMode){
-            case 0: // Один раз
-                alarmManager.setExact(
-                        AlarmManager.RTC_WAKEUP,
-                        getConvertedNotifyMillis(),
-                        alarmPendingIntent
-                );
-                break;
-            case 1: // Каждый день
-                final long RUN_DAILY = 24 * 60 * 60 * 1000;
-                final long RUN_TEST = 1000 * 60 * 2;
-                alarmManager.setRepeating(
-                        AlarmManager.RTC_WAKEUP,
-                        getConvertedNotifyMillis(),
-                        RUN_TEST,
-                        alarmPendingIntent
-                );
-                break;
-            case 2: // По будням
-
+        if(notificationInProgress){
+            notificationInProgress = false;
         }
         this.notificationEnabled = true;
         return 0;
@@ -194,7 +232,7 @@ public class Task extends UserCaseBase {
         Intent intent = new Intent(context, AlarmBroadcastReceiver.class);
         intent.setAction(taskId);
         intent.putExtra(TaskNotificationManager.ID_KEY, taskId);
-        intent.putExtra(TaskNotificationManager.MODE_KEY, TaskNotificationManager.MODE_INLINE);
+        intent.putExtra(TaskNotificationManager.MODE_KEY, TaskNotificationManager.MODE_GENERAL);
 
         PendingIntent alarmPendingIntent = PendingIntent
                 .getBroadcast(context, TaskNotificationManager.REQUEST_CODE_BASE, intent, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -595,7 +633,7 @@ public class Task extends UserCaseBase {
             return false;
         }
 
-        if(endTime != -1) {
+        if(endTime != 0) {
             LocalDateTime activityEndTime = LocalDateTime.ofEpochSecond(endTime / 1000, 0, ZoneOffset.UTC);
             if(now.isAfter(activityEndTime)){
                 expired = true;
@@ -620,7 +658,7 @@ public class Task extends UserCaseBase {
             return false;
         }
 
-        if(endTime != -1) {
+        if(endTime != 0) {
             LocalDateTime activityEndTime = LocalDateTime
                     .ofEpochSecond(endTime / 1000, 0, ZoneOffset.UTC);
             if(now.isAfter(activityEndTime)){
@@ -631,7 +669,7 @@ public class Task extends UserCaseBase {
         else if(notificationEnabled){
             LocalDateTime notificationTime = LocalDateTime
                     .ofEpochSecond(mNotificationStartMillis / 1000, 0, ZoneOffset.UTC);
-            if(now.isAfter(notificationTime)){
+            if(now.isAfter(notificationTime.plusMinutes(2))){
                 expired = true;
                 return true;
             }

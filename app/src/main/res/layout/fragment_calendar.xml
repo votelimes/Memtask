@@ -32,6 +32,7 @@
             android:paddingBottom="100dp"
             android:focusable="true"
             android:focusableInTouchMode="true"
+            android:descendantFocusability="beforeDescendants"
             />
         <com.github.clans.fab.FloatingActionButton
             android:id="@+id/fragment_calendar_fab_task"

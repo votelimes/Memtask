@@ -113,6 +113,13 @@
                 app:constraint_referenced_ids="task_category_layout"
                 />
             <androidx.constraintlayout.widget.Barrier
+                android:id="@+id/task_br44"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:barrierDirection="right"
+                app:constraint_referenced_ids="task_important"
+                />
+            <androidx.constraintlayout.widget.Barrier
                 android:id="@+id/task_br5"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -120,23 +127,24 @@
                 app:constraint_referenced_ids="task_category_layout"
                 />
             <EditText
+                android:gravity="left"
                 android:id="@+id/task_name"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:minWidth="100dp"
+                android:maxWidth="230dp"
                 android:layout_marginStart="16dp"
                 android:layout_marginEnd="16dp"
                 android:layout_marginTop="14dp"
-                android:maxWidth="315dp"
-                android:text="@={data.name}"
+                android:text="@={data.Name}"
                 android:hint="Название задачи"
+                android:fontFamily="@font/encode_sans_regular"
+                android:background="@color/transparent"
                 android:textSize="16sp"
-                app:strikeThrough="@{data.getCompletedOrExpired}"
+                app:strikeThrough="@{data.CompletedOrExpired}"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/task_range"
                 android:textColor="@color/act_text_main"
-                android:fontFamily="@font/encode_sans_regular"
-                android:background="@color/transparent"
-                android:textColorHint="@color/act_text_main"
                 android:typeface='@{data.Description.length() == 0 ? "regular" : "bold"}'
                 android:multiline="@{!data.CompletedOrExpired}"
                 />
@@ -153,18 +161,18 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="4dp"
+                android:layout_marginEnd="16dp"
                 android:paddingBottom="8dp"
+                android:maxWidth="340dp"
                 android:text="@={data.Description}"
                 app:strikeThrough="@{data.CompletedOrExpired}"
                 android:textSize="16sp"
-                android:textColor="@color/act_text_main"
-                android:visibility="@{data.DescriptionState ? View.VISIBLE : View.GONE}"
-                android:inputType="@{!data.CompletedOrExpired ? InputType.TYPE_CLASS_TEXT : InputType.TYPE_NULL}"
                 android:background="@color/transparent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/task_name"
+                android:textColor="@color/act_text_main"
+                android:visibility="@{data.DescriptionState ? View.VISIBLE : View.GONE}"
                 android:multiline="@{!data.CompletedOrExpired}"
-                app:layout_constraintEnd_toStartOf="@id/task_important"
                 />
             <ImageView
                 android:id="@+id/task_alarm_image"
@@ -204,7 +212,6 @@
                 android:id="@+id/task_group1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:visibility="@{data.notificationEnabled ? View.VISIBLE : View.GONE}"
                 app:constraint_referenced_ids="task_alarm_image,task_alarm_time" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </com.google.android.material.card.MaterialCardView>

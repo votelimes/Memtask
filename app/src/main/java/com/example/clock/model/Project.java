@@ -14,7 +14,7 @@ import androidx.room.PrimaryKey;
         @Index(name = "project_theme", value = "mThemeID")},
 
         foreignKeys = {
-        @ForeignKey(entity = Theme.class, parentColumns = "theme_ID", childColumns = "mThemeID")}
+        @ForeignKey(entity = Theme.class, parentColumns = "theme_ID", childColumns = "mThemeID", onDelete = ForeignKey.NO_ACTION)}
 
 )
 public class Project extends UserCaseBase {

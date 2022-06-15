@@ -8,7 +8,6 @@ import android.text.InputType;
 import android.text.method.ScrollingMovementMethod;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.EditorInfo;
 import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -20,7 +19,6 @@ import androidx.core.util.Pair;
 import androidx.databinding.BindingAdapter;
 
 import com.example.clock.R;
-import com.example.clock.app.App;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
@@ -74,7 +72,23 @@ public class BindingAdapters {
     public static void setMultiline(EditText v, boolean state) {
         if(state){
             v.setSingleLine(false);
-            v.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
+            v.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
+            v.setLines(1);
+            v.setMaxLines(7);
+            v.setVerticalScrollBarEnabled(true);
+            v.setMovementMethod(ScrollingMovementMethod.getInstance());
+            v.setScrollBarStyle(View.SCROLLBARS_OUTSIDE_OVERLAY);
+        }
+        else{
+            v.setInputType(InputType.TYPE_NULL);
+        }
+    }
+
+    @BindingAdapter("android:projectInputType")
+    public static void projectInputType(EditText v, boolean state) {
+        if(state){
+            v.setSingleLine(false);
+            v.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
             v.setLines(1);
             v.setMaxLines(7);
             v.setVerticalScrollBarEnabled(true);

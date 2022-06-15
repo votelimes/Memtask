@@ -10,7 +10,6 @@ import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -39,6 +38,8 @@ import com.pedromassango.doubleclick.DoubleClick;
 import com.pedromassango.doubleclick.DoubleClickListener;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
+
+import android.os.Handler;
 
 public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.TaskViewHolder> {
 
@@ -190,7 +191,10 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.TaskView
             }
         };
         mParentAdapter = adapter;
+        mAddedOutside = mParentAdapter.getProjectChildPos();
+        scrollTo(mAddedOutside);
     }
+
 
     // inflates the row layout from xml when needed
     @Override
@@ -298,11 +302,17 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.TaskView
                 viewHolder.bindLayoutChange();
             }
         }
-        if(mAddedOutside != -1 && mAddedOutside == viewHolder.getAbsoluteAdapterPosition()) {
-            viewHolder.getName().requestFocus();
-            InputMethodManager imm = (InputMethodManager) App.getInstance().getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
-            scrollTo(viewHolder.getAbsoluteAdapterPosition());
+        if((mAddedOutside != -1) && (mAddedOutside == viewHolder.getAbsoluteAdapterPosition())) {
+            final Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    viewHolder.getName().requestFocus();
+                    InputMethodManager imm = (InputMethodManager) App.getInstance().getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(rootView.getApplicationWindowToken(), 0);
+                    imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
+                }
+            }, 250);
             mAddedOutside = -1;
         }
     }
@@ -342,8 +352,12 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.TaskView
     }
 
     public void scrollTo(int position){
-        smoothScroller.setTargetPosition(position - 1);
-        mLayoutManager.startSmoothScroll(smoothScroller);
+        try {
+            smoothScroller.setTargetPosition(position);
+            mLayoutManager.startSmoothScroll(smoothScroller);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     public void setAddedOutside(int pos){
