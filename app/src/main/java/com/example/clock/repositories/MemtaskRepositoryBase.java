@@ -303,8 +303,11 @@ public class MemtaskRepositoryBase {
     }
 
     // SYNC GET GC DATA METH
-    public void synchronizeGCCalendars(Context context, LifecycleOwner lco){
+    public synchronized void synchronizeGCCalendars(Context context, LifecycleOwner lco){
         if(!App.getSettings().isAccountSigned(context)){
+            return;
+        }
+        if(!App.getSettings().getUseSync()){
             return;
         }
 
@@ -363,11 +366,7 @@ public class MemtaskRepositoryBase {
                                                         AtomicBoolean fte = new AtomicBoolean(false);
                                                         Event ev = eventsList.get(j);
 
-                                                        if(ev
-                                                                .getSummary()
-                                                                .equalsIgnoreCase("Father's day")){
-                                                            Log.d("duplciate", "father");
-                                                        }
+
 
                                                         data.second.forEach(task -> {
                                                             if (ev.getId().equals(task.getTaskId())) {
@@ -395,11 +394,6 @@ public class MemtaskRepositoryBase {
                                             e.printStackTrace();
                                         }
                                     }
-                                    dbInTasks.forEach(item -> {
-                                        if(item.getName().equalsIgnoreCase("Father's day")){
-                                            Log.d("duplciate", "father");
-                                        }
-                                    });
                                     insertAndUpdateGCData(dbInCats, dbInTasks);
                                     syncLoop.set(true);
                                 }
@@ -410,6 +404,110 @@ public class MemtaskRepositoryBase {
                 });
             }
         });
+    }
+
+    public synchronized void synchronizeGCCalendars(Context context){
+        if(!App.getSettings().isAccountSigned(context)){
+            return;
+        }
+        if(!App.getSettings().getUseSync()){
+            return;
+        }
+
+        CalendarProvider calendarProvider = new CalendarProvider(context);
+        Pair<LiveData<CalendarList>, Calendar> result = calendarProvider.getCalendars();
+
+        Observer calendarsConfirmed = new Observer<CalendarList>(){
+            @Override
+            public void onChanged(CalendarList calendarList) {
+                LiveData<List<Category>> syncItemsCategoriesLD = getCategorySyncing();
+                LiveData<List<Task>> syncItemsTasksLD = getTaskSyncing();
+
+                LiveData<Tuple2<List<Category>, List<Task>>> intermediate =
+                        LiveDataTransformations.ifNotNull(syncItemsCategoriesLD, syncItemsTasksLD);
+
+                AtomicBoolean syncLoop = new AtomicBoolean(false);
+
+                Observer<Tuple2<List<Category>, List<Task>>> dbDataConfirmed = new Observer<Tuple2<List<Category>, List<Task>>>() {
+                    @Override
+                    public void onChanged(Tuple2<List<Category>, List<Task>> data) {
+                        syncThread = new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                if(syncLoop.get() != true) {
+                                    Theme baseTheme = getThemeByName("MainTaskTheme");
+                                    calendars = new ArrayList<>(calendarList.getItems().size());
+                                    events = new ArrayList<>();
+                                    List<Category> dbInCats = new ArrayList<>(calendarList.getItems().size());
+                                    List<Task> dbInTasks = new ArrayList<>();
+
+                                    for (int i = 0; i < calendarList.getItems().size(); i++) {
+                                        CalendarListEntry le = calendarList.getItems().get(i);
+                                        AtomicBoolean ft = new AtomicBoolean(false);
+                                        final Events[] eventsWB = {null};
+                                        data.first.forEach(category -> {
+                                            if (le.getId().equals(category.getOuterID())) {
+                                                calendars.add(new OuterCalendar(le, category));
+                                                ft.set(true);
+                                            }
+                                        });
+                                        if (!ft.get()) {
+                                            calendars.add(new OuterCalendar((le)));
+                                        }
+                                        final int c = i;
+                                        Thread thrd = new Thread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                try {
+                                                    eventsWB[0] = result.second.events().list(le.getId()).execute();
+                                                }
+                                                catch (IOException e) {
+                                                    e.printStackTrace();
+                                                }
+                                                try {
+                                                    List<Event> eventsList = eventsWB[0].getItems();
+                                                    for (int j = 0; j < eventsList.size(); j++) {
+                                                        AtomicBoolean fte = new AtomicBoolean(false);
+                                                        Event ev = eventsList.get(j);
+
+                                                        data.second.forEach(task -> {
+                                                            if (ev.getId().equals(task.getTaskId())) {
+                                                                events.add(new OuterEvent(ev, task));
+                                                                calendars.get(c).addEvent(ev);
+                                                                fte.set(true);
+                                                            }
+                                                        });
+                                                        if (!fte.get()) {
+                                                            events.add(new OuterEvent(ev, calendars.get(c).ct.getCategoryId(), baseTheme.getID()));
+                                                        }
+                                                        dbInTasks.add(events.get(events.size() - 1).ts);
+                                                    }
+                                                }
+                                                catch (Exception e){
+                                                    e.printStackTrace();
+                                                }
+                                            }
+                                        });
+                                        thrd.start();
+                                        dbInCats.add(calendars.get(calendars.size() - 1).ct);
+                                        try {
+                                            thrd.join();
+                                        } catch (InterruptedException e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                    insertAndUpdateGCData(dbInCats, dbInTasks);
+                                    syncLoop.set(true);
+                                }
+                            }
+                        });
+                        syncThread.start();
+                    }
+                };
+                intermediate.observeForever(dbDataConfirmed);
+            }
+        };
+        result.first.observeForever(calendarsConfirmed);
     }
 
     public List<Task> getAllTasks(){
@@ -436,7 +534,7 @@ public class MemtaskRepositoryBase {
         });
     }
 
-    public void insertAndUpdateGCData(List<Category> categories, List<Task> tasks){
+    public synchronized void insertAndUpdateGCData(List<Category> categories, List<Task> tasks){
         Database.databaseWriteExecutor.execute(() -> {
             mCategoryDao.setGCCatData(categories);
             setGCTaskData(tasks);

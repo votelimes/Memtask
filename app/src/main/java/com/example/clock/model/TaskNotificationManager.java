@@ -73,6 +73,8 @@ public class TaskNotificationManager {
             LocalDateTime start = LocalDateTime.ofEpochSecond(task.getStartTime()/1000, 0, ZoneOffset.UTC);
             LocalDateTime end = LocalDateTime.ofEpochSecond(task.getEndTime()/1000, 0, ZoneOffset.UTC);
 
+            // 15 ()
+
             int dayStartIndex = (int) ChronoUnit.DAYS.between(today, start);
             if(start.toLocalDate().isBefore(today.toLocalDate())){
                 dayStartIndex = 0;

@@ -222,7 +222,6 @@ public class CardsListFragment extends Fragment implements SearchView.OnQueryTex
     final Observer<Tuple3<List<TaskAndTheme>, List<ProjectData>, List<Theme>>> onCreateObserver = new Observer<Tuple3<List<TaskAndTheme>, List<ProjectData>, List<Theme>>>() {
         @Override
         public void onChanged(@Nullable final Tuple3<List<TaskAndTheme>, List<ProjectData>, List<Theme>> updatedHoard) {
-
             mViewModel.init();
             mRecyclerViewAdapter = new CardsListFragmentAdapter(
                     activityLauncher, mViewModel, mMainLayoutView, mLayoutManager, getActivity());

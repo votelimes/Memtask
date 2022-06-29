@@ -359,7 +359,6 @@ public class MapActivity extends AppCompatActivity
                             LocationManager.NETWORK_PROVIDER,
                             1000,
                             100, this);
-                    Log.d("Network", "Network");
                     if (locationManager != null) {
                         location = locationManager
                                 .getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
@@ -376,7 +375,6 @@ public class MapActivity extends AppCompatActivity
                                 LocationManager.GPS_PROVIDER,
                                 1000,
                                 100, this);
-                        Log.d("GPS Enabled", "GPS Enabled");
                         if (locationManager != null) {
                             location = locationManager
                                     .getLastKnownLocation(LocationManager.GPS_PROVIDER);

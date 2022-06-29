@@ -54,9 +54,6 @@ public class CategoryActivitiesViewModel extends MemtaskViewModelBase{
     private int contactsMode = 0;
     private String contactsModdingTaskID;
 
-    private int sortType;
-    private boolean shouldUpdate;
-
     CategoryActivitiesViewModel(Application application, Database database, SilentDatabase silentDatabase){
         mRepository = new MemtaskRepositoryBase(database, silentDatabase);
     }
@@ -432,8 +429,11 @@ public class CategoryActivitiesViewModel extends MemtaskViewModelBase{
                             .getEndTime() / 1000,
                     0, ZoneOffset.UTC
             );
+            StringBuilder sb = new StringBuilder(startTime.format(dtf));
+            sb = sb.append(" - ");
+            sb = sb.append(endTime.format(dtf));
 
-            return startTime.format(dtf) + " — " + endTime.format(dtf);
+            return sb.toString();
         }
 
         public boolean hasRange(){
@@ -678,7 +678,12 @@ public class CategoryActivitiesViewModel extends MemtaskViewModelBase{
                         .addProjectSilently(this.data.project);
             }
 
-            return startTime.format(dtf) + " — " + endTime.get().format(dtf);
+            StringBuilder sb = new StringBuilder(startTime.format(dtf));
+            sb = sb.append(" - ");
+            sb = sb.append(endTime.get().format(dtf));
+
+
+            return sb.toString();
         }
 
         public boolean hasRange(){

@@ -42,7 +42,7 @@ public abstract class SilentDatabase extends RoomDatabase {
                     ).allowMainThreadQueries()
                      .build();
                     INSTANCE.getOpenHelper().getWritableDatabase().setMaxSqlCacheSize(40);
-                    INSTANCE.getOpenHelper().getWritableDatabase().setPageSize(256);
+                    INSTANCE.getOpenHelper().getWritableDatabase().setPageSize(8192);
                 }
             }
         }

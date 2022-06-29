@@ -32,6 +32,11 @@ public class AlarmBroadcastReceiver extends BroadcastReceiver {
         if (Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction())) {
             startRescheduleAlarmsService(context);
         }
+        if(Intent.ACTION_TIME_TICK.equals(intent.getAction())
+                || Intent.ACTION_TIMEZONE_CHANGED.equals(intent.getAction())
+        || Intent.ACTION_TIME_CHANGED.equals(intent.getAction())){
+            startRescheduleAlarmsService(context);
+        }
         if(false && intent.getIntExtra(TaskNotificationManager.MODE_KEY, -1) == TaskNotificationManager.MODE_INLINE){
             mRepository = new MemtaskRepositoryBase(App.getDatabase(), App.getSilentDatabase());
             String taskID = intent.getStringExtra(TaskNotificationManager.ID_KEY);

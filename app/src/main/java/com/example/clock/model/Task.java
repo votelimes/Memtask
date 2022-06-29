@@ -617,6 +617,8 @@ public class Task extends UserCaseBase {
         return getLocalMillis(mNotificationStartMillis);
     }
 
+
+
     public boolean isNotificationInProgress() {
         return notificationInProgress;
     }

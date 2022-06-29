@@ -313,116 +313,6 @@ public class CalendarViewModel extends MemtaskViewModelBase{
             });
         }
     }
-    public void calcDaysLoad3(){
-        // Вычислять в зависимости от продолжительности задачи
-        if(taskThemePack.getValue() != null) {
-            AtomicInteger monday = new AtomicInteger(0);
-            AtomicInteger tuesday = new AtomicInteger(0);
-            AtomicInteger wednesday = new AtomicInteger(0);
-            AtomicInteger thursday = new AtomicInteger(0);
-            AtomicInteger friday = new AtomicInteger(0);
-            AtomicInteger saturday = new AtomicInteger(0);
-            AtomicInteger sunday = new AtomicInteger(0);
-
-            YearMonth month = YearMonth.from(selectedDateStart);
-            LocalDate monthStart = selectedDateStart.withDayOfMonth(1).toLocalDate();
-            LocalDate monthEnd = month.atEndOfMonth();
-
-
-            taskThemePack.getValue().forEach(item -> {
-                boolean repeatFlag = false;
-                if(item.task.getRepeatMode() != 0 && item.task.getStartTime() != 0 && item.task.getEndTime() != 0){
-                    LocalDate taskStart = LocalDateTime
-                            .ofEpochSecond(item.task.getStartTime() / 1000, 0, ZoneOffset.UTC)
-                            .toLocalDate();
-                    LocalDate taskEnd = LocalDateTime
-                            .ofEpochSecond(item.task.getEndTime() / 1000, 0, ZoneOffset.UTC)
-                            .toLocalDate();
-                    if(taskEnd.isBefore(monthStart) || taskStart.isAfter(monthEnd)){
-                        return;
-                    }
-                }
-                switch (item.task.getRepeatMode()) {
-                    case 1:
-                        monday.addAndGet(1);
-                        tuesday.addAndGet(1);
-                        wednesday.addAndGet(1);
-                        thursday.addAndGet(1);
-                        friday.addAndGet(1);
-                        saturday.addAndGet(1);
-                        sunday.addAndGet(1);
-                        repeatFlag = true;
-                        break;
-                    case 2:
-                        monday.addAndGet(1);
-                        tuesday.addAndGet(1);
-                        wednesday.addAndGet(1);
-                        thursday.addAndGet(1);
-                        friday.addAndGet(1);
-                        repeatFlag = true;
-                        break;
-                    case 3:
-                        if (item.task.isMonday()) {
-                            monday.addAndGet(1);
-                        }
-                        if (item.task.isTuesday()) {
-                            tuesday.addAndGet(1);
-                        }
-                        if (item.task.isWednesday()) {
-                            wednesday.addAndGet(1);
-                        }
-                        if (item.task.isThursday()) {
-                            thursday.addAndGet(1);
-                        }
-                        if (item.task.isFriday()) {
-                            friday.addAndGet(1);
-                        }
-                        if (item.task.isSaturday()) {
-                            saturday.addAndGet(1);
-                        }
-                        if (item.task.isSunday()) {
-                            sunday.addAndGet(1);
-                        }
-                        repeatFlag = true;
-                }
-                if (repeatFlag == false) {
-                    LocalDateTime taskDateTime = LocalDateTime
-                            .ofEpochSecond(item.task.getNotificationStartMillis() / 1000, 0, ZoneOffset.UTC);
-
-                    int dayIndex = taskDateTime.getDayOfMonth() - 1;
-                    daysLoad.set(dayIndex, daysLoad.get(dayIndex) + 3);
-                }
-            });
-            LocalDateTime current = selectedDateStart;
-            //Calendar day = GregorianCalendar.getInstance();
-
-            for (int i = 0; i < daysLoad.size(); i++) {
-                current = current.withDayOfMonth(i + 1);
-                if (current.getDayOfWeek() == DayOfWeek.MONDAY) {
-                    daysLoad.set(i, daysLoad.get(i) + monday.get());
-                }
-                else if (current.getDayOfWeek() == DayOfWeek.TUESDAY) {
-                    daysLoad.set(i, daysLoad.get(i) + tuesday.get());
-                }
-                else if (current.getDayOfWeek() == DayOfWeek.WEDNESDAY) {
-                    daysLoad.set(i, daysLoad.get(i) + wednesday.get());
-                }
-                else if (current.getDayOfWeek() == DayOfWeek.THURSDAY) {
-                    daysLoad.set(i, daysLoad.get(i) + thursday.get());
-                }
-                else if (current.getDayOfWeek() == DayOfWeek.FRIDAY) {
-                    daysLoad.set(i, daysLoad.get(i) + friday.get());
-                }
-                else if (current.getDayOfWeek() == DayOfWeek.SATURDAY) {
-                    daysLoad.set(i, daysLoad.get(i) + saturday.get());
-                }
-                else if (current.getDayOfWeek() == DayOfWeek.SUNDAY) {
-                    daysLoad.set(i, daysLoad.get(i) + sunday.get());
-                }
-            }
-            //Log.d("Completed", "Completed");
-        }
-    }
     public void calcDaysLoad(){
         if(taskThemePack.getValue() != null) {
             YearMonth month = YearMonth.from(selectedDateStart);
@@ -603,7 +493,11 @@ public class CalendarViewModel extends MemtaskViewModelBase{
                     0, ZoneOffset.UTC
             );
 
-            return startTime.format(dtf) + " — " + endTime.format(dtf);
+            StringBuilder sb = new StringBuilder(startTime.format(dtf));
+            sb = sb.append(" - ");
+            sb = sb.append(endTime.format(dtf));
+
+            return sb.toString();
         }
 
         public boolean hasRange(){

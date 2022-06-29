@@ -126,7 +126,7 @@ public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.
             mainConstraint.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Log.d("", "");
+
                 }
             });
         }

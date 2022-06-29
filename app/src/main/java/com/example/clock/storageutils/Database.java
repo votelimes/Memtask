@@ -43,7 +43,7 @@ public abstract class Database extends RoomDatabase {
                      .build();
                 }
                 INSTANCE.getOpenHelper().getWritableDatabase().setMaxSqlCacheSize(40);
-                INSTANCE.getOpenHelper().getWritableDatabase().setPageSize(256);
+                INSTANCE.getOpenHelper().getWritableDatabase().setPageSize(8192);
             }
         }
         return INSTANCE;
