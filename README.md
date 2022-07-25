@@ -1,5 +1,7 @@
 # Memtask
-Time management application based on MVVM pattern, Clean Architecture (partially) and some of JetPack libraries (LiveData, Room, DataBinding, RecyclerView).
+<div>
+  Time management application based on MVVM pattern, Clean Architecture (partially) and some of JetPack libraries (LiveData, Room, DataBinding, RecyclerView).
+</div>
 Main features: 
 <ul>
   <li>Create categories of tasks and projects. </li>
