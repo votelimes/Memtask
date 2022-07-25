@@ -58,9 +58,6 @@ import java.io.Serializable;
 import java.util.List;
 
 public class CardsListFragmentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-
-    //TODO: PROJECT BG IMAGE intinite_loop?
-
     private static final int VIEW_TYPE_UNDEFINED = 0;
     private static final int VIEW_TYPE_TASK = 1;
     private static final int VIEW_TYPE_PROJECT = 2;

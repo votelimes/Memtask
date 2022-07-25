@@ -87,7 +87,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         mViewModel = new ViewModelProvider(this, mFactory).get(MainViewModel.class);
         mActivityBinding.setViewmodel(mViewModel);
 
-        //AppBarLayout appTopLayout = ()findViewById(R.id.main_app_bar);
         toolbar = (MaterialToolbar) findViewById(R.id.toolbar);
         toolbar.setBackgroundColor(getColor(R.color.backgroundSecondary));
         toolbar.setTitleTextColor(getColor(R.color.toolbarTitle));

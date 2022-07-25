@@ -92,10 +92,10 @@
         <item>@string/preference_theme_dark</item>
     </string-array>
 
-    <!-- TODO: Remove or change this placeholder text -->
+
     <string name="open_nav_drawer">Navigation drawer open</string>
     <string name="close_nav_drawer">Navigation drawer close</string>
-    <!-- TODO: Remove or change this placeholder text -->
+
     <string name="about">
         Программа MemTask для ведения ваших задач и их аналитики.\nВерсия 0.0962a., 08/02/2022.\nРепозиторий: https://github.com/mcw1999/Memtask
     </string>
