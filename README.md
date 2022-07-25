@@ -1,6 +1,10 @@
 # Memtask
+Time management application based on MVVM pattern, Clean Architecture (partially) and some of JetPack libraries (LiveData, Room, DataBinding, RecyclerView).
 Main features: 
-Creating categories of tasks and projects. 
-Tracking projects and tasks progress.
-Use a smart algorithm for distributing tasks in time based on complexity, deadlines, importance, and also relative to other tasks.
-Exploring your own productivity based on task tracking system.
+<ul>
+  <li>Create categories of tasks and projects. </li>
+  <li>Track projects and tasks progress.</li>
+  <li>Create notifications with various repeat modes and track your workload with handy calendar.</li>
+  <li>Use a smart algorithm for distributing tasks in time based on complexity, deadlines, importance, and also relative to other tasks.</li>
+  <li>Explore your own productivity based on task tracking system.</li>
+</ul>
