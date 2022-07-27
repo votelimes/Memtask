@@ -15,11 +15,11 @@ Main features:
   <li>Explore your own productivity based on task tracking system.</li>
 </ul>
 <figure>
-  <img src="/img/navigate_views.png" alt="Navigate views" style="width:100%">
+  <img src="/img/navigate_views.png" alt="Navigate views" style="width:70%">
   <figcaption>Fig.1 - Category selection fragment, task and project browse fragment, calendar fragment</figcaption>
 </figure>
 User able to pick pre-defined visual theme for task and project or build his own choosing colors for five different aspects of the theme and background image.
 <figure>
-  <img src="/img/task_editing_and_statistic_view.png" alt="Edit and statistic view" style="width:100%">
+  <img src="/img/task_editing_and_statistic_view.png" alt="Edit and statistic view" style="width:70%">
   <figcaption>Fig.2 - Category selection fragment, task and project browse fragment, calendar fragment</figcaption>
 </figure>
