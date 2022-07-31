@@ -6,13 +6,13 @@
     <data>
         <import type="android.view.View"/>
         <import type="android.text.InputType"/>
-        <import type="com.example.clock.viewmodels.CategoryActivitiesViewModel"/>
+        <import type="com.votelimes.memtask.viewmodels.CategoryActivitiesViewModel"/>
         <variable
             name="vm"
-            type="com.example.clock.viewmodels.CategoryActivitiesViewModel" />
+            type="com.votelimes.memtask.viewmodels.CategoryActivitiesViewModel" />
         <variable
             name="data"
-            type="com.example.clock.viewmodels.CategoryActivitiesViewModel.ProjectObserver" />
+            type="com.votelimes.memtask.viewmodels.CategoryActivitiesViewModel.ProjectObserver" />
 
     </data>
     <com.google.android.material.card.MaterialCardView

@@ -7,13 +7,13 @@
         <import type="android.view.ViewGroup.LayoutParams"/>
         <import type="android.text.InputType"/>
         <import type="android.graphics.Typeface"/>
-        <import type="com.example.clock.viewmodels.CategoryActivitiesViewModel"/>
+        <import type="com.votelimes.memtask.viewmodels.CategoryActivitiesViewModel"/>
         <variable
             name="vm"
-            type="com.example.clock.viewmodels.CategoryActivitiesViewModel" />
+            type="com.votelimes.memtask.viewmodels.CategoryActivitiesViewModel" />
         <variable
             name="data"
-            type="com.example.clock.viewmodels.CategoryActivitiesViewModel.TaskObserver" />
+            type="com.votelimes.memtask.viewmodels.CategoryActivitiesViewModel.TaskObserver" />
 
     </data>
     <com.google.android.material.card.MaterialCardView

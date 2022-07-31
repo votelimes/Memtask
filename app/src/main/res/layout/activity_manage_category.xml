@@ -7,7 +7,7 @@
     <data>
         <variable
             name="viewmodel"
-            type="com.example.clock.viewmodels.ManageCategoryViewModel" />
+            type="com.votelimes.memtask.viewmodels.ManageCategoryViewModel" />
     </data>
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"

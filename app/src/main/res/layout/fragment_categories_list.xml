@@ -8,7 +8,7 @@
     <data>
         <variable
             name="category"
-            type="com.example.clock.model.Category" />
+            type="com.votelimes.memtask.model.Category" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout

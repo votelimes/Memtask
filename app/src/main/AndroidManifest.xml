@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.example.clock"
+    package="com.votelimes.memtask"
     android:hardwareAccelerated="true">
 
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
@@ -23,7 +23,7 @@
     <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS" />
 
     <application
-        android:name=".app.App"
+        android:name="com.votelimes.memtask.app.App"
         android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -32,7 +32,7 @@
         android:theme="@style/Theme.Clock.Main"
         tools:replace="android:theme, android:allowBackup">
         <activity
-            android:name=".activities.ContactActivity"
+            android:name="com.votelimes.memtask.activities.ContactActivity"
             android:exported="true"
             android:label="@string/title_activity_contact">
             <intent-filter>
@@ -43,10 +43,10 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
         <activity
-            android:name=".activities.MapActivity"
+            android:name="com.votelimes.memtask.activities.MapActivity"
             android:exported="true" />
         <activity
-            android:name=".activities.MainActivity"
+            android:name="com.votelimes.memtask.activities.MainActivity"
             android:exported="true"
             android:label="@string/app_name">
             <intent-filter>
@@ -61,15 +61,15 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".activities.ManageTaskActivity"
+            android:name="com.votelimes.memtask.activities.ManageTaskActivity"
             android:exported="true" />
         <activity
-            android:name=".activities.ManageCategoryActivity"
+            android:name="com.votelimes.memtask.activities.ManageCategoryActivity"
             android:exported="true" />
         <activity
-            android:name=".activities.RingActivity"
+            android:name="com.votelimes.memtask.activities.RingActivity"
             android:exported="true"
-            android:parentActivityName=".activities.MainActivity" />
+            android:parentActivityName="com.votelimes.memtask.activities.MainActivity" />
         <activity
             android:name="com.onegravity.contactpicker.core.ContactPickerActivity"
             android:enabled="true"
@@ -81,15 +81,15 @@
         </activity>
 
         <service
-            android:name=".services.RescheduleAlarmsService"
+            android:name="com.votelimes.memtask.services.RescheduleAlarmsService"
             android:enabled="true"
             android:exported="false" />
         <service
-            android:name=".services.AlarmService"
+            android:name="com.votelimes.memtask.services.AlarmService"
             android:enabled="true"
             android:exported="false" />
         <service
-            android:name=".services.SyncService"
+            android:name="com.votelimes.memtask.services.SyncService"
             android:exported="true">
             <!-- This intent filter is required. It allows the system to launch our sync service
             as needed. -->
@@ -104,7 +104,7 @@
 
 
         <receiver
-            android:name=".broadcastreceiver.AlarmBroadcastReceiver"
+            android:name="com.votelimes.memtask.broadcastreceiver.AlarmBroadcastReceiver"
             android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />

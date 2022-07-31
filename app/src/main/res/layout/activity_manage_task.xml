@@ -9,7 +9,7 @@
         <import type="android.view.View"/>
         <variable
             name="viewmodel"
-            type="com.example.clock.viewmodels.ManageTaskViewModel" />
+            type="com.votelimes.memtask.viewmodels.ManageTaskViewModel" />
     </data>
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/manage_task_root"

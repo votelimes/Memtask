@@ -9,7 +9,7 @@
         <import type="android.view.View"/>
         <variable
             name="vm"
-            type="com.example.clock.viewmodels.CalendarViewModel" />
+            type="com.votelimes.memtask.viewmodels.CalendarViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout

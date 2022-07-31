@@ -9,7 +9,7 @@
         <import type="android.view.View"/>
         <variable
             name="vm"
-            type="com.example.clock.viewmodels.StatisticViewModel" />
+            type="com.votelimes.memtask.viewmodels.StatisticViewModel" />
     </data>
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"

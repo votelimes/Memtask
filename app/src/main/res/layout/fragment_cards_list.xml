@@ -8,7 +8,7 @@
     <data>
         <variable
             name="task"
-            type="com.example.clock.model.Task" />
+            type="com.votelimes.memtask.model.Task" />
 
     </data>
 
